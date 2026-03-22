@@ -161,6 +161,67 @@ def run():
 
     return sector_data
 
+def get_correlation_size_multiplier(new_ticker, positions):
+    """
+    Reduce position size if adding a highly correlated instrument.
+    If correlation > 0.85 with existing position — halve the size.
+    If correlation > 0.70 — reduce to 75%.
+
+    Uses known correlation pairs rather than calculated correlation
+    (calculated correlation needs price history — known pairs are instant).
+    """
+    # Known high-correlation pairs
+    HIGH_CORRELATION = {
+        # Energy pairs
+        ('XOM_US_EQ', 'CVX_US_EQ'): 0.92,
+        ('XOM_US_EQ', 'SHEL_EQ'):   0.88,
+        ('CVX_US_EQ', 'SHEL_EQ'):   0.87,
+        ('XOM_US_EQ', 'BP_EQ'):     0.85,
+        # Tech pairs
+        ('AAPL_US_EQ', 'MSFT_US_EQ'): 0.85,
+        ('AAPL_US_EQ', 'NVDA_US_EQ'): 0.80,
+        ('MSFT_US_EQ', 'GOOGL_US_EQ'):0.82,
+        # Financial pairs
+        ('JPM_US_EQ',  'GS_US_EQ'):  0.88,
+        ('JPM_US_EQ',  'BAC_US_EQ'): 0.90,
+        ('V_US_EQ',    'JPM_US_EQ'): 0.75,
+        # Healthcare pairs
+        ('JNJ_US_EQ',  'ABBV_US_EQ'):0.72,
+        ('AZN_EQ',     'GSK_EQ'):    0.78,
+        # Inverse pairs (negatively correlated with longs)
+        ('SQQQ_EQ',    'AAPL_US_EQ'):-0.95,
+        ('QQQSl_EQ',   'MSFT_US_EQ'):-0.95,
+        ('3USSl_EQ',   'VUAGl_EQ'):  -0.98,
+    }
+
+    open_tickers = [p.get('t212_ticker','') for p in positions]
+    max_corr     = 0.0
+    corr_partner = None
+
+    for open_ticker in open_tickers:
+        # Check both orderings
+        pair1 = (new_ticker, open_ticker)
+        pair2 = (open_ticker, new_ticker)
+        corr  = HIGH_CORRELATION.get(pair1, HIGH_CORRELATION.get(pair2, 0.0))
+        corr  = abs(corr)  # Use absolute correlation
+
+        if corr > max_corr:
+            max_corr     = corr
+            corr_partner = open_ticker
+
+    # Determine size multiplier
+    if max_corr >= 0.85:
+        multiplier = 0.50
+        reason = f"High correlation {max_corr:.2f} with {corr_partner} — 50% size"
+    elif max_corr >= 0.70:
+        multiplier = 0.75
+        reason = f"Moderate correlation {max_corr:.2f} with {corr_partner} — 75% size"
+    else:
+        multiplier = 1.0
+        reason = f"No significant correlation (max {max_corr:.2f}) — full size"
+
+    return multiplier, reason, max_corr
+
 if __name__ == '__main__':
     run()
 

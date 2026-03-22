@@ -1,0 +1,158 @@
+{
+  "timestamp": "2026-03-22 17:24 UTC",
+  "data": {
+    "AAPL": {
+      "status": "ACTIVE",
+      "symbol": "AAPL",
+      "cik": "0000320193",
+      "filing_count": 8,
+      "days_back": 30,
+      "latest_filing": "2026-03-17",
+      "adjustment": 0,
+      "reasons": []
+    },
+    "MSFT": {
+      "status": "ACTIVE",
+      "symbol": "MSFT",
+      "cik": "0000789019",
+      "filing_count": 17,
+      "days_back": 30,
+      "latest_filing": "2026-03-16",
+      "adjustment": 0,
+      "reasons": []
+    },
+    "GOOGL": {
+      "status": "ACTIVE",
+      "symbol": "GOOGL",
+      "cik": "0001652044",
+      "filing_count": 19,
+      "days_back": 30,
+      "latest_filing": "2026-03-18",
+      "adjustment": 0,
+      "reasons": []
+    },
+    "NVDA": {
+      "status": "ACTIVE",
+      "symbol": "NVDA",
+      "cik": "0001045810",
+      "filing_count": 18,
+      "days_back": 30,
+      "latest_filing": "2026-03-20",
+      "adjustment": 0,
+      "reasons": []
+    },
+    "XOM": {
+      "status": "ACTIVE",
+      "symbol": "XOM",
+      "cik": "0000034088",
+      "filing_count": 2,
+      "days_back": 30,
+      "latest_filing": "2026-03-17",
+      "adjustment": 0,
+      "reasons": []
+    },
+    "CVX": {
+      "status": "ACTIVE",
+      "symbol": "CVX",
+      "cik": "0000093410",
+      "filing_count": 11,
+      "days_back": 30,
+      "latest_filing": "2026-03-10",
+      "adjustment": 0,
+      "reasons": []
+    },
+    "V": {
+      "status": "ACTIVE",
+      "symbol": "V",
+      "cik": "0001403161",
+      "filing_count": 1,
+      "days_back": 30,
+      "latest_filing": "2026-03-12",
+      "adjustment": 0,
+      "reasons": []
+    },
+    "JPM": {
+      "status": "ACTIVE",
+      "symbol": "JPM",
+      "cik": "0000019617",
+      "filing_count": 21,
+      "days_back": 30,
+      "latest_filing": "2026-03-19",
+      "adjustment": 1,
+      "reasons": [
+        "Elevated insider activity: 21 Form 4 filings in 30 days"
+      ]
+    },
+    "JNJ": {
+      "status": "ACTIVE",
+      "symbol": "JNJ",
+      "cik": "0000200406",
+      "filing_count": 5,
+      "days_back": 30,
+      "latest_filing": "2026-03-12",
+      "adjustment": 0,
+      "reasons": []
+    },
+    "ABBV": {
+      "status": "ACTIVE",
+      "symbol": "ABBV",
+      "cik": "0001551152",
+      "filing_count": 11,
+      "days_back": 30,
+      "latest_filing": "2026-03-06",
+      "adjustment": 0,
+      "reasons": []
+    },
+    "UNH": {
+      "status": "ACTIVE",
+      "symbol": "UNH",
+      "cik": "0000731766",
+      "filing_count": 27,
+      "days_back": 30,
+      "latest_filing": "2026-03-19",
+      "adjustment": 1,
+      "reasons": [
+        "Elevated insider activity: 27 Form 4 filings in 30 days"
+      ]
+    },
+    "PFE": {
+      "status": "ACTIVE",
+      "symbol": "PFE",
+      "cik": "0000078003",
+      "filing_count": 22,
+      "days_back": 30,
+      "latest_filing": "2026-03-16",
+      "adjustment": 1,
+      "reasons": [
+        "Elevated insider activity: 22 Form 4 filings in 30 days"
+      ]
+    },
+    "GS": {
+      "status": "ACTIVE",
+      "symbol": "GS",
+      "cik": "0000886982",
+      "filing_count": 1,
+      "days_back": 30,
+      "latest_filing": "2026-02-26",
+      "adjustment": 0,
+      "reasons": []
+    },
+    "BLK": {
+      "status": "NO_RECENT_FILINGS",
+      "symbol": "BLK",
+      "count": 0
+    },
+    "AZN": {
+      "status": "NO_RECENT_FILINGS",
+      "symbol": "AZN",
+      "count": 0
+    },
+    "GSK": {
+      "status": "NO_RECENT_FILINGS",
+      "symbol": "GSK",
+      "count": 0
+    }
+  },
+  "count": 16,
+  "signals": 3
+}

@@ -7,17 +7,21 @@
   "target1": 174.04,
   "target2": 183.62,
   "score": 10.0,
+  "adjusted_score": 10.0,
+  "raw_score": 12.0,
+  "confidence_pct": 80.0,
   "rsi": 61.93,
   "macd": 0.2181,
   "sector": "Energy",
   "signal_type": "CONTRARIAN",
   "currency": "USD",
   "adjustments": [
+    "MACRO: +1 (Crude RISING +5.1% \u2014 energy tailwind)",
     "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
     "Sector: +3 (Energy is leading sector (10/10 rotation score) | Energy breadth strong (100.0% above 200 EMA))",
     "Geo: +2 (Geo-reversal: XOM benefits from current conflict)",
     "Fundamentals: +1 (STRONG)",
     "Sentiment: -1 (NEGATIVE -0.15)"
   ],
-  "generated_at": "2026-03-22T09:55:12.982889+00:00"
+  "generated_at": "2026-03-22T17:25:52.152319+00:00"
 }

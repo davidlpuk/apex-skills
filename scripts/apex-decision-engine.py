@@ -265,6 +265,52 @@ def score_signal_with_intelligence(signal, intel):
     except Exception as _e:
         log_error(f"MTF adjustment failed for {name}: {_e}")
 
+    # Layer 14: Cross-asset macro confirmation
+    try:
+        import importlib.util as _ilu_mac
+        _spec_mac = _ilu_mac.spec_from_file_location(
+            "macro", "/home/ubuntu/.picoclaw/scripts/apex-macro-signals.py")
+        _mac = _ilu_mac.module_from_spec(_spec_mac)
+        _spec_mac.loader.exec_module(_mac)
+        _mdata = safe_read('/home/ubuntu/.picoclaw/logs/apex-macro-signals.json', {})
+        _md    = _mdata.get('macro_data', {})
+        if _md:
+            _yahoo_ticker  = signal.get('ticker', name)
+            _YAHOO_TO_T212 = {
+                'XOM':'XOM_US_EQ','CVX':'CVX_US_EQ',
+                'AAPL':'AAPL_US_EQ','MSFT':'MSFT_US_EQ',
+                'V':'V_US_EQ','JPM':'JPM_US_EQ',
+                'ABBV':'ABBV_US_EQ','JNJ':'JNJ_US_EQ',
+                'UNH':'UNH_US_EQ','AZN.L':'AZN_EQ',
+                'GSK.L':'GSK_EQ','ULVR.L':'ULVR_EQ',
+                'HSBA.L':'HSBA_EQ','SHEL.L':'SHEL_EQ',
+                'VUAG.L':'VUAGl_EQ','QQQS.L':'QQQSl_EQ',
+                'SQQQ':'SQQQ_EQ','SPXU':'SPXU_EQ',
+            }
+            _macro_ticker = _YAHOO_TO_T212.get(_yahoo_ticker, _yahoo_ticker)
+            _macro_adj, _macro_reasons = _mac.get_macro_adjustment(
+                _macro_ticker, signal_type, _md)
+            if _macro_adj != 0:
+                total_score += _macro_adj
+                for _mr in _macro_reasons[:2]:
+                    adjustments.append(f"MACRO: {'+' if _macro_adj > 0 else ''}{_macro_adj} ({_mr[:55]})")
+    except Exception as _e:
+        log_error(f"Macro adjustment failed for {name}: {_e}")
+
+    # Layer 15: EDGAR Insider Data
+    try:
+        import importlib.util as _ilu_ins
+        _spec_ins = _ilu_ins.spec_from_file_location(
+            "ins", "/home/ubuntu/.picoclaw/scripts/apex-insider-data.py")
+        _ins = _ilu_ins.module_from_spec(_spec_ins)
+        _spec_ins.loader.exec_module(_ins)
+        _ins_adj, _ins_reasons = _ins.get_insider_adjustment(name, signal_type)
+        if _ins_adj != 0:
+            total_score += _ins_adj
+            adjustments.append(f"INSIDER: +{_ins_adj} ({_ins_reasons[0][:55] if _ins_reasons else ''})")
+    except Exception as _e:
+        log_error(f"Insider adjustment failed for {name}: {_e}")
+
     # Breadth thrust regime adjustment to signal
     try:
         with open('/home/ubuntu/.picoclaw/logs/apex-breadth-thrust.json') as _bt_f:
@@ -647,6 +693,9 @@ def save_and_notify(signal, intel, qty, notional):
         "target1":      target1,
         "target2":      target2,
         "score":        score,
+        "adjusted_score": signal.get("adjusted_score", score),
+        "raw_score":    signal.get("raw_score", score),
+        "confidence_pct": signal.get("confidence_pct", 0),
         "rsi":          rsi,
         "macd":         signal.get('macd_hist', 0),
         "sector":       get_instrument_sector(name) or 'UNKNOWN',
@@ -686,7 +735,7 @@ def save_and_notify(signal, intel, qty, notional):
         f"🎯 T2:      £{target2}\n"
         f"📐 Qty:     {qty} shares (£{notional})\n"
         f"⚠️  Risk:    £{risk}\n"
-        f"📊 Score:   {score}/10 (adjusted)\n"
+        f"📊 Score:   {signal.get('adjusted_score', score)}/10 (raw:{signal.get('raw_score', score)} | {signal.get('confidence_pct', 0)}% conf)\n"
         f"📈 RSI:     {rsi}"
         f"{adj_str}"
         f"{ev_str}\n\n"
@@ -748,8 +797,9 @@ def run():
     _atr_mod        = _load_module('atr', f'{SCRIPTS}/apex-atr-stops.py')
     _cg_mod         = _load_module('cg',  f'{SCRIPTS}/apex-contrarian-gates.py')
     _inv_mod        = _load_module('inv', f'{SCRIPTS}/apex-inverse-scanner.py')
+    _macro_mod      = _load_module('macro', f'{SCRIPTS}/apex-macro-signals.py')
 
-    print(f"  Modules loaded: {len(_MODULE_CACHE)}/8")
+    print(f"  Modules loaded: {len(_MODULE_CACHE)}/9")
 
     now  = datetime.now(timezone.utc)
     date = now.strftime('%a %d %b %Y')

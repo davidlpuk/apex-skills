@@ -23,7 +23,7 @@
       "Near 52w low \u2014 potential support"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -49,33 +49,33 @@
       "Tier-1 quality (score 10/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
     "name": "MSFT",
     "ticker": "MSFT",
     "currency": "USD",
-    "price": 381.87,
-    "rsi": 33.53,
+    "price": 381.85,
+    "rsi": 33.52,
     "ema50": 419.03,
     "ema200": 458.23,
     "high_52": 539.83,
     "low_52": 351.87,
     "discount_pct": 29.3,
     "above_low_pct": 8.5,
-    "macd_hist": -0.3164,
+    "macd_hist": -0.3177,
     "macd_rising": false,
     "quality_score": 10,
     "contrarian_score": 7,
     "max_score": 10,
     "reasons": [
-      "RSI 33.53 \u2014 approaching oversold",
+      "RSI 33.52 \u2014 approaching oversold",
       "Down 29.3% from 52w high",
       "Tier-1 quality (score 10/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -101,7 +101,7 @@
       "Tier-1 quality (score 9/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -128,7 +128,7 @@
       "MACD turning \u2014 early reversal signal"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -154,7 +154,7 @@
       "High quality (score 7/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -179,7 +179,7 @@
       "Tier-1 quality (score 9/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -204,7 +204,7 @@
       "Tier-1 quality (score 9/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -230,7 +230,7 @@
       "Near 52w low \u2014 potential support"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -256,7 +256,7 @@
       "High quality (score 8/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -282,7 +282,7 @@
       "Tier-1 quality (score 9/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -308,7 +308,7 @@
       "Geo-reversal: energy beneficiary during Middle East conflict"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": true
   },
   {
@@ -334,7 +334,7 @@
       "Geo-reversal: energy beneficiary during Middle East conflict"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": true
   },
   {
@@ -360,7 +360,7 @@
       "High quality (score 7/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -385,7 +385,7 @@
       "Tier-1 quality (score 9/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -410,7 +410,7 @@
       "High quality (score 8/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -435,7 +435,7 @@
       "Geo-reversal: energy beneficiary during Middle East conflict"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": true
   },
   {
@@ -459,7 +459,7 @@
       "RSI 33.79 \u2014 approaching oversold"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -483,7 +483,7 @@
       "RSI 36.28 \u2014 approaching oversold"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   },
   {
@@ -507,7 +507,7 @@
       "High quality (score 7/10)"
     ],
     "signal_type": "CONTRARIAN",
-    "timestamp": "2026-03-22 09:55 UTC",
+    "timestamp": "2026-03-22 17:25 UTC",
     "geo_favoured": false
   }
 ]

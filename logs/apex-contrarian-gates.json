@@ -185,42 +185,42 @@
       "staged_entry": {
         "stage1": {
           "qty": 0.5,
-          "stop": 358.96,
+          "stop": 358.94,
           "stop_pct": 6.0,
           "risk": 11.46,
-          "note": "Initial entry \u2014 0.5 shares @ \u00a3381.87 stop \u00a3358.96 (3x ATR)"
+          "note": "Initial entry \u2014 0.5 shares @ \u00a3381.85 stop \u00a3358.94 (3x ATR)"
         },
         "stage2": {
           "qty": 0.5,
-          "trigger": 389.51,
-          "max_price": 397.14,
-          "stop": 366.6,
-          "risk": 7.63,
+          "trigger": 389.49,
+          "max_price": 397.12,
+          "stop": 366.58,
+          "risk": 7.64,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if \u00a3389.51 < price < \u00a3397.14 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3389.49 < price < \u00a3397.12 \u2014 0.5 shares"
         },
-        "total_risk": 19.09,
+        "total_risk": 19.1,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
       }
     },
     "staged_entry": {
       "stage1": {
         "qty": 0.5,
-        "stop": 358.96,
+        "stop": 358.94,
         "stop_pct": 6.0,
         "risk": 11.46,
-        "note": "Initial entry \u2014 0.5 shares @ \u00a3381.87 stop \u00a3358.96 (3x ATR)"
+        "note": "Initial entry \u2014 0.5 shares @ \u00a3381.85 stop \u00a3358.94 (3x ATR)"
       },
       "stage2": {
         "qty": 0.5,
-        "trigger": 389.51,
-        "max_price": 397.14,
-        "stop": 366.6,
-        "risk": 7.63,
+        "trigger": 389.49,
+        "max_price": 397.12,
+        "stop": 366.58,
+        "risk": 7.64,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if \u00a3389.51 < price < \u00a3397.14 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3389.49 < price < \u00a3397.12 \u2014 0.5 shares"
       },
-      "total_risk": 19.09,
+      "total_risk": 19.1,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   },

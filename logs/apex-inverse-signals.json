@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-22T09:55:12.613268+00:00",
+  "timestamp": "2026-03-22T17:25:51.793984+00:00",
   "scan_triggered": true,
   "condition_score": 5,
   "condition_reasons": [
@@ -75,7 +75,7 @@
       "score": 6,
       "rsi": 66.6,
       "ema50": 70.74,
-      "vol_ratio": 0.91,
+      "vol_ratio": 0.95,
       "atr": 3.9118,
       "stop": 72.43,
       "target1": 88.07,

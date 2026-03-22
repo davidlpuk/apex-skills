@@ -1,0 +1,296 @@
+#!/bin/bash
+
+source /home/ubuntu/.picoclaw/.env.trading212
+
+BOT_TOKEN="$APEX_BOT_TOKEN"
+CHAT_ID="6808823889"
+OFFSET_FILE="/home/ubuntu/.picoclaw/logs/apex-trading-offset.txt"
+LOG="/home/ubuntu/.picoclaw/logs/apex-trading-listener.log"
+SIGNAL_FILE="/home/ubuntu/.picoclaw/logs/apex-pending-signal.json"
+POSITIONS_FILE="/home/ubuntu/.picoclaw/logs/apex-positions.json"
+
+send_message() {
+  curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+    -d chat_id="${CHAT_ID}" \
+    --data-urlencode "text=$1"
+}
+
+get_offset() {
+  [ -f "$OFFSET_FILE" ] && cat "$OFFSET_FILE" || echo "0"
+}
+
+save_offset() {
+  echo "$1" > "$OFFSET_FILE"
+}
+
+get_pnl() {
+  PORTFOLIO=$(curl -s -H "Authorization: Basic $T212_AUTH" \
+    https://demo.trading212.com/api/v0/equity/portfolio)
+  CASH=$(curl -s -H "Authorization: Basic $T212_AUTH" \
+    https://demo.trading212.com/api/v0/equity/account/cash)
+  MSG=$(python3 << PYEOF
+import json
+lines = ["💰 PROFIT & LOSS SUMMARY"]
+try:
+    positions = json.loads("""$PORTFOLIO""")
+    if positions:
+        total_pnl = 0
+        for p in positions:
+            ticker  = p.get("ticker","?")
+            ppl     = float(p.get("ppl", 0))
+            current = p.get("currentPrice", 0)
+            qty     = p.get("quantity", 0)
+            icon    = "✅" if ppl >= 0 else "🔴"
+            total_pnl += ppl
+            lines.append(f"  {icon} {ticker} | qty:{qty} | £{current} | PnL: £{round(ppl,2)}")
+        total_icon = "✅" if total_pnl >= 0 else "🔴"
+        lines.append(f"\n{total_icon} NET PnL: £{round(total_pnl,2)}")
+    else:
+        lines.append("  No open positions")
+except:
+    pass
+try:
+    d = json.loads("""$CASH""")
+    free     = float(d.get("free", 0))
+    invested = float(d.get("invested", 0))
+    total    = round(free + invested, 2)
+    lines.append(f"\n💼 Portfolio: £{total} | Cash: £{round(free,2)} | Invested: £{round(invested,2)}")
+except:
+    pass
+print("\n".join(lines))
+PYEOF
+)
+  send_message "$MSG"
+}
+
+close_position() {
+  local ticker="$1"
+  local qty="$2"
+  local neg_qty=$(echo "$qty * -1" | bc)
+  curl -s -X POST \
+    -H "Authorization: Basic $T212_AUTH" \
+    -H "Content-Type: application/json" \
+    -d "{\"ticker\":\"$ticker\",\"quantity\":$neg_qty}" \
+    https://demo.trading212.com/api/v0/equity/orders/market
+}
+
+process_message() {
+  local text="$1"
+  local text_lower=$(echo "$text" | tr '[:upper:]' '[:lower:]' | xargs)
+  local upper=$(echo "$text" | tr '[:lower:]' '[:upper:]' | xargs)
+  local cmd=$(echo "$upper" | awk '{print $1}')
+  local arg1=$(echo "$upper" | awk '{print $2}')
+  local arg2=$(echo "$upper" | awk '{print $3}')
+
+  echo "$(date): $text" >> "$LOG"
+
+  # Natural language P&L
+  if echo "$text_lower" | grep -qE "profit|loss|pnl|how much|how am i|portfolio|what.*worth|performance|made today"; then
+    get_pnl
+    return
+  fi
+
+  # Manual buy flow
+  if echo "$text_lower" | grep -qE "^buy |^purchase |^get |^i want to buy|^invest in"; then
+    python3 /home/ubuntu/.picoclaw/scripts/apex-manual-trade.py \
+      "$text" "$BOT_TOKEN" "$CHAT_ID" 2>/dev/null
+    return
+  fi
+
+  # Conversation flow replies
+  if [ -f "/home/ubuntu/.picoclaw/logs/apex-manual-trade-state.json" ]; then
+    if echo "$text_lower" | grep -qE "^yes$|^yeah$|^ok$|^sure$|^correct$|^yep$|^confirm$|^no$|^cancel$|^abort$" || \
+       echo "$text_lower" | grep -qE "^adjust "; then
+      python3 /home/ubuntu/.picoclaw/scripts/apex-manual-trade.py \
+        "$text" "$BOT_TOKEN" "$CHAT_ID" 2>/dev/null
+      return
+    fi
+  fi
+
+  case "$cmd" in
+    BUY|PURCHASE)
+      python3 /home/ubuntu/.picoclaw/scripts/apex-manual-trade.py \
+        "$text" "$BOT_TOKEN" "$CHAT_ID" 2>/dev/null
+      ;;
+    PNL|PROFIT|LOSS)
+      get_pnl
+      ;;
+    CONFIRM)
+      if [ -f "$SIGNAL_FILE" ]; then
+        send_message "⏳ Placing order..."
+        /home/ubuntu/.picoclaw/scripts/apex-execute-order.sh
+      else
+        send_message "⚠️ No pending signal."
+      fi
+      ;;
+    REJECT|CANCEL)
+      rm -f "$SIGNAL_FILE"
+      rm -f /home/ubuntu/.picoclaw/logs/apex-manual-trade-state.json
+      send_message "❌ Cancelled."
+      ;;
+    ADJUST)
+      if [ -f "/home/ubuntu/.picoclaw/logs/apex-manual-trade-state.json" ]; then
+        python3 /home/ubuntu/.picoclaw/scripts/apex-manual-trade.py \
+          "$text" "$BOT_TOKEN" "$CHAT_ID" 2>/dev/null
+      else
+        /home/ubuntu/.picoclaw/scripts/apex-adjust-signal.sh "$arg1" "$arg2"
+      fi
+      ;;
+    CLOSE)
+      if [ -n "$arg1" ]; then
+        send_message "⏳ Closing $arg1..."
+        QTY=$(python3 -c "
+import json
+with open('$POSITIONS_FILE') as f:
+    p = json.load(f)
+pos = next((x for x in p if x.get('t212_ticker','').upper() == '$arg1'.upper()), None)
+print(pos['quantity'] if pos else 0)
+" 2>/dev/null)
+        if [ "$QTY" != "0" ] && [ -n "$QTY" ]; then
+          RESULT=$(close_position "$arg1" "$QTY")
+          ORDER_ID=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id','ERROR'))" 2>/dev/null)
+          if [ "$ORDER_ID" != "ERROR" ]; then
+            send_message "✅ Closed $arg1 | Order: $ORDER_ID"
+          else
+            send_message "❌ Close failed."
+          fi
+        else
+          send_message "⚠️ Position $arg1 not found."
+        fi
+      fi
+      ;;
+    TRIM)
+      if [ -n "$arg1" ]; then
+        QTY=$(python3 -c "
+import json, math
+with open('$POSITIONS_FILE') as f:
+    p = json.load(f)
+pos = next((x for x in p if x.get('t212_ticker','').upper() == '$arg1'.upper()), None)
+print(math.floor(pos['quantity'] / 2) if pos else 0)
+" 2>/dev/null)
+        if [ "$QTY" != "0" ] && [ -n "$QTY" ]; then
+          RESULT=$(close_position "$arg1" "$QTY")
+          ORDER_ID=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id','ERROR'))" 2>/dev/null)
+          [ "$ORDER_ID" != "ERROR" ] && send_message "✅ Trimmed $arg1 — sold $QTY shares" || send_message "❌ Trim failed."
+        fi
+      fi
+      ;;
+    AUTOPILOT)
+      case "$arg1" in
+        ON)     python3 /home/ubuntu/.picoclaw/scripts/apex-autopilot.py on ;;
+        OFF)    python3 /home/ubuntu/.picoclaw/scripts/apex-autopilot.py off ;;
+        STATUS) RESULT=$(python3 /home/ubuntu/.picoclaw/scripts/apex-autopilot.py status)
+                send_message "🤖 AUTOPILOT STATUS\n\n$RESULT" ;;
+      esac
+      ;;
+    PAUSE)
+      echo "true" > /home/ubuntu/.picoclaw/logs/apex-paused.flag
+      send_message "⏸️ APEX PAUSED — all trading suspended. Type RESUME to restart."
+      ;;
+    RESUME)
+      rm -f /home/ubuntu/.picoclaw/logs/apex-paused.flag
+      send_message "▶️ APEX RESUMED — trading restored."
+      ;;
+    STATUS)
+      PENDING=$([ -f "$SIGNAL_FILE" ] && \
+        python3 -c "import json; d=json.load(open('$SIGNAL_FILE')); print(f\"{d['name']} | entry:£{d['entry']} | stop:£{d['stop']}\")" \
+        2>/dev/null || echo "none")
+      AP=$(python3 /home/ubuntu/.picoclaw/scripts/apex-autopilot.py status 2>/dev/null | head -1)
+      CASH_VAL=$(curl -s -H "Authorization: Basic $T212_AUTH" \
+        https://demo.trading212.com/api/v0/equity/account/cash | \
+        python3 -c "import sys,json; d=json.load(sys.stdin); print(f'£{round(float(d.get(\"free\",0))+float(d.get(\"invested\",0)),2)}')" 2>/dev/null)
+      send_message "📊 APEX STATUS
+Portfolio: $CASH_VAL
+$AP
+Pending: $PENDING
+Uptime: $(uptime -p)"
+      ;;
+    SCAN)
+      send_message "⏳ Running scan..."
+      /home/ubuntu/.picoclaw/scripts/apex-morning-scan.sh
+      ;;
+    HELP)
+      send_message "🤖 APEX TRADING BOT
+
+📈 BUYING
+  buy visa          — start manual trade
+  buy apple         — buy any instrument
+  yes               — confirm instrument
+  confirm           — place order
+  cancel            — abort
+
+📊 PORTFOLIO
+  PNL               — profit & loss
+  STATUS            — full status
+  CLOSE VUAGl_EQ    — close position
+  TRIM VUAGl_EQ     — sell 50%
+
+🤖 AUTOPILOT
+  AUTOPILOT ON      — autonomous mode
+  AUTOPILOT OFF     — manual mode
+  PAUSE             — emergency stop
+  RESUME            — restart
+  SCAN              — run manual scan
+
+Just type naturally — 'what is my profit' works too."
+      ;;
+    *)
+      # Unknown command — show help hint
+      send_message "🤖 Type HELP for commands or just ask naturally:
+  'buy visa'
+  'what is my profit'
+  'close my XOM position'"
+      ;;
+  esac
+}
+
+# Start listener
+echo "$(date): Apex Trading Bot started" >> "$LOG"
+# Only send welcome if first start today
+TODAY=$(date +%Y-%m-%d)
+LAST_START=$(cat /home/ubuntu/.picoclaw/logs/apex-bot-last-start 2>/dev/null || echo "")
+if [ "$LAST_START" != "$TODAY" ]; then
+  echo "$TODAY" > /home/ubuntu/.picoclaw/logs/apex-bot-last-start
+  send_message "🤖 APEX TRADING BOT ONLINE
+
+I'm your dedicated trading interface.
+Type HELP for commands or just say what you want.
+
+Examples:
+  buy visa
+  what is my profit
+  STATUS"
+fi
+
+while true; do
+  OFFSET=$(get_offset)
+  RESPONSE=$(curl -s "https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${OFFSET}&timeout=30")
+
+  UPDATES=$(echo "$RESPONSE" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+updates = data.get('result', [])
+for u in updates:
+    msg = u.get('message', {})
+    text = msg.get('text', '')
+    uid  = u.get('update_id', 0)
+    cid  = str(msg.get('chat', {}).get('id', ''))
+    if text and cid:
+        safe_text = text.replace('|', '_')
+        print(f'{uid}|||{cid}|||{safe_text}')
+" 2>/dev/null)
+
+  if [ -n "$UPDATES" ]; then
+    LAST_ID=0
+    while IFS= read -r line; do
+      UPDATE_ID=$(echo "$line" | cut -d'|' -f1)
+      CHAT_ID=$(echo "$line" | cut -d'|' -f4)
+      TEXT=$(echo "$line" | sed 's/^[^|]*|||[^|]*|||//')
+      echo "$(date): Processing — chat:$CHAT_ID text:$TEXT" >> "$LOG"
+      process_message "$TEXT"
+      LAST_ID=$UPDATE_ID
+    done <<< "$UPDATES"
+    [ "$LAST_ID" -gt 0 ] && save_offset $((LAST_ID + 1))
+  fi
+  sleep 2
+done

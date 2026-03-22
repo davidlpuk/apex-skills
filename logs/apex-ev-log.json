@@ -1,0 +1,90 @@
+[
+  {
+    "date": "2026-03-20",
+    "name": "Apple",
+    "ev": 10.82,
+    "ev_per_risk": 0.45,
+    "r_expect": 0.45,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-20",
+    "name": "V",
+    "ev": 10.54,
+    "ev_per_risk": 0.45,
+    "r_expect": 0.45,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-21",
+    "name": "XOM",
+    "ev": 5.27,
+    "ev_per_risk": 0.366,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-21",
+    "name": "XOM",
+    "ev": 5.27,
+    "ev_per_risk": 0.366,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-21",
+    "name": "XOM",
+    "ev": 5.27,
+    "ev_per_risk": 0.366,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-21",
+    "name": "XOM",
+    "ev": 5.27,
+    "ev_per_risk": 0.366,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-22",
+    "name": "XOM",
+    "ev": 5.27,
+    "ev_per_risk": 0.366,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-22",
+    "name": "XOM",
+    "ev": 5.27,
+    "ev_per_risk": 0.366,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  }
+]

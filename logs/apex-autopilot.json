@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "mode": "PRACTICE",
+  "activated_at": "2026-03-20T15:13:49.238488+00:00",
+  "trades_today": 0,
+  "max_trades_per_day": 2,
+  "max_daily_loss": 100,
+  "daily_loss_today": 0,
+  "daily_loss_date": "2026-03-22",
+  "total_autonomous_trades": 0,
+  "last_trade_time": null,
+  "safety_override": false,
+  "log": []
+}

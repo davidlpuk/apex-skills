@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-03-20 09:45 UTC",
+  "geo_flags": [
+    {
+      "source": "BBC Business",
+      "title": "Trio charged over alleged plot to smuggle Nvidia chips from US to China"
+    }
+  ],
+  "energy_flags": [
+    {
+      "source": "BBC Business",
+      "title": "Warning UK borrowing rise makes energy bill help harder"
+    },
+    {
+      "source": "BBC Business",
+      "title": "Russia, China and the US \u2013 the global winners and losers of the Iran war"
+    },
+    {
+      "source": "BBC Business",
+      "title": "Faisal Islam: Iran war is having a dramatic effect on the UK economy"
+    },
+    {
+      "source": "BBC Business",
+      "title": "Stock markets rattled and energy prices soar after strikes on Qatar gas hub"
+    },
+    {
+      "source": "BBC Business",
+      "title": "Bank ready to raise interest rates if Iran war price 'shock' persists"
+    },
+    {
+      "source": "BBC Business",
+      "title": "US considers lifting sanctions on some Iranian oil"
+    },
+    {
+      "source": "BBC Business",
+      "title": "How the Iran war may affect your money and bills"
+    },
+    {
+      "source": "BBC World",
+      "title": "Russia, China and the US \u2013 the global winners and losers of the Iran war"
+    },
+    {
+      "source": "BBC World",
+      "title": "Trump compares attack on Iran to Pearl Harbor in meeting with Japanese PM"
+    },
+    {
+      "source": "BBC World",
+      "title": "Netanyahu says Israel 'acted alone' in attack on Iranian gas field"
+    },
+    {
+      "source": "BBC World",
+      "title": "Nearly 100 ships pass the Hormuz Strait - who is getting through?"
+    },
+    {
+      "source": "BBC World",
+      "title": "Teenager among first to be executed over Iran's anti-government protests"
+    },
+    {
+      "source": "BBC World",
+      "title": "'You can't smell Nowruz in the air': Iran marks Persian new year under threat of strikes"
+    },
+    {
+      "source": "BBC World",
+      "title": "Gas shortage caused by Iran war may push India back to dirtier fuels"
+    }
+  ],
+  "total_scanned": 30,
+  "overall": "ALERT"
+}

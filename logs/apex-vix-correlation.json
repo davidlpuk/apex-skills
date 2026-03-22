@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-03-20 16:47 UTC",
+  "positions": [
+    {
+      "name": "Apple",
+      "ticker": "AAPL_US_EQ",
+      "vix_corr": -0.46,
+      "sensitivity": "MEDIUM",
+      "note": "Moderately sensitive to fear spikes",
+      "icon": "\ud83d\udfe1"
+    },
+    {
+      "name": "Vanguard S&P 500 (Acc)",
+      "ticker": "VUAGl_EQ",
+      "vix_corr": -0.31,
+      "sensitivity": "MEDIUM",
+      "note": "Moderately sensitive to fear spikes",
+      "icon": "\ud83d\udfe1"
+    },
+    {
+      "name": "Visa",
+      "ticker": "V_US_EQ",
+      "vix_corr": -0.26,
+      "sensitivity": "LOW",
+      "note": "Relatively immune to VIX moves",
+      "icon": "\u2705"
+    },
+    {
+      "name": "Exxon Mobil",
+      "ticker": "XOM_US_EQ",
+      "vix_corr": 0.01,
+      "sensitivity": "LOW",
+      "note": "Relatively immune to VIX moves",
+      "icon": "\u2705"
+    }
+  ],
+  "warnings": []
+}

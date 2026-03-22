@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-03-22 07:49 UTC",
+  "current_breadth": 54.5,
+  "thrust": {
+    "thrust_detected": false,
+    "thrust_date": null,
+    "thrust_from": null,
+    "thrust_to": null,
+    "current_ema10": 63.6,
+    "current_raw": 54.5
+  },
+  "washout": {
+    "washout_detected": false,
+    "current_breadth": 54.5,
+    "recent_low": 54.5,
+    "recovering": false,
+    "severity": "NORMAL",
+    "signal": 0,
+    "note": "Breadth 54.5% \u2014 normal"
+  },
+  "divergence": {
+    "divergence": "DETERIORATION",
+    "breadth_trend": -9.2,
+    "first_half_avg": 84.0,
+    "second_half_avg": 74.8,
+    "signal": -1,
+    "note": "Breadth weakening (-9.2% trend) \u2014 watch for top"
+  },
+  "composite_signal": -1,
+  "assessment": "NEUTRAL",
+  "signals": [
+    "\ud83d\udcca BREADTH TREND: DETERIORATION (-9.2%)"
+  ],
+  "breadth_series": {
+    "2026-03-09": 68.2,
+    "2026-03-10": 68.2,
+    "2026-03-11": 68.2,
+    "2026-03-12": 63.6,
+    "2026-03-13": 59.1,
+    "2026-03-16": 68.2,
+    "2026-03-17": 68.2,
+    "2026-03-18": 59.1,
+    "2026-03-19": 59.1,
+    "2026-03-20": 54.5
+  }
+}

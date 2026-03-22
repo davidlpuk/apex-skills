@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-03-20 16:42 UTC",
+  "sectors": {
+    "Energy": {
+      "total": 10,
+      "above_200": 10,
+      "above_50": 9,
+      "breadth_200": 100.0,
+      "breadth_50": 90.0,
+      "health": "BULLISH"
+    },
+    "Technology": {
+      "total": 10,
+      "above_200": 2,
+      "above_50": 0,
+      "breadth_200": 20.0,
+      "breadth_50": 0.0,
+      "health": "BEARISH"
+    },
+    "Financials": {
+      "total": 10,
+      "above_200": 2,
+      "above_50": 0,
+      "breadth_200": 20.0,
+      "breadth_50": 0.0,
+      "health": "BEARISH"
+    },
+    "Healthcare": {
+      "total": 10,
+      "above_200": 5,
+      "above_50": 3,
+      "breadth_200": 50.0,
+      "breadth_50": 30.0,
+      "health": "NEUTRAL"
+    },
+    "Consumer": {
+      "total": 10,
+      "above_200": 4,
+      "above_50": 0,
+      "breadth_200": 40.0,
+      "breadth_50": 0.0,
+      "health": "NEUTRAL"
+    }
+  },
+  "strongest": "Energy",
+  "weakest": "Financials"
+}

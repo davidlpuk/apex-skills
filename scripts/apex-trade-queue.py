@@ -1,0 +1,238 @@
+#!/usr/bin/env python3
+"""
+Trade Queue System
+Allows queuing trades outside market hours for execution at next market open.
+"""
+import json
+import subprocess
+import sys
+from datetime import datetime, timezone
+import sys as _sys
+_sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
+try:
+    from apex_utils import atomic_write, safe_read, log_error, log_warning
+except ImportError:
+    def atomic_write(p, d):
+        import json
+        with open(p, 'w') as f: json.dump(d, f, indent=2)
+        return True
+    def log_error(m): print(f'ERROR: {m}')
+    def log_warning(m): print(f'WARNING: {m}')
+
+
+QUEUE_FILE     = '/home/ubuntu/.picoclaw/logs/apex-trade-queue.json'
+SIGNAL_FILE    = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
+POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
+
+def load_queue():
+    try:
+        with open(QUEUE_FILE) as f:
+            return json.load(f)
+    except:
+        return []
+
+def save_queue(queue):
+    atomic_write(QUEUE_FILE, queue)
+
+def send_telegram(message):
+    subprocess.run([
+        'bash', '-c',
+        f'''BOT_TOKEN=$(cat ~/.picoclaw/config.json | grep -A 2 '"telegram"' | grep token | sed 's/.*"token": "\\(.*\\)".*/\\1/')
+curl -s -X POST "https://api.telegram.org/bot${{BOT_TOKEN}}/sendMessage" \
+  -d chat_id="6808823889" \
+  --data-urlencode "text={message}"'''
+    ], capture_output=True, text=True)
+
+def add_to_queue(signal):
+    queue = load_queue()
+    now   = datetime.now(timezone.utc)
+
+    entry = {
+        'id':           len(queue) + 1,
+        'queued_at':    now.isoformat(),
+        'queued_date':  now.strftime('%Y-%m-%d %H:%M UTC'),
+        'name':         signal.get('name','?'),
+        't212_ticker':  signal.get('t212_ticker',''),
+        'entry':        signal.get('entry', 0),
+        'stop':         signal.get('stop', 0),
+        'target1':      signal.get('target1', 0),
+        'target2':      signal.get('target2', 0),
+        'quantity':     signal.get('quantity', 0),
+        'score':        signal.get('score', 0),
+        'signal_type':  signal.get('signal_type','TREND'),
+        'rsi':          signal.get('rsi', 0),
+        'sector':       signal.get('sector',''),
+        'currency':     signal.get('currency','USD'),
+        'status':       'QUEUED',
+        'notes':        signal.get('notes',''),
+    }
+
+    queue.append(entry)
+    save_queue(queue)
+
+    send_telegram(
+        f"📋 TRADE QUEUED\n\n"
+        f"{entry['name']}\n"
+        f"Entry: £{entry['entry']} | Stop: £{entry['stop']}\n"
+        f"T1: £{entry['target1']} | T2: £{entry['target2']}\n"
+        f"Qty: {entry['quantity']} | Score: {entry['score']}/10\n\n"
+        f"Will execute at next market open.\n"
+        f"Queue ID: #{entry['id']}\n"
+        f"Reply QUEUE CANCEL {entry['id']} to remove."
+    )
+
+    print(f"✅ Trade queued: {entry['name']} (ID #{entry['id']})")
+    return entry
+
+def cancel_queue(trade_id):
+    queue = load_queue()
+    trade = next((t for t in queue if t['id'] == trade_id), None)
+
+    if not trade:
+        send_telegram(f"⚠️ Queue ID #{trade_id} not found.")
+        return False
+
+    queue = [t for t in queue if t['id'] != trade_id]
+    save_queue(queue)
+
+    send_telegram(
+        f"❌ TRADE REMOVED FROM QUEUE\n\n"
+        f"{trade['name']} (ID #{trade_id})\n"
+        f"Entry: £{trade['entry']} cancelled."
+    )
+
+    print(f"✅ Removed queue ID #{trade_id}: {trade['name']}")
+    return True
+
+def show_queue():
+    queue = load_queue()
+    pending = [t for t in queue if t['status'] == 'QUEUED']
+
+    if not pending:
+        send_telegram("📋 TRADE QUEUE\n\nNo trades queued.\n\nUse 'buy [instrument]' to add a trade to the queue outside market hours.")
+        return
+
+    lines = [f"📋 TRADE QUEUE — {len(pending)} pending\n"]
+    for t in pending:
+        lines.append(
+            f"#{t['id']} {t['name']}\n"
+            f"  Entry: £{t['entry']} | Stop: £{t['stop']}\n"
+            f"  Qty: {t['quantity']} | Score: {t['score']}/10\n"
+            f"  Queued: {t['queued_date']}\n"
+        )
+    lines.append("Executes at next market open (08:30 UTC Mon-Fri)")
+    lines.append("QUEUE CANCEL [ID] to remove a trade")
+
+    send_telegram('\n'.join(lines))
+
+def execute_queue():
+    """Execute all queued trades — called at market open."""
+    queue    = load_queue()
+    pending  = [t for t in queue if t['status'] == 'QUEUED']
+
+    if not pending:
+        print("No queued trades to execute")
+        return
+
+    now = datetime.now(timezone.utc)
+
+    # Check market hours — only execute Mon-Fri 08:00-15:30
+    if now.weekday() >= 5:
+        print("Weekend — not executing queue")
+        return
+
+    hour_min = now.hour * 60 + now.minute
+    if hour_min < 480 or hour_min > 930:
+        print(f"Outside market hours ({now.hour}:{now.minute:02d}) — not executing")
+        return
+
+    send_telegram(
+        f"🔔 MARKET OPEN — EXECUTING QUEUE\n\n"
+        f"{len(pending)} trade(s) queued for execution.\n"
+        f"Placing orders now..."
+    )
+
+    executed = []
+    failed   = []
+
+    for trade in pending:
+        # Save as pending signal and execute
+        signal = {
+            'name':        trade['name'],
+            't212_ticker': trade['t212_ticker'],
+            'quantity':    trade['quantity'],
+            'entry':       trade['entry'],
+            'stop':        trade['stop'],
+            'target1':     trade['target1'],
+            'target2':     trade['target2'],
+            'score':       trade['score'],
+            'rsi':         trade['rsi'],
+            'macd':        0,
+            'sector':      trade['sector'],
+            'signal_type': trade['signal_type'],
+            'currency':    trade['currency'],
+            'generated_at':now.isoformat(),
+        }
+
+        atomic_write(SIGNAL_FILE, signal)
+
+        # Execute
+        result = subprocess.run(
+            ['bash', '/home/ubuntu/.picoclaw/scripts/apex-execute-order.sh'],
+            capture_output=True, text=True
+        )
+
+        if result.returncode == 0:
+            trade['status']      = 'EXECUTED'
+            trade['executed_at'] = now.isoformat()
+            executed.append(trade)
+            print(f"✅ Executed: {trade['name']}")
+        else:
+            trade['status'] = 'FAILED'
+            trade['error']  = result.stderr[:200]
+            failed.append(trade)
+            print(f"❌ Failed: {trade['name']}")
+
+    save_queue(queue)
+
+    # Summary
+    summary = f"📋 QUEUE EXECUTION COMPLETE\n\n"
+    if executed:
+        summary += f"✅ Executed ({len(executed)}):\n"
+        for t in executed:
+            summary += f"  {t['name']} @ £{t['entry']}\n"
+    if failed:
+        summary += f"\n❌ Failed ({len(failed)}):\n"
+        for t in failed:
+            summary += f"  {t['name']} — check T212\n"
+
+    send_telegram(summary)
+
+if __name__ == '__main__':
+    mode = sys.argv[1] if len(sys.argv) > 1 else 'show'
+
+    if mode == 'show':
+        show_queue()
+    elif mode == 'execute':
+        execute_queue()
+    elif mode == 'cancel' and len(sys.argv) > 2:
+        cancel_queue(int(sys.argv[2]))
+    elif mode == 'queue_signal':
+        # Queue the current pending signal
+        try:
+            with open(SIGNAL_FILE) as f:
+                signal = json.load(f)
+            add_to_queue(signal)
+        except Exception as e:
+            print(f"Error queuing signal: {e}")
+    elif mode == 'add':
+        # Test add
+        test_signal = {
+            'name': 'Visa', 't212_ticker': 'V_US_EQ',
+            'entry': 300.0, 'stop': 282.0,
+            'target1': 327.0, 'target2': 345.0,
+            'quantity': 1.32, 'score': 7,
+            'signal_type': 'CONTRARIAN', 'rsi': 21,
+            'sector': 'Financials', 'currency': 'USD'
+        }
+        add_to_queue(test_signal)

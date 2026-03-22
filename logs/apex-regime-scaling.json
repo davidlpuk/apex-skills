@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-03-21 12:32 UTC",
+  "vix": 26.34,
+  "breadth": 26.7,
+  "vix_scale": 0.433,
+  "breadth_scale": 0.134,
+  "combined_scale": 0.241,
+  "trend_scale": 0.241,
+  "contrarian_scale": 0.541,
+  "drift_scale": 0.241,
+  "dividend_scale": 0.441,
+  "inverse_scale": 0.959,
+  "regime_label": "CAUTIOUS",
+  "old_binary": "BLOCKED",
+  "improvement": "Continuous scaling vs binary block"
+}

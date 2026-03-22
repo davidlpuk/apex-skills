@@ -1,0 +1,252 @@
+{
+  "quality_stocks": {
+    "AAPL": {
+      "name": "Apple",
+      "market_cap": "3T",
+      "fcf_yield": 3.5,
+      "quality_score": 10
+    },
+    "MSFT": {
+      "name": "Microsoft",
+      "market_cap": "3T",
+      "fcf_yield": 2.8,
+      "quality_score": 10
+    },
+    "GOOGL": {
+      "name": "Alphabet",
+      "market_cap": "2T",
+      "fcf_yield": 4.1,
+      "quality_score": 9,
+      "contrarian_skip": true,
+      "contrarian_note": "Trending down, does not mean revert \u2014 20% WR"
+    },
+    "AMZN": {
+      "name": "Amazon",
+      "market_cap": "2T",
+      "fcf_yield": 2.9,
+      "quality_score": 9
+    },
+    "NVDA": {
+      "name": "Nvidia",
+      "market_cap": "2T",
+      "fcf_yield": 2.1,
+      "quality_score": 9,
+      "contrarian_skip": true,
+      "contrarian_note": "Poor backtest win rate \u2014 trends down not mean reverts"
+    },
+    "META": {
+      "name": "Meta",
+      "market_cap": "1.5T",
+      "fcf_yield": 3.8,
+      "quality_score": 9,
+      "contrarian_skip": true,
+      "contrarian_note": "High vol, overshoots downside \u2014 27% WR"
+    },
+    "JPM": {
+      "name": "JPMorgan",
+      "market_cap": "600B",
+      "fcf_yield": 5.2,
+      "quality_score": 9,
+      "contrarian_skip": true,
+      "contrarian_note": "Financials fall further in bear markets \u2014 25% WR"
+    },
+    "JNJ": {
+      "name": "Johnson & Johnson",
+      "market_cap": "400B",
+      "fcf_yield": 4.8,
+      "quality_score": 9
+    },
+    "AZN": {
+      "name": "AstraZeneca",
+      "market_cap": "200B",
+      "fcf_yield": 3.2,
+      "quality_score": 8,
+      "contrarian_preferred": true,
+      "contrarian_note": "Quality pharma, reliable mean reversion \u2014 75% WR"
+    },
+    "ASML": {
+      "name": "ASML",
+      "market_cap": "400B",
+      "fcf_yield": 2.9,
+      "quality_score": 9
+    },
+    "NOVO": {
+      "name": "Novo Nordisk",
+      "market_cap": "300B",
+      "fcf_yield": 3.1,
+      "quality_score": 9
+    },
+    "XOM": {
+      "name": "Exxon Mobil",
+      "market_cap": "500B",
+      "fcf_yield": 6.2,
+      "quality_score": 8,
+      "contrarian_preferred": true,
+      "contrarian_note": "Energy, clean mean reversion \u2014 66% WR"
+    },
+    "CVX": {
+      "name": "Chevron",
+      "market_cap": "300B",
+      "fcf_yield": 5.8,
+      "quality_score": 8,
+      "contrarian_preferred": true,
+      "contrarian_note": "Energy, clean mean reversion \u2014 66% WR"
+    },
+    "SHEL": {
+      "name": "Shell",
+      "market_cap": "200B",
+      "fcf_yield": 7.1,
+      "quality_score": 8
+    },
+    "V": {
+      "name": "Visa",
+      "market_cap": "500B",
+      "fcf_yield": 3.1,
+      "quality_score": 9,
+      "contrarian_skip": true,
+      "contrarian_note": "Poor backtest win rate \u2014 trends down not mean reverts"
+    },
+    "UNH": {
+      "name": "UnitedHealth",
+      "market_cap": "400B",
+      "fcf_yield": 3.8,
+      "quality_score": 8
+    },
+    "ABBV": {
+      "name": "AbbVie",
+      "market_cap": "300B",
+      "fcf_yield": 5.9,
+      "quality_score": 8,
+      "contrarian_preferred": true,
+      "contrarian_note": "Defensive healthcare, strong dividend \u2014 80% WR"
+    },
+    "GSK": {
+      "name": "GSK",
+      "market_cap": "70B",
+      "fcf_yield": 6.1,
+      "quality_score": 7
+    },
+    "ULVR": {
+      "name": "Unilever",
+      "market_cap": "100B",
+      "fcf_yield": 5.4,
+      "quality_score": 7,
+      "contrarian_preferred": true,
+      "contrarian_note": "Consumer staples, always recovers \u2014 80% WR"
+    },
+    "REL": {
+      "name": "RELX",
+      "market_cap": "60B",
+      "fcf_yield": 4.2,
+      "quality_score": 8
+    },
+    "BA": {
+      "name": "BAE Systems",
+      "market_cap": "35B",
+      "fcf_yield": 3.8,
+      "quality_score": 7
+    },
+    "HSBA": {
+      "name": "HSBC",
+      "market_cap": "150B",
+      "fcf_yield": 7.2,
+      "quality_score": 7
+    },
+    "LGEN": {
+      "name": "Legal & General",
+      "market_cap": "15B",
+      "fcf_yield": 8.1,
+      "quality_score": 7
+    },
+    "IMB": {
+      "name": "Imperial Brands",
+      "market_cap": "18B",
+      "fcf_yield": 10.2,
+      "quality_score": 6
+    },
+    "BATS": {
+      "name": "BAT",
+      "market_cap": "60B",
+      "fcf_yield": 9.8,
+      "quality_score": 6
+    }
+  },
+  "energy_beneficiaries": [
+    "XOM",
+    "CVX",
+    "SHEL",
+    "BP",
+    "TTE",
+    "IUES",
+    "NG",
+    "SSE"
+  ],
+  "energy_victims": [
+    "airlines",
+    "shipping",
+    "consumer",
+    "retail"
+  ],
+  "geo_event_map": {
+    "iran_war": {
+      "favour": [
+        "XOM",
+        "CVX",
+        "SHEL",
+        "BP",
+        "TTE",
+        "IUES",
+        "SSLN",
+        "SGLN"
+      ],
+      "avoid": [
+        "VOD",
+        "DGE",
+        "CPG",
+        "MCD",
+        "WMT"
+      ]
+    },
+    "trade_war": {
+      "favour": [
+        "HSBA",
+        "domestic_uk"
+      ],
+      "avoid": [
+        "AAPL",
+        "NVDA",
+        "ASML",
+        "AMZN"
+      ]
+    },
+    "rate_shock": {
+      "favour": [
+        "LGEN",
+        "HSBA",
+        "BARC",
+        "V",
+        "JPM"
+      ],
+      "avoid": [
+        "NVDA",
+        "MSFT",
+        "AMZN",
+        "META"
+      ]
+    },
+    "recession_fear": {
+      "favour": [
+        "SGLN",
+        "SSLN",
+        "VGOV",
+        "JNJ",
+        "UNH"
+      ],
+      "avoid": [
+        "TSLA",
+        "NVDA",
+        "META"
+      ]
+    }
+  }
+}

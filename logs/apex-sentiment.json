@@ -1,0 +1,219 @@
+{
+  "timestamp": "2026-03-21 11:07 UTC",
+  "total_headlines": 30,
+  "market_sentiment": -0.381,
+  "market_class": "VERY_NEGATIVE",
+  "market_note": "block signal",
+  "crisis_detected": true,
+  "crisis_headlines": [
+    "UK borrowing costs hit highest level since 2008 financial crisis"
+  ],
+  "instrument_scores": {
+    "NVDA": {
+      "sentiment": -0.758,
+      "label": "VERY_NEGATIVE",
+      "note": "block signal",
+      "headlines": [
+        {
+          "title": "Trio charged over alleged plot to smuggle Nvidia chips from US to China",
+          "compound": -0.758
+        }
+      ],
+      "count": 1
+    },
+    "XOM": {
+      "sentiment": -0.147,
+      "label": "NEGATIVE",
+      "note": "-1 signal penalty",
+      "headlines": [
+        {
+          "title": "Work from home and drive more slowly to save energy, global body urges",
+          "compound": 0.567
+        },
+        {
+          "title": "Typical energy bill forecast to rise by \u00a3332 a year in July",
+          "compound": -0.178
+        }
+      ],
+      "count": 6
+    },
+    "CVX": {
+      "sentiment": -0.147,
+      "label": "NEGATIVE",
+      "note": "-1 signal penalty",
+      "headlines": [
+        {
+          "title": "Work from home and drive more slowly to save energy, global body urges",
+          "compound": 0.567
+        },
+        {
+          "title": "Typical energy bill forecast to rise by \u00a3332 a year in July",
+          "compound": -0.178
+        }
+      ],
+      "count": 6
+    },
+    "SHEL": {
+      "sentiment": -0.147,
+      "label": "NEGATIVE",
+      "note": "-1 signal penalty",
+      "headlines": [
+        {
+          "title": "Work from home and drive more slowly to save energy, global body urges",
+          "compound": 0.567
+        },
+        {
+          "title": "Typical energy bill forecast to rise by \u00a3332 a year in July",
+          "compound": -0.178
+        }
+      ],
+      "count": 6
+    },
+    "BP": {
+      "sentiment": -0.147,
+      "label": "NEGATIVE",
+      "note": "-1 signal penalty",
+      "headlines": [
+        {
+          "title": "Work from home and drive more slowly to save energy, global body urges",
+          "compound": 0.567
+        },
+        {
+          "title": "Typical energy bill forecast to rise by \u00a3332 a year in July",
+          "compound": -0.178
+        }
+      ],
+      "count": 6
+    },
+    "JPM": {
+      "sentiment": -0.646,
+      "label": "VERY_NEGATIVE",
+      "note": "block signal",
+      "headlines": [
+        {
+          "title": "UK borrowing costs hit highest level since 2008 financial crisis",
+          "compound": -0.527
+        },
+        {
+          "title": "Faisal Islam: Iran war is having a dramatic effect on the UK economy",
+          "compound": -0.7
+        }
+      ],
+      "count": 3
+    },
+    "HSBA": {
+      "sentiment": -0.788,
+      "label": "VERY_NEGATIVE",
+      "note": "block signal",
+      "headlines": [
+        {
+          "title": "Russia, China and the US \u2013 the global winners and losers of the Iran war",
+          "compound": -0.818
+        },
+        {
+          "title": "Trio charged over alleged plot to smuggle Nvidia chips from US to China",
+          "compound": -0.758
+        }
+      ],
+      "count": 2
+    },
+    "VWRP": {
+      "sentiment": 0.44,
+      "label": "VERY_POSITIVE",
+      "note": "+2 signal boost",
+      "headlines": [
+        {
+          "title": "US lifts sanctions on some Iranian oil as energy prices soar",
+          "compound": 0.44
+        }
+      ],
+      "count": 1
+    }
+  },
+  "most_positive": "VWRP",
+  "most_negative": "HSBA",
+  "top_headlines": [
+    {
+      "source": "BBC Business",
+      "title": "Colombia's budding tech scene needs a cash boost",
+      "compound": 0.754,
+      "pos": 0.271,
+      "neg": 0.0,
+      "neu": 0.729
+    },
+    {
+      "source": "BBC World",
+      "title": "Remember Chuck Norris memes but never watched his films? You're not alone",
+      "compound": 0.74,
+      "pos": 0.183,
+      "neg": 0.0,
+      "neu": 0.817
+    },
+    {
+      "source": "BBC World",
+      "title": "As Islamophobia rises, Australia's Muslims celebrate Eid",
+      "compound": 0.572,
+      "pos": 0.15,
+      "neg": 0.0,
+      "neu": 0.85
+    },
+    {
+      "source": "BBC Business",
+      "title": "Work from home and drive more slowly to save energy, global body urges",
+      "compound": 0.567,
+      "pos": 0.233,
+      "neg": 0.098,
+      "neu": 0.669
+    },
+    {
+      "source": "BBC Business",
+      "title": "US lifts sanctions on some Iranian oil as energy prices soar",
+      "compound": 0.44,
+      "pos": 0.13,
+      "neg": 0.0,
+      "neu": 0.87
+    }
+  ],
+  "worst_headlines": [
+    {
+      "source": "BBC World",
+      "title": "Israel strikes Syria after Druze clashes",
+      "compound": -0.949,
+      "pos": 0.0,
+      "neg": 0.509,
+      "neu": 0.491
+    },
+    {
+      "source": "BBC World",
+      "title": "Trump makes Pearl Harbor remark in meeting with Japan's PM",
+      "compound": -0.925,
+      "pos": 0.0,
+      "neg": 0.316,
+      "neu": 0.684
+    },
+    {
+      "source": "BBC World",
+      "title": "Ukraine-Hungary oil pipeline row threatens EU loan",
+      "compound": -0.923,
+      "pos": 0.0,
+      "neg": 0.355,
+      "neu": 0.645
+    },
+    {
+      "source": "BBC World",
+      "title": "Russian drone attack kills two in Ukraine ahead of talks in US, officials say",
+      "compound": -0.908,
+      "pos": 0.0,
+      "neg": 0.315,
+      "neu": 0.685
+    },
+    {
+      "source": "BBC World",
+      "title": "Iranian strikes on bases used by US caused $800m in damage, new analysis shows",
+      "compound": -0.872,
+      "pos": 0.033,
+      "neg": 0.254,
+      "neu": 0.713
+    }
+  ]
+}

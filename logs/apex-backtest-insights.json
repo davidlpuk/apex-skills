@@ -1,0 +1,53 @@
+{
+  "generated": "2026-03-21",
+  "trend_strategy": {
+    "win_rate": 51.7,
+    "expectancy": 0.229,
+    "profit_factor": 1.71,
+    "optimal_threshold": 7,
+    "best_rsi": "overbought >70 \u2014 68.6% WR",
+    "best_instruments": [
+      "HSBA",
+      "GSK",
+      "JPM",
+      "JNJ",
+      "AAPL"
+    ],
+    "worst_instruments": [
+      "META",
+      "NVDA",
+      "V"
+    ],
+    "key_finding": "Score 7 beats 9-10 \u2014 higher score means buying too late"
+  },
+  "contrarian_strategy": {
+    "win_rate": 56.5,
+    "optimal_threshold": 7,
+    "best_rsi": "RSI 30-45 beats <30 \u2014 deeply oversold often keeps falling",
+    "best_instruments": [
+      "ABBV",
+      "ULVR",
+      "AZN",
+      "XOM",
+      "CVX"
+    ],
+    "worst_instruments": [
+      "GOOGL",
+      "JPM",
+      "META"
+    ],
+    "value_traps": [
+      "GOOGL",
+      "JPM",
+      "META"
+    ],
+    "key_finding": "Defensive quality with dividends mean reverts reliably. Growth tech value traps."
+  },
+  "combined_findings": {
+    "atr_stops_needed": "NVDA, META, V stopped out too often on fixed 6% \u2014 need volatility-adjusted stops",
+    "rsi_insight_trend": "Overbought RSI >70 is best TREND entry \u2014 momentum continuation",
+    "rsi_insight_contra": "RSI 30-45 is best CONTRARIAN entry \u2014 not deeply oversold <30",
+    "threshold": "7/10 is optimal for both strategies",
+    "live_ready": "Both strategies show positive edge \u2014 safe to go live when ready"
+  }
+}

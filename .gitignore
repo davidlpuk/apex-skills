@@ -1,0 +1,24 @@
+# Sensitive
+.env*
+*.env
+config.json
+
+# Large/generated data files
+logs/apex-backtest-results.json
+logs/apex-outcomes.json
+logs/apex-signal-log.json
+logs/apex-breadth-history.json
+logs/apex-errors.log
+logs/apex-cron.log
+logs/apex-hitl.log
+logs/apex-orders.log
+logs/apex-trade-events.log
+
+# Temp files
+*.tmp
+*.bak
+*.pyc
+__pycache__/
+
+# T212 cache (large)
+scripts/t212-instruments-cache.json

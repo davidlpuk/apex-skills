@@ -1,0 +1,1305 @@
+{
+  "timestamp": "2026-03-22 07:46 UTC",
+  "count": 32,
+  "data": {
+    "AAPL": {
+      "name": "AAPL",
+      "yahoo": "AAPL",
+      "weekly": {
+        "price": 247.99,
+        "ema21": 262.63,
+        "ema50": 243.57,
+        "ema200": 228.99,
+        "rsi": 36.1,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.27,
+        "structure": "COMPRESSING",
+        "trend_score": 2,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 36.1 \u2014 bearish momentum"
+        ]
+      },
+      "daily": {
+        "price": 247.99,
+        "ema21": 257.47,
+        "ema50": 259.92,
+        "ema200": 262.65,
+        "rsi": 23.6,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 2.22,
+        "structure": "DOWNTREND",
+        "trend_score": -5,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 23.6 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "MSFT": {
+      "name": "MSFT",
+      "yahoo": "MSFT",
+      "weekly": {
+        "price": 381.87,
+        "ema21": 441.2,
+        "ema50": 449.15,
+        "ema200": 446.27,
+        "rsi": 22.1,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.08,
+        "structure": "DOWNTREND",
+        "trend_score": -5,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 22.1 \u2014 bearish momentum"
+        ]
+      },
+      "daily": {
+        "price": 381.87,
+        "ema21": 397.4,
+        "ema50": 417.43,
+        "ema200": 452.92,
+        "rsi": 33.5,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.6,
+        "structure": "UPTREND",
+        "trend_score": -1,
+        "trend_class": "BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 33.5 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "NVDA": {
+      "name": "NVDA",
+      "yahoo": "NVDA",
+      "weekly": {
+        "price": 172.7,
+        "ema21": 185.39,
+        "ema50": 168.06,
+        "ema200": 149.8,
+        "rsi": 48.2,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.31,
+        "structure": "DOWNTREND",
+        "trend_score": 1,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Lower highs and lower lows \u2014 bearish structure"
+        ]
+      },
+      "daily": {
+        "price": 172.7,
+        "ema21": 182.67,
+        "ema50": 183.8,
+        "ema200": 184.53,
+        "rsi": 37.4,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.2,
+        "structure": "COMPRESSING",
+        "trend_score": -3,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "RSI 37.4 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "GOOGL": {
+      "name": "GOOGL",
+      "yahoo": "GOOGL",
+      "weekly": {
+        "price": 301.0,
+        "ema21": 306.91,
+        "ema50": 259.19,
+        "ema200": 222.98,
+        "rsi": 46.1,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.05,
+        "structure": "VOLATILE",
+        "trend_score": 3,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend"
+        ]
+      },
+      "daily": {
+        "price": 301.0,
+        "ema21": 307.05,
+        "ema50": 313.78,
+        "ema200": 299.55,
+        "rsi": 43.9,
+        "above_200": true,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.7,
+        "structure": "UPTREND",
+        "trend_score": 3,
+        "trend_class": "BULL",
+        "notes": [
+          "Above 200 EMA \u2014 long-term uptrend",
+          "Higher highs and higher lows \u2014 bullish structure"
+        ]
+      }
+    },
+    "AMZN": {
+      "name": "AMZN",
+      "yahoo": "AMZN",
+      "weekly": {
+        "price": 205.37,
+        "ema21": 223.16,
+        "ema50": 216.45,
+        "ema200": 209.67,
+        "rsi": 40.1,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 1.09,
+        "structure": "DOWNTREND",
+        "trend_score": 1,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Lower highs and lower lows \u2014 bearish structure"
+        ]
+      },
+      "daily": {
+        "price": 205.37,
+        "ema21": 210.63,
+        "ema50": 219.31,
+        "ema200": 223.04,
+        "rsi": 46.4,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.31,
+        "structure": "VOLATILE",
+        "trend_score": -2,
+        "trend_class": "BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend"
+        ]
+      }
+    },
+    "META": {
+      "name": "META",
+      "yahoo": "META",
+      "weekly": {
+        "price": 593.66,
+        "ema21": 642.14,
+        "ema50": 648.23,
+        "ema200": 621.61,
+        "rsi": 42.2,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.2,
+        "structure": "UPTREND",
+        "trend_score": 0,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Higher highs and higher lows \u2014 bullish structure"
+        ]
+      },
+      "daily": {
+        "price": 593.66,
+        "ema21": 634.28,
+        "ema50": 644.21,
+        "ema200": 668.65,
+        "rsi": 28.2,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.49,
+        "structure": "DOWNTREND",
+        "trend_score": -5,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 28.2 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "JPM": {
+      "name": "JPM",
+      "yahoo": "JPM",
+      "weekly": {
+        "price": 286.56,
+        "ema21": 304.73,
+        "ema50": 290.43,
+        "ema200": 263.03,
+        "rsi": 38.4,
+        "above_200": true,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 1.41,
+        "structure": "COMPRESSING",
+        "trend_score": 2,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 38.4 \u2014 bearish momentum"
+        ]
+      },
+      "daily": {
+        "price": 286.56,
+        "ema21": 292.92,
+        "ema50": 302.37,
+        "ema200": 305.58,
+        "rsi": 30.0,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.97,
+        "structure": "NEUTRAL",
+        "trend_score": -3,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "RSI 30.0 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "GS": {
+      "name": "GS",
+      "yahoo": "GS",
+      "weekly": {
+        "price": 813.53,
+        "ema21": 853.95,
+        "ema50": 764.59,
+        "ema200": 662.87,
+        "rsi": 39.9,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.12,
+        "structure": "NEUTRAL",
+        "trend_score": 2,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 39.9 \u2014 bearish momentum"
+        ]
+      },
+      "daily": {
+        "price": 813.53,
+        "ema21": 837.77,
+        "ema50": 875.45,
+        "ema200": 855.09,
+        "rsi": 33.9,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.22,
+        "structure": "DOWNTREND",
+        "trend_score": -5,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 33.9 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "V": {
+      "name": "V",
+      "yahoo": "V",
+      "weekly": {
+        "price": 301.62,
+        "ema21": 326.01,
+        "ema50": 333.09,
+        "ema200": 319.55,
+        "rsi": 27.4,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.33,
+        "structure": "DOWNTREND",
+        "trend_score": -5,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 27.4 \u2014 bearish momentum"
+        ]
+      },
+      "daily": {
+        "price": 301.62,
+        "ema21": 310.84,
+        "ema50": 321.09,
+        "ema200": 329.26,
+        "rsi": 20.4,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.9,
+        "structure": "DOWNTREND",
+        "trend_score": -5,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 20.4 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "BAC": {
+      "name": "BAC",
+      "yahoo": "BAC",
+      "weekly": {
+        "price": 47.16,
+        "ema21": 51.68,
+        "ema50": 48.3,
+        "ema200": 45.43,
+        "rsi": 31.9,
+        "above_200": true,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 1.39,
+        "structure": "UPTREND",
+        "trend_score": 4,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 31.9 \u2014 bearish momentum"
+        ]
+      },
+      "daily": {
+        "price": 47.16,
+        "ema21": 48.74,
+        "ema50": 50.97,
+        "ema200": 51.69,
+        "rsi": 31.6,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.6,
+        "structure": "COMPRESSING",
+        "trend_score": -3,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "RSI 31.6 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "BLK": {
+      "name": "BLK",
+      "yahoo": "BLK",
+      "weekly": {
+        "price": 957.91,
+        "ema21": 1044.03,
+        "ema50": 1029.09,
+        "ema200": 978.97,
+        "rsi": 36.9,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 1.4,
+        "structure": "DOWNTREND",
+        "trend_score": 0,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 36.9 \u2014 bearish momentum"
+        ]
+      },
+      "daily": {
+        "price": 957.91,
+        "ema21": 995.3,
+        "ema50": 1033.91,
+        "ema200": 1066.5,
+        "rsi": 27.0,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 0.71,
+        "structure": "VOLATILE",
+        "trend_score": -3,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "RSI 27.0 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "JNJ": {
+      "name": "JNJ",
+      "yahoo": "JNJ",
+      "weekly": {
+        "price": 235.37,
+        "ema21": 221.24,
+        "ema50": 195.58,
+        "ema200": 176.52,
+        "rsi": 68.0,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.36,
+        "structure": "UPTREND",
+        "trend_score": 6,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 68.0 \u2014 bullish momentum"
+        ]
+      },
+      "daily": {
+        "price": 235.37,
+        "ema21": 241.07,
+        "ema50": 233.55,
+        "ema200": 215.14,
+        "rsi": 24.0,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 2.08,
+        "structure": "DOWNTREND",
+        "trend_score": 0,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 24.0 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "PFE": {
+      "name": "PFE",
+      "yahoo": "PFE",
+      "weekly": {
+        "price": 26.97,
+        "ema21": 25.89,
+        "ema50": 24.42,
+        "ema200": 24.54,
+        "rsi": 61.0,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": false,
+        "vol_ratio": 1.34,
+        "structure": "UPTREND",
+        "trend_score": 5,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Above 50 and 200 EMA \u2014 uptrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 61.0 \u2014 bullish momentum"
+        ]
+      },
+      "daily": {
+        "price": 26.97,
+        "ema21": 26.99,
+        "ema50": 26.58,
+        "ema200": 25.57,
+        "rsi": 46.5,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.39,
+        "structure": "NEUTRAL",
+        "trend_score": 3,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend"
+        ]
+      }
+    },
+    "UNH": {
+      "name": "UNH",
+      "yahoo": "UNH",
+      "weekly": {
+        "price": 275.59,
+        "ema21": 306.68,
+        "ema50": 349.96,
+        "ema200": 387.37,
+        "rsi": 33.3,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.83,
+        "structure": "DOWNTREND",
+        "trend_score": -5,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 33.3 \u2014 bearish momentum"
+        ]
+      },
+      "daily": {
+        "price": 275.59,
+        "ema21": 283.84,
+        "ema50": 296.18,
+        "ema200": 311.34,
+        "rsi": 33.3,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 3.97,
+        "structure": "NEUTRAL",
+        "trend_score": -3,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "RSI 33.3 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "ABBV": {
+      "name": "ABBV",
+      "yahoo": "ABBV",
+      "weekly": {
+        "price": 205.07,
+        "ema21": 221.79,
+        "ema50": 209.52,
+        "ema200": 197.09,
+        "rsi": 40.0,
+        "above_200": true,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 2.07,
+        "structure": "VOLATILE",
+        "trend_score": 3,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend"
+        ]
+      },
+      "daily": {
+        "price": 205.07,
+        "ema21": 221.3,
+        "ema50": 222.93,
+        "ema200": 223.25,
+        "rsi": 12.3,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 3.25,
+        "structure": "DOWNTREND",
+        "trend_score": -5,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 12.3 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "XOM": {
+      "name": "XOM",
+      "yahoo": "XOM",
+      "weekly": {
+        "price": 159.67,
+        "ema21": 136.27,
+        "ema50": 122.31,
+        "ema200": 116.07,
+        "rsi": 91.6,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.57,
+        "structure": "NEUTRAL",
+        "trend_score": 4,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 91.6 \u2014 bullish momentum"
+        ]
+      },
+      "daily": {
+        "price": 159.67,
+        "ema21": 153.53,
+        "ema50": 145.7,
+        "ema200": 132.04,
+        "rsi": 61.9,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.22,
+        "structure": "VOLATILE",
+        "trend_score": 4,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 61.9 \u2014 bullish momentum"
+        ]
+      }
+    },
+    "CVX": {
+      "name": "CVX",
+      "yahoo": "CVX",
+      "weekly": {
+        "price": 201.73,
+        "ema21": 172.76,
+        "ema50": 157.67,
+        "ema200": 152.22,
+        "rsi": 96.2,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 2.0,
+        "structure": "NEUTRAL",
+        "trend_score": 4,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 96.2 \u2014 bullish momentum"
+        ]
+      },
+      "daily": {
+        "price": 201.73,
+        "ema21": 192.77,
+        "ema50": 182.38,
+        "ema200": 168.49,
+        "rsi": 72.6,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 2.05,
+        "structure": "UPTREND",
+        "trend_score": 6,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 72.6 \u2014 bullish momentum"
+        ]
+      }
+    },
+    "KO": {
+      "name": "KO",
+      "yahoo": "KO",
+      "weekly": {
+        "price": 74.75,
+        "ema21": 73.69,
+        "ema50": 71.32,
+        "ema200": 67.05,
+        "rsi": 61.0,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.27,
+        "structure": "VOLATILE",
+        "trend_score": 4,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 61.0 \u2014 bullish momentum"
+        ]
+      },
+      "daily": {
+        "price": 74.75,
+        "ema21": 77.47,
+        "ema50": 75.74,
+        "ema200": 72.48,
+        "rsi": 19.6,
+        "above_200": true,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 2.05,
+        "structure": "UPTREND",
+        "trend_score": 4,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 19.6 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "PEP": {
+      "name": "PEP",
+      "yahoo": "PEP",
+      "weekly": {
+        "price": 150.04,
+        "ema21": 152.33,
+        "ema50": 145.89,
+        "ema200": 148.57,
+        "rsi": 50.5,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": false,
+        "vol_ratio": 1.2,
+        "structure": "DOWNTREND",
+        "trend_score": 0,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Above 50 and 200 EMA \u2014 uptrend",
+          "Lower highs and lower lows \u2014 bearish structure"
+        ]
+      },
+      "daily": {
+        "price": 150.04,
+        "ema21": 159.11,
+        "ema50": 155.87,
+        "ema200": 150.69,
+        "rsi": 14.7,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 2.28,
+        "structure": "NEUTRAL",
+        "trend_score": 2,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 14.7 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "PG": {
+      "name": "PG",
+      "yahoo": "PG",
+      "weekly": {
+        "price": 144.28,
+        "ema21": 150.88,
+        "ema50": 153.02,
+        "ema200": 154.82,
+        "rsi": 52.3,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.76,
+        "structure": "VOLATILE",
+        "trend_score": -2,
+        "trend_class": "BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend"
+        ]
+      },
+      "daily": {
+        "price": 144.28,
+        "ema21": 153.75,
+        "ema50": 152.4,
+        "ema200": 150.8,
+        "rsi": 14.7,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 1.17,
+        "structure": "DOWNTREND",
+        "trend_score": 0,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 14.7 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "WMT": {
+      "name": "WMT",
+      "yahoo": "WMT",
+      "weekly": {
+        "price": 119.02,
+        "ema21": 117.61,
+        "ema50": 108.99,
+        "ema200": 95.11,
+        "rsi": 52.3,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.13,
+        "structure": "UPTREND",
+        "trend_score": 5,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Higher highs and higher lows \u2014 bullish structure"
+        ]
+      },
+      "daily": {
+        "price": 119.02,
+        "ema21": 123.67,
+        "ema50": 122.64,
+        "ema200": 116.02,
+        "rsi": 29.5,
+        "above_200": true,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 2.51,
+        "structure": "COMPRESSING",
+        "trend_score": 2,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 29.5 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "TSLA": {
+      "name": "TSLA",
+      "yahoo": "TSLA",
+      "weekly": {
+        "price": 367.96,
+        "ema21": 422.59,
+        "ema50": 380.79,
+        "ema200": 333.14,
+        "rsi": 25.4,
+        "above_200": true,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 1.27,
+        "structure": "COMPRESSING",
+        "trend_score": 2,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 25.4 \u2014 bearish momentum"
+        ]
+      },
+      "daily": {
+        "price": 367.96,
+        "ema21": 396.68,
+        "ema50": 410.18,
+        "ema200": 425.05,
+        "rsi": 32.4,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.23,
+        "structure": "DOWNTREND",
+        "trend_score": -5,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 32.4 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "HSBA": {
+      "name": "HSBA",
+      "yahoo": "HSBA.L",
+      "weekly": {
+        "price": 11.44,
+        "ema21": 11.93,
+        "ema50": 10.59,
+        "ema200": 9.27,
+        "rsi": 52.5,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.94,
+        "structure": "UPTREND",
+        "trend_score": 5,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Higher highs and higher lows \u2014 bullish structure"
+        ]
+      },
+      "daily": {
+        "price": 11.44,
+        "ema21": 12.4,
+        "ema50": 12.5,
+        "ema200": 11.78,
+        "rsi": 24.8,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 2.12,
+        "structure": "DOWNTREND",
+        "trend_score": -5,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 24.8 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "AZN": {
+      "name": "AZN",
+      "yahoo": "AZN.L",
+      "weekly": {
+        "price": 138.96,
+        "ema21": 139.76,
+        "ema50": 127.05,
+        "ema200": 121.1,
+        "rsi": 54.4,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.38,
+        "structure": "VOLATILE",
+        "trend_score": 3,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend"
+        ]
+      },
+      "daily": {
+        "price": 138.96,
+        "ema21": 146.14,
+        "ema50": 144.79,
+        "ema200": 136.96,
+        "rsi": 19.2,
+        "above_200": true,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 1.32,
+        "structure": "DOWNTREND",
+        "trend_score": 0,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 19.2 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "GSK": {
+      "name": "GSK",
+      "yahoo": "GSK.L",
+      "weekly": {
+        "price": 19.5,
+        "ema21": 19.5,
+        "ema50": 17.16,
+        "ema200": 16.53,
+        "rsi": 56.8,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.29,
+        "structure": "VOLATILE",
+        "trend_score": 3,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend"
+        ]
+      },
+      "daily": {
+        "price": 19.5,
+        "ema21": 20.67,
+        "ema50": 20.34,
+        "ema200": 18.84,
+        "rsi": 9.8,
+        "above_200": true,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 1.67,
+        "structure": "DOWNTREND",
+        "trend_score": 0,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 9.8 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "ULVR": {
+      "name": "ULVR",
+      "yahoo": "ULVR.L",
+      "weekly": {
+        "price": 45.95,
+        "ema21": 49.65,
+        "ema50": 49.45,
+        "ema200": 48.24,
+        "rsi": 43.7,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 1.84,
+        "structure": "VOLATILE",
+        "trend_score": 3,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend"
+        ]
+      },
+      "daily": {
+        "price": 45.95,
+        "ema21": 49.67,
+        "ema50": 49.93,
+        "ema200": 49.4,
+        "rsi": 8.8,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.88,
+        "structure": "NEUTRAL",
+        "trend_score": -3,
+        "trend_class": "STRONG_BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "RSI 8.8 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "SHEL": {
+      "name": "SHEL",
+      "yahoo": "SHEL.L",
+      "weekly": {
+        "price": 34.34,
+        "ema21": 29.45,
+        "ema50": 27.42,
+        "ema200": 27.14,
+        "rsi": 82.1,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.99,
+        "structure": "NEUTRAL",
+        "trend_score": 4,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 82.1 \u2014 bullish momentum"
+        ]
+      },
+      "daily": {
+        "price": 34.34,
+        "ema21": 32.43,
+        "ema50": 30.32,
+        "ema200": 28.73,
+        "rsi": 76.4,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 2.72,
+        "structure": "NEUTRAL",
+        "trend_score": 4,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 76.4 \u2014 bullish momentum"
+        ]
+      }
+    },
+    "VUAG": {
+      "name": "VUAG",
+      "yahoo": "VUAG.L",
+      "weekly": {
+        "price": 94.72,
+        "ema21": 97.94,
+        "ema50": 92.61,
+        "ema200": 89.42,
+        "rsi": 36.7,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 1.12,
+        "structure": "DOWNTREND",
+        "trend_score": 0,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Lower highs and lower lows \u2014 bearish structure",
+          "RSI 36.7 \u2014 bearish momentum"
+        ]
+      },
+      "daily": {
+        "price": 94.72,
+        "ema21": 97.04,
+        "ema50": 97.03,
+        "ema200": 95.49,
+        "rsi": 30.0,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": true,
+        "vol_ratio": 1.12,
+        "structure": "COMPRESSING",
+        "trend_score": 2,
+        "trend_class": "BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "RSI 30.0 \u2014 bearish momentum"
+        ]
+      }
+    },
+    "SQQQ": {
+      "name": "SQQQ",
+      "yahoo": "SQQQ",
+      "weekly": {
+        "price": 80.25,
+        "ema21": 70.07,
+        "ema50": 90.83,
+        "ema200": 124.06,
+        "rsi": 65.7,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.15,
+        "structure": "VOLATILE",
+        "trend_score": -1,
+        "trend_class": "BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "RSI 65.7 \u2014 bullish momentum"
+        ]
+      },
+      "daily": {
+        "price": 80.25,
+        "ema21": 73.08,
+        "ema50": 70.74,
+        "ema200": 70.4,
+        "rsi": 66.6,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": true,
+        "vol_ratio": 0.95,
+        "structure": "UPTREND",
+        "trend_score": 6,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Full EMA alignment (21>50>200) \u2014 strong uptrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 66.6 \u2014 bullish momentum"
+        ]
+      }
+    },
+    "QQQS": {
+      "name": "QQQS",
+      "yahoo": "QQQS.L",
+      "weekly": {
+        "price": 3.37,
+        "ema21": 3.01,
+        "ema50": 4.03,
+        "ema200": 5.54,
+        "rsi": 65.1,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.59,
+        "structure": "UPTREND",
+        "trend_score": 1,
+        "trend_class": "NEUTRAL",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 65.1 \u2014 bullish momentum"
+        ]
+      },
+      "daily": {
+        "price": 3.37,
+        "ema21": 3.13,
+        "ema50": 3.03,
+        "ema200": 3.04,
+        "rsi": 61.2,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": false,
+        "vol_ratio": 1.39,
+        "structure": "UPTREND",
+        "trend_score": 5,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Above 50 and 200 EMA \u2014 uptrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 61.2 \u2014 bullish momentum"
+        ]
+      }
+    },
+    "3USS": {
+      "name": "3USS",
+      "yahoo": "3USS.L",
+      "weekly": {
+        "price": 11.16,
+        "ema21": 9.97,
+        "ema50": 12.35,
+        "ema200": 15.15,
+        "rsi": 70.3,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 2.53,
+        "structure": "COMPRESSING",
+        "trend_score": -1,
+        "trend_class": "BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "RSI 70.3 \u2014 bullish momentum"
+        ]
+      },
+      "daily": {
+        "price": 11.16,
+        "ema21": 10.26,
+        "ema50": 9.89,
+        "ema200": 10.0,
+        "rsi": 69.0,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": false,
+        "vol_ratio": 1.32,
+        "structure": "UPTREND",
+        "trend_score": 5,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Above 50 and 200 EMA \u2014 uptrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 69.0 \u2014 bullish momentum"
+        ]
+      }
+    },
+    "SPXU": {
+      "name": "SPXU",
+      "yahoo": "SPXU",
+      "weekly": {
+        "price": 58.03,
+        "ema21": 50.7,
+        "ema50": 61.23,
+        "ema200": 74.36,
+        "rsi": 67.9,
+        "above_200": false,
+        "above_50": false,
+        "ema_aligned": false,
+        "vol_ratio": 1.32,
+        "structure": "VOLATILE",
+        "trend_score": -1,
+        "trend_class": "BEAR",
+        "notes": [
+          "Below 50 and 200 EMA \u2014 downtrend",
+          "RSI 67.9 \u2014 bullish momentum"
+        ]
+      },
+      "daily": {
+        "price": 58.03,
+        "ema21": 52.38,
+        "ema50": 50.57,
+        "ema200": 50.69,
+        "rsi": 74.7,
+        "above_200": true,
+        "above_50": true,
+        "ema_aligned": false,
+        "vol_ratio": 1.08,
+        "structure": "UPTREND",
+        "trend_score": 5,
+        "trend_class": "STRONG_BULL",
+        "notes": [
+          "Above 50 and 200 EMA \u2014 uptrend",
+          "Higher highs and higher lows \u2014 bullish structure",
+          "RSI 74.7 \u2014 bullish momentum"
+        ]
+      }
+    }
+  }
+}

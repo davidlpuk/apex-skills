@@ -1,0 +1,678 @@
+{
+  "timestamp": "2026-03-22 07:29 UTC",
+  "count": 21,
+  "data": {
+    "AAPL": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (0.9% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 65.3,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 65.3%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 0.88,
+        "days_to_cover": 2.4,
+        "shares_short": 129553812,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "0.9% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "MSFT": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.0% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 76.0,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 76.0%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.0,
+        "days_to_cover": 1.6,
+        "shares_short": 74347979,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.0% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "NVDA": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.1% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 69.8,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 69.8%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.07,
+        "days_to_cover": 1.3,
+        "shares_short": 248340872,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.1% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "GOOGL": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.3% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 80.8,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 80.8%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.31,
+        "days_to_cover": 1.9,
+        "shares_short": 76336607,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.3% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "AMZN": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (0.8% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 67.3,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 67.3%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 0.84,
+        "days_to_cover": 1.3,
+        "shares_short": 81891881,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "0.8% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "META": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.1% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 78.7,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 78.7%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.12,
+        "days_to_cover": 1.5,
+        "shares_short": 24393384,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.1% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "JPM": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (0.9% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 75.0,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 75.0%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 0.85,
+        "days_to_cover": 2.1,
+        "shares_short": 22965132,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "0.9% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "GS": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (2.1% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 75.7,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 75.7%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 2.07,
+        "days_to_cover": 2.5,
+        "shares_short": 6116629,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "2.1% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "V": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.6% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 90.8,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 90.8%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.62,
+        "days_to_cover": 3.1,
+        "shares_short": 27231314,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.6% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "BAC": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.3% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 71.2,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 71.2%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.28,
+        "days_to_cover": 2.2,
+        "shares_short": 91784810,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.3% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "BLK": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (0.9% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 82.6,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 82.6%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 0.95,
+        "days_to_cover": 1.8,
+        "shares_short": 1446441,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "0.9% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "JNJ": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.0% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 75.8,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 75.8%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.04,
+        "days_to_cover": 2.6,
+        "shares_short": 25086679,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.0% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "PFE": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (2.5% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 67.7,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 67.7%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 2.51,
+        "days_to_cover": 3.0,
+        "shares_short": 142846663,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "2.5% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "UNH": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.6% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 84.2,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 84.2%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.63,
+        "days_to_cover": 1.2,
+        "shares_short": 14788018,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.6% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "ABBV": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.2% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 76.4,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 76.4%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.23,
+        "days_to_cover": 3.1,
+        "shares_short": 21748668,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.2% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "XOM": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.3% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 67.5,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 67.5%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.3,
+        "days_to_cover": 2.2,
+        "shares_short": 48374573,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.3% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "CVX": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.1% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 67.9,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 67.9%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.09,
+        "days_to_cover": 1.9,
+        "shares_short": 21592025,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.1% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "KO": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.0% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 66.7,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 66.7%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.02,
+        "days_to_cover": 2.1,
+        "shares_short": 43415996,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.0% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "PEP": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.5% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 79.9,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 79.9%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.53,
+        "days_to_cover": 2.2,
+        "shares_short": 20841738,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.5% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "PG": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.0% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 70.4,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 70.4%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 0.96,
+        "days_to_cover": 2.0,
+        "shares_short": 22387940,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.0% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    },
+    "WMT": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (1.1% short \u2014 low short interest, not a crowded short)"
+      ],
+      "revisions": null,
+      "insider": {
+        "form4_count_90d": 0,
+        "inst_ownership": 38.9,
+        "trend": "UNKNOWN",
+        "signal": 0,
+        "note": "Institutional ownership: 38.9%",
+        "source": "yfinance fallback"
+      },
+      "dividend": {
+        "has_dividend": false,
+        "signal": 0,
+        "note": "No dividend"
+      },
+      "short_interest": {
+        "short_pct_float": 1.09,
+        "days_to_cover": 3.2,
+        "shares_short": 87112768,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.1% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": null
+    }
+  }
+}

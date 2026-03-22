@@ -1,0 +1,27 @@
+{
+  "markets": {
+    "SP500": {
+      "open": 95.95,
+      "current": 94.9,
+      "change": -1.09
+    },
+    "FTSE100": {
+      "open": 993.9,
+      "current": 982.04,
+      "change": -1.19
+    },
+    "WORLD": {
+      "open": 126.0,
+      "current": 124.54,
+      "change": -1.16
+    }
+  },
+  "blocks": [],
+  "warnings": [
+    "SP500 down -1.09% today \u2014 weak market, be cautious",
+    "FTSE100 down -1.19% today \u2014 weak market, be cautious",
+    "WORLD down -1.16% today \u2014 weak market, be cautious"
+  ],
+  "overall": "WARN",
+  "timestamp": "2026-03-19 17:11 UTC"
+}

@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-03-21 11:17 UTC",
+  "pairs": [
+    {
+      "pair": "Vanguard S&P 500 (Acc)/Exxon Mobil",
+      "correlation": -0.16,
+      "risk": "LOW"
+    },
+    {
+      "pair": "Vanguard S&P 500 (Acc)/Visa",
+      "correlation": 0.2,
+      "risk": "LOW"
+    },
+    {
+      "pair": "Vanguard S&P 500 (Acc)/Apple",
+      "correlation": 0.21,
+      "risk": "LOW"
+    },
+    {
+      "pair": "Exxon Mobil/Visa",
+      "correlation": -0.12,
+      "risk": "LOW"
+    },
+    {
+      "pair": "Exxon Mobil/Apple",
+      "correlation": 0.04,
+      "risk": "LOW"
+    },
+    {
+      "pair": "Visa/Apple",
+      "correlation": 0.33,
+      "risk": "LOW"
+    }
+  ],
+  "warnings": [],
+  "overall": "DIVERSIFIED"
+}

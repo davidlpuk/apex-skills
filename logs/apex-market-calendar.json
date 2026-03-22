@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-03-22 10:42 UTC",
+  "today": {
+    "date": "2026-03-22",
+    "status": "CLOSED_WEEKEND",
+    "message": "Weekend \u2014 markets closed",
+    "us_open": false,
+    "uk_open": false,
+    "us_currently_open": false,
+    "uk_currently_open": false,
+    "us_holiday": null,
+    "uk_holiday": null,
+    "us_early_close": null,
+    "can_trade_us": false,
+    "can_trade_uk": false,
+    "safe_to_scan": false
+  },
+  "next_trading": "2026-03-23"
+}

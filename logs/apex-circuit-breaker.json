@@ -1,0 +1,22 @@
+{
+  "session_date": "2026-03-22",
+  "session_open": 5003.94,
+  "session_open_time": "2026-03-22T10:39:31.233328+00:00",
+  "current_value": 5003.94,
+  "open_pnl": 5.42,
+  "session_pnl": 0.0,
+  "session_pnl_pct": 0.0,
+  "status": "CLEAR",
+  "triggered": false,
+  "trigger_level": null,
+  "checks": [
+    {
+      "time": "10:39 UTC",
+      "total": 5003.94,
+      "pnl": 0.0,
+      "pnl_pct": 0.0,
+      "status": "CLEAR"
+    }
+  ],
+  "last_check": "2026-03-22T10:39:31.234815+00:00"
+}

@@ -1,0 +1,55 @@
+{
+  "start_date": "2026-03-22",
+  "start_prices": {
+    "VUAG": 94.72,
+    "VWRP": 1.2382,
+    "SPY": 648.57
+  },
+  "starting_capital": 5000.0,
+  "history": [
+    {
+      "date": "2026-03-22",
+      "prices": {
+        "VUAG": 94.72,
+        "VWRP": 1.2382,
+        "SPY": 648.57
+      },
+      "passive_values": {
+        "VUAG": 5000.0,
+        "VWRP": 5000.0,
+        "SPY": 5000.02
+      },
+      "vuag_value": 5000.0,
+      "vuag_return": 0.0,
+      "apex_value": 5003.93,
+      "apex_return": 0.08,
+      "alpha": 0.08,
+      "beating": true
+    }
+  ],
+  "passive_units": {
+    "VUAG": 52.7872,
+    "VWRP": 4038.1199,
+    "SPY": 7.7093
+  },
+  "latest": {
+    "date": "2026-03-22",
+    "prices": {
+      "VUAG": 94.72,
+      "VWRP": 1.2382,
+      "SPY": 648.57
+    },
+    "passive_values": {
+      "VUAG": 5000.0,
+      "VWRP": 5000.0,
+      "SPY": 5000.02
+    },
+    "vuag_value": 5000.0,
+    "vuag_return": 0.0,
+    "apex_value": 5003.93,
+    "apex_return": 0.08,
+    "alpha": 0.08,
+    "beating": true
+  },
+  "last_updated": "2026-03-22 11:08 UTC"
+}

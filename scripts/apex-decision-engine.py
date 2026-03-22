@@ -702,6 +702,24 @@ def save_and_notify(signal, intel, qty, notional):
 # ============================================================
 
 def run():
+    # Pre-flight data integrity check
+    try:
+        import importlib.util as _ilu_di
+        _spec_di = _ilu_di.spec_from_file_location(
+            "di", "/home/ubuntu/.picoclaw/scripts/apex-data-integrity.py")
+        _di = _ilu_di.module_from_spec(_spec_di)
+        _spec_di.loader.exec_module(_di)
+        _di_ok, _di_fails = _di.quick_check()
+        if not _di_ok:
+            print(f"⚠️  Data integrity warnings: {len(_di_fails)} issues")
+            for f in _di_fails[:3]:
+                print(f"  → {f}")
+            print("  Proceeding with caution — verify data manually")
+        else:
+            print("✅ Data integrity: CLEAR")
+    except Exception as _di_e:
+        print(f"⚠️  Data integrity check failed: {_di_e}")
+
     # ── Module cache — load once, reuse per signal ──────────────
     _MODULE_CACHE = {}
 

@@ -311,6 +311,35 @@ def score_signal_with_intelligence(signal, intel):
     except Exception as _e:
         log_error(f"Insider adjustment failed for {name}: {_e}")
 
+    # Layer 16: FRED Macro Economic Signal
+    try:
+        import importlib.util as _ilu_fred
+        _spec_fred = _ilu_fred.spec_from_file_location(
+            "fred", "/home/ubuntu/.picoclaw/scripts/apex-fred-macro.py")
+        _fred = _ilu_fred.module_from_spec(_spec_fred)
+        _spec_fred.loader.exec_module(_fred)
+        _fred_adj, _fred_reasons = _fred.get_fred_adjustment(signal_type)
+        if _fred_adj != 0:
+            total_score += _fred_adj
+            adjustments.append(f"FRED: {_fred_adj:+d} ({_fred_reasons[0][:55] if _fred_reasons else ''})")
+    except Exception as _e:
+        log_error(f"FRED adjustment failed for {name}: {_e}")
+
+    # Layer 17: Options Flow Signal
+    try:
+        import importlib.util as _ilu_opts
+        _spec_opts = _ilu_opts.spec_from_file_location(
+            "opts", "/home/ubuntu/.picoclaw/scripts/apex-options-flow.py")
+        _opts = _ilu_opts.module_from_spec(_spec_opts)
+        _spec_opts.loader.exec_module(_opts)
+        _opts_ticker = signal.get('ticker', name)
+        _opts_adj, _opts_reasons = _opts.get_options_adjustment(_opts_ticker, signal_type)
+        if _opts_adj != 0:
+            total_score += _opts_adj
+            adjustments.append(f"OPTIONS: {_opts_adj:+d} ({_opts_reasons[0][:55] if _opts_reasons else ''})")
+    except Exception as _e:
+        log_error(f"Options flow adjustment failed for {name}: {_e}")
+
     # Breadth thrust regime adjustment to signal
     try:
         with open('/home/ubuntu/.picoclaw/logs/apex-breadth-thrust.json') as _bt_f:

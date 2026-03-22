@@ -213,3 +213,31 @@ def get_insider_adjustment(symbol, signal_type='TREND'):
 
 if __name__ == '__main__':
     run()
+
+# ── PATCHED: redirect get_insider_adjustment to apex-insider-edgar.py output ──
+def get_insider_adjustment(symbol, signal_type='TREND'):
+    """
+    Patched Layer 15 — reads real XML-parsed EDGAR scores from apex-insider-edgar.py.
+    Overrides the stub above.
+    """
+    import json
+    from pathlib import Path
+
+    sig_file = Path('/home/ubuntu/.picoclaw/data/apex-insider-signal.json')
+    if not sig_file.exists():
+        return 0, []
+
+    try:
+        data    = json.loads(sig_file.read_text())
+        signals = data.get('signals', {})
+        sig     = signals.get(symbol, {})
+        score   = sig.get('score', 0)
+        reasons = sig.get('reasons', [])
+
+        # Don't double-penalise contrarian setups with insider selling
+        if signal_type == 'CONTRARIAN' and score < 0:
+            return 0, []
+
+        return score, reasons
+    except Exception:
+        return 0, []

@@ -392,6 +392,25 @@ def run(mode='check'):
             print(f"QUALITY BLOCKED: {reason}")
             return
 
+    # EDGAR insider hard-block — if cluster selling, require score >= 8
+    try:
+        import json as _json
+        from pathlib import Path as _Path
+        _sig_file = _Path('/home/ubuntu/.picoclaw/data/apex-insider-signal.json')
+        if _sig_file.exists():
+            _insider_data = _json.loads(_sig_file.read_text())
+            _insider_score = _insider_data.get('signals', {}).get(name, {}).get('score', 0)
+            _insider_reasons = _insider_data.get('signals', {}).get(name, {}).get('reasons', [])
+            if _insider_score <= -2 and score < 8:
+                _reason = ' | '.join(_insider_reasons)
+                send_telegram(f"🔴 INSIDER BLOCK\n\n{type_icon} {name}\nCluster insider selling detected\n{_reason}\nScore {score}/10 below 8.0 threshold required to override\n\nTrade blocked.")
+                print(f"INSIDER BLOCKED: score={score} < 8 required | {_reason}")
+                return
+            elif _insider_score <= -2:
+                print(f"  Insider warning: {_insider_score} ({_reason}) — score {score} clears threshold")
+    except Exception as _e:
+        log_error(f"EDGAR insider block check failed: {_e}")
+
     # Regime check — skipped for contrarian
     reg_status, reg_blocks = regime_check(signal)
     if reg_status == "BLOCKED":

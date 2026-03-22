@@ -251,5 +251,82 @@
     "verdict": "POSITIVE",
     "confidence": "LOW \u2014 using prior",
     "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-22",
+    "name": "XOM",
+    "ev": 1.67,
+    "ev_per_risk": 0.116,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-22",
+    "name": "XOM",
+    "ev": 1.67,
+    "ev_per_risk": 0.116,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-22",
+    "name": "XOM",
+    "ev": 1.67,
+    "ev_per_risk": 0.116,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-22",
+    "name": "XOM",
+    "ev": 1.67,
+    "ev_per_risk": 0.116,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-22",
+    "name": "XOM",
+    "ev": 1.67,
+    "ev_per_risk": 0.116,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-22",
+    "name": "XOM",
+    "ev": 1.67,
+    "ev_per_risk": 0.116,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-22",
+    "name": "XOM",
+    "ev": 1.67,
+    "ev_per_risk": 0.116,
+    "r_expect": 0.367,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
   }
 ]

@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-03-22 10:26 UTC",
+  "score": 0,
+  "level": "CLEAR",
+  "action": "No black swan signals detected",
+  "events": [],
+  "gaps": [],
+  "regulatory": [],
+  "vix": {
+    "current_vix": 26.78,
+    "prev_vix": 24.06,
+    "daily_jump": 11.3,
+    "weekly_move": 13.9,
+    "alerts": [],
+    "severity": "NORMAL"
+  },
+  "vol_collapses": []
+}

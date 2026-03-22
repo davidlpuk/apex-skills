@@ -1,0 +1,195 @@
+{
+  "timestamp": "2026-03-22 10:20 UTC",
+  "total_closed": 0,
+  "any_active": false,
+  "conditional_table": {
+    "FAVOURABLE": {
+      "TREND": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "CONTRARIAN": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "INVERSE": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "EARNINGS_DRIFT": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "DIVIDEND_CAPTURE": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      }
+    },
+    "NEUTRAL": {
+      "TREND": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "CONTRARIAN": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "INVERSE": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "EARNINGS_DRIFT": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "DIVIDEND_CAPTURE": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      }
+    },
+    "CAUTIOUS": {
+      "TREND": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "CONTRARIAN": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "INVERSE": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "EARNINGS_DRIFT": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "DIVIDEND_CAPTURE": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      }
+    },
+    "HOSTILE": {
+      "TREND": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "CONTRARIAN": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "INVERSE": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "EARNINGS_DRIFT": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "DIVIDEND_CAPTURE": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      }
+    },
+    "BLOCKED": {
+      "TREND": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "CONTRARIAN": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "INVERSE": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "EARNINGS_DRIFT": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      },
+      "DIVIDEND_CAPTURE": {
+        "status": "NO_DATA",
+        "trades": 0,
+        "win_rate": null,
+        "noise_score": null,
+        "active": false
+      }
+    }
+  },
+  "pivot_flags": [],
+  "min_trades": 20,
+  "status": "COLLECTING"
+}

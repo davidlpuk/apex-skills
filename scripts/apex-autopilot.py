@@ -400,6 +400,69 @@ def run(mode='check'):
         print(f"REGIME BLOCKED: {reason}")
         return
 
+    # ── Four Pillars Audit ─────────────────────────────────────
+    try:
+        import importlib.util as _ilu_bs
+        _spec_bs = _ilu_bs.spec_from_file_location(
+            "bs", "/home/ubuntu/.picoclaw/scripts/apex-blackswan-test.py")
+        _bs = _ilu_bs.module_from_spec(_spec_bs)
+        _spec_bs.loader.exec_module(_bs)
+        bs_ok, bs_msg = _bs.pre_trade_check(signal)
+        if not bs_ok:
+            send_telegram(f"🦢 BLACK SWAN BLOCK\n\n{name}\n{bs_msg}")
+            print(f"BLACK SWAN BLOCKED: {bs_msg}")
+            return
+        elif 'CAUTION' in bs_msg:
+            print(f"Black Swan caution: {bs_msg}")
+    except Exception as _e:
+        log_error(f"Black swan check failed: {_e}")
+
+    # Simons noise check
+    try:
+        import importlib.util as _ilu_si
+        _spec_si = _ilu_si.spec_from_file_location(
+            "si", "/home/ubuntu/.picoclaw/scripts/apex-simons-test.py")
+        _si = _ilu_si.module_from_spec(_spec_si)
+        _spec_si.loader.exec_module(_si)
+        _regime = intel.get('regime_label', 'NEUTRAL') if hasattr(signal, 'get') else 'NEUTRAL'
+        noise, regime_wr, is_sig, simons_rec = _si.audit_signal(signal, _regime)
+        print(f"  Simons: noise={noise}/10 | {simons_rec[:60]}")
+        if noise >= 9 and is_sig:
+            send_telegram(f"📊 SIMONS WARNING\n\n{name}\nNoise score {noise}/10\n{simons_rec}")
+    except Exception as _e:
+        log_error(f"Simons check failed: {_e}")
+
+    # Thorp Kelly check
+    try:
+        import importlib.util as _ilu_th
+        _spec_th = _ilu_th.spec_from_file_location(
+            "th", "/home/ubuntu/.picoclaw/scripts/apex-thorp-test.py")
+        _th = _ilu_th.module_from_spec(_spec_th)
+        _spec_th.loader.exec_module(_th)
+        thorp_result = _th.audit_signal(signal)
+        if thorp_result:
+            print(f"  Thorp: Kelly half=£{thorp_result.get('kelly_half_risk',0)} | {thorp_result.get('verdict','')}")
+            if thorp_result.get('verdict') == 'ABORT':
+                send_telegram(f"📐 THORP ABORT\n\n{name}\nNegative Kelly — no mathematical edge")
+                return
+    except Exception as _e:
+        log_error(f"Thorp check failed: {_e}")
+
+    # Shaw liquidity check
+    try:
+        import importlib.util as _ilu_sh
+        _spec_sh = _ilu_sh.spec_from_file_location(
+            "sh", "/home/ubuntu/.picoclaw/scripts/apex-shaw-test.py")
+        _sh = _ilu_sh.module_from_spec(_spec_sh)
+        _spec_sh.loader.exec_module(_sh)
+        shaw_result = _sh.audit_signal_liquidity(signal)
+        if shaw_result:
+            print(f"  Shaw: est. cost=£{shaw_result.get('round_trip_cost_gbp',0)} | {shaw_result.get('verdict','')}")
+    except Exception as _e:
+        log_error(f"Shaw check failed: {_e}")
+
+    # ── End Four Pillars ────────────────────────────────────────
+
     # Real-time correlation check
     corr_status, corr_blocks = realtime_correlation_check(signal)
     if corr_status == "BLOCK":

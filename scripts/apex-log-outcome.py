@@ -171,6 +171,18 @@ def log_outcome(ticker, exit_price, outcome_type):
     print(f"✅ Trade logged: {name} | {result} | P&L: £{pnl} | R: {r_achieved}")
     print(f"📊 Running stats: {len(trades)} trades | Win rate: {db['summary']['win_rate']}% | Total P&L: £{db['summary']['total_pnl']}")
 
+def update_param_log(name, pnl, r_achieved, days_held, exit_reason):
+    """Update shadow portfolio parameter log with trade outcome."""
+    try:
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location(
+            "pl", "/home/ubuntu/.picoclaw/scripts/apex-param-logger.py")
+        _pl = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_pl)
+        _pl.update_outcome(name, pnl, r_achieved, days_held, exit_reason)
+    except Exception as e:
+        log_error(f"param log update failed: {e}")
+
 if __name__ == '__main__':
     if len(sys.argv) < 4:
         print("Usage: apex-log-outcome.py TICKER EXIT_PRICE OUTCOME_TYPE")

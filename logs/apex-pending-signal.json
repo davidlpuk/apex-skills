@@ -6,20 +6,18 @@
   "stop": 150.09,
   "target1": 174.04,
   "target2": 183.62,
-  "score": 14.0,
+  "score": 10.0,
   "rsi": 61.93,
   "macd": 0.2181,
   "sector": "Energy",
   "signal_type": "CONTRARIAN",
   "currency": "USD",
   "adjustments": [
-    "RS: +1 (RS STRONG_LEADER (+14.1% vs market))",
-    "MTF: +2 (Weekly STRONG_BULL \u2014 contrarian is pullback in uptrend, idea)",
     "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
     "Sector: +3 (Energy is leading sector (10/10 rotation score) | Energy breadth strong (100.0% above 200 EMA))",
     "Geo: +2 (Geo-reversal: XOM benefits from current conflict)",
     "Fundamentals: +1 (STRONG)",
     "Sentiment: -1 (NEGATIVE -0.15)"
   ],
-  "generated_at": "2026-03-22T08:03:08.239985+00:00"
+  "generated_at": "2026-03-22T09:55:12.982889+00:00"
 }

@@ -38,10 +38,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 46.87,
+          "max_price": 47.79,
           "stop": 44.11,
           "risk": 0.92,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a346.87 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a346.87 < price < \u00a347.79 \u2014 0.5 shares"
         },
         "total_risk": 2.3,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -58,10 +59,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 46.87,
+        "max_price": 47.79,
         "stop": 44.11,
         "risk": 0.92,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a346.87 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a346.87 < price < \u00a347.79 \u2014 0.5 shares"
       },
       "total_risk": 2.3,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -113,10 +115,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 252.95,
+          "max_price": 257.91,
           "stop": 238.07,
           "risk": 4.96,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a3252.95 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3252.95 < price < \u00a3257.91 \u2014 0.5 shares"
         },
         "total_risk": 12.4,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -133,10 +136,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 252.95,
+        "max_price": 257.91,
         "stop": 238.07,
         "risk": 4.96,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a3252.95 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3252.95 < price < \u00a3257.91 \u2014 0.5 shares"
       },
       "total_risk": 12.4,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -189,10 +193,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 389.51,
+          "max_price": 397.14,
           "stop": 366.6,
           "risk": 7.63,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a3389.51 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3389.51 < price < \u00a3397.14 \u2014 0.5 shares"
         },
         "total_risk": 19.09,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -209,10 +214,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 389.51,
+        "max_price": 397.14,
         "stop": 366.6,
         "risk": 7.63,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a3389.51 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3389.51 < price < \u00a3397.14 \u2014 0.5 shares"
       },
       "total_risk": 19.09,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -259,10 +265,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 209.17,
+          "max_price": 213.27,
           "stop": 196.87,
           "risk": 4.1,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a3209.17 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3209.17 < price < \u00a3213.27 \u2014 0.5 shares"
         },
         "total_risk": 10.25,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -279,10 +286,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 209.17,
+        "max_price": 213.27,
         "stop": 196.87,
         "risk": 4.1,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a3209.17 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3209.17 < price < \u00a3213.27 \u2014 0.5 shares"
       },
       "total_risk": 10.25,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -327,10 +335,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 19.89,
+          "max_price": 20.28,
           "stop": 18.72,
           "risk": 0.39,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a319.89 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a319.89 < price < \u00a320.28 \u2014 0.5 shares"
         },
         "total_risk": 0.98,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -347,10 +356,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 19.89,
+        "max_price": 20.28,
         "stop": 18.72,
         "risk": 0.39,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a319.89 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a319.89 < price < \u00a320.28 \u2014 0.5 shares"
       },
       "total_risk": 0.98,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -399,10 +409,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 11.67,
+          "max_price": 11.9,
           "stop": 10.98,
           "risk": 0.23,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a311.67 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a311.67 < price < \u00a311.9 \u2014 0.5 shares"
         },
         "total_risk": 0.57,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -419,10 +430,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 11.67,
+        "max_price": 11.9,
         "stop": 10.98,
         "risk": 0.23,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a311.67 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a311.67 < price < \u00a311.9 \u2014 0.5 shares"
       },
       "total_risk": 0.57,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -471,10 +483,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 240.08,
+          "max_price": 244.78,
           "stop": 225.96,
           "risk": 4.7,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a3240.08 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3240.08 < price < \u00a3244.78 \u2014 0.5 shares"
         },
         "total_risk": 11.76,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -491,10 +504,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 240.08,
+        "max_price": 244.78,
         "stop": 225.96,
         "risk": 4.7,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a3240.08 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3240.08 < price < \u00a3244.78 \u2014 0.5 shares"
       },
       "total_risk": 11.76,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -539,10 +553,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 141.74,
+          "max_price": 144.52,
           "stop": 133.4,
           "risk": 2.78,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a3141.74 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3141.74 < price < \u00a3144.52 \u2014 0.5 shares"
         },
         "total_risk": 6.95,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -559,10 +574,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 141.74,
+        "max_price": 144.52,
         "stop": 133.4,
         "risk": 2.78,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a3141.74 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3141.74 < price < \u00a3144.52 \u2014 0.5 shares"
       },
       "total_risk": 6.95,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -609,10 +625,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 37.26,
+          "max_price": 37.99,
           "stop": 35.07,
           "risk": 0.73,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a337.26 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a337.26 < price < \u00a337.99 \u2014 0.5 shares"
         },
         "total_risk": 1.82,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -629,10 +646,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 37.26,
+        "max_price": 37.99,
         "stop": 35.07,
         "risk": 0.73,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a337.26 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a337.26 < price < \u00a337.99 \u2014 0.5 shares"
       },
       "total_risk": 1.82,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -680,10 +698,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 281.1,
+          "max_price": 286.61,
           "stop": 264.57,
           "risk": 5.51,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a3281.1 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3281.1 < price < \u00a3286.61 \u2014 0.5 shares"
         },
         "total_risk": 13.78,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -700,10 +719,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 281.1,
+        "max_price": 286.61,
         "stop": 264.57,
         "risk": 5.51,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a3281.1 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3281.1 < price < \u00a3286.61 \u2014 0.5 shares"
       },
       "total_risk": 13.78,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -750,10 +770,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 1150.76,
+          "max_price": 1173.33,
           "stop": 1083.07,
           "risk": 22.57,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a31150.76 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a31150.76 < price < \u00a31173.33 \u2014 0.5 shares"
         },
         "total_risk": 56.42,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -770,10 +791,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 1150.76,
+        "max_price": 1173.33,
         "stop": 1083.07,
         "risk": 22.57,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a31150.76 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a31150.76 < price < \u00a31173.33 \u2014 0.5 shares"
       },
       "total_risk": 56.42,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -822,10 +844,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 162.86,
+          "max_price": 166.06,
           "stop": 153.28,
           "risk": 3.19,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a3162.86 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3162.86 < price < \u00a3166.06 \u2014 0.5 shares"
         },
         "total_risk": 7.98,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -842,10 +865,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 162.86,
+        "max_price": 166.06,
         "stop": 153.28,
         "risk": 3.19,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a3162.86 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3162.86 < price < \u00a3166.06 \u2014 0.5 shares"
       },
       "total_risk": 7.98,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -894,10 +918,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 205.76,
+          "max_price": 209.8,
           "stop": 193.66,
           "risk": 4.03,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a3205.76 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3205.76 < price < \u00a3209.8 \u2014 0.5 shares"
         },
         "total_risk": 10.08,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -914,10 +939,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 205.76,
+        "max_price": 209.8,
         "stop": 193.66,
         "risk": 4.03,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a3205.76 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3205.76 < price < \u00a3209.8 \u2014 0.5 shares"
       },
       "total_risk": 10.08,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -964,10 +990,11 @@
         "stage2": {
           "qty": 0.5,
           "trigger": 2.41,
+          "max_price": 2.45,
           "stop": 2.27,
           "risk": 0.04,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if price above \u00a32.41 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a32.41 < price < \u00a32.45 \u2014 0.5 shares"
         },
         "total_risk": 0.11,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
@@ -984,10 +1011,11 @@
       "stage2": {
         "qty": 0.5,
         "trigger": 2.41,
+        "max_price": 2.45,
         "stop": 2.27,
         "risk": 0.04,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if price above \u00a32.41 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a32.41 < price < \u00a32.45 \u2014 0.5 shares"
       },
       "total_risk": 0.11,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"

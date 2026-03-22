@@ -110,6 +110,25 @@ def run():
 
         print(f"    Current price: £{current:.2f} | Trigger: £{trigger:.2f}")
 
+        # Price cap — don't chase if move already happened
+        entry_signal  = float(addon.get('entry_signal', trigger))
+        max_add_price = round(entry_signal * 1.04, 2)  # Max 4% above Stage 1 entry
+
+        if current > max_add_price:
+            print(f"    ❌ Price £{current:.2f} too far above entry £{entry_signal:.2f} ({round((current-entry_signal)/entry_signal*100,1)}%) — move already happened, skipping Stage 2")
+            addon['status']        = 'SKIPPED'
+            addon['skip_reason']   = f"Price {round((current-entry_signal)/entry_signal*100,1)}% above entry — exceeded 4% cap"
+            addon['skipped_at']    = now.isoformat()
+            updated = True
+            send_telegram(
+                f"⏭️ STAGE 2 SKIPPED\n\n"
+                f"{name}\n"
+                f"Price £{current:.2f} is {round((current-entry_signal)/entry_signal*100,1)}% above Stage 1 entry £{entry_signal:.2f}\n"
+                f"Move already happened — not chasing.\n"
+                f"Stage 1 position remains open."
+            )
+            continue
+
         if current >= trigger:
             print(f"    ✅ Price above trigger — executing Stage 2 add-on")
 

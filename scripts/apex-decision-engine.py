@@ -242,32 +242,28 @@ def score_signal_with_intelligence(signal, intel):
     total_score = base_score
 
     # Relative strength adjustment
+    # Relative strength adjustment
     try:
-        import importlib.util as _ilu3
-        _spec3 = _ilu3.spec_from_file_location(
-            "rs", "/home/ubuntu/.picoclaw/scripts/apex-relative-strength.py")
-        _rs = _ilu3.module_from_spec(_spec3)
-        _spec3.loader.exec_module(_rs)
-        _rs_adj, _rs_reason = _rs.get_rs_adjustment(name, signal_type)
-        if _rs_adj != 0:
-            total_score += _rs_adj
-            adjustments.append(f"RS: {'+' if _rs_adj > 0 else ''}{_rs_adj} ({_rs_reason})")
+        _rs2_cached = _MODULE_CACHE.get('rs2', _rs_mod)
+        if _rs2_cached:
+            _rs_adj, _rs_reason = _rs2_cached.get_rs_adjustment(name, signal_type)
+            if _rs_adj != 0:
+                total_score += _rs_adj
+                adjustments.append(f"RS: {'+' if _rs_adj > 0 else ''}{_rs_adj} ({_rs_reason})")
     except Exception as _e:
-        log_error(f"Silent failure in apex-decision-engine.py: {_e}")
+        log_error(f"RS adjustment failed for {name}: {_e}")
 
     # Multi-timeframe analysis adjustment
+    # Multi-timeframe analysis adjustment
     try:
-        import importlib.util as _ilu2
-        _spec2 = _ilu2.spec_from_file_location(
-            "mtf", "/home/ubuntu/.picoclaw/scripts/apex-multiframe.py")
-        _mtf = _ilu2.module_from_spec(_spec2)
-        _spec2.loader.exec_module(_mtf)
-        _mtf_adj, _mtf_reason = _mtf.get_adjustment_for_signal(name, signal_type)
-        if _mtf_adj != 0:
-            total_score += _mtf_adj
-            adjustments.append(f"MTF: {'+' if _mtf_adj > 0 else ''}{_mtf_adj} ({_mtf_reason[:60]})")
+        _mtf_cached = _MODULE_CACHE.get('mtf', _mtf_mod)
+        if _mtf_cached:
+            _mtf_adj, _mtf_reason = _mtf_cached.get_adjustment_for_signal(name, signal_type)
+            if _mtf_adj != 0:
+                total_score += _mtf_adj
+                adjustments.append(f"MTF: {'+' if _mtf_adj > 0 else ''}{_mtf_adj} ({_mtf_reason[:60]})")
     except Exception as _e:
-        log_error(f"Silent failure in apex-decision-engine.py: {_e}")
+        log_error(f"MTF adjustment failed for {name}: {_e}")
 
     # Breadth thrust regime adjustment to signal
     try:
@@ -461,8 +457,25 @@ def score_signal_with_intelligence(signal, intel):
     if intel['drawdown_status'] != 'NORMAL':
         adjustments.append(f"Drawdown {intel['drawdown_pct']}% — sizing at {int(intel['size_multiplier']*100)}%")
 
-    signal['adjusted_score'] = round(total_score, 1)
-    signal['adjustments']    = adjustments
+    # Raw score — shows full intelligence picture
+    raw_score = round(total_score, 1)
+
+    # Capped score — used for gating and comparison (0-10 scale)
+    capped_score = round(min(10.0, max(0.0, total_score)), 1)
+
+    # Confidence percentage — how strongly intelligence supports this signal
+    # Raw score of 7 = 100% (threshold), higher = more confidence
+    # Scale: threshold (7) = 70%, max reasonable (15) = 100%
+    base_threshold = 7.0
+    max_expected   = 15.0
+    confidence_pct = round(min(100, max(0,
+        (raw_score / max_expected) * 100
+    )), 1)
+
+    signal['adjusted_score']  = capped_score      # Used for filtering/selection
+    signal['raw_score']       = raw_score          # Full picture including all boosts
+    signal['confidence_pct']  = confidence_pct     # 0-100% confidence
+    signal['adjustments']     = adjustments
 
     return signal
 
@@ -689,6 +702,37 @@ def save_and_notify(signal, intel, qty, notional):
 # ============================================================
 
 def run():
+    # ── Module cache — load once, reuse per signal ──────────────
+    _MODULE_CACHE = {}
+
+    def _load_module(alias, filepath):
+        """Load and cache a Python module."""
+        if alias in _MODULE_CACHE:
+            return _MODULE_CACHE[alias]
+        try:
+            import importlib.util as _ilu
+            _spec = _ilu.spec_from_file_location(alias, filepath)
+            _mod  = _ilu.module_from_spec(_spec)
+            _spec.loader.exec_module(_mod)
+            _MODULE_CACHE[alias] = _mod
+            return _mod
+        except Exception as _e:
+            log_error(f"Module load failed: {alias} — {_e}")
+            return None
+
+    # Pre-load all intelligence modules at startup
+    SCRIPTS = '/home/ubuntu/.picoclaw/scripts'
+    _regime_scaling = _load_module('rs',  f'{SCRIPTS}/apex-regime-scaling.py')
+    _ev_calc        = _load_module('ev',  f'{SCRIPTS}/apex-expected-value.py')
+    _mtf_mod        = _load_module('mtf', f'{SCRIPTS}/apex-multiframe.py')
+    _rs_mod         = _load_module('rs2', f'{SCRIPTS}/apex-relative-strength.py')
+    _bt_mod         = _load_module('bt',  f'{SCRIPTS}/apex-breadth-thrust.py')
+    _atr_mod        = _load_module('atr', f'{SCRIPTS}/apex-atr-stops.py')
+    _cg_mod         = _load_module('cg',  f'{SCRIPTS}/apex-contrarian-gates.py')
+    _inv_mod        = _load_module('inv', f'{SCRIPTS}/apex-inverse-scanner.py')
+
+    print(f"  Modules loaded: {len(_MODULE_CACHE)}/8")
+
     now  = datetime.now(timezone.utc)
     date = now.strftime('%a %d %b %Y')
 
@@ -738,12 +782,11 @@ def run():
 
         # Run contrarian quality gates
         try:
-            import importlib.util as _ilu_cg
-            _spec_cg = _ilu_cg.spec_from_file_location(
-                "cg", "/home/ubuntu/.picoclaw/scripts/apex-contrarian-gates.py")
-            _cg = _ilu_cg.module_from_spec(_spec_cg)
-            _spec_cg.loader.exec_module(_cg)
-            gate_result = _cg.check_signal(s)
+            _cg_cached = _MODULE_CACHE.get('cg', _cg_mod)
+            if _cg_cached:
+                gate_result = _cg_cached.check_signal(s)
+            else:
+                gate_result = {'overall_pass': True, 'blocks': [], 'cautions': [], 'staged_entry': {}}
             if not gate_result.get('overall_pass', True):
                 blocks = gate_result.get('blocks', [])
                 print(f"  ❌ {s.get('name','?')} BLOCKED by gates: {blocks[0][:60] if blocks else 'unknown'}")
@@ -769,12 +812,11 @@ def run():
 
     # Inverse ETF signals
     try:
-        import importlib.util as _ilu
-        _spec = _ilu.spec_from_file_location(
-            "inv", "/home/ubuntu/.picoclaw/scripts/apex-inverse-scanner.py")
-        _inv = _ilu.module_from_spec(_spec)
-        _spec.loader.exec_module(_inv)
-        inv_result = _inv.run()
+        _inv_cached = _MODULE_CACHE.get('inv', _inv_mod)
+        if _inv_cached:
+            inv_result = _inv_cached.run()
+        else:
+            inv_result = {'signals': []}
         inverse_signals = inv_result.get('signals', [])
         print(f"  Inverse ETF: {len(inverse_signals)} signals")
         for s in inverse_signals:
@@ -836,7 +878,7 @@ def run():
     best = qualified[0]
     name = best.get('name', '?')
 
-    print(f"  Best signal: {name} | Score: {best.get('adjusted_score',0)}/10 | Type: {best.get('signal_type','?')}")
+    print(f"  Best signal: {best.get('name','?')} | Score: {best.get('adjusted_score',0)}/10 (raw:{best.get('raw_score',0)} | {best.get('confidence_pct',0)}% confidence) | Type: {best.get('signal_type','')}")
 
     # Print top 5 for reference
     print(f"\n  Top signals considered:")
@@ -844,7 +886,7 @@ def run():
         adj = s.get('adjusted_score', 0)
         base = s.get('total_score', s.get('contrarian_score', s.get('score', 0)))
         stype = s.get('signal_type', 'TREND')[:4]
-        print(f"    {i+1}. {s.get('name','?'):8} | {stype} | base:{base} → adj:{adj} | RSI:{s.get('rsi',0)}")
+        print(f"    {i+1}. {s.get('name','?'):8} | {stype} | base:{base} → {adj}/10 (raw:{s.get('raw_score',adj)} | {s.get('confidence_pct',0)}%) | RSI:{s.get('rsi',0)}")
 
     # Calculate final position size
     qty, notional = calculate_final_position(best, intel)
@@ -855,15 +897,11 @@ def run():
 
     # ATR-based stops — replace fixed 6%
     try:
-        import importlib.util as _ilu
-        _spec = _ilu.spec_from_file_location(
-            "atr", "/home/ubuntu/.picoclaw/scripts/apex-atr-stops.py")
-        _atr = _ilu.module_from_spec(_spec)
-        _spec.loader.exec_module(_atr)
-
+        _atr_cached = _MODULE_CACHE.get('atr', _atr_mod)
+        if _atr_cached:
         # Get yahoo ticker from signal
-        _yahoo = best.get('ticker', name)
-        _atr_data = _atr.get_full_atr_levels(
+            _yahoo = best.get('ticker', name)
+            _atr_data = _atr_cached.get_full_atr_levels(
             name, _yahoo,
             signal_type=best.get('signal_type','TREND')
         )

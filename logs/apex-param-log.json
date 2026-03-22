@@ -1,0 +1,99 @@
+{
+  "signals": [
+    {
+      "id": "20260322_095957_XOM",
+      "timestamp": "2026-03-22T09:59:57.013642+00:00",
+      "date": "2026-03-22",
+      "time": "09:59 UTC",
+      "name": "XOM",
+      "ticker": "XOM_US_EQ",
+      "signal_type": "CONTRARIAN",
+      "base_score": 5,
+      "adjusted_score": 10.0,
+      "raw_score": 11.0,
+      "confidence_pct": 73.3,
+      "rsi": 61.9,
+      "adjustments": [
+        "Geo: +2",
+        "RS: +2",
+        "MTF: +2"
+      ],
+      "entry": 159.67,
+      "stop": 153.94,
+      "target1": 171.02,
+      "target2": 179.03,
+      "quantity": 2.51,
+      "risk_amount": 14.38,
+      "atr": 3.8198,
+      "stop_method": "ATR",
+      "market_conditions": {
+        "vix": 26.34,
+        "breadth": 26.7,
+        "regime_label": "CAUTIOUS",
+        "combined_scale": 0.241,
+        "trend_scale": 0.241,
+        "contrarian_scale": 0.541,
+        "geo_status": "CLEAR",
+        "market_sentiment": -0.381,
+        "drawdown_pct": 0.03,
+        "drawdown_status": "NORMAL"
+      },
+      "intelligence": {
+        "rs_class": "STRONG_LEADER",
+        "vs_market_1m": 14.08,
+        "weekly_trend": "STRONG_BULL",
+        "fund_score": 7,
+        "sentiment_score": -0.147
+      },
+      "ev": 5.27,
+      "ev_gross": 0,
+      "transaction_cost": 0,
+      "breakeven_wr": 0,
+      "staged": false,
+      "stage": 1,
+      "shadow_would_trade": {
+        "aggressive": {
+          "would_trade": true,
+          "shadow_risk": 18.07,
+          "reasons": []
+        },
+        "conservative": {
+          "would_trade": true,
+          "shadow_risk": 7.23,
+          "reasons": []
+        },
+        "trend_only": {
+          "would_trade": false,
+          "shadow_risk": 0,
+          "reasons": [
+            "Contrarian disabled in this config"
+          ]
+        },
+        "contrarian_only": {
+          "would_trade": true,
+          "shadow_risk": 12.05,
+          "reasons": []
+        },
+        "ignore_regime": {
+          "would_trade": true,
+          "shadow_risk": 50.0,
+          "reasons": []
+        },
+        "high_confidence_only": {
+          "would_trade": false,
+          "shadow_risk": 0,
+          "reasons": [
+            "Confidence 73.3% < 80%"
+          ]
+        }
+      },
+      "outcome": "EXECUTED",
+      "pnl": null,
+      "r_achieved": null,
+      "days_held": null,
+      "exit_reason": null
+    }
+  ],
+  "count": 1,
+  "last_updated": "2026-03-22 09:59 UTC"
+}

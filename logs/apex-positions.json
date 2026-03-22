@@ -16,7 +16,9 @@
     "t1_hit": false,
     "t2_hit": false,
     "stop_method": "ATR",
-    "atr": 1.2611
+    "atr": 1.2611,
+    "current": 94.72,
+    "ppl": -1.5
   },
   {
     "t212_ticker": "XOM_US_EQ",
@@ -35,7 +37,9 @@
     "t1_hit": false,
     "t2_hit": false,
     "stop_method": "ATR",
-    "atr": 3.8198
+    "atr": 3.8198,
+    "current": 159.85,
+    "ppl": 1.86
   },
   {
     "t212_ticker": "V_US_EQ",
@@ -55,7 +59,9 @@
     "t1_hit": false,
     "t2_hit": false,
     "stop_method": "ATR",
-    "atr": 6.511
+    "atr": 6.511,
+    "current": 303.12,
+    "ppl": 4.44
   },
   {
     "t212_ticker": "AAPL_US_EQ",
@@ -75,74 +81,8 @@
     "t1_hit": false,
     "t2_hit": false,
     "stop_method": "ATR",
-    "atr": 5.4969
-  },
-  {
-    "t212_ticker": "AAPL_US_EQ",
-    "name": "Apple",
-    "quantity": 1.01,
-    "entry": 247.99,
-    "stop": 233.11,
-    "target1": 270.31,
-    "target2": 285.19,
-    "score": 7.0,
-    "rsi": 23.6,
-    "macd": 0.0,
-    "sector": "MANUAL",
-    "opened": "2026-03-21",
-    "entry_order_id": "46250198866",
-    "stop_order_id": "ERROR",
-    "order_type": "LIMIT+STOP"
-  },
-  {
-    "t212_ticker": "AAPL_US_EQ",
-    "name": "Apple",
-    "quantity": 1.01,
-    "entry": 247.99,
-    "stop": 233.11,
-    "target1": 270.31,
-    "target2": 285.19,
-    "score": 7.0,
-    "rsi": 23.6,
-    "macd": 0.0,
-    "sector": "MANUAL",
-    "opened": "2026-03-21",
-    "entry_order_id": "46250198872",
-    "stop_order_id": "46250198874",
-    "order_type": "LIMIT+STOP"
-  },
-  {
-    "t212_ticker": "AAPL_US_EQ",
-    "name": "Apple",
-    "quantity": 1.01,
-    "entry": 247.99,
-    "stop": 233.11,
-    "target1": 270.31,
-    "target2": 285.19,
-    "score": 7.0,
-    "rsi": 23.6,
-    "macd": 0.0,
-    "sector": "MANUAL",
-    "opened": "2026-03-21",
-    "entry_order_id": "46250198902",
-    "stop_order_id": "46250198904",
-    "order_type": "LIMIT+STOP"
-  },
-  {
-    "t212_ticker": "AAPL_US_EQ",
-    "name": "Apple",
-    "quantity": 1.01,
-    "entry": 247.99,
-    "stop": 233.11,
-    "target1": 270.31,
-    "target2": 285.19,
-    "score": 7.0,
-    "rsi": 23.6,
-    "macd": 0.0,
-    "sector": "MANUAL",
-    "opened": "2026-03-21",
-    "entry_order_id": "46250198956",
-    "stop_order_id": "ERROR",
-    "order_type": "LIMIT+STOP"
+    "atr": 5.4969,
+    "current": 249.8,
+    "ppl": 0.62
   }
 ]

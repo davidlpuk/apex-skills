@@ -400,10 +400,11 @@ def calculate_staged_entry(signal):
     stage1_risk = round(stage1_qty * (entry - stage1_stop), 2)
 
     # Stage 2: Add-on after stabilisation
-    stage2_qty    = round(qty * 0.5, 2)
+    stage2_qty     = round(qty * 0.5, 2)
     stage2_trigger = round(entry * 1.02, 2)  # Price 2% above entry
-    stage2_stop   = round(entry - atr * 2.0, 2)  # Tighten stop on add-on
-    stage2_risk   = round(stage2_qty * (entry - stage2_stop), 2)
+    stage2_max     = round(entry * 1.04, 2)  # Max 4% above entry — don't chase
+    stage2_stop    = round(entry - atr * 2.0, 2)  # Tighten stop on add-on
+    stage2_risk    = round(stage2_qty * (entry - stage2_stop), 2)
 
     total_risk = round(stage1_risk + stage2_risk, 2)
 
@@ -418,10 +419,11 @@ def calculate_staged_entry(signal):
         'stage2': {
             'qty':         stage2_qty,
             'trigger':     stage2_trigger,
+            'max_price':   stage2_max,
             'stop':        stage2_stop,
             'risk':        stage2_risk,
             'days_to_wait':5,
-            'note':        f"Add-on after 5 days if price above £{stage2_trigger} — {stage2_qty} shares"
+            'note':        f"Add-on after 5 days if £{stage2_trigger} < price < £{stage2_max} — {stage2_qty} shares"
         },
         'total_risk':  total_risk,
         'vs_original': f"Original: {qty} @ 1.5x ATR | Staged: {stage1_qty}+{stage2_qty} @ 3x/2x ATR"

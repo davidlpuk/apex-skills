@@ -1,4 +1,6 @@
 #!/bin/bash
+# Reconcile positions before monitoring
+python3 /home/ubuntu/.picoclaw/scripts/apex-reconcile.py > /dev/null 2>&1
 
 LOG="/home/ubuntu/.picoclaw/logs/apex-stop-monitor.log"
 echo "$(date): Running stop monitor" >> "$LOG"

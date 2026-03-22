@@ -11,6 +11,23 @@ from datetime import datetime, timezone
 OUTCOMES_FILE = '/home/ubuntu/.picoclaw/logs/apex-outcomes.json'
 EV_LOG_FILE   = '/home/ubuntu/.picoclaw/logs/apex-ev-log.json'
 
+# Transaction cost model — T212 specific
+# USD instruments: 0.15% FX conversion each way = 0.30% round trip
+# UK instruments:  0.10% spread estimate = 0.20% round trip
+# Leveraged ETFs:  0.20% spread estimate = 0.40% round trip
+TRANSACTION_COSTS = {
+    'USD':      0.0030,  # 0.30% round trip
+    'GBP':      0.0020,  # 0.20% round trip
+    'INVERSE':  0.0040,  # 0.40% round trip (wider spread on leveraged ETFs)
+    'DEFAULT':  0.0025,  # 0.25% default
+}
+TRANSACTION_COSTS = {
+    'USD':      0.0030,  # 0.30% round trip
+    'GBP':      0.0020,  # 0.20% round trip
+    'INVERSE':  0.0040,  # 0.40% round trip (wider spread on leveraged ETFs)
+    'DEFAULT':  0.0025,  # 0.25% default
+}
+
 def get_win_rate_by_type(signal_type=None):
     """Get win rate from outcomes database, filtered by signal type."""
     try:
@@ -57,11 +74,11 @@ def get_avg_r_by_type(signal_type=None, outcome='win'):
     except:
         return 1.5 if outcome == 'win' else 1.0
 
-def calculate_ev(entry, stop, target1, target2, signal_type=None, quantity=1):
+def calculate_ev(entry, stop, target1, target2, signal_type=None, quantity=1, currency='USD'):
     """
-    Calculate expected value of a trade.
+    Calculate expected value of a trade including transaction costs.
 
-    EV = (P_win × avg_win_amount) - (P_loss × avg_loss_amount)
+    EV = (P_win × avg_win_amount) - (P_loss × avg_loss_amount) - transaction_costs
 
     For a professional system:
     - avg_win considers probability of reaching T1 vs T2
@@ -86,6 +103,60 @@ def calculate_ev(entry, stop, target1, target2, signal_type=None, quantity=1):
     # Expected value
     ev = (win_rate * total_reward) - (loss_rate * total_risk)
     ev = round(ev, 2)
+
+    # Transaction costs — deducted from EV
+    if signal_type == 'INVERSE':
+        tc_rate = TRANSACTION_COSTS['INVERSE']
+    elif currency == 'GBP':
+        tc_rate = TRANSACTION_COSTS['GBP']
+    elif currency == 'USD':
+        tc_rate = TRANSACTION_COSTS['USD']
+    else:
+        tc_rate = TRANSACTION_COSTS['DEFAULT']
+
+    # Cost = entry_value × round_trip_rate
+    entry_value      = entry * quantity
+    transaction_cost = round(entry_value * tc_rate, 2)
+
+    # Adjust EV for transaction costs
+    ev_gross = ev
+    ev       = round(ev - transaction_cost, 2)
+
+    # Transaction costs — deducted from EV
+    if signal_type == 'INVERSE':
+        tc_rate = TRANSACTION_COSTS['INVERSE']
+    elif currency == 'GBP':
+        tc_rate = TRANSACTION_COSTS['GBP']
+    elif currency == 'USD':
+        tc_rate = TRANSACTION_COSTS['USD']
+    else:
+        tc_rate = TRANSACTION_COSTS['DEFAULT']
+
+    # Cost = entry_value × round_trip_rate
+    entry_value      = entry * quantity
+    transaction_cost = round(entry_value * tc_rate, 2)
+
+    # Adjust EV for transaction costs
+    ev_gross = ev
+    ev       = round(ev - transaction_cost, 2)
+
+    # Transaction costs — deducted from EV
+    if signal_type == 'INVERSE':
+        tc_rate = TRANSACTION_COSTS['INVERSE']
+    elif currency == 'GBP':
+        tc_rate = TRANSACTION_COSTS['GBP']
+    elif currency == 'USD':
+        tc_rate = TRANSACTION_COSTS['USD']
+    else:
+        tc_rate = TRANSACTION_COSTS['DEFAULT']
+
+    # Cost = entry_value × round_trip_rate
+    entry_value      = entry * quantity
+    transaction_cost = round(entry_value * tc_rate, 2)
+
+    # Adjust EV for transaction costs
+    ev_gross = ev
+    ev       = round(ev - transaction_cost, 2)
 
     # EV per £1 risked — normalised metric
     ev_per_risk = round(ev / total_risk, 3) if total_risk > 0 else 0
@@ -114,10 +185,14 @@ def calculate_ev(entry, stop, target1, target2, signal_type=None, quantity=1):
         "loss_rate":        loss_rate,
         "sample_size":      sample_size,
         "ev":               ev,
+        "ev_gross":         ev_gross,
+        "transaction_cost": transaction_cost,
+        "tc_rate_pct":      round(tc_rate * 100, 2),
+        "currency":         currency,
         "ev_per_risk":      ev_per_risk,
         "r_expectancy":     r_expectancy,
         "breakeven_wr":     breakeven_wr,
-        "verdict":          "POSITIVE" if ev > 0 else "NEGATIVE",
+        "verdict":          "POSITIVE" if ev > 0 else ("MARGINAL" if ev > -2 else "NEGATIVE"),
         "confidence":       "HIGH" if sample_size >= 20 else ("MEDIUM" if sample_size >= 10 else "LOW — using prior"),
         "signal_type":      signal_type or "UNKNOWN"
     }
@@ -164,7 +239,9 @@ def display_ev(name, ev_data):
     print(f"")
     print(f"  Total risk:     £{ev_data['total_risk']}")
     print(f"  Expected win:   £{ev_data['total_reward']}")
-    print(f"  Expected value: £{ev_data['ev']} {verdict_icon}")
+    print(f"  Trans costs:    £{ev_data.get('transaction_cost', 0)} ({ev_data.get('tc_rate_pct', 0)}% round trip)")
+    print(f"  EV (gross):     £{ev_data.get('ev_gross', ev_data['ev'])}")
+    print(f"  EV (net):       £{ev_data['ev']} {verdict_icon}")
     print(f"  EV per £1 risk: £{ev_data['ev_per_risk']}")
     print(f"  R expectancy:   {ev_data['r_expectancy']}R")
     print(f"")

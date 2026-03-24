@@ -11,8 +11,13 @@ from datetime import datetime, timezone
 import sys as _sys
 _sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
-except ImportError:
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, log_info, send_telegram, get_portfolio_value, get_free_cash
+    from apex_intelligence import gather_intelligence
+    from apex_scoring import score_signal_with_intelligence, get_instrument_sector, load_module as _load_module, _MODULE_CACHE
+    from apex_filters import is_blocked
+    from apex_sizer import calculate_final_position
+except ImportError as _ie:
+    print(f"WARN: module import partial — {_ie}")
     def atomic_write(p, d):
         import json
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -35,33 +40,36 @@ DRIFT_FILE       = '/home/ubuntu/.picoclaw/logs/apex-earnings-drift.json'
 DIVIDEND_FILE    = '/home/ubuntu/.picoclaw/logs/apex-dividend-capture.json'
 POSITIONS_FILE   = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 SIGNAL_FILE      = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
+DECISION_LOG     = '/home/ubuntu/.picoclaw/logs/apex-decision-log.json'
 TICKER_MAP       = '/home/ubuntu/.picoclaw/scripts/apex-ticker-map.json'
 QUALITY_FILE     = '/home/ubuntu/.picoclaw/scripts/apex-quality-universe.json'
 
-BOT_TOKEN_CMD = "cat ~/.picoclaw/config.json | grep -A 2 '\"telegram\"' | grep token | sed 's/.*\"token\": \"\\(.*\\)\".*/\\1/'"
-CHAT_ID = "6808823889"
 
-def send_telegram(message):
-    subprocess.run([
-        'bash', '-c',
-        f'''BOT_TOKEN=$({BOT_TOKEN_CMD})
-curl -s -X POST "https://api.telegram.org/bot${{BOT_TOKEN}}/sendMessage" \
-  -d chat_id="{CHAT_ID}" \
-  --data-urlencode "text={message}"'''
-    ], capture_output=True, text=True)
+# ── Module cache — module-level so score_signal_with_intelligence() can access it ──
+# Previously this was a local inside run(), causing NameError for RS and MTF layers
+# (silently caught by except blocks, so RS and MTF scored nothing on every signal).
+_MODULE_CACHE = {}
+_rs_mod  = None
+_mtf_mod = None
+
 
 def load_json(path, default=None):
     try:
         with open(path) as f:
             return json.load(f)
-    except:
+    except Exception:
         return default or {}
 
+# gather_intelligence() → apex_intelligence.py
+# score_signal_with_intelligence() → apex_scoring.py
+# is_blocked() → apex_filters.py
+# calculate_final_position() → apex_sizer.py
+
 # ============================================================
-# LAYER 1 — INTELLIGENCE GATHERING
+# (REMOVED) LAYER 1 — now in apex_intelligence.py
 # ============================================================
 
-def gather_intelligence():
+def _gather_intelligence_stub():
     intel = {}
 
     # Regime
@@ -113,13 +121,13 @@ def gather_intelligence():
         with open(EARNINGS_FILE) as f:
             earnings_flags = json.load(f)
         intel['earnings_blocked'] = [d['name'] if isinstance(d, dict) else d for d in earnings_flags]
-    except:
+    except Exception:
         intel['earnings_blocked'] = []
 
     try:
         with open(NEWS_FILE) as f:
             intel['news_blocked'] = json.load(f)
-    except:
+    except Exception:
         intel['news_blocked'] = []
 
     # Drift signals
@@ -140,9 +148,9 @@ def gather_intelligence():
 # ============================================================
 
 SECTOR_MAP = {
-    "Energy":     ["XOM","CVX","SHEL","BP","TTE","IUES","NG_EQ","SSE_EQ","INRG"],
-    "Technology": ["AAPL","MSFT","NVDA","GOOGL","AMZN","META","AMD","CRM","ORCL","QCOM","IITU"],
-    "Financials": ["JPM","GS_EQ","MS_EQ","BAC","BLK","V_US","AXP","HSBA","BARC","NWG","IUFS"],
+    "Energy":     ["XOM","CVX","SHEL","BP","TTE","IUES","NG_EQ","SSE_EQ","INRG","NFE"],
+    "Technology": ["AAPL","MSFT","NVDA","GOOGL","AMZN","META","AMD","CRM","ORCL","QCOM","IITU","CRDO"],
+    "Financials": ["JPM","GS_EQ","MS_EQ","BAC","BLK","V_US","AXP","HSBA","BARC","NWG","IUFS","PGY"],
     "Healthcare": ["JNJ","PFE","MRK","UNH","ABBV","AZN","GSK","TMO","DHR","IUHC","NOVO"],
     "Consumer":   ["KO","PEP","MCD","WMT","PG","DGE","ULVR","CPG","IMB","BATS","IUCD"],
 }
@@ -205,7 +213,7 @@ def get_geo_adjustment(name, intel):
         geo_map  = quality_db.get('geo_event_map', {})
         favoured = geo_map.get('iran_war', {}).get('favour', [])
         avoided  = geo_map.get('iran_war', {}).get('avoid', [])
-    except:
+    except Exception:
         favoured = ['XOM','CVX','SHEL','BP','TTE','IUES']
         avoided  = []
 
@@ -326,17 +334,35 @@ def score_signal_with_intelligence(signal, intel):
         log_error(f"FRED adjustment failed for {name}: {_e}")
 
     # Layer 17: Options Flow Signal
+    # Normalise ticker to Yahoo format (options data is keyed by "V", "XOM", "AAPL" etc.)
     try:
         import importlib.util as _ilu_opts
         _spec_opts = _ilu_opts.spec_from_file_location(
             "opts", "/home/ubuntu/.picoclaw/scripts/apex-options-flow.py")
         _opts = _ilu_opts.module_from_spec(_spec_opts)
         _spec_opts.loader.exec_module(_opts)
-        _opts_ticker = signal.get('ticker', name)
-        _opts_adj, _opts_reasons = _opts.get_options_adjustment(_opts_ticker, signal_type)
-        if _opts_adj != 0:
-            total_score += _opts_adj
-            adjustments.append(f"OPTIONS: {_opts_adj:+d} ({_opts_reasons[0][:55] if _opts_reasons else ''})")
+
+        # Build Yahoo ticker from T212 ticker or name — strips suffixes then checks options universe
+        _T212_TO_YAHOO_OPTS = {
+            'AAPL_US_EQ':'AAPL', 'MSFT_US_EQ':'MSFT', 'NVDA_US_EQ':'NVDA',
+            'AMZN_US_EQ':'AMZN', 'GOOGL_US_EQ':'GOOGL','META_US_EQ':'META',
+            'TSLA_US_EQ':'TSLA', 'V_US_EQ':'V',        'XOM_US_EQ':'XOM',
+            'CVX_US_EQ':'CVX',   'HOOD_US_EQ':'HOOD',  'PLTR_US_EQ':'PLTR',
+            'NFLX_US_EQ':'NFLX',
+        }
+        _OPTS_UNIVERSE = {'AAPL','MSFT','NVDA','AMZN','GOOGL','META',
+                          'TSLA','V','XOM','CVX','HOOD','PLTR','NFLX'}
+        _raw_ticker  = signal.get('t212_ticker', signal.get('ticker', name))
+        _opts_ticker = _T212_TO_YAHOO_OPTS.get(
+            _raw_ticker,
+            _raw_ticker.replace('_US_EQ','').replace('_EQ','')
+        )
+        # Only query if ticker is in the options universe
+        if _opts_ticker in _OPTS_UNIVERSE:
+            _opts_adj, _opts_reasons = _opts.get_options_adjustment(_opts_ticker, signal_type)
+            if _opts_adj != 0:
+                total_score += _opts_adj
+                adjustments.append(f"OPTIONS: {_opts_adj:+d} ({_opts_reasons[0][:55] if _opts_reasons else ''})")
     except Exception as _e:
         log_error(f"Options flow adjustment failed for {name}: {_e}")
 
@@ -387,6 +413,22 @@ def score_signal_with_intelligence(signal, intel):
     if geo_boost != 0:
         total_score += geo_boost
         adjustments.append(f"Geo: {'+' if geo_boost > 0 else ''}{geo_boost} ({', '.join(geo_reasons)})")
+
+    # Fix 7: geo-correlation cap — geo and sector boosts driven by same event must not both count fully
+    try:
+        _geo_active = (intel.get('geo', {}).get('overall', 'CLEAR') == 'ALERT')
+        if _geo_active and geo_boost > 0 and sector_boost > 0:
+            _combined_geo_stack = geo_boost + sector_boost
+            _geo_cap = 3  # Max combined geo+sector boost during any single geo event
+            if _combined_geo_stack > _geo_cap:
+                _excess = _combined_geo_stack - _geo_cap
+                total_score -= _excess
+                adjustments.append(
+                    f"Geo-correlation cap: -{_excess} "
+                    f"(geo +{geo_boost} + sector +{sector_boost} capped at +{_geo_cap} — same event)"
+                )
+    except Exception:
+        pass
 
     # VIX sensitivity penalty — reduce size on high sensitivity instruments
     vix_corr = intel['position_vix_sensitivity'].get(
@@ -486,6 +528,19 @@ def score_signal_with_intelligence(signal, intel):
         with open('/home/ubuntu/.picoclaw/logs/apex-sentiment.json') as _f:
             _sent = json.load(_f)
 
+        # Fix 10: staleness gate — skip sentiment if data is older than 24h
+        _sent_ts  = _sent.get('timestamp', '')
+        _sent_age = 999  # default: treat as stale if unparseable
+        try:
+            from datetime import timedelta as _td
+            _sent_dt  = datetime.strptime(_sent_ts, '%Y-%m-%d %H:%M UTC').replace(tzinfo=timezone.utc)
+            _sent_age = (datetime.now(timezone.utc) - _sent_dt).total_seconds() / 3600
+            if _sent_age > 24:
+                adjustments.append(f"Sentiment: skipped — data {_sent_age:.0f}h old (max 24h)")
+                raise Exception("stale")
+        except ValueError:
+            pass  # Can't parse timestamp — proceed normally
+
         inst_scores = _sent.get('instrument_scores', {})
 
         # Find sentiment for this instrument
@@ -520,8 +575,8 @@ def score_signal_with_intelligence(signal, intel):
             total_score -= 1
             adjustments.append(f"Sentiment: -1 (NEGATIVE {_sentiment:+.2f})")
 
-        # Crisis detection — reduce all scores
-        if _sent.get('crisis_detected', False) and signal_type == 'TREND':
+        # Crisis detection — reduce all scores (only if data is fresh, <12h)
+        if _sent.get('crisis_detected', False) and signal_type == 'TREND' and _sent_age < 12:
             total_score -= 2
             adjustments.append("Sentiment: -2 (market crisis language detected)")
 
@@ -531,6 +586,31 @@ def score_signal_with_intelligence(signal, intel):
     # Drawdown adjustment — note only, actual sizing handled in position sizer
     if intel['drawdown_status'] != 'NORMAL':
         adjustments.append(f"Drawdown {intel['drawdown_pct']}% — sizing at {int(intel['size_multiplier']*100)}%")
+
+    # ── Layer 18: Learned score adjustment from trade outcomes history ──
+    # Reads apex-scoring-weights.json built by apex-score-adapter.py.
+    # Silent pass-through until MIN_TRADES_PER_CATEGORY reached per bucket.
+    try:
+        import importlib.util as _ilu_sa
+        _spec_sa = _ilu_sa.spec_from_file_location(
+            "score_adapter", "/home/ubuntu/.picoclaw/scripts/apex-score-adapter.py")
+        _sa = _ilu_sa.module_from_spec(_spec_sa)
+        _spec_sa.loader.exec_module(_sa)
+        _learned_adj, _learned_reasons = _sa.get_learned_adjustment(signal)
+        if _learned_adj != 0:
+            total_score += _learned_adj
+            for _lr in _learned_reasons:
+                adjustments.append(_lr)
+    except Exception as _e:
+        log_error(f"Score adapter failed (non-fatal): {_e}")
+    # ── end Layer 18 ───────────────────────────────────────────────────
+
+    # Cap total adjustment to prevent correlated alpha inflation
+    total_adjustment = total_score - base_score
+    capped_adjustment = max(-5, min(5, total_adjustment))
+    if total_adjustment != capped_adjustment:
+        adjustments.append(f"Adjustment cap: {total_adjustment:+.1f} capped to {capped_adjustment:+.1f}")
+    total_score = base_score + capped_adjustment
 
     # Raw score — shows full intelligence picture
     raw_score = round(total_score, 1)
@@ -570,7 +650,7 @@ def run_trend_scan():
     try:
         data = json.loads(output[start + len('=== FULL DATA ==='):].strip())
         return [x for x in data if x.get('total_score', 0) >= 6 and 'error' not in x]
-    except:
+    except Exception:
         return []
 
 def run_contrarian_scan(intel):
@@ -585,7 +665,7 @@ def run_contrarian_scan(intel):
     try:
         data = json.loads(output[start + len('=== FULL DATA ==='):].strip())
         return [x for x in data if x.get('contrarian_score', 0) >= 5 and 'error' not in x]
-    except:
+    except Exception:
         return []
 
 # ============================================================
@@ -651,12 +731,16 @@ def calculate_final_position(signal, intel):
         _rs   = _ilu.module_from_spec(_spec)
         _spec.loader.exec_module(_rs)
         regime_scale = _rs.get_scale_for_signal(signal.get('signal_type','TREND'))
-    except:
+    except Exception:
         regime_scale = 0.5
 
-    # Base risk scaled continuously by regime
-    base_risk = round(100 * regime_scale, 0)
-    base_risk = max(10, min(100, base_risk))
+    # Risk budget: 1% of live portfolio value, scaled by regime
+    # Falls back to £50 if portfolio value unavailable
+    portfolio_value = get_portfolio_value() or 5000
+    risk_pct        = 0.01   # 1% of portfolio per trade
+    base_risk       = round(portfolio_value * risk_pct * regime_scale, 2)
+    # Floor: £5 (avoid sub-penny qty), ceiling: 1.5% of portfolio
+    base_risk       = max(5.0, min(portfolio_value * 0.015, base_risk))
 
     vix = intel['vix']  # Keep for reference
 
@@ -673,18 +757,82 @@ def calculate_final_position(signal, intel):
     elif signal.get('signal_type') == 'DIVIDEND_CAPTURE':
         conviction *= 0.9
 
-    # Drawdown adjustment
-    risk_amount = base_risk * conviction * intel['size_multiplier']
-    risk_amount = max(10, min(100, round(risk_amount, 2)))
+    # Performance + momentum feedback from position sizer module
+    try:
+        from apex_position_sizer import _performance_multiplier, _momentum_multiplier
+        _perf_m = _performance_multiplier()
+        _mom_m  = _momentum_multiplier()
+        _combined_feedback = max(0.5, min(1.5, _perf_m * _mom_m))
+    except Exception:
+        _perf_m = _mom_m = _combined_feedback = 1.0
+
+    # Drawdown adjustment (intel['size_multiplier'] is the drawdown multiplier)
+    risk_amount = base_risk * conviction * _combined_feedback * intel['size_multiplier']
+    # Floor £5, ceiling 1.5% of portfolio
+    risk_amount = max(5.0, min(portfolio_value * 0.015, round(risk_amount, 2)))
+
+    # ── Kelly Criterion overlay ────────────────────────────────────────
+    # Load the Kelly recommendation from apex-thorp-test.py.
+    # When using backtest priors: Kelly acts as a soft cap (don't exceed by >20%).
+    # When using real trade data (50+ trades): Kelly recommended_risk used directly.
+    # On negative Kelly (no edge): signal is still allowed but sized at minimum.
+    try:
+        import importlib.util as _ilu_k
+        _spec_k = _ilu_k.spec_from_file_location(
+            "thorp", "/home/ubuntu/.picoclaw/scripts/apex-thorp-test.py")
+        _thorp = _ilu_k.module_from_spec(_spec_k)
+        _spec_k.loader.exec_module(_thorp)
+        _kelly = _thorp.calculate_optimal_size(signal, portfolio_value)
+
+        if _kelly and _kelly.get('verdict') != 'ABORT':
+            kelly_risk    = _kelly['recommended_risk']
+            using_prior   = _kelly['using_prior']
+
+            if not using_prior:
+                # Real data — use Kelly directly, keep conviction & regime scaling
+                risk_amount = round(min(risk_amount, kelly_risk), 2)
+                log_info(f"Kelly (real data, {_kelly['sample_count']} trades): "
+                         f"£{kelly_risk} → using £{risk_amount}")
+            else:
+                # Priors — use Kelly as a soft cap (allow up to 120% of Kelly prior)
+                kelly_soft_cap = round(kelly_risk * 1.2, 2)
+                if risk_amount > kelly_soft_cap:
+                    risk_amount = kelly_soft_cap
+                    log_info(f"Kelly (prior): soft-capped risk at £{risk_amount}")
+
+        elif _kelly and _kelly.get('verdict') == 'ABORT':
+            # Negative Kelly — still trade but at minimum size (no mathematical edge)
+            risk_amount = max(5.0, portfolio_value * 0.002)
+            log_warning(f"Kelly ABORT for {signal.get('name','?')}: "
+                        f"{_kelly.get('verdict_reason','')} — sizing at minimum")
+
+    except Exception as _ke:
+        log_error(f"Kelly overlay failed (non-fatal): {_ke}")
+    # ── end Kelly overlay ──────────────────────────────────────────────
 
     qty      = round(risk_amount / risk_per_share, 2)
     notional = round(qty * entry, 2)
 
     # Cap notional at 8% of portfolio
-    max_notional = 5000 * 0.08
+    max_notional = portfolio_value * 0.08
     if notional > max_notional:
         qty      = round(max_notional / entry, 2)
         notional = round(qty * entry, 2)
+
+    # ── Cash reserve enforcement ───────────────────────────────────────
+    # Never commit more than 90% of free cash to a single trade.
+    # Protects against limit orders tying up all available capital.
+    try:
+        free_cash      = get_free_cash() or portfolio_value * 0.3
+        cash_available = round(free_cash * 0.90, 2)
+        if notional > cash_available and cash_available > 0:
+            qty      = round(cash_available / entry, 2)
+            notional = round(qty * entry, 2)
+            log_info(f"Cash reserve cap: notional reduced to £{notional} "
+                     f"(90% of £{free_cash:.2f} free cash)")
+    except Exception as _ce:
+        log_error(f"Cash reserve check failed (non-fatal): {_ce}")
+    # ── end cash reserve ───────────────────────────────────────────────
 
     return qty, notional
 
@@ -707,11 +855,18 @@ def save_and_notify(signal, intel, qty, notional):
             tmap = json.load(f)
         t212 = tmap.get(name, {}).get('t212', '')
         full_name = tmap.get(name, {}).get('name', name)
-    except:
+    except Exception:
         t212, full_name = '', name
 
     target1 = signal.get('target1', round(entry + (entry - stop) * 1.5, 2))
     target2 = signal.get('target2', round(entry + (entry - stop) * 2.5, 2))
+
+    # Fix 2: CONTRARIAN with RSI > 30 is not genuinely oversold — reclassify as
+    # GEO_REVERSAL so it gets the correct stop multiplier and labelling
+    reclassified = None
+    if signal_type == 'CONTRARIAN' and float(rsi) > 30:
+        signal_type  = 'GEO_REVERSAL'
+        reclassified = f"RSI {rsi} > 30 — reclassified CONTRARIAN→GEO_REVERSAL"
 
     pending = {
         "name":         full_name,
@@ -729,6 +884,7 @@ def save_and_notify(signal, intel, qty, notional):
         "macd":         signal.get('macd_hist', 0),
         "sector":       get_instrument_sector(name) or 'UNKNOWN',
         "signal_type":  signal_type,
+        "reclassified": reclassified,
         "currency":     signal.get('currency', 'USD'),
         "adjustments":  adjustments,
         "generated_at": datetime.now(timezone.utc).isoformat()
@@ -776,10 +932,93 @@ def save_and_notify(signal, intel, qty, notional):
     return pending
 
 # ============================================================
+# DECISION LOGGING — Persist every run for auditability
+# ============================================================
+
+def log_decision_run(all_signals, blocked_map, qualified, best, intel):
+    """
+    Append a record of this decision run to apex-decision-log.json.
+    blocked_map: {signal_name: [block_reason, ...]}
+    """
+    try:
+        log = safe_read(DECISION_LOG, [])
+        if not isinstance(log, list):
+            log = []
+
+        signals_log = []
+        for s in all_signals:
+            name = s.get('name', '?')
+            entry = {
+                "name":         name,
+                "signal_type":  s.get('signal_type', ''),
+                "raw_score":    s.get('raw_score', s.get('adjusted_score', 0)),
+                "adj_score":    s.get('adjusted_score', 0),
+                "rsi":          s.get('rsi', 0),
+                "adjustments":  s.get('adjustments', []),
+                "blocked":      bool(blocked_map.get(name)),
+                "block_reasons": blocked_map.get(name, []),
+            }
+            signals_log.append(entry)
+
+        run_record = {
+            "date":             datetime.now(timezone.utc).strftime('%Y-%m-%d'),
+            "timestamp":        datetime.now(timezone.utc).isoformat(),
+            "regime":           intel.get('regime_status', '?'),
+            "vix":              intel.get('vix', 0),
+            "breadth":          intel.get('breadth', 0),
+            "geo":              intel.get('geo_status', '?'),
+            "direction":        intel.get('direction_status', '?'),
+            "candidates_total": len(all_signals),
+            "qualified_count":  len(qualified),
+            "blocked_count":    len(blocked_map),
+            "best_signal":      best.get('name') if best else None,
+            "best_type":        best.get('signal_type') if best else None,
+            "best_score":       best.get('adjusted_score') if best else None,
+            "signals":          signals_log,
+        }
+
+        # Keep last 90 days of runs (cap at 200 entries)
+        log.append(run_record)
+        if len(log) > 200:
+            log = log[-200:]
+
+        atomic_write(DECISION_LOG, log)
+    except Exception as _e:
+        log_error(f"Decision log write failed (non-fatal): {_e}")
+
+
+# ============================================================
 # MAIN — ORCHESTRATED DECISION PASS
 # ============================================================
 
 def run():
+    # Session argument — 'am' (default, morning scan) or 'pm' (midday re-scan)
+    _session = 'pm' if '--session=midday' in sys.argv else 'am'
+
+    # Idempotency guard — one run per session per day (AM / PM)
+    LAST_RUN_FILE = '/home/ubuntu/.picoclaw/logs/apex-engine-last-run.json'
+    last_run  = safe_read(LAST_RUN_FILE, {})
+    today_str = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+
+    # Also guard against duplicate fire within 5 minutes (cron double-trigger)
+    last_ts = last_run.get('timestamp', '')
+    if last_ts:
+        try:
+            lr_dt = datetime.fromisoformat(last_ts)
+            if lr_dt.tzinfo is None:
+                lr_dt = lr_dt.replace(tzinfo=timezone.utc)
+            if (datetime.now(timezone.utc) - lr_dt).total_seconds() < 300:
+                print(f"Engine ran {int((datetime.now(timezone.utc) - lr_dt).total_seconds())}s ago — skipping duplicate")
+                return
+        except Exception:
+            pass
+
+    # Session-level guard: same session (am/pm) already ran today → skip
+    last_session_date = last_run.get(f'last_{_session}_date', '')
+    if last_session_date == today_str:
+        print(f"Session '{_session}' already ran today ({today_str}) — skipping")
+        return
+
     # Pre-flight data integrity check
     try:
         import importlib.util as _ilu_di
@@ -798,8 +1037,9 @@ def run():
     except Exception as _di_e:
         print(f"⚠️  Data integrity check failed: {_di_e}")
 
-    # ── Module cache — load once, reuse per signal ──────────────
-    _MODULE_CACHE = {}
+    # ── Module cache — module-level global so scoring functions can access it ──
+    global _MODULE_CACHE, _rs_mod, _mtf_mod
+    _MODULE_CACHE.clear()  # fresh each run
 
     def _load_module(alias, filepath):
         """Load and cache a Python module."""
@@ -928,17 +1168,17 @@ def run():
     # Step 5 — Filter blocked signals
     print("\n[6/7] Filtering signals...", flush=True)
     qualified = []
-    blocked_count = 0
+    blocked_map = {}  # {name: [reasons]} — for decision log
 
     for signal in all_signals:
         blocks = is_blocked(signal, intel)
         if blocks:
-            blocked_count += 1
+            blocked_map[signal.get('name', '?')] = blocks
             print(f"  BLOCKED: {signal.get('name','?')} — {blocks[0]}")
         else:
             qualified.append(signal)
 
-    print(f"  {len(qualified)} qualified | {blocked_count} blocked")
+    print(f"  {len(qualified)} qualified | {len(blocked_map)} blocked")
 
     # Sort by adjusted score
     qualified.sort(key=lambda x: x.get('adjusted_score', 0), reverse=True)
@@ -947,7 +1187,9 @@ def run():
     print("\n[7/7] Selecting best signal...", flush=True)
 
     if not qualified:
-        # No signals — send defensive mode message
+        # No signals — log the run then send defensive mode message
+        log_decision_run(all_signals, blocked_map, qualified, None, intel)
+
         reason_parts = []
         if intel['regime_status'] == 'BLOCKED':
             reason_parts.append(f"Regime blocked (VIX {intel['vix']}, breadth {intel['breadth']}%)")
@@ -1018,10 +1260,7 @@ def run():
         t1   = float(best.get('target1', entry + (entry-stop)*1.5))
         t2   = float(best.get('target2', entry + (entry-stop)*2.5))
 
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("ev", "/home/ubuntu/.picoclaw/scripts/apex-expected-value.py")
-    ev_mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(ev_mod)
+    ev_mod = _MODULE_CACHE.get('ev', _ev_calc)
 
     ev_data = ev_mod.calculate_ev(entry, stop, t1, t2, best.get('signal_type'), qty)
     ev_mod.log_ev(best.get('name','?'), ev_data)
@@ -1036,6 +1275,8 @@ def run():
     # Option A — EV hard gate (only activates with 10+ real trades)
     if ev_data['ev'] < -5 and ev_data['sample_size'] >= 10:
         name = best.get('name', '?')
+        blocked_map[name] = blocked_map.get(name, []) + [f"EV block: £{ev_data['ev']} negative EV ({ev_data['sample_size']} trades)"]
+        log_decision_run(all_signals, blocked_map, qualified, None, intel)
         send_telegram(
             f"❌ EV BLOCK — {name}\n\n"
             f"Expected value: £{ev_data['ev']} (negative)\n"
@@ -1047,9 +1288,73 @@ def run():
         print(f"  EV BLOCKED: £{ev_data['ev']} negative EV on {ev_data['sample_size']} trades")
         return
 
+    # Log this decision run (all candidates, scores, blocks, winner)
+    log_decision_run(all_signals, blocked_map, qualified, best, intel)
+
     # Save and notify
     pending = save_and_notify(best, intel, qty, notional)
     print(f"\n  Signal saved: {pending.get('name')} | {qty} shares @ £{best.get('entry',0)}")
+
+    # ── P2: Multi-signal queue — queue 2nd/3rd qualified signals ────────
+    # Signals that score >= 7.0 are fully priced and queued for execution
+    # at 09:30 UTC by apex-trade-queue.py execute, subject to all safety gates.
+    try:
+        import importlib.util as _ilu_tq
+        _spec_tq = _ilu_tq.spec_from_file_location(
+            "tq", "/home/ubuntu/.picoclaw/scripts/apex-trade-queue.py")
+        _tq = _ilu_tq.module_from_spec(_spec_tq)
+        _spec_tq.loader.exec_module(_tq)
+
+        # Load ticker map once for t212_ticker resolution
+        try:
+            with open(TICKER_MAP) as _tf:
+                _tmap = json.load(_tf)
+        except Exception:
+            _tmap = {}
+
+        _queued_count = 0
+        for _runner_up in qualified[1:3]:
+            if _runner_up.get('adjusted_score', 0) < 7.0:
+                continue
+            if _runner_up.get('name') == best.get('name'):
+                continue
+            # Resolve T212 ticker if not already set
+            if not _runner_up.get('t212_ticker'):
+                _ru_name = _runner_up.get('name', '')
+                _runner_up['t212_ticker'] = _tmap.get(_ru_name, {}).get('t212', '')
+                if not _runner_up.get('sector'):
+                    _runner_up['sector'] = _tmap.get(_ru_name, {}).get('sector', '')
+            # Calculate position size for this secondary signal
+            _r_qty, _r_notional = calculate_final_position(_runner_up, intel)
+            if not _r_qty:
+                continue
+            # Enrich with EV
+            _r_entry = float(_runner_up.get('entry', _runner_up.get('price', 0)))
+            _r_stop  = float(_runner_up.get('stop', _r_entry * 0.94))
+            _r_t1    = float(_runner_up.get('target1', _r_entry + (_r_entry - _r_stop) * 1.5))
+            _r_t2    = float(_runner_up.get('target2', _r_entry + (_r_entry - _r_stop) * 2.5))
+            try:
+                _r_ev = ev_mod.calculate_ev(_r_entry, _r_stop, _r_t1, _r_t2,
+                                             _runner_up.get('signal_type'), _r_qty)
+                _runner_up['ev']       = _r_ev['ev']
+                _runner_up['ev_verdict'] = _r_ev['verdict']
+            except Exception:
+                pass
+            _runner_up['quantity'] = _r_qty
+            _runner_up['notional'] = _r_notional
+            _runner_up['entry']    = _r_entry
+            _runner_up['stop']     = _r_stop
+            _runner_up['target1']  = _r_t1
+            _runner_up['target2']  = _r_t2
+            _tq.add_scored_signal(_runner_up)
+            _queued_count += 1
+            print(f"  Queued runner-up: {_runner_up.get('name')} "
+                  f"score={_runner_up.get('adjusted_score',0):.1f}")
+
+        if _queued_count:
+            print(f"  Multi-signal: {_queued_count} additional signal(s) queued for 09:30")
+    except Exception as _tq_err:
+        print(f"  Multi-signal queue skipped: {_tq_err}")
 
     # Run autopilot check
     subprocess.run(
@@ -1057,7 +1362,13 @@ def run():
         capture_output=True, text=True
     )
 
-    print("\n✅ Decision engine complete")
+    _now_iso = datetime.now(timezone.utc).isoformat()
+    atomic_write(LAST_RUN_FILE, {
+        **last_run,
+        'timestamp':          _now_iso,
+        f'last_{_session}_date': today_str,
+    })
+    print(f"\n✅ Decision engine complete (session={_session})")
 
 if __name__ == '__main__':
     run()

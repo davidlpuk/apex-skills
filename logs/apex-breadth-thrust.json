@@ -1,46 +1,46 @@
 {
-  "timestamp": "2026-03-22 07:49 UTC",
-  "current_breadth": 54.5,
+  "timestamp": "2026-03-24 13:37 UTC",
+  "current_breadth": 63.6,
   "thrust": {
     "thrust_detected": false,
     "thrust_date": null,
     "thrust_from": null,
     "thrust_to": null,
-    "current_ema10": 63.6,
-    "current_raw": 54.5
+    "current_ema10": 63.3,
+    "current_raw": 63.6
   },
   "washout": {
     "washout_detected": false,
-    "current_breadth": 54.5,
+    "current_breadth": 63.6,
     "recent_low": 54.5,
-    "recovering": false,
+    "recovering": true,
     "severity": "NORMAL",
     "signal": 0,
-    "note": "Breadth 54.5% \u2014 normal"
+    "note": "Breadth 63.6% \u2014 normal"
   },
   "divergence": {
-    "divergence": "DETERIORATION",
-    "breadth_trend": -9.2,
-    "first_half_avg": 84.0,
-    "second_half_avg": 74.8,
-    "signal": -1,
-    "note": "Breadth weakening (-9.2% trend) \u2014 watch for top"
+    "divergence": "STRONG_DETERIORATION",
+    "breadth_trend": -10.7,
+    "first_half_avg": 83.9,
+    "second_half_avg": 73.2,
+    "signal": -2,
+    "note": "Breadth deteriorating significantly (-10.7% trend) \u2014 distribution"
   },
-  "composite_signal": -1,
-  "assessment": "NEUTRAL",
+  "composite_signal": -2,
+  "assessment": "BEARISH",
   "signals": [
-    "\ud83d\udcca BREADTH TREND: DETERIORATION (-9.2%)"
+    "\ud83d\udcca BREADTH TREND: STRONG_DETERIORATION (-10.7%)"
   ],
   "breadth_series": {
-    "2026-03-09": 68.2,
-    "2026-03-10": 68.2,
     "2026-03-11": 68.2,
     "2026-03-12": 63.6,
     "2026-03-13": 59.1,
-    "2026-03-16": 68.2,
+    "2026-03-16": 63.6,
     "2026-03-17": 68.2,
     "2026-03-18": 59.1,
     "2026-03-19": 59.1,
-    "2026-03-20": 54.5
+    "2026-03-20": 54.5,
+    "2026-03-23": 63.6,
+    "2026-03-24": 63.6
   }
 }

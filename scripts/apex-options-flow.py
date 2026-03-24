@@ -302,10 +302,10 @@ def get_options_adjustment(ticker: str, signal_type: str = "TREND") -> tuple:
         return 0, []
     try:
         data    = json.loads(OUT_FILE.read_text())
-        # Staleness — options flow stale after 3h
+        # Staleness — options flow stale after 4h (cron fires every 2h, 2h margin)
         generated = datetime.fromisoformat(data.get("generated", ""))
         age_h     = (datetime.utcnow() - generated).total_seconds() / 3600
-        if age_h > 3:
+        if age_h > 4:
             return 0, []
 
         sig     = data.get("signals", {}).get(ticker, {})

@@ -1,27 +1,23 @@
 {
   "markets": {
     "SP500": {
-      "open": 95.95,
-      "current": 94.9,
-      "change": -1.09
+      "open": 94.55,
+      "current": 94.18,
+      "change": -0.39
     },
     "FTSE100": {
-      "open": 993.9,
-      "current": 982.04,
-      "change": -1.19
+      "open": 968.4,
+      "current": 963.9,
+      "change": -0.46
     },
     "WORLD": {
-      "open": 126.0,
-      "current": 124.54,
-      "change": -1.16
+      "open": 123.94,
+      "current": 123.3,
+      "change": -0.52
     }
   },
   "blocks": [],
-  "warnings": [
-    "SP500 down -1.09% today \u2014 weak market, be cautious",
-    "FTSE100 down -1.19% today \u2014 weak market, be cautious",
-    "WORLD down -1.16% today \u2014 weak market, be cautious"
-  ],
-  "overall": "WARN",
-  "timestamp": "2026-03-19 17:11 UTC"
+  "warnings": [],
+  "overall": "CLEAR",
+  "timestamp": "2026-03-24 13:37 UTC"
 }

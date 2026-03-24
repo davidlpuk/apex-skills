@@ -1,219 +1,201 @@
 {
-  "timestamp": "2026-03-21 11:07 UTC",
+  "timestamp": "2026-03-24 13:34 UTC",
   "total_headlines": 30,
-  "market_sentiment": -0.381,
-  "market_class": "VERY_NEGATIVE",
-  "market_note": "block signal",
-  "crisis_detected": true,
-  "crisis_headlines": [
-    "UK borrowing costs hit highest level since 2008 financial crisis"
-  ],
+  "market_sentiment": -0.144,
+  "market_class": "NEGATIVE",
+  "market_note": "-1 signal penalty",
+  "crisis_detected": false,
+  "crisis_headlines": [],
   "instrument_scores": {
-    "NVDA": {
-      "sentiment": -0.758,
+    "AAPL": {
+      "sentiment": -0.859,
       "label": "VERY_NEGATIVE",
       "note": "block signal",
       "headlines": [
         {
-          "title": "Trio charged over alleged plot to smuggle Nvidia chips from US to China",
-          "compound": -0.758
+          "title": "'Like the plane got cut in half': LaGuardia crash that killed two pilots now und",
+          "compound": -0.859
+        }
+      ],
+      "count": 1
+    },
+    "GOOGL": {
+      "sentiment": -0.813,
+      "label": "VERY_NEGATIVE",
+      "note": "block signal",
+      "headlines": [
+        {
+          "title": "Search for four missing soldiers after Colombia plane crash kills 66",
+          "compound": -0.813
         }
       ],
       "count": 1
     },
     "XOM": {
-      "sentiment": -0.147,
+      "sentiment": -0.282,
       "label": "NEGATIVE",
       "note": "-1 signal penalty",
       "headlines": [
         {
-          "title": "Work from home and drive more slowly to save energy, global body urges",
-          "compound": 0.567
+          "title": "Oil traders bet millions minutes before Trump's Iran talks post",
+          "compound": -0.586
         },
         {
-          "title": "Typical energy bill forecast to rise by \u00a3332 a year in July",
-          "compound": -0.178
+          "title": "Oil back above $100 a barrel as conflicting claims emerge on US-Iran talks",
+          "compound": -0.599
         }
       ],
-      "count": 6
+      "count": 3
     },
     "CVX": {
-      "sentiment": -0.147,
+      "sentiment": -0.282,
       "label": "NEGATIVE",
       "note": "-1 signal penalty",
       "headlines": [
         {
-          "title": "Work from home and drive more slowly to save energy, global body urges",
-          "compound": 0.567
+          "title": "Oil traders bet millions minutes before Trump's Iran talks post",
+          "compound": -0.586
         },
         {
-          "title": "Typical energy bill forecast to rise by \u00a3332 a year in July",
-          "compound": -0.178
+          "title": "Oil back above $100 a barrel as conflicting claims emerge on US-Iran talks",
+          "compound": -0.599
         }
       ],
-      "count": 6
+      "count": 3
     },
     "SHEL": {
-      "sentiment": -0.147,
+      "sentiment": -0.282,
       "label": "NEGATIVE",
       "note": "-1 signal penalty",
       "headlines": [
         {
-          "title": "Work from home and drive more slowly to save energy, global body urges",
-          "compound": 0.567
+          "title": "Oil traders bet millions minutes before Trump's Iran talks post",
+          "compound": -0.586
         },
         {
-          "title": "Typical energy bill forecast to rise by \u00a3332 a year in July",
-          "compound": -0.178
+          "title": "Oil back above $100 a barrel as conflicting claims emerge on US-Iran talks",
+          "compound": -0.599
         }
       ],
-      "count": 6
+      "count": 3
     },
     "BP": {
-      "sentiment": -0.147,
+      "sentiment": -0.282,
       "label": "NEGATIVE",
       "note": "-1 signal penalty",
       "headlines": [
         {
-          "title": "Work from home and drive more slowly to save energy, global body urges",
-          "compound": 0.567
+          "title": "Oil traders bet millions minutes before Trump's Iran talks post",
+          "compound": -0.586
         },
         {
-          "title": "Typical energy bill forecast to rise by \u00a3332 a year in July",
-          "compound": -0.178
-        }
-      ],
-      "count": 6
-    },
-    "JPM": {
-      "sentiment": -0.646,
-      "label": "VERY_NEGATIVE",
-      "note": "block signal",
-      "headlines": [
-        {
-          "title": "UK borrowing costs hit highest level since 2008 financial crisis",
-          "compound": -0.527
-        },
-        {
-          "title": "Faisal Islam: Iran war is having a dramatic effect on the UK economy",
-          "compound": -0.7
+          "title": "Oil back above $100 a barrel as conflicting claims emerge on US-Iran talks",
+          "compound": -0.599
         }
       ],
       "count": 3
     },
     "HSBA": {
-      "sentiment": -0.788,
+      "sentiment": -0.44,
       "label": "VERY_NEGATIVE",
       "note": "block signal",
       "headlines": [
         {
-          "title": "Russia, China and the US \u2013 the global winners and losers of the Iran war",
-          "compound": -0.818
+          "title": "China dials back on fuel price hikes to 'reduce burden' on drivers",
+          "compound": -0.44
         },
         {
-          "title": "Trio charged over alleged plot to smuggle Nvidia chips from US to China",
-          "compound": -0.758
+          "title": "China dials back on fuel price hikes to 'reduce burden' on drivers",
+          "compound": -0.44
         }
       ],
       "count": 2
-    },
-    "VWRP": {
-      "sentiment": 0.44,
-      "label": "VERY_POSITIVE",
-      "note": "+2 signal boost",
-      "headlines": [
-        {
-          "title": "US lifts sanctions on some Iranian oil as energy prices soar",
-          "compound": 0.44
-        }
-      ],
-      "count": 1
     }
   },
-  "most_positive": "VWRP",
-  "most_negative": "HSBA",
+  "most_positive": "XOM",
+  "most_negative": "AAPL",
   "top_headlines": [
     {
-      "source": "BBC Business",
-      "title": "Colombia's budding tech scene needs a cash boost",
-      "compound": 0.754,
-      "pos": 0.271,
+      "source": "BBC World",
+      "title": "Married at First Sight star Mel Schilling dies at 54",
+      "compound": 0.823,
+      "pos": 0.257,
       "neg": 0.0,
-      "neu": 0.729
+      "neu": 0.743
     },
     {
       "source": "BBC World",
-      "title": "Remember Chuck Norris memes but never watched his films? You're not alone",
-      "compound": 0.74,
-      "pos": 0.183,
+      "title": "Danes vote as Mette Frederiksen seeks third term as PM",
+      "compound": 0.775,
+      "pos": 0.217,
       "neg": 0.0,
-      "neu": 0.817
-    },
-    {
-      "source": "BBC World",
-      "title": "As Islamophobia rises, Australia's Muslims celebrate Eid",
-      "compound": 0.572,
-      "pos": 0.15,
-      "neg": 0.0,
-      "neu": 0.85
+      "neu": 0.783
     },
     {
       "source": "BBC Business",
-      "title": "Work from home and drive more slowly to save energy, global body urges",
-      "compound": 0.567,
-      "pos": 0.233,
-      "neg": 0.098,
-      "neu": 0.669
+      "title": "Cosmetics giant Est\u00e9e Lauder in merger talks with owner of Jean Paul Gaultier and Rabanne",
+      "compound": 0.71,
+      "pos": 0.16,
+      "neg": 0.0,
+      "neu": 0.84
     },
     {
       "source": "BBC Business",
-      "title": "US lifts sanctions on some Iranian oil as energy prices soar",
-      "compound": 0.44,
-      "pos": 0.13,
+      "title": "Would you build your own apps?",
+      "compound": 0.586,
+      "pos": 0.211,
       "neg": 0.0,
-      "neu": 0.87
+      "neu": 0.789
+    },
+    {
+      "source": "BBC Business",
+      "title": "HS2 trains could run slower than planned to save money",
+      "compound": 0.494,
+      "pos": 0.11,
+      "neg": 0.0,
+      "neu": 0.89
     }
   ],
   "worst_headlines": [
     {
       "source": "BBC World",
-      "title": "Israel strikes Syria after Druze clashes",
-      "compound": -0.949,
+      "title": "At least five killed in massive wave of Russian strikes across Ukraine, officials say",
+      "compound": -0.953,
       "pos": 0.0,
-      "neg": 0.509,
-      "neu": 0.491
+      "neg": 0.372,
+      "neu": 0.628
     },
     {
       "source": "BBC World",
-      "title": "Trump makes Pearl Harbor remark in meeting with Japan's PM",
-      "compound": -0.925,
-      "pos": 0.0,
-      "neg": 0.316,
-      "neu": 0.684
+      "title": "'Like the plane got cut in half': LaGuardia crash that killed two pilots now under investigation",
+      "compound": -0.859,
+      "pos": 0.055,
+      "neg": 0.264,
+      "neu": 0.681
     },
     {
       "source": "BBC World",
-      "title": "Ukraine-Hungary oil pipeline row threatens EU loan",
-      "compound": -0.923,
+      "title": "Search for four missing soldiers after Colombia plane crash kills 66",
+      "compound": -0.813,
       "pos": 0.0,
-      "neg": 0.355,
-      "neu": 0.645
+      "neg": 0.268,
+      "neu": 0.732
     },
     {
       "source": "BBC World",
-      "title": "Russian drone attack kills two in Ukraine ahead of talks in US, officials say",
-      "compound": -0.908,
+      "title": "Referendum defeat leaves Italy's Meloni looking more vulnerable",
+      "compound": -0.778,
       "pos": 0.0,
-      "neg": 0.315,
-      "neu": 0.685
+      "neg": 0.238,
+      "neu": 0.762
     },
     {
       "source": "BBC World",
-      "title": "Iranian strikes on bases used by US caused $800m in damage, new analysis shows",
-      "compound": -0.872,
-      "pos": 0.033,
-      "neg": 0.254,
-      "neu": 0.713
+      "title": "Jury orders Cosby to pay $19m to ex-waitress after finding he abused her in 1972",
+      "compound": -0.765,
+      "pos": 0.0,
+      "neg": 0.178,
+      "neu": 0.822
     }
   ]
 }

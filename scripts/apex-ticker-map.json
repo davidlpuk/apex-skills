@@ -453,5 +453,26 @@
   "3USS": "3USSl_EQ",
   "SQQQ": "SQQQ_EQ",
   "SPXU": "SPXU_EQ",
-  "3UKS": "3UKSl_EQ"
+  "3UKS": "3UKSl_EQ",
+  "PGY": {
+    "t212": "EJFA_US_EQ",
+    "name": "Pagaya Technologies",
+    "currency": "USD",
+    "sector": "Financials",
+    "user_added": true
+  },
+  "NFE": {
+    "t212": "NFE_US_EQ",
+    "name": "New Fortress Energy",
+    "currency": "USD",
+    "sector": "Energy",
+    "user_added": true
+  },
+  "CRDO": {
+    "t212": "CRDO_US_EQ",
+    "name": "Credo Technology",
+    "currency": "USD",
+    "sector": "Technology",
+    "user_added": true
+  }
 }

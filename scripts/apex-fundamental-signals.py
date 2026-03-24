@@ -27,20 +27,21 @@ except ImportError:
 
 OUTPUT_FILE = '/home/ubuntu/.picoclaw/logs/apex-fundamental-signals.json'
 
-def load_env():
-    env = {}
+def _get_api_key():
     try:
-        with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
-            for line in f:
-                line = line.strip()
-                if '=' in line and not line.startswith('#'):
-                    k, v = line.split('=', 1)
-                    env[k.strip()] = v.strip()
-    except Exception as _e:
-        log_error(f"Silent failure in apex-fundamental-signals.py: {_e}")
-    return env
+        from apex_config import get_env
+        return get_env('FMP_API_KEY', '')
+    except ImportError:
+        try:
+            with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
+                for line in f:
+                    if line.strip().startswith('FMP_API_KEY='):
+                        return line.strip().split('=', 1)[1]
+        except Exception:
+            pass
+        return ''
 
-API_KEY = load_env().get('FMP_API_KEY', '')
+API_KEY = _get_api_key()
 BASE    = 'https://financialmodelingprep.com/stable'
 
 UNIVERSE = [

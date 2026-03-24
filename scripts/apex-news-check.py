@@ -64,7 +64,7 @@ for name, ticker in NEWS_WATCHLIST.items():
                     recent.append({
                         "title": title[:100],
                         "significant": is_significant,
-                        "age_hours": round((today - pub_dt).seconds / 3600, 1)
+                        "age_hours": round((today - pub_dt).total_seconds() / 3600, 1)
                     })
 
         if recent:

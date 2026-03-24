@@ -55,9 +55,11 @@ INSTRUMENT_KEYWORDS = {
 
 # Market-wide negative events that should reduce all position sizes
 MARKET_CRISIS_KEYWORDS = [
-    "recession", "crash", "crisis", "bank run", "systemic risk",
-    "lehman", "black monday", "circuit breaker", "market halt",
-    "emergency rate", "fed emergency", "contagion"
+    "recession", "market crash", "stock market crash", "financial crisis",
+    "bank run", "systemic risk", "lehman", "black monday",
+    "stock market halt", "trading halt", "market suspended",
+    "emergency rate cut", "fed emergency", "contagion",
+    "flash crash", "market meltdown", "global selloff",
 ]
 
 def clean_cdata(text):

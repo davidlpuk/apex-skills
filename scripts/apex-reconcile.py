@@ -10,13 +10,13 @@ Detects and resolves:
 3. Quantity mismatches between Apex and T212
 """
 import json
-import subprocess
 import sys
 from datetime import datetime, timezone
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning, log_info
+    from apex_utils import (atomic_write, safe_read, log_error, log_warning, log_info,
+                            send_telegram, locked_read_modify_write, t212_request)
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -29,41 +29,10 @@ POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 OUTCOMES_FILE  = '/home/ubuntu/.picoclaw/logs/apex-outcomes.json'
 RECON_FILE     = '/home/ubuntu/.picoclaw/logs/apex-reconciliation.json'
 
-def load_env():
-    env = {}
-    try:
-        with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
-            for line in f:
-                line = line.strip()
-                if '=' in line and not line.startswith('#'):
-                    k, v = line.split('=', 1)
-                    env[k.strip()] = v.strip()
-    except Exception as e:
-        log_error(f"load_env failed: {e}")
-    return env
-
-def send_telegram(msg):
-    try:
-        subprocess.run(['bash', '-c',
-            f'''BOT=$(cat ~/.picoclaw/config.json | grep -A2 '"telegram"' | grep token | sed 's/.*"token": "\\(.*\\)".*/\\1/')
-curl -s -X POST "https://api.telegram.org/bot$BOT/sendMessage" \
-  -d chat_id=6808823889 --data-urlencode "text={msg}"'''
-        ], capture_output=True)
-    except Exception as e:
-        log_error(f"send_telegram failed: {e}")
-
 def get_t212_portfolio():
-    """Fetch live portfolio from T212."""
+    """Fetch live portfolio from T212 via centralised rate-limited caller."""
     try:
-        env      = load_env()
-        auth     = env.get('T212_AUTH', '')
-        endpoint = env.get('T212_ENDPOINT', 'https://demo.trading212.com/api/v0')
-        result   = subprocess.run([
-            'curl', '-s', '--max-time', '15',
-            '-H', f'Authorization: Basic {auth}',
-            f'{endpoint}/equity/portfolio'
-        ], capture_output=True, text=True)
-        data = json.loads(result.stdout)
+        data = t212_request('/equity/portfolio')
         if isinstance(data, list):
             return {p['ticker']: p for p in data}
         return {}
@@ -79,25 +48,166 @@ def load_apex_positions():
         log_error(f"load_apex_positions failed: {e}")
         return []
 
-def log_closed_position(pos, reason):
-    """Log a position closure to outcomes."""
+def get_exit_from_history(ticker, opened_date):
+    """
+    Query T212 order history to find the actual fill price for a closed position.
+    Returns (exit_price, close_type) or (None, 'unknown') if not found.
+    close_type: 'STOP_HIT' | 'TARGET_HIT' | 'MARKET_CLOSE' | 'unknown'
+    """
     try:
+        data = t212_request('/equity/history/orders?limit=100')
+        if not isinstance(data, dict):
+            return None, 'unknown'
+        items = data.get('items', [])
+
+        # Find the most recent FILLED SELL for this ticker after it was opened
+        candidates = []
+        for item in items:
+            order = item.get('order', {})
+            fill  = item.get('fill', {})
+            if (order.get('ticker') == ticker
+                    and order.get('status') == 'FILLED'
+                    and order.get('side') == 'SELL'
+                    and fill.get('price')):
+                filled_at = fill.get('filledAt', '')
+                if filled_at[:10] >= (opened_date or '2000-01-01'):
+                    candidates.append({
+                        'price':     float(fill['price']),
+                        'type':      order.get('type', 'MARKET'),
+                        'filled_at': filled_at,
+                    })
+
+        if not candidates:
+            return None, 'unknown'
+
+        # Take the most recent fill
+        candidates.sort(key=lambda x: x['filled_at'], reverse=True)
+        best = candidates[0]
+
+        close_type = {
+            'STOP':   'STOP_HIT',
+            'LIMIT':  'TARGET_HIT',
+            'MARKET': 'MARKET_CLOSE',
+        }.get(best['type'], 'MARKET_CLOSE')
+
+        return best['price'], close_type
+
+    except Exception as e:
+        log_error(f"get_exit_from_history failed for {ticker}: {e}")
+        return None, 'unknown'
+
+
+def log_closed_position(pos, reason):
+    """
+    Log a position closure to outcomes.
+    Looks up the actual fill price from T212 order history so outcomes
+    have real P&L and R data — not zeros.
+    """
+    try:
+        ticker     = pos.get('t212_ticker', '?')
+        entry      = float(pos.get('entry', 0))
+        stop       = float(pos.get('stop', 0))
+        qty        = float(pos.get('quantity', 0))
+        target1    = float(pos.get('target1', 0))
+        target2    = float(pos.get('target2', 0))
+        opened     = pos.get('opened', '')
+        rsi        = float(pos.get('rsi', 0))
+        signal_type = pos.get('signal_type', 'UNKNOWN')
+        sector     = pos.get('sector', 'unknown')
+
+        # Look up actual exit price from T212 order history
+        exit_price, close_type = get_exit_from_history(ticker, opened)
+
+        # If history lookup failed, fall back to using current price from position
+        if exit_price is None:
+            exit_price = float(pos.get('current', pos.get('entry', 0)))
+            close_type = reason
+
+        # Override close_type with known reason if it's more specific
+        if reason not in ('auto_reconciled_not_in_t212',):
+            close_type = reason
+
+        # Calculate P&L and R
+        risk = entry - stop if entry > stop else 1.0
+        pnl  = round(qty * (exit_price - entry), 2)
+        r    = round((exit_price - entry) / risk, 2) if risk else 0
+
+        # Classify result
+        if exit_price >= target2 and target2 > 0:
+            result = 'TARGET2_HIT'
+        elif exit_price >= target1 and target1 > 0:
+            result = 'TARGET1_HIT'
+        elif exit_price <= stop and stop > 0:
+            result = 'STOP_HIT'
+        elif pnl > 0:
+            result = 'MANUAL_WIN'
+        elif pnl < 0:
+            result = 'MANUAL_LOSS'
+        else:
+            result = 'BREAKEVEN'
+
+        # RSI bucket
+        rsi_bucket = ('below_35' if rsi < 35 else
+                      'below_45' if rsi < 45 else
+                      'mid_45_60' if rsi < 60 else
+                      'above_60')
+
+        # Day of week
+        try:
+            day = datetime.strptime(opened, '%Y-%m-%d').strftime('%A')
+        except Exception:
+            day = 'unknown'
+
         outcomes = safe_read(OUTCOMES_FILE, {'trades': []})
-        trades   = outcomes.get('trades', [])
-        trades.append({
-            'name':       pos.get('name', '?'),
-            'ticker':     pos.get('t212_ticker', '?'),
-            'entry':      pos.get('entry', 0),
-            'exit':       0,
-            'pnl':        0,
-            'opened':     pos.get('opened', ''),
-            'closed':     datetime.now(timezone.utc).strftime('%Y-%m-%d'),
-            'signal_type':pos.get('signal_type', 'UNKNOWN'),
-            'close_reason':reason,
+        if not isinstance(outcomes, dict):
+            outcomes = {'trades': []}
+        trades = outcomes.get('trades', [])
+
+        trade = {
+            'id':           len(trades) + 1,
+            'name':         pos.get('name', ticker),
+            'ticker':       ticker,
+            'entry':        entry,
+            'exit':         exit_price,
+            'stop':         stop,
+            'target1':      target1,
+            'target2':      target2,
+            'pnl':          pnl,
+            'r_achieved':   r,
+            'result':       result,
+            'outcome_type': close_type,
+            'close_reason': reason,
+            'score':        pos.get('score', 0),
+            'rsi':          rsi,
+            'rsi_bucket':   rsi_bucket,
+            'macd':         pos.get('macd', 0),
+            'signal_type':  signal_type,
+            'sector':       sector,
+            'opened':       opened,
+            'closed':       datetime.now(timezone.utc).strftime('%Y-%m-%d'),
+            'day_opened':   day,
+            'mae_pct':      pos.get('mae_pct', 0),
+            'mfe_pct':      pos.get('mfe_pct', 0),
             'auto_reconciled': True,
-        })
+        }
+        trades.append(trade)
         outcomes['trades'] = trades
+
+        # Rebuild summary
+        all_pnl  = [t.get('pnl', 0) for t in trades]
+        winners  = [t for t in trades if t.get('pnl', 0) > 0]
+        outcomes['summary'] = {
+            'total_trades': len(trades),
+            'winners':      len(winners),
+            'losers':       len(trades) - len(winners),
+            'win_rate':     round(len(winners) / len(trades) * 100, 1) if trades else 0,
+            'total_pnl':    round(sum(all_pnl), 2),
+            'avg_r':        round(sum(t.get('r_achieved', 0) for t in trades) / len(trades), 2) if trades else 0,
+        }
+
         atomic_write(OUTCOMES_FILE, outcomes)
+        log_info(f"Outcome logged: {pos.get('name')} exit={exit_price} pnl=£{pnl} r={r} result={result}")
+
     except Exception as e:
         log_error(f"log_closed_position failed: {e}")
 
@@ -137,8 +247,20 @@ def reconcile(silent=False):
 
         log_warning(f"Ghost position removed: {name} ({ticker})")
         log_closed_position(pos, 'auto_reconciled_not_in_t212')
+
+        # Read back the just-logged outcome to include P&L in the alert
+        try:
+            _outcomes = safe_read(OUTCOMES_FILE, {'trades': []})
+            _last     = _outcomes.get('trades', [{}])[-1]
+            _pnl      = _last.get('pnl', '?')
+            _result   = _last.get('result', '?')
+            _exit     = _last.get('exit', '?')
+            alert_detail = f"Result: {_result} | Exit: {_exit} | P&L: £{_pnl}"
+        except Exception:
+            alert_detail = "P&L lookup failed — check apex-outcomes.json"
+
         changes.append(f"REMOVED: {name} — closed in T212")
-        alerts.append(f"⚠️ {name} closed externally (stop loss or manual)")
+        alerts.append(f"⚠️ {name} closed externally\n{alert_detail}")
 
     # Remove ghost positions from Apex tracking
     apex_positions = [p for p in apex_positions
@@ -214,9 +336,11 @@ def reconcile(silent=False):
             pos['current'] = float(t212_positions[ticker].get('currentPrice', 0))
             pos['ppl']     = float(t212_positions[ticker].get('ppl', 0))
 
-    # Save reconciled positions
+    # Save reconciled positions under file lock — prevents last-writer-wins races
+    # with concurrent cron jobs (stop-monitor, watchdog) that also write positions.
     if changes or True:  # Always save to update current prices
-        atomic_write(POSITIONS_FILE, apex_positions)
+        final_positions = apex_positions   # capture for closure
+        locked_read_modify_write(POSITIONS_FILE, lambda _: final_positions, default=[])
 
     # Save reconciliation report
     report = {

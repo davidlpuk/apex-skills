@@ -104,7 +104,7 @@ def record_daily_benchmark():
                     env[k.strip()] = v.strip()
 
         auth     = env.get('T212_AUTH','')
-        endpoint = env.get('T212_ENDPOINT','https://demo.trading212.com/api/v0')
+        endpoint = env.get('T212_ENDPOINT','')
         result   = subprocess.run([
             'curl','-s','--max-time','10',
             '-H',f'Authorization: Basic {auth}',
@@ -147,6 +147,135 @@ def record_daily_benchmark():
     atomic_write(BENCHMARK_FILE, benchmark)
     return snapshot
 
+def _daily_returns(history, key):
+    """Compute daily % returns from a list of history snapshots for a given key."""
+    import math
+    values = [h.get(key, STARTING_CAPITAL) for h in history]
+    returns = []
+    for i in range(1, len(values)):
+        if values[i - 1] > 0:
+            r = (values[i] - values[i - 1]) / values[i - 1] * 100
+            returns.append(r)
+    return returns
+
+
+def _sharpe(daily_returns, risk_free_daily=0.0):
+    """Annualised Sharpe ratio from daily % returns."""
+    import math
+    if len(daily_returns) < 5:
+        return None
+    n    = len(daily_returns)
+    mean = sum(daily_returns) / n
+    variance = sum((r - mean) ** 2 for r in daily_returns) / (n - 1) if n > 1 else 0
+    std  = math.sqrt(variance)
+    if std == 0:
+        return None
+    return round((mean - risk_free_daily) / std * math.sqrt(252), 2)
+
+
+def _sortino(daily_returns, risk_free_daily=0.0):
+    """Annualised Sortino ratio (downside deviation only)."""
+    import math
+    if len(daily_returns) < 5:
+        return None
+    downside = [r for r in daily_returns if r < risk_free_daily]
+    if not downside:
+        # No down days at all — effectively infinite Sortino; cap to avoid absurd numbers
+        mean = sum(daily_returns) / len(daily_returns)
+        return round(99.0 if mean > 0 else 0.0, 2)
+    n        = len(daily_returns)
+    mean     = sum(daily_returns) / n
+    dd_var   = sum(r ** 2 for r in downside) / n
+    dd_std   = math.sqrt(dd_var)
+    if dd_std == 0:
+        return None
+    return round((mean - risk_free_daily) / dd_std * math.sqrt(252), 2)
+
+
+def _max_drawdown(values):
+    """Max peak-to-trough drawdown from a list of portfolio values."""
+    if not values:
+        return 0.0
+    peak = values[0]
+    max_dd = 0.0
+    for v in values:
+        if v > peak:
+            peak = v
+        dd = (peak - v) / peak * 100 if peak > 0 else 0
+        if dd > max_dd:
+            max_dd = dd
+    return round(max_dd, 2)
+
+
+def _calmar(annualised_return_pct, max_dd_pct):
+    """Calmar ratio = annualised return / max drawdown. Higher is better."""
+    if max_dd_pct == 0:
+        # No drawdown — cap to avoid division by zero
+        return round(99.0 if annualised_return_pct > 0 else 0.0, 2)
+    return round(annualised_return_pct / max_dd_pct, 2)
+
+
+def _information_ratio(apex_returns, bench_returns):
+    """Information Ratio = mean(active return) / std(active return), annualised."""
+    import math
+    if len(apex_returns) != len(bench_returns) or len(apex_returns) < 5:
+        return None
+    active = [a - b for a, b in zip(apex_returns, bench_returns)]
+    n    = len(active)
+    mean = sum(active) / n
+    variance = sum((r - mean) ** 2 for r in active) / (n - 1) if n > 1 else 0
+    std  = math.sqrt(variance)
+    if std == 0:
+        return None
+    return round(mean / std * math.sqrt(252), 2)
+
+
+def calculate_risk_metrics(history):
+    """
+    Calculate professional risk-adjusted performance metrics from history.
+    Returns a dict of metrics to be stored alongside the daily snapshot.
+    """
+    if len(history) < 5:
+        return {}
+
+    apex_vals  = [h.get('apex_value', STARTING_CAPITAL) for h in history]
+    vuag_vals  = [h.get('vuag_value', STARTING_CAPITAL) for h in history]
+    days       = len(history)
+
+    # Daily returns
+    apex_rets  = _daily_returns(history, 'apex_value')
+    vuag_rets  = _daily_returns(history, 'vuag_value')
+
+    # Return (annualised)
+    total_apex_ret  = (apex_vals[-1] - STARTING_CAPITAL) / STARTING_CAPITAL * 100
+    total_vuag_ret  = (vuag_vals[-1] - STARTING_CAPITAL) / STARTING_CAPITAL * 100
+    ann_factor      = 252 / days
+    ann_apex_ret    = round(total_apex_ret * ann_factor, 2)
+    ann_vuag_ret    = round(total_vuag_ret * ann_factor, 2)
+
+    # Max drawdowns
+    apex_mdd   = _max_drawdown(apex_vals)
+    vuag_mdd   = _max_drawdown(vuag_vals)
+
+    metrics = {
+        'days':                  days,
+        'apex_total_return':     round(total_apex_ret, 2),
+        'vuag_total_return':     round(total_vuag_ret, 2),
+        'apex_annualised_return':ann_apex_ret,
+        'vuag_annualised_return':ann_vuag_ret,
+        'apex_max_drawdown':     apex_mdd,
+        'vuag_max_drawdown':     vuag_mdd,
+        'apex_sharpe':           _sharpe(apex_rets),
+        'vuag_sharpe':           _sharpe(vuag_rets),
+        'apex_sortino':          _sortino(apex_rets),
+        'vuag_sortino':          _sortino(vuag_rets),
+        'apex_calmar':           _calmar(ann_apex_ret, apex_mdd),
+        'vuag_calmar':           _calmar(ann_vuag_ret, vuag_mdd),
+        'information_ratio':     _information_ratio(apex_rets, vuag_rets),
+    }
+    return metrics
+
+
 def generate_report():
     """
     Generate benchmark comparison report.
@@ -184,6 +313,31 @@ def generate_report():
     beating_days = sum(1 for h in history if h.get('beating', False))
     beat_pct     = round(beating_days / len(history) * 100, 1)
     print(f"  Days beating benchmark: {beating_days}/{days} ({beat_pct}%)")
+
+    # Risk-adjusted metrics
+    metrics = calculate_risk_metrics(history)
+    if metrics:
+        print(f"\n  {'':25} {'Apex':>10} {'VUAG':>10}")
+        print(f"  {'-'*47}")
+
+        def _fmt(v):
+            return f"{v:>10.2f}" if v is not None else "       N/A"
+
+        print(f"  {'Max Drawdown':25}{_fmt(metrics.get('apex_max_drawdown'))}"
+              f"{_fmt(metrics.get('vuag_max_drawdown'))}")
+        print(f"  {'Sharpe (ann.)':25}{_fmt(metrics.get('apex_sharpe'))}"
+              f"{_fmt(metrics.get('vuag_sharpe'))}")
+        print(f"  {'Sortino (ann.)':25}{_fmt(metrics.get('apex_sortino'))}"
+              f"{_fmt(metrics.get('vuag_sortino'))}")
+        print(f"  {'Calmar':25}{_fmt(metrics.get('apex_calmar'))}"
+              f"{_fmt(metrics.get('vuag_calmar'))}")
+        ir = metrics.get('information_ratio')
+        print(f"  {'Information Ratio':25}{_fmt(ir)}")
+
+        # Store metrics in benchmark file
+        benchmark['risk_metrics'] = metrics
+        from apex_utils import atomic_write as _aw
+        _aw(BENCHMARK_FILE, benchmark)
 
     if days >= 60:
         verdict = "✅ APEX ADDING VALUE" if alpha > 1.0 else (

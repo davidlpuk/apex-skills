@@ -1,0 +1,11 @@
+{
+  "_meta": {
+    "total_trades": 1,
+    "baseline_expectancy": 0,
+    "baseline_win_rate": 0,
+    "status": "COLLECTING",
+    "needed_global": 4,
+    "needed_bucketed": 14,
+    "generated": "2026-03-24 16:35 UTC"
+  }
+}

@@ -12,7 +12,7 @@
       "catalyst": {
         "pass": true,
         "catalysts": [
-          "RSI 8.8 \u2014 extreme oversold, selling exhaustion likely catalyst"
+          "RSI 10.2 \u2014 deeply oversold, high mean reversion probability"
         ],
         "warnings": []
       },
@@ -30,42 +30,42 @@
       "staged_entry": {
         "stage1": {
           "qty": 0.5,
-          "stop": 43.19,
-          "stop_pct": 6.01,
-          "risk": 1.38,
-          "note": "Initial entry \u2014 0.5 shares @ \u00a345.95 stop \u00a343.19 (3x ATR)"
+          "stop": 42.35,
+          "stop_pct": 5.99,
+          "risk": 1.35,
+          "note": "Initial entry \u2014 0.5 shares @ \u00a345.05 stop \u00a342.35 (3x ATR)"
         },
         "stage2": {
           "qty": 0.5,
-          "trigger": 46.87,
-          "max_price": 47.79,
-          "stop": 44.11,
-          "risk": 0.92,
+          "trigger": 45.95,
+          "max_price": 46.85,
+          "stop": 43.25,
+          "risk": 0.9,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if \u00a346.87 < price < \u00a347.79 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a345.95 < price < \u00a346.85 \u2014 0.5 shares"
         },
-        "total_risk": 2.3,
+        "total_risk": 2.25,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
       }
     },
     "staged_entry": {
       "stage1": {
         "qty": 0.5,
-        "stop": 43.19,
-        "stop_pct": 6.01,
-        "risk": 1.38,
-        "note": "Initial entry \u2014 0.5 shares @ \u00a345.95 stop \u00a343.19 (3x ATR)"
+        "stop": 42.35,
+        "stop_pct": 5.99,
+        "risk": 1.35,
+        "note": "Initial entry \u2014 0.5 shares @ \u00a345.05 stop \u00a342.35 (3x ATR)"
       },
       "stage2": {
         "qty": 0.5,
-        "trigger": 46.87,
-        "max_price": 47.79,
-        "stop": 44.11,
-        "risk": 0.92,
+        "trigger": 45.95,
+        "max_price": 46.85,
+        "stop": 43.25,
+        "risk": 0.9,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if \u00a346.87 < price < \u00a347.79 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a345.95 < price < \u00a346.85 \u2014 0.5 shares"
       },
-      "total_risk": 2.3,
+      "total_risk": 2.25,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   },
@@ -153,20 +153,18 @@
       "Gate 3 FAIL: Fundamental floor not confirmed",
       "Gate 4 FAIL: BLOCKED \u2014 Technology contrarian in CAUTIOUS regime is high risk"
     ],
-    "cautions": [
-      "Gate 2: No catalyst identified \u2014 risk of continued decline"
-    ],
+    "cautions": [],
     "gates": {
       "earnings_trajectory": {
         "pass": true,
         "note": "CLEAR \u2014 no trajectory data available, proceeding"
       },
       "catalyst": {
-        "pass": false,
-        "catalysts": [],
-        "warnings": [
-          "No catalyst identified \u2014 recovery trigger unclear"
-        ]
+        "pass": true,
+        "catalysts": [
+          "Earnings in 35 days \u2014 potential reset catalyst"
+        ],
+        "warnings": []
       },
       "fundamental_floor": {
         "pass": false,
@@ -185,42 +183,42 @@
       "staged_entry": {
         "stage1": {
           "qty": 0.5,
-          "stop": 358.94,
+          "stop": 353.16,
           "stop_pct": 6.0,
-          "risk": 11.46,
-          "note": "Initial entry \u2014 0.5 shares @ \u00a3381.85 stop \u00a3358.94 (3x ATR)"
+          "risk": 11.27,
+          "note": "Initial entry \u2014 0.5 shares @ \u00a3375.7 stop \u00a3353.16 (3x ATR)"
         },
         "stage2": {
           "qty": 0.5,
-          "trigger": 389.49,
-          "max_price": 397.12,
-          "stop": 366.58,
-          "risk": 7.64,
+          "trigger": 383.21,
+          "max_price": 390.73,
+          "stop": 360.67,
+          "risk": 7.51,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if \u00a3389.49 < price < \u00a3397.12 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3383.21 < price < \u00a3390.73 \u2014 0.5 shares"
         },
-        "total_risk": 19.1,
+        "total_risk": 18.78,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
       }
     },
     "staged_entry": {
       "stage1": {
         "qty": 0.5,
-        "stop": 358.94,
+        "stop": 353.16,
         "stop_pct": 6.0,
-        "risk": 11.46,
-        "note": "Initial entry \u2014 0.5 shares @ \u00a3381.85 stop \u00a3358.94 (3x ATR)"
+        "risk": 11.27,
+        "note": "Initial entry \u2014 0.5 shares @ \u00a3375.7 stop \u00a3353.16 (3x ATR)"
       },
       "stage2": {
         "qty": 0.5,
-        "trigger": 389.49,
-        "max_price": 397.12,
-        "stop": 366.58,
-        "risk": 7.64,
+        "trigger": 383.21,
+        "max_price": 390.73,
+        "stop": 360.67,
+        "risk": 7.51,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if \u00a3389.49 < price < \u00a3397.12 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3383.21 < price < \u00a3390.73 \u2014 0.5 shares"
       },
-      "total_risk": 19.1,
+      "total_risk": 18.78,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   },
@@ -232,12 +230,13 @@
     "gates": {
       "earnings_trajectory": {
         "pass": true,
-        "note": "CLEAR \u2014 no trajectory data available, proceeding"
+        "note": "CLEAR \u2014 targets +2.3% month vs quarter"
       },
       "catalyst": {
         "pass": true,
         "catalysts": [
-          "RSI 12.3 \u2014 deeply oversold, high mean reversion probability"
+          "Earnings in 37 days \u2014 potential reset catalyst",
+          "RSI 6.5 \u2014 extreme oversold, selling exhaustion likely catalyst"
         ],
         "warnings": []
       },
@@ -257,42 +256,42 @@
       "staged_entry": {
         "stage1": {
           "qty": 0.5,
-          "stop": 192.77,
+          "stop": 191.07,
           "stop_pct": 6.0,
-          "risk": 6.15,
-          "note": "Initial entry \u2014 0.5 shares @ \u00a3205.07 stop \u00a3192.77 (3x ATR)"
+          "risk": 6.1,
+          "note": "Initial entry \u2014 0.5 shares @ \u00a3203.27 stop \u00a3191.07 (3x ATR)"
         },
         "stage2": {
           "qty": 0.5,
-          "trigger": 209.17,
-          "max_price": 213.27,
-          "stop": 196.87,
-          "risk": 4.1,
+          "trigger": 207.34,
+          "max_price": 211.4,
+          "stop": 195.14,
+          "risk": 4.07,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if \u00a3209.17 < price < \u00a3213.27 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3207.34 < price < \u00a3211.4 \u2014 0.5 shares"
         },
-        "total_risk": 10.25,
+        "total_risk": 10.17,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
       }
     },
     "staged_entry": {
       "stage1": {
         "qty": 0.5,
-        "stop": 192.77,
+        "stop": 191.07,
         "stop_pct": 6.0,
-        "risk": 6.15,
-        "note": "Initial entry \u2014 0.5 shares @ \u00a3205.07 stop \u00a3192.77 (3x ATR)"
+        "risk": 6.1,
+        "note": "Initial entry \u2014 0.5 shares @ \u00a3203.27 stop \u00a3191.07 (3x ATR)"
       },
       "stage2": {
         "qty": 0.5,
-        "trigger": 209.17,
-        "max_price": 213.27,
-        "stop": 196.87,
-        "risk": 4.1,
+        "trigger": 207.34,
+        "max_price": 211.4,
+        "stop": 195.14,
+        "risk": 4.07,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if \u00a3209.17 < price < \u00a3213.27 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3207.34 < price < \u00a3211.4 \u2014 0.5 shares"
       },
-      "total_risk": 10.25,
+      "total_risk": 10.17,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   },
@@ -309,7 +308,8 @@
       "catalyst": {
         "pass": true,
         "catalysts": [
-          "RSI 9.8 \u2014 extreme oversold, selling exhaustion likely catalyst"
+          "Earnings in 35 days \u2014 potential reset catalyst",
+          "RSI 13.1 \u2014 deeply oversold, high mean reversion probability"
         ],
         "warnings": []
       },
@@ -327,42 +327,42 @@
       "staged_entry": {
         "stage1": {
           "qty": 0.5,
-          "stop": 18.33,
-          "stop_pct": 6.0,
-          "risk": 0.59,
-          "note": "Initial entry \u2014 0.5 shares @ \u00a319.5 stop \u00a318.33 (3x ATR)"
+          "stop": 18.24,
+          "stop_pct": 5.98,
+          "risk": 0.58,
+          "note": "Initial entry \u2014 0.5 shares @ \u00a319.4 stop \u00a318.24 (3x ATR)"
         },
         "stage2": {
           "qty": 0.5,
-          "trigger": 19.89,
-          "max_price": 20.28,
-          "stop": 18.72,
+          "trigger": 19.79,
+          "max_price": 20.18,
+          "stop": 18.62,
           "risk": 0.39,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if \u00a319.89 < price < \u00a320.28 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a319.79 < price < \u00a320.18 \u2014 0.5 shares"
         },
-        "total_risk": 0.98,
+        "total_risk": 0.97,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
       }
     },
     "staged_entry": {
       "stage1": {
         "qty": 0.5,
-        "stop": 18.33,
-        "stop_pct": 6.0,
-        "risk": 0.59,
-        "note": "Initial entry \u2014 0.5 shares @ \u00a319.5 stop \u00a318.33 (3x ATR)"
+        "stop": 18.24,
+        "stop_pct": 5.98,
+        "risk": 0.58,
+        "note": "Initial entry \u2014 0.5 shares @ \u00a319.4 stop \u00a318.24 (3x ATR)"
       },
       "stage2": {
         "qty": 0.5,
-        "trigger": 19.89,
-        "max_price": 20.28,
-        "stop": 18.72,
+        "trigger": 19.79,
+        "max_price": 20.18,
+        "stop": 18.62,
         "risk": 0.39,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if \u00a319.89 < price < \u00a320.28 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a319.79 < price < \u00a320.18 \u2014 0.5 shares"
       },
-      "total_risk": 0.98,
+      "total_risk": 0.97,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   },
@@ -527,7 +527,8 @@
       "catalyst": {
         "pass": true,
         "catalysts": [
-          "RSI 19.2 \u2014 deeply oversold, high mean reversion probability"
+          "Earnings in 35 days \u2014 potential reset catalyst",
+          "RSI 13.7 \u2014 deeply oversold, high mean reversion probability"
         ],
         "warnings": []
       },
@@ -545,42 +546,42 @@
       "staged_entry": {
         "stage1": {
           "qty": 0.5,
-          "stop": 130.62,
+          "stop": 128.63,
           "stop_pct": 6.0,
-          "risk": 4.17,
-          "note": "Initial entry \u2014 0.5 shares @ \u00a3138.96 stop \u00a3130.62 (3x ATR)"
+          "risk": 4.11,
+          "note": "Initial entry \u2014 0.5 shares @ \u00a3136.84 stop \u00a3128.63 (3x ATR)"
         },
         "stage2": {
           "qty": 0.5,
-          "trigger": 141.74,
-          "max_price": 144.52,
-          "stop": 133.4,
-          "risk": 2.78,
+          "trigger": 139.58,
+          "max_price": 142.31,
+          "stop": 131.37,
+          "risk": 2.73,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if \u00a3141.74 < price < \u00a3144.52 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3139.58 < price < \u00a3142.31 \u2014 0.5 shares"
         },
-        "total_risk": 6.95,
+        "total_risk": 6.84,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
       }
     },
     "staged_entry": {
       "stage1": {
         "qty": 0.5,
-        "stop": 130.62,
+        "stop": 128.63,
         "stop_pct": 6.0,
-        "risk": 4.17,
-        "note": "Initial entry \u2014 0.5 shares @ \u00a3138.96 stop \u00a3130.62 (3x ATR)"
+        "risk": 4.11,
+        "note": "Initial entry \u2014 0.5 shares @ \u00a3136.84 stop \u00a3128.63 (3x ATR)"
       },
       "stage2": {
         "qty": 0.5,
-        "trigger": 141.74,
-        "max_price": 144.52,
-        "stop": 133.4,
-        "risk": 2.78,
+        "trigger": 139.58,
+        "max_price": 142.31,
+        "stop": 131.37,
+        "risk": 2.73,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if \u00a3141.74 < price < \u00a3144.52 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3139.58 < price < \u00a3142.31 \u2014 0.5 shares"
       },
-      "total_risk": 6.95,
+      "total_risk": 6.84,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   },
@@ -588,20 +589,18 @@
     "symbol": "NOVO",
     "overall_pass": true,
     "blocks": [],
-    "cautions": [
-      "Gate 2: No catalyst identified \u2014 risk of continued decline"
-    ],
+    "cautions": [],
     "gates": {
       "earnings_trajectory": {
         "pass": true,
         "note": "CLEAR \u2014 no trajectory data available, proceeding"
       },
       "catalyst": {
-        "pass": false,
-        "catalysts": [],
-        "warnings": [
-          "No catalyst identified \u2014 recovery trigger unclear"
-        ]
+        "pass": true,
+        "catalysts": [
+          "Earnings in 42 days \u2014 potential reset catalyst"
+        ],
+        "warnings": []
       },
       "fundamental_floor": {
         "pass": true,
@@ -617,42 +616,42 @@
       "staged_entry": {
         "stage1": {
           "qty": 0.5,
-          "stop": 34.34,
+          "stop": 34.49,
           "stop_pct": 6.0,
-          "risk": 1.09,
-          "note": "Initial entry \u2014 0.5 shares @ \u00a336.53 stop \u00a334.34 (3x ATR)"
+          "risk": 1.1,
+          "note": "Initial entry \u2014 0.5 shares @ \u00a336.69 stop \u00a334.49 (3x ATR)"
         },
         "stage2": {
           "qty": 0.5,
-          "trigger": 37.26,
-          "max_price": 37.99,
-          "stop": 35.07,
+          "trigger": 37.42,
+          "max_price": 38.16,
+          "stop": 35.22,
           "risk": 0.73,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if \u00a337.26 < price < \u00a337.99 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a337.42 < price < \u00a338.16 \u2014 0.5 shares"
         },
-        "total_risk": 1.82,
+        "total_risk": 1.83,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
       }
     },
     "staged_entry": {
       "stage1": {
         "qty": 0.5,
-        "stop": 34.34,
+        "stop": 34.49,
         "stop_pct": 6.0,
-        "risk": 1.09,
-        "note": "Initial entry \u2014 0.5 shares @ \u00a336.53 stop \u00a334.34 (3x ATR)"
+        "risk": 1.1,
+        "note": "Initial entry \u2014 0.5 shares @ \u00a336.69 stop \u00a334.49 (3x ATR)"
       },
       "stage2": {
         "qty": 0.5,
-        "trigger": 37.26,
-        "max_price": 37.99,
-        "stop": 35.07,
+        "trigger": 37.42,
+        "max_price": 38.16,
+        "stop": 35.22,
         "risk": 0.73,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if \u00a337.26 < price < \u00a337.99 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a337.42 < price < \u00a338.16 \u2014 0.5 shares"
       },
-      "total_risk": 1.82,
+      "total_risk": 1.83,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   },
@@ -660,20 +659,18 @@
     "symbol": "UNH",
     "overall_pass": true,
     "blocks": [],
-    "cautions": [
-      "Gate 2: No catalyst identified \u2014 risk of continued decline"
-    ],
+    "cautions": [],
     "gates": {
       "earnings_trajectory": {
         "pass": true,
         "note": "CLEAR \u2014 no trajectory data available, proceeding"
       },
       "catalyst": {
-        "pass": false,
-        "catalysts": [],
-        "warnings": [
-          "No catalyst identified \u2014 recovery trigger unclear"
-        ]
+        "pass": true,
+        "catalysts": [
+          "Earnings in 27 days \u2014 potential reset catalyst"
+        ],
+        "warnings": []
       },
       "fundamental_floor": {
         "pass": true,
@@ -690,42 +687,42 @@
       "staged_entry": {
         "stage1": {
           "qty": 0.5,
-          "stop": 259.05,
+          "stop": 252.21,
           "stop_pct": 6.0,
-          "risk": 8.27,
-          "note": "Initial entry \u2014 0.5 shares @ \u00a3275.59 stop \u00a3259.05 (3x ATR)"
+          "risk": 8.05,
+          "note": "Initial entry \u2014 0.5 shares @ \u00a3268.31 stop \u00a3252.21 (3x ATR)"
         },
         "stage2": {
           "qty": 0.5,
-          "trigger": 281.1,
-          "max_price": 286.61,
-          "stop": 264.57,
-          "risk": 5.51,
+          "trigger": 273.68,
+          "max_price": 279.04,
+          "stop": 257.58,
+          "risk": 5.37,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if \u00a3281.1 < price < \u00a3286.61 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3273.68 < price < \u00a3279.04 \u2014 0.5 shares"
         },
-        "total_risk": 13.78,
+        "total_risk": 13.42,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
       }
     },
     "staged_entry": {
       "stage1": {
         "qty": 0.5,
-        "stop": 259.05,
+        "stop": 252.21,
         "stop_pct": 6.0,
-        "risk": 8.27,
-        "note": "Initial entry \u2014 0.5 shares @ \u00a3275.59 stop \u00a3259.05 (3x ATR)"
+        "risk": 8.05,
+        "note": "Initial entry \u2014 0.5 shares @ \u00a3268.31 stop \u00a3252.21 (3x ATR)"
       },
       "stage2": {
         "qty": 0.5,
-        "trigger": 281.1,
-        "max_price": 286.61,
-        "stop": 264.57,
-        "risk": 5.51,
+        "trigger": 273.68,
+        "max_price": 279.04,
+        "stop": 257.58,
+        "risk": 5.37,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if \u00a3281.1 < price < \u00a3286.61 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3273.68 < price < \u00a3279.04 \u2014 0.5 shares"
       },
-      "total_risk": 13.78,
+      "total_risk": 13.42,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   },
@@ -805,20 +802,18 @@
     "symbol": "XOM",
     "overall_pass": true,
     "blocks": [],
-    "cautions": [
-      "Gate 2: No catalyst identified \u2014 risk of continued decline"
-    ],
+    "cautions": [],
     "gates": {
       "earnings_trajectory": {
         "pass": true,
         "note": "CLEAR \u2014 no trajectory data available, proceeding"
       },
       "catalyst": {
-        "pass": false,
-        "catalysts": [],
-        "warnings": [
-          "No catalyst identified \u2014 recovery trigger unclear"
-        ]
+        "pass": true,
+        "catalysts": [
+          "Earnings in 37 days \u2014 potential reset catalyst"
+        ],
+        "warnings": []
       },
       "fundamental_floor": {
         "pass": true,
@@ -836,42 +831,42 @@
       "staged_entry": {
         "stage1": {
           "qty": 0.5,
-          "stop": 150.09,
+          "stop": 154.48,
           "stop_pct": 6.0,
-          "risk": 4.79,
-          "note": "Initial entry \u2014 0.5 shares @ \u00a3159.67 stop \u00a3150.09 (3x ATR)"
+          "risk": 4.93,
+          "note": "Initial entry \u2014 0.5 shares @ \u00a3164.34 stop \u00a3154.48 (3x ATR)"
         },
         "stage2": {
           "qty": 0.5,
-          "trigger": 162.86,
-          "max_price": 166.06,
-          "stop": 153.28,
-          "risk": 3.19,
+          "trigger": 167.63,
+          "max_price": 170.91,
+          "stop": 157.77,
+          "risk": 3.28,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if \u00a3162.86 < price < \u00a3166.06 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3167.63 < price < \u00a3170.91 \u2014 0.5 shares"
         },
-        "total_risk": 7.98,
+        "total_risk": 8.21,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
       }
     },
     "staged_entry": {
       "stage1": {
         "qty": 0.5,
-        "stop": 150.09,
+        "stop": 154.48,
         "stop_pct": 6.0,
-        "risk": 4.79,
-        "note": "Initial entry \u2014 0.5 shares @ \u00a3159.67 stop \u00a3150.09 (3x ATR)"
+        "risk": 4.93,
+        "note": "Initial entry \u2014 0.5 shares @ \u00a3164.34 stop \u00a3154.48 (3x ATR)"
       },
       "stage2": {
         "qty": 0.5,
-        "trigger": 162.86,
-        "max_price": 166.06,
-        "stop": 153.28,
-        "risk": 3.19,
+        "trigger": 167.63,
+        "max_price": 170.91,
+        "stop": 157.77,
+        "risk": 3.28,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if \u00a3162.86 < price < \u00a3166.06 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3167.63 < price < \u00a3170.91 \u2014 0.5 shares"
       },
-      "total_risk": 7.98,
+      "total_risk": 8.21,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   },
@@ -879,20 +874,18 @@
     "symbol": "CVX",
     "overall_pass": true,
     "blocks": [],
-    "cautions": [
-      "Gate 2: No catalyst identified \u2014 risk of continued decline"
-    ],
+    "cautions": [],
     "gates": {
       "earnings_trajectory": {
         "pass": true,
         "note": "CLEAR \u2014 no trajectory data available, proceeding"
       },
       "catalyst": {
-        "pass": false,
-        "catalysts": [],
-        "warnings": [
-          "No catalyst identified \u2014 recovery trigger unclear"
-        ]
+        "pass": true,
+        "catalysts": [
+          "Earnings in 37 days \u2014 potential reset catalyst"
+        ],
+        "warnings": []
       },
       "fundamental_floor": {
         "pass": true,
@@ -910,42 +903,42 @@
       "staged_entry": {
         "stage1": {
           "qty": 0.5,
-          "stop": 189.63,
+          "stop": 194.88,
           "stop_pct": 6.0,
-          "risk": 6.05,
-          "note": "Initial entry \u2014 0.5 shares @ \u00a3201.73 stop \u00a3189.63 (3x ATR)"
+          "risk": 6.22,
+          "note": "Initial entry \u2014 0.5 shares @ \u00a3207.32 stop \u00a3194.88 (3x ATR)"
         },
         "stage2": {
           "qty": 0.5,
-          "trigger": 205.76,
-          "max_price": 209.8,
-          "stop": 193.66,
-          "risk": 4.03,
+          "trigger": 211.47,
+          "max_price": 215.61,
+          "stop": 199.03,
+          "risk": 4.14,
           "days_to_wait": 5,
-          "note": "Add-on after 5 days if \u00a3205.76 < price < \u00a3209.8 \u2014 0.5 shares"
+          "note": "Add-on after 5 days if \u00a3211.47 < price < \u00a3215.61 \u2014 0.5 shares"
         },
-        "total_risk": 10.08,
+        "total_risk": 10.36,
         "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
       }
     },
     "staged_entry": {
       "stage1": {
         "qty": 0.5,
-        "stop": 189.63,
+        "stop": 194.88,
         "stop_pct": 6.0,
-        "risk": 6.05,
-        "note": "Initial entry \u2014 0.5 shares @ \u00a3201.73 stop \u00a3189.63 (3x ATR)"
+        "risk": 6.22,
+        "note": "Initial entry \u2014 0.5 shares @ \u00a3207.32 stop \u00a3194.88 (3x ATR)"
       },
       "stage2": {
         "qty": 0.5,
-        "trigger": 205.76,
-        "max_price": 209.8,
-        "stop": 193.66,
-        "risk": 4.03,
+        "trigger": 211.47,
+        "max_price": 215.61,
+        "stop": 199.03,
+        "risk": 4.14,
         "days_to_wait": 5,
-        "note": "Add-on after 5 days if \u00a3205.76 < price < \u00a3209.8 \u2014 0.5 shares"
+        "note": "Add-on after 5 days if \u00a3211.47 < price < \u00a3215.61 \u2014 0.5 shares"
       },
-      "total_risk": 10.08,
+      "total_risk": 10.36,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   },
@@ -1018,6 +1011,84 @@
         "note": "Add-on after 5 days if \u00a32.41 < price < \u00a32.45 \u2014 0.5 shares"
       },
       "total_risk": 0.11,
+      "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
+    }
+  },
+  "AMZN": {
+    "symbol": "AMZN",
+    "overall_pass": false,
+    "blocks": [
+      "Gate 3 FAIL: Fundamental floor not confirmed",
+      "Gate 4 FAIL: BLOCKED \u2014 Technology contrarian in CAUTIOUS regime is high risk"
+    ],
+    "cautions": [
+      "Gate 2: No catalyst identified \u2014 risk of continued decline"
+    ],
+    "gates": {
+      "earnings_trajectory": {
+        "pass": true,
+        "note": "CLEAR \u2014 no trajectory data available, proceeding"
+      },
+      "catalyst": {
+        "pass": false,
+        "catalysts": [],
+        "warnings": [
+          "No catalyst identified \u2014 recovery trigger unclear"
+        ]
+      },
+      "fundamental_floor": {
+        "pass": false,
+        "passed": [
+          "EV/EBITDA 15.3 \u2014 reasonable",
+          "Fundamental score 8/10 \u2014 quality confirmed"
+        ],
+        "failed": [
+          "FCF yield 0.3% \u2014 weak, below 3% threshold"
+        ]
+      },
+      "sector_eligibility": {
+        "pass": false,
+        "note": "BLOCKED \u2014 Technology contrarian in CAUTIOUS regime is high risk"
+      },
+      "staged_entry": {
+        "stage1": {
+          "qty": 0.5,
+          "stop": 197.53,
+          "stop_pct": 6.0,
+          "risk": 6.3,
+          "note": "Initial entry \u2014 0.5 shares @ \u00a3210.14 stop \u00a3197.53 (3x ATR)"
+        },
+        "stage2": {
+          "qty": 0.5,
+          "trigger": 214.34,
+          "max_price": 218.55,
+          "stop": 201.73,
+          "risk": 4.2,
+          "days_to_wait": 5,
+          "note": "Add-on after 5 days if \u00a3214.34 < price < \u00a3218.55 \u2014 0.5 shares"
+        },
+        "total_risk": 10.5,
+        "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
+      }
+    },
+    "staged_entry": {
+      "stage1": {
+        "qty": 0.5,
+        "stop": 197.53,
+        "stop_pct": 6.0,
+        "risk": 6.3,
+        "note": "Initial entry \u2014 0.5 shares @ \u00a3210.14 stop \u00a3197.53 (3x ATR)"
+      },
+      "stage2": {
+        "qty": 0.5,
+        "trigger": 214.34,
+        "max_price": 218.55,
+        "stop": 201.73,
+        "risk": 4.2,
+        "days_to_wait": 5,
+        "note": "Add-on after 5 days if \u00a3214.34 < price < \u00a3218.55 \u2014 0.5 shares"
+      },
+      "total_risk": 10.5,
       "vs_original": "Original: 1.0 @ 1.5x ATR | Staged: 0.5+0.5 @ 3x/2x ATR"
     }
   }

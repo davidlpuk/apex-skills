@@ -5,6 +5,23 @@ import sys
 import os
 from datetime import datetime, timezone, timedelta
 
+sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
+try:
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, send_telegram, get_portfolio_value
+except ImportError:
+    def atomic_write(p, d):
+        with open(p, 'w') as f: json.dump(d, f, indent=2)
+        return True
+    def safe_read(p, d=None):
+        try:
+            with open(p) as f: return json.load(f)
+        except Exception: return d if d is not None else {}
+    def log_error(m): print(f'ERROR: {m}')
+    def log_warning(m): print(f'WARNING: {m}')
+    def send_telegram(m):
+        print(f'TELEGRAM: {m[:80]}...')
+    def get_portfolio_value(cache_max_age=300): return None
+
 AUTOPILOT_FILE   = '/home/ubuntu/.picoclaw/logs/apex-autopilot.json'
 SIGNAL_FILE      = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
 CONTRARIAN_FILE  = '/home/ubuntu/.picoclaw/logs/apex-contrarian-signals.json'
@@ -14,12 +31,13 @@ PAUSE_FLAG       = '/home/ubuntu/.picoclaw/logs/apex-paused.flag'
 GEO_FILE         = '/home/ubuntu/.picoclaw/logs/apex-geo-news.json'
 DIRECTION_FILE   = '/home/ubuntu/.picoclaw/logs/apex-market-direction.json'
 QUALITY_FILE     = '/home/ubuntu/.picoclaw/scripts/apex-quality-universe.json'
+BREAKER_FILE     = '/home/ubuntu/.picoclaw/logs/apex-circuit-breaker.json'
 
 def load_autopilot():
     try:
         with open(AUTOPILOT_FILE) as f:
             return json.load(f)
-    except:
+    except Exception:
         return {"enabled": False}
 
 def save_autopilot(config):
@@ -29,34 +47,25 @@ def load_signal():
     try:
         with open(SIGNAL_FILE) as f:
             return json.load(f)
-    except:
+    except Exception:
         return None
 
 def load_positions():
     try:
         with open(POSITIONS_FILE) as f:
             return json.load(f)
-    except:
+    except Exception:
         return []
 
 def load_outcomes():
     try:
         with open(OUTCOMES_FILE) as f:
             return json.load(f)
-    except:
+    except Exception:
         return {"trades": [], "summary": {}}
 
 def is_paused():
     return os.path.exists(PAUSE_FLAG)
-
-def send_telegram(message):
-    subprocess.run([
-        'bash', '-c',
-        f'''BOT_TOKEN=$(cat ~/.picoclaw/config.json | grep -A 2 '"telegram"' | grep token | sed 's/.*"token": "\\(.*\\)".*/\\1/')
-curl -s -X POST "https://api.telegram.org/bot${{BOT_TOKEN}}/sendMessage" \
-  -d chat_id="6808823889" \
-  --data-urlencode "text={message}"'''
-    ], capture_output=True, text=True)
 
 def safety_check(config, signal):
     now   = datetime.now(timezone.utc)
@@ -81,6 +90,10 @@ def safety_check(config, signal):
     if now.hour > 15 or (now.hour == 15 and now.minute >= 30):
         blocks.append("No trades after 15:30 GMT")
 
+    # Last 30 min of LSE session: institutional rebalancing widens spreads
+    if now.hour == 15 and now.minute < 30:
+        blocks.append("No entries in last 30 min of session (15:00–15:30 UTC — institutional close)")
+
     # Friday afternoon
     if now.weekday() == 4 and now.hour >= 12:
         blocks.append("No trades Friday afternoon")
@@ -90,7 +103,7 @@ def safety_check(config, signal):
     if last_trade:
         try:
             last_dt = datetime.fromisoformat(last_trade)
-            elapsed = (now - last_dt).seconds / 3600
+            elapsed = (now - last_dt).total_seconds() / 3600
             min_hours = 4 if signal_type == 'CONTRARIAN' else 2
             if elapsed < min_hours:
                 blocks.append(f"Min {min_hours}h between {'contrarian ' if signal_type == 'CONTRARIAN' else ''}trades — last was {round(elapsed,1)}h ago")
@@ -102,15 +115,67 @@ def safety_check(config, signal):
     trades   = outcomes.get('trades', [])
     if len(trades) >= 10:
         win_rate = outcomes.get('summary', {}).get('win_rate', 50)
-        if win_rate < 35:
-            blocks.append(f"Win rate {win_rate}% too low")
+        if win_rate < 45:
+            blocks.append(f"Win rate {win_rate}% too low (need 45%+ to cover costs and have edge)")
 
-    # Max open positions — allow 3 if one is contrarian
+    # Losing streak defensive mode — reduce max trades when on a cold streak
+    if len(trades) >= 3:
+        last_3 = [t.get('pnl', 0) for t in trades[-3:]]
+        if all(pnl < 0 for pnl in last_3):
+            max_trades = min(max_trades, 1)
+            if config.get('trades_today', 0) >= 1:
+                blocks.append(f"Losing streak (last 3 trades negative) — max 1 trade/day in defensive mode")
+
+    # Max open positions — contrarians allowed one extra slot on top of the configured limit
     positions = load_positions()
     has_contrarian = any(p.get('signal_type') == 'CONTRARIAN' for p in positions)
-    max_positions = 3 if (signal_type == 'CONTRARIAN' and not has_contrarian) else 2
+    base_max     = config.get('max_positions', 6)
+    max_positions = base_max + 1 if (signal_type == 'CONTRARIAN' and not has_contrarian) else base_max
     if len(positions) >= max_positions:
         blocks.append(f"Max {max_positions} positions — have {len(positions)}")
+
+    # Sector concentration limit — max 2 positions in the same sector.
+    # Ticker-level correlation can pass at 0.65 while the portfolio is 100% sector-exposed
+    # (e.g. XOM + CVX + SHEL are all energy, all correlated to oil price).
+    # ETFs are excluded — they are diversified by nature.
+    new_sector = signal.get('sector', 'UNKNOWN')
+    if new_sector and new_sector not in ('UNKNOWN', 'ETF', 'unknown'):
+        # Case-insensitive comparison — positions may have been written by older code
+        same_sector_count = sum(
+            1 for p in positions
+            if p.get('sector', '').lower() == new_sector.lower()
+            and p.get('sector', '').lower() not in ('etf', 'unknown', '')
+        )
+        if same_sector_count >= 2:
+            blocks.append(f"Sector concentration: already {same_sector_count} positions in {new_sector} (max 2)")
+
+    # Portfolio heat gate — block if total at-risk capital > 8% of portfolio
+    try:
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location(
+            "ph", "/home/ubuntu/.picoclaw/scripts/apex-portfolio-heat.py")
+        _ph = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_ph)
+        heat_mult, heat_status, heat_pct = _ph.get_heat_multiplier()
+        if heat_status == 'CRITICAL':
+            blocks.append(f"Portfolio heat {heat_pct:.1f}% exceeds 8% max — no new entries until risk reduces")
+    except Exception as _e:
+        log_error(f"Portfolio heat check failed in safety_check: {_e}")
+
+    # Market microstructure: block first 30 min of US session (14:30–15:00 UTC)
+    # Spreads are widest and fills are worst immediately after the US open.
+    if now.hour == 14 and now.minute >= 30:
+        blocks.append("No new entries during first 30 min of US session (14:30–15:00 UTC — wide spreads)")
+
+    # Pre-market futures gap gate — if S&P futures gapped down >1.5%, block TREND entries
+    futures_gap_flag = '/home/ubuntu/.picoclaw/logs/apex-futures-gap.flag'
+    if signal_type != 'CONTRARIAN' and os.path.exists(futures_gap_flag):
+        try:
+            with open(futures_gap_flag) as _fg:
+                gap_content = _fg.read().strip()
+            blocks.append(f"Pre-market gap down flag active ({gap_content}) — TREND entries suppressed")
+        except Exception:
+            blocks.append("Pre-market gap down flag active — TREND entries suppressed")
 
     return blocks
 
@@ -126,12 +191,8 @@ def realtime_correlation_check(signal):
         _spec.loader.exec_module(_rtc)
 
         # Get yahoo ticker
-        YAHOO_MAP = {
-            "VUAGl_EQ":"VUAG.L","XOM_US_EQ":"XOM","V_US_EQ":"V",
-            "AAPL_US_EQ":"AAPL","MSFT_US_EQ":"MSFT","NVDA_US_EQ":"NVDA",
-            "GOOGL_US_EQ":"GOOGL","JPM_US_EQ":"JPM","GS_US_EQ":"GS",
-        }
-        yahoo = YAHOO_MAP.get(ticker, name)
+        from apex_utils import get_yahoo_ticker
+        yahoo = get_yahoo_ticker(ticker) or name
 
         blocked, max_corr, high = _rtc.check_new_position_correlation(ticker, yahoo)
 
@@ -144,7 +205,7 @@ def realtime_correlation_check(signal):
 
 def staleness_check():
     result = subprocess.run(
-        ['python3', '/home/ubuntu/.picoclaw/scripts/apex-staleness-check.py'],
+        ['/home/ubuntu/bin/python3', '/home/ubuntu/.picoclaw/scripts/apex-staleness-check.py'],
         capture_output=True, text=True
     )
     output = result.stdout.strip()
@@ -158,7 +219,7 @@ def geo_news_check(signal):
     try:
         with open(GEO_FILE) as f:
             data = json.load(f)
-    except:
+    except Exception:
         return "CLEAR", []
 
     overall = data.get('overall', 'CLEAR')
@@ -169,27 +230,18 @@ def geo_news_check(signal):
         with open(QUALITY_FILE) as f:
             quality_db = json.load(f)
         energy_favs = quality_db.get('geo_event_map', {}).get('iran_war', {}).get('favour', [])
-    except:
+    except Exception:
         energy_favs = ['XOM','CVX','SHEL','BP','TTE','IUES']
 
     name   = signal.get('name', '')
     sector = signal.get('sector', '')
 
-    # Contrarian trades on geo-favoured instruments — ALLOW
-    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL'] and name in energy_favs:
+    # Contrarian trades allowed during geo alert — buying the panic dip
+    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL']:
         return "CLEAR", []
 
-    # Trend trades on energy during geo alert — check if beneficiary
-    if name in energy_favs:
-        return "CLEAR", []
-
-    # Everything else during geo alert — standard check
-    energy_instruments = ['XOM','CVX','SHEL','BP','TTE','IUES','NG','SSE']
-    is_energy = sector == 'IUES' or any(e in name.upper() for e in energy_instruments)
-    if is_energy:
-        return "CLEAR", []
-
-    return "CLEAR", []
+    # All TREND/momentum entries blocked during geo ALERT — uncertainty too high
+    return "BLOCK", ["Geo alert active — all trend entries halted (contrarian still allowed)"]
 
 def market_direction_check(signal):
     signal_type = signal.get('signal_type', 'TREND')
@@ -202,7 +254,7 @@ def market_direction_check(signal):
         with open(DIRECTION_FILE) as f:
             data = json.load(f)
         return data.get('overall', 'CLEAR'), data.get('blocks', [])
-    except:
+    except Exception:
         return 'CLEAR', []
 
 def regime_check(signal):
@@ -215,7 +267,7 @@ def regime_check(signal):
     try:
         import subprocess
         result = subprocess.run(
-            ['python3', '/home/ubuntu/.picoclaw/scripts/apex-regime-check.py'],
+            ['/home/ubuntu/bin/python3', '/home/ubuntu/.picoclaw/scripts/apex-regime-check.py'],
             capture_output=True, text=True
         )
         output = result.stdout
@@ -226,7 +278,7 @@ def regime_check(signal):
         overall = data.get('overall', 'CLEAR')
         reasons = data.get('block_reason', [])
         return overall, reasons
-    except:
+    except Exception:
         return "CLEAR", []
 
 def contrarian_quality_check(signal):
@@ -250,11 +302,105 @@ def contrarian_quality_check(signal):
     except Exception as _e:
         log_error(f"Silent failure in apex-autopilot.py: {_e}")
 
-    # RSI must be genuinely oversold for contrarian
-    if rsi > 38:
-        return "BLOCK", [f"RSI {rsi} not oversold enough for contrarian trade (need < 38)"]
+    # RSI must be genuinely oversold for contrarian — RSI 38 is just "slightly weak",
+    # not oversold. Professional contrarian entries need real capitulation (RSI < 30).
+    if rsi > 30:
+        return "BLOCK", [f"RSI {rsi} not oversold enough for contrarian trade (need < 30)"]
 
     return "CLEAR", []
+
+def check_intraday_signal_decay(signal):
+    """
+    Intraday score decay: re-evaluate whether the signal still has edge
+    at current price vs the price when it was generated (signal_generated_at).
+
+    A TREND signal generated at 08:30 at £100 that now trades at £103 at
+    10:30 has already moved 3% — less upside remains, more risk that it
+    is now extended. Score decay prevents chasing.
+
+    Returns (ok, reason, effective_score)
+    """
+    import yfinance as yf
+
+    signal_price    = float(signal.get('entry', 0))
+    original_score  = float(signal.get('score', signal.get('contrarian_score', 7.5)))
+    sig_type        = signal.get('signal_type', 'TREND')
+    threshold       = float(signal.get('score_threshold', 7.0))
+    name            = signal.get('name', '')
+    t212_ticker     = signal.get('t212_ticker', '')
+
+    if signal_price <= 0:
+        return True, "No signal price — decay check skipped", original_score
+
+    # Only apply decay if signal is at least 45 minutes old
+    generated_at = signal.get('generated_at', signal.get('created_at', ''))
+    if generated_at:
+        try:
+            gen_dt = datetime.fromisoformat(generated_at)
+            if gen_dt.tzinfo is None:
+                gen_dt = gen_dt.replace(tzinfo=timezone.utc)
+            age_min = (datetime.now(timezone.utc) - gen_dt).total_seconds() / 60
+            if age_min < 45:
+                return True, f"Signal only {age_min:.0f} min old — decay check skipped", original_score
+        except Exception:
+            pass
+
+    # Fetch current price via yfinance
+    YAHOO_MAP = {
+        "VUAGl_EQ": "VUAG.L", "XOM_US_EQ": "XOM", "V_US_EQ": "V",
+        "AAPL_US_EQ": "AAPL", "MSFT_US_EQ": "MSFT", "NVDA_US_EQ": "NVDA",
+        "GOOGL_US_EQ": "GOOGL", "JPM_US_EQ": "JPM", "CVX_US_EQ": "CVX",
+        "ABBV_US_EQ": "ABBV", "JNJ_US_EQ": "JNJ", "GS_US_EQ": "GS",
+        "SHEL_EQ": "SHEL.L", "HSBA_EQ": "HSBA.L", "AZN_EQ": "AZN.L",
+        "QQQSl_EQ": "QQQS.L", "3USSl_EQ": "3USS.L", "SQQQ_EQ": "SQQQ",
+    }
+    yahoo = YAHOO_MAP.get(t212_ticker, '')
+    if not yahoo:
+        return True, "No Yahoo ticker — decay check skipped", original_score
+
+    try:
+        hist = yf.Ticker(yahoo).history(period="1d", interval="5m")
+        if hist.empty:
+            return True, "No price data — decay check skipped", original_score
+        current_price = float(hist['Close'].iloc[-1])
+        if yahoo.endswith('.L') and current_price > 100:
+            current_price /= 100
+    except Exception as e:
+        log_error(f"Decay price fetch failed for {name}: {e}")
+        return True, "Price fetch failed — decay check skipped", original_score
+
+    drift_pct = (current_price - signal_price) / signal_price * 100
+
+    # Apply same decay logic as queue-revalidate
+    if sig_type == 'TREND':
+        free_buffer = 1.0
+        decay_rate  = 0.5
+        adverse     = max(drift_pct - free_buffer, 0)
+    elif sig_type == 'CONTRARIAN':
+        free_buffer = -2.0
+        decay_rate  = 0.4
+        adverse     = max(free_buffer - drift_pct, 0)
+    else:
+        free_buffer = 2.0
+        decay_rate  = 0.3
+        adverse     = max(abs(drift_pct) - free_buffer, 0)
+
+    score_loss    = round(adverse * decay_rate, 2)
+    effective     = round(original_score - score_loss, 2)
+
+    if effective < threshold:
+        return (False,
+                f"Score decayed {original_score}→{effective} (drift {drift_pct:+.1f}%, "
+                f"loss {score_loss:.1f}pts) — below threshold {threshold}",
+                effective)
+
+    if score_loss > 0:
+        return (True,
+                f"Score mild decay {original_score}→{effective} (drift {drift_pct:+.1f}%)",
+                effective)
+
+    return True, f"Score intact {original_score} (drift {drift_pct:+.1f}%)", original_score
+
 
 def get_dynamic_position_size(signal):
     try:
@@ -262,52 +408,34 @@ def get_dynamic_position_size(signal):
             regime = json.load(f)
         vix     = float(regime.get('vix', 20))
         breadth = float(regime.get('breadth_pct', 50))
-    except:
+    except Exception:
         vix, breadth = 20, 50
 
     try:
         with open(QUALITY_FILE) as f:
             quality_db = json.load(f)
         qs = quality_db.get('quality_stocks', {}).get(signal.get('name', ''), {}).get('quality_score', 5)
-    except:
+    except Exception:
         qs = 5
 
-    result = subprocess.run([
-        'python3', '-c', f'''
-import sys
-sys.path.insert(0, "/home/ubuntu/.picoclaw/scripts")
-from apex_position_sizer import calculate_position
-import json
-import sys as _sys
-_sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
-try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
-except ImportError:
-    def atomic_write(p, d):
-        import json
-        with open(p, 'w') as f: json.dump(d, f, indent=2)
-        return True
-    def log_error(m): print(f'ERROR: {m}')
-    def log_warning(m): print(f'WARNING: {m}')
-
-result = calculate_position(
-    portfolio_value=5000,
-    entry_price={signal.get("entry", 100)},
-    stop_price={signal.get("stop", 90)},
-    signal_score={signal.get("score", signal.get("contrarian_score", 7))},
-    max_score=10,
-    signal_type="{signal.get("signal_type", "TREND")}",
-    vix={vix},
-    breadth={breadth},
-    quality_score={qs}
-)
-print(json.dumps(result))
-'''
-    ], capture_output=True, text=True)
-
     try:
-        return json.loads(result.stdout)
-    except:
+        from apex_position_sizer import calculate_position
+        from apex_utils import get_portfolio_value
+        result = calculate_position(
+            portfolio_value=get_portfolio_value() or 5000,
+            entry_price=float(signal.get('entry', 100)),
+            stop_price=float(signal.get('stop', 90)),
+            signal_score=float(signal.get('score', signal.get('contrarian_score', 7))),
+            max_score=10,
+            signal_type=signal.get('signal_type', 'TREND'),
+            vix=vix,
+            breadth=breadth,
+            quality_score=qs,
+            currency=signal.get('currency', 'GBP'),
+        )
+        return result
+    except Exception as e:
+        log_error(f"get_dynamic_position_size failed: {e}")
         return None
 
 def execute_autonomously():
@@ -322,10 +450,19 @@ def run(mode='check'):
     now    = datetime.now(timezone.utc)
     today  = now.strftime('%Y-%m-%d')
 
-    if config.get('daily_loss_date') != today:
+    # Reset daily counters at market session open (07:00 UTC covers GMT and BST market open),
+    # not at midnight. Without this the limit reset 8 hours before the market opened,
+    # allowing a fresh batch of trades at 00:01 UTC on the same calendar trading day.
+    market_open_utc = now.replace(hour=7, minute=0, second=0, microsecond=0)
+    if now >= market_open_utc:
+        session_date = now.strftime('%Y-%m-%d')
+    else:
+        session_date = (now - timedelta(days=1)).strftime('%Y-%m-%d')
+
+    if config.get('daily_loss_date') != session_date:
         config['trades_today']     = 0
         config['daily_loss_today'] = 0
-        config['daily_loss_date']  = today
+        config['daily_loss_date']  = session_date
         save_autopilot(config)
 
     if mode == 'status':
@@ -341,7 +478,9 @@ def run(mode='check'):
         config['enabled']      = True
         config['activated_at'] = now.isoformat()
         save_autopilot(config)
-        send_telegram("🤖 AUTOPILOT ACTIVATED — DUAL MODE\n\nApex now trades both:\n📈 Trend signals — momentum trades\n🔄 Contrarian signals — quality at discount\n\nSafety limits:\n• Max 2 trend trades per day\n• Max 1 contrarian trade per day\n• Max 3 positions (2 trend + 1 contrarian)\n• Contrarian: quality universe only, RSI < 38\n• No trades after 15:30 GMT\n• No Friday afternoon\n• Min 4h between contrarian trades\n• Exchange-level stop loss on every trade\n\nType AUTOPILOT OFF anytime.")
+        max_pos = config.get('max_positions', 6)
+        max_tr  = config.get('max_trades_per_day', 3)
+        send_telegram(f"🤖 AUTOPILOT ACTIVATED — DUAL MODE\n\nApex now trades both:\n📈 Trend signals — momentum trades\n🔄 Contrarian signals — quality at discount\n\nSafety limits:\n• Max {max_tr} trades per day\n• Max {max_pos} positions ({max_pos + 1} if one is contrarian)\n• Contrarian: quality universe only, RSI < 30\n• No trades after 15:30 GMT\n• No Friday afternoon\n• Min 4h between contrarian trades\n• Exchange-level stop loss on every trade\n\nType AUTOPILOT OFF anytime.")
         print("Autopilot ON — dual mode")
         return
 
@@ -374,6 +513,19 @@ def run(mode='check'):
 
     type_icon = "🔄" if signal_type == 'CONTRARIAN' else "📈"
     type_label = "CONTRARIAN" if signal_type == 'CONTRARIAN' else "TREND"
+
+    # Intraday signal decay — re-score at current price before executing
+    decay_ok, decay_msg, effective_score = check_intraday_signal_decay(signal)
+    print(f"  Signal decay: {decay_msg}")
+    if not decay_ok:
+        send_telegram(
+            f"📉 SIGNAL DECAY BLOCK\n\n{type_icon} {name} ({type_label})\n{decay_msg}\n\n"
+            f"Signal will be re-evaluated at next morning scan."
+        )
+        print(f"DECAY BLOCKED: {decay_msg}")
+        return
+    if effective_score != score:
+        signal['score_at_execution'] = effective_score
 
     # Safety checks
     blocks = safety_check(config, signal)
@@ -480,7 +632,54 @@ def run(mode='check'):
     except Exception as _e:
         log_error(f"Shaw check failed: {_e}")
 
+    # Bid-ask spread gate — block if spread > 0.80%
+    try:
+        import importlib.util as _ilu_sp
+        _spec_sp = _ilu_sp.spec_from_file_location(
+            "sp", "/home/ubuntu/.picoclaw/scripts/apex-spread-check.py")
+        _sp = _ilu_sp.module_from_spec(_spec_sp)
+        _spec_sp.loader.exec_module(_sp)
+        _sp_verdict, _sp_pct, _sp_mid, _sp_details = _sp.check_spread(signal)
+        print(f"  Spread: {_sp_pct:.4f}% → {_sp_verdict}")
+        if _sp_verdict == 'BLOCK':
+            send_telegram(f"🔴 SPREAD BLOCK\n\n{name}\nSpread {_sp_pct:.3f}% > 0.80% — skipping trade")
+            print(f"SPREAD BLOCKED: {_sp_pct:.3f}%")
+            return
+        # Use mid-price as limit price if spread data is available
+        if _sp_verdict in ('NORMAL', 'WIDE') and _sp_mid > 0:
+            signal['limit_price'] = _sp_mid
+    except Exception as _e:
+        log_error(f"Spread check failed: {_e}")
+
     # ── End Four Pillars ────────────────────────────────────────
+
+    # Safe haven flow check — block if crisis-level flight-to-safety detected
+    try:
+        import importlib.util as _ilu_sh2
+        _spec_sh2 = _ilu_sh2.spec_from_file_location(
+            "shv", "/home/ubuntu/.picoclaw/scripts/apex-safe-haven.py")
+        _shv = _ilu_sh2.module_from_spec(_spec_sh2)
+        _spec_sh2.loader.exec_module(_shv)
+        _shv_score, _shv_level = _shv.get_safe_haven_score()
+        if _shv_score >= 9:  # CRISIS — halt all entries
+            send_telegram(
+                f"🔴 SAFE HAVEN CRISIS BLOCK\n\n{name}\n"
+                f"Safe haven score {_shv_score}/12 ({_shv_level})\n"
+                f"Flight-to-safety detected — halting new entries"
+            )
+            print(f"SAFE HAVEN BLOCKED: score={_shv_score} level={_shv_level}")
+            return
+        elif _shv_score >= 6:  # WARNING — log but allow CONTRARIAN
+            if signal.get('signal_type', 'TREND') != 'CONTRARIAN':
+                send_telegram(
+                    f"🟠 SAFE HAVEN WARNING BLOCK\n\n{name}\n"
+                    f"Safe haven score {_shv_score}/12 ({_shv_level})\n"
+                    f"Significant flight-to-safety — halting trend entries"
+                )
+                print(f"SAFE HAVEN WARNING BLOCK: score={_shv_score}")
+                return
+    except Exception as _e:
+        log_error(f"Safe haven check failed: {_e}")
 
     # Real-time correlation check
     corr_status, corr_blocks = realtime_correlation_check(signal)
@@ -529,6 +728,18 @@ def run(mode='check'):
         config['trades_today']            = config.get('trades_today', 0) + 1
         config['total_autonomous_trades'] = config.get('total_autonomous_trades', 0) + 1
         config['last_trade_time']         = now.isoformat()
+
+        # Decrement recovery ramp if active (post-SUSPEND 50% sizing period)
+        try:
+            _cb_data = safe_read(BREAKER_FILE, {})
+            if _cb_data.get('recovery_trades_remaining', 0) > 0:
+                _cb_data['recovery_trades_remaining'] -= 1
+                atomic_write(BREAKER_FILE, _cb_data)
+                ramp_left = _cb_data['recovery_trades_remaining']
+                print(f"  Recovery ramp: {ramp_left} trades remaining at 50% sizing")
+        except Exception as _e:
+            log_error(f"Recovery ramp decrement failed: {_e}")
+
         config.setdefault('log', []).append({
             "time":        now.isoformat(),
             "action":      "AUTO_EXECUTE",

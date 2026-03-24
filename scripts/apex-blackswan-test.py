@@ -20,7 +20,7 @@ from datetime import datetime, timezone, timedelta
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, send_telegram
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -61,16 +61,6 @@ def fix_pence(price, yahoo):
     if yahoo.endswith('.L') and price > 100:
         return price / 100
     return price
-
-def send_telegram(msg):
-    try:
-        subprocess.run(['bash', '-c',
-            f'''BOT=$(cat ~/.picoclaw/config.json | grep -A2 '"telegram"' | grep token | sed 's/.*"token": "\\(.*\\)".*/\\1/')
-curl -s -X POST "https://api.telegram.org/bot$BOT/sendMessage" \
-  -d chat_id=6808823889 --data-urlencode "text={msg}"'''
-        ], capture_output=True)
-    except Exception as e:
-        log_error(f"send_telegram failed: {e}")
 
 # ============================================================
 # VECTOR 1: OVERNIGHT GAP DETECTOR
@@ -426,11 +416,79 @@ def run(positions=None):
     print(f"\n✅ Black Swan detector complete")
     return output
 
+def quick_check():
+    """
+    Fast intraday re-scan: live VIX + RSS only (skips slow gap/volume checks).
+    Runs every 30 min during session. Updates apex-blackswan.json score in place
+    so pre_trade_check() always sees a fresh value without waiting for 7am.
+    """
+    now = datetime.now(timezone.utc)
+
+    # Live VIX
+    vix_data = detect_vix_regime_change()
+
+    # Quick RSS (reuses existing function — fast, no yfinance)
+    regulatory = scan_regulatory_risk()
+
+    # Reload cached gap + volume data from this morning's full run
+    bs_data     = safe_read(BLACKSWAN_FILE, {'score': 0, 'level': 'CLEAR'})
+    cached_gaps = bs_data.get('gaps', [])
+    cached_vol  = bs_data.get('vol_collapses', [])
+
+    score, level, action, events = calculate_blackswan_score(
+        cached_gaps, regulatory, vix_data, cached_vol
+    )
+
+    bs_data.update({
+        'score':        score,
+        'level':        level,
+        'action':       action,
+        'events':       events,
+        'vix':          vix_data,
+        'regulatory':   regulatory[:10],
+        'last_quick_check': now.isoformat(),
+    })
+    atomic_write(BLACKSWAN_FILE, bs_data)
+
+    if score >= 3:
+        icon = '🚨' if score >= 7 else '⚠️'
+        log_warning(f"Quick black swan check: score {score}/10 ({level})")
+        if score >= 5:
+            send_telegram(
+                f"{icon} MID-SESSION BLACK SWAN — Score {score}/10\n\n"
+                f"Level: {level}\nAction: {action}\n\n"
+                + "\n".join(f"• {e}" for e in events[:4])
+            )
+
+    return score, level
+
+
 def pre_trade_check(signal):
-    """Quick black swan check before any trade execution."""
+    """
+    Quick black swan check before any trade execution.
+    Reads cached score PLUS does a live VIX check — the cached file
+    may be hours old but VIX can spike 50% mid-session.
+    """
     bs_data = safe_read(BLACKSWAN_FILE, {'score': 0, 'level': 'CLEAR'})
     score   = bs_data.get('score', 0)
     level   = bs_data.get('level', 'CLEAR')
+
+    # Live VIX override — always check current VIX regardless of cached score
+    # A war / crash spikes VIX immediately; no RSS headline needed
+    try:
+        vix_hist = yf.Ticker("^VIX").history(period="1d")
+        if not vix_hist.empty:
+            live_vix = float(vix_hist['Close'].iloc[-1])
+            if live_vix > 40:
+                return False, f"BLOCKED — Live VIX {live_vix:.1f} (EXTREME FEAR — crisis level)"
+            elif live_vix > 35:
+                return False, f"BLOCKED — Live VIX {live_vix:.1f} (HIGH FEAR — new entries halted)"
+            elif live_vix > 30:
+                # Elevate cached score to at least ELEVATED
+                score = max(score, 3)
+                level = 'ELEVATED' if level == 'CLEAR' else level
+    except Exception:
+        pass  # VIX fetch failed — fall through to cached score
 
     if score >= 7:
         return False, f"BLOCKED — Black Swan score {score}/10 ({level})"

@@ -31,20 +31,21 @@ GATES_FILE  = '/home/ubuntu/.picoclaw/logs/apex-contrarian-gates.json'
 SIGNALS_FILE = '/home/ubuntu/.picoclaw/logs/apex-fundamental-signals.json'
 FUND_FILE   = '/home/ubuntu/.picoclaw/logs/apex-fundamentals.json'
 
-def load_env():
-    env = {}
+def _get_api_key():
     try:
-        with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
-            for line in f:
-                line = line.strip()
-                if '=' in line and not line.startswith('#'):
-                    k, v = line.split('=', 1)
-                    env[k.strip()] = v.strip()
-    except Exception as _e:
-        log_error(f"Silent failure in apex-contrarian-gates.py: {_e}")
-    return env
+        from apex_config import get_env
+        return get_env('FMP_API_KEY', '')
+    except ImportError:
+        try:
+            with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
+                for line in f:
+                    if line.strip().startswith('FMP_API_KEY='):
+                        return line.strip().split('=', 1)[1]
+        except Exception:
+            pass
+        return ''
 
-API_KEY = load_env().get('FMP_API_KEY', '')
+API_KEY = _get_api_key()
 BASE    = 'https://financialmodelingprep.com/stable'
 
 YAHOO_MAP = {
@@ -177,13 +178,24 @@ def check_catalyst(symbol, yahoo):
     try:
         t    = yf.Ticker(yahoo)
         cal  = t.calendar
-        if cal is not None and not cal.empty:
-            if 'Earnings Date' in cal.index:
-                earn_dates = cal.loc['Earnings Date']
+        # yfinance >=0.2 returns dict; older versions returned DataFrame
+        if cal is not None and cal:
+            earn_key = 'Earnings Date'
+            # Support both dict (yf>=0.2) and DataFrame (legacy)
+            if isinstance(cal, dict):
+                cal_index_check = earn_key in cal
+                cal_loc = lambda k: cal[k]
+            else:
+                cal_index_check = earn_key in cal.index
+                cal_loc = lambda k: cal.loc[k]
+            if cal_index_check:
+                earn_dates = cal_loc(earn_key)
                 if hasattr(earn_dates, '__iter__'):
                     for ed in earn_dates:
                         try:
-                            days_away = (ed.replace(tzinfo=None) - datetime.now()).days
+                            import pandas as _pd
+                            ed_naive  = _pd.Timestamp(ed).tz_localize(None) if _pd.Timestamp(ed).tzinfo else _pd.Timestamp(ed)
+                            days_away = (ed_naive - datetime.now()).days
                             if 0 <= days_away <= 45:
                                 catalysts.append(f"Earnings in {days_away} days — potential reset catalyst")
                             elif days_away > 45:

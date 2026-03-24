@@ -1,7 +1,8 @@
 #!/bin/bash
 
-BOT_TOKEN=$(cat ~/.picoclaw/config.json | grep -A 2 '"telegram"' | grep token | sed 's/.*"token": "\(.*\)".*/\1/')
-CHAT_ID="6808823889"
+source /home/ubuntu/.picoclaw/.env.trading212
+BOT_TOKEN="${APEX_BOT_TOKEN}"
+CHAT_ID="${APEX_CHAT_ID}"
 OFFSET_FILE="/home/ubuntu/.picoclaw/logs/telegram-offset.txt"
 LOG="/home/ubuntu/.picoclaw/logs/apex-hitl.log"
 SIGNAL_FILE="/home/ubuntu/.picoclaw/logs/apex-pending-signal.json"
@@ -30,14 +31,14 @@ close_position() {
     -H "Authorization: Basic $T212_AUTH" \
     -H "Content-Type: application/json" \
     -d "{\"ticker\":\"$ticker\",\"quantity\":$neg_qty}" \
-    https://demo.trading212.com/api/v0/equity/orders/market
+    $T212_ENDPOINT/equity/orders/market
 }
 
 
 get_pnl() {
   source /home/ubuntu/.picoclaw/.env.trading212
-  PORTFOLIO=$(curl -s -H "Authorization: Basic $T212_AUTH"     https://demo.trading212.com/api/v0/equity/portfolio)
-  CASH=$(curl -s -H "Authorization: Basic $T212_AUTH"     https://demo.trading212.com/api/v0/equity/account/cash)
+  PORTFOLIO=$(curl -s -H "Authorization: Basic $T212_AUTH"     $T212_ENDPOINT/equity/portfolio)
+  CASH=$(curl -s -H "Authorization: Basic $T212_AUTH"     $T212_ENDPOINT/equity/account/cash)
   MSG=$(python3 << PYEOF2
 import json
 lines = ["💰 PROFIT & LOSS SUMMARY"]
@@ -203,8 +204,8 @@ print(math.floor(pos['quantity'] / 2) if pos else 0)
     
     PNL|PROFIT)
       source /home/ubuntu/.picoclaw/.env.trading212
-      PORTFOLIO=$(curl -s -H "Authorization: Basic $T212_AUTH"         https://demo.trading212.com/api/v0/equity/portfolio)
-      CASH=$(curl -s -H "Authorization: Basic $T212_AUTH"         https://demo.trading212.com/api/v0/equity/account/cash)
+      PORTFOLIO=$(curl -s -H "Authorization: Basic $T212_AUTH"         $T212_ENDPOINT/equity/portfolio)
+      CASH=$(curl -s -H "Authorization: Basic $T212_AUTH"         $T212_ENDPOINT/equity/account/cash)
       MSG=$(python3 << PYEOF2
 import json
 lines = ["💰 PROFIT & LOSS SUMMARY"]
@@ -277,8 +278,8 @@ PYEOF2
 
     PNL|PROFIT)
       source /home/ubuntu/.picoclaw/.env.trading212
-      PORTFOLIO=$(curl -s -H "Authorization: Basic $T212_AUTH"         https://demo.trading212.com/api/v0/equity/portfolio)
-      CASH=$(curl -s -H "Authorization: Basic $T212_AUTH"         https://demo.trading212.com/api/v0/equity/account/cash)
+      PORTFOLIO=$(curl -s -H "Authorization: Basic $T212_AUTH"         $T212_ENDPOINT/equity/portfolio)
+      CASH=$(curl -s -H "Authorization: Basic $T212_AUTH"         $T212_ENDPOINT/equity/account/cash)
       MSG=$(python3 << PYEOF2
 import json
 lines = ["💰 PROFIT & LOSS SUMMARY"]
@@ -334,6 +335,11 @@ PYEOF2
           ;;
       esac
       ;;
+    DIGEST)
+      send_message "⏳ Building digest..."
+      /home/ubuntu/bin/python3 /home/ubuntu/.picoclaw/scripts/apex-digest.py 2>/dev/null || \
+        send_message "⚠️ Digest failed — check apex-errors.log"
+      ;;
     STATUS)
       PENDING=$([ -f "$SIGNAL_FILE" ] && \
         python3 -c "import json; d=json.load(open('$SIGNAL_FILE')); print(f\"{d['name']} | entry:£{d['entry']} | stop:£{d['stop']}\")" \
@@ -341,7 +347,7 @@ PYEOF2
       AUTOPILOT=$(python3 /home/ubuntu/.picoclaw/scripts/apex-autopilot.py status 2>/dev/null | head -1)
       source /home/ubuntu/.picoclaw/.env.trading212
       CASH=$(curl -s -H "Authorization: Basic $T212_AUTH" \
-        https://demo.trading212.com/api/v0/equity/account/cash | \
+        $T212_ENDPOINT/equity/account/cash | \
         python3 -c "import sys,json; d=json.load(sys.stdin); print(f'£{round(float(d.get(\"free\",0))+float(d.get(\"invested\",0)),2)}')" 2>/dev/null)
       send_message "📊 Apex status
 VM uptime: $(uptime -p)
@@ -371,6 +377,7 @@ Last action: $(tail -1 $LOG | cut -c1-60)"
   APEX RESUME       — restart
 
 📊 INFO
+  DIGEST            — full system summary
   STATUS            — live portfolio
   HELP              — this menu"
       ;;

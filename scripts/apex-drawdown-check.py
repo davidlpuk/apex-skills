@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import json
-import subprocess
 from datetime import datetime, timezone
 import sys as _sys
 _sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, get_portfolio_value
 except ImportError:
     def atomic_write(p, d):
         import json
@@ -13,32 +12,18 @@ except ImportError:
         return True
     def log_error(m): print(f'ERROR: {m}')
     def log_warning(m): print(f'WARNING: {m}')
+    def get_portfolio_value(): return None
 
 
 DRAWDOWN_FILE = '/home/ubuntu/.picoclaw/logs/apex-drawdown.json'
 PEAK_FILE     = '/home/ubuntu/.picoclaw/logs/apex-portfolio-peak.json'
-
-def get_portfolio_value():
-    result = subprocess.run([
-        'bash', '-c',
-        '''source ~/.picoclaw/.env.trading212
-curl -s -H "Authorization: Basic $T212_AUTH" \
-  https://demo.trading212.com/api/v0/equity/account/cash'''
-    ], capture_output=True, text=True)
-    try:
-        d        = json.loads(result.stdout)
-        free     = float(d.get('free', 0))
-        invested = float(d.get('invested', 0))
-        return round(free + invested, 2)
-    except:
-        return None
 
 def load_peak():
     try:
         with open(PEAK_FILE) as f:
             return json.load(f)
     except:
-        return {"peak": 5000.0, "date": "2026-03-19"}
+        return {"peak": get_portfolio_value() or 5000.0, "date": "2026-03-19"}
 
 def save_peak(peak, date):
     with open(PEAK_FILE, 'w') as f:
@@ -50,7 +35,7 @@ def calculate_drawdown():
         return None
 
     peak_data = load_peak()
-    peak      = peak_data.get('peak', 5000.0)
+    peak      = peak_data.get('peak', get_portfolio_value() or 5000.0)
     today     = datetime.now(timezone.utc).strftime('%Y-%m-%d')
 
     # Update peak if new high
@@ -91,7 +76,8 @@ def calculate_drawdown():
         "multiplier":    multiplier,
         "status":        status,
         "note":          note,
-        "timestamp":     today
+        "timestamp":     today,
+        "updated_at":    datetime.now(timezone.utc).isoformat(),
     }
 
     atomic_write(DRAWDOWN_FILE, result)
@@ -102,13 +88,23 @@ def get_size_multiplier():
     try:
         with open(DRAWDOWN_FILE) as f:
             d = json.load(f)
-        # Refresh if stale
         today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+        # Refresh if from a different day
         if d.get('timestamp') != today:
             result = calculate_drawdown()
             return result.get('multiplier', 1.0) if result else 1.0
+        # Also refresh if more than 4 hours old within today
+        updated_at = d.get('updated_at', '')
+        if updated_at:
+            try:
+                age_h = (datetime.now(timezone.utc) - datetime.fromisoformat(updated_at)).total_seconds() / 3600
+                if age_h > 4:
+                    result = calculate_drawdown()
+                    return result.get('multiplier', 1.0) if result else d.get('multiplier', 1.0)
+            except Exception:
+                pass
         return d.get('multiplier', 1.0)
-    except:
+    except Exception:
         result = calculate_drawdown()
         return result.get('multiplier', 1.0) if result else 1.0
 

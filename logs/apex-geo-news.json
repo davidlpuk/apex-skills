@@ -1,67 +1,31 @@
 {
-  "timestamp": "2026-03-20 09:45 UTC",
+  "timestamp": "2026-03-24 13:37 UTC",
   "geo_flags": [
     {
       "source": "BBC Business",
-      "title": "Trio charged over alleged plot to smuggle Nvidia chips from US to China"
+      "title": "China dials back on fuel price hikes to 'reduce burden' on drivers"
+    },
+    {
+      "source": "BBC World",
+      "title": "At least five killed in massive wave of Russian strikes across Ukraine, officials say"
+    },
+    {
+      "source": "BBC World",
+      "title": "China dials back on fuel price hikes to 'reduce burden' on drivers"
+    },
+    {
+      "source": "BBC World",
+      "title": "Inside the alleged Russian operation to trigger anti-government protests in Angola"
     }
   ],
   "energy_flags": [
     {
       "source": "BBC Business",
-      "title": "Warning UK borrowing rise makes energy bill help harder"
+      "title": "Oil traders bet millions minutes before Trump's Iran talks post"
     },
     {
       "source": "BBC Business",
-      "title": "Russia, China and the US \u2013 the global winners and losers of the Iran war"
-    },
-    {
-      "source": "BBC Business",
-      "title": "Faisal Islam: Iran war is having a dramatic effect on the UK economy"
-    },
-    {
-      "source": "BBC Business",
-      "title": "Stock markets rattled and energy prices soar after strikes on Qatar gas hub"
-    },
-    {
-      "source": "BBC Business",
-      "title": "Bank ready to raise interest rates if Iran war price 'shock' persists"
-    },
-    {
-      "source": "BBC Business",
-      "title": "US considers lifting sanctions on some Iranian oil"
-    },
-    {
-      "source": "BBC Business",
-      "title": "How the Iran war may affect your money and bills"
-    },
-    {
-      "source": "BBC World",
-      "title": "Russia, China and the US \u2013 the global winners and losers of the Iran war"
-    },
-    {
-      "source": "BBC World",
-      "title": "Trump compares attack on Iran to Pearl Harbor in meeting with Japanese PM"
-    },
-    {
-      "source": "BBC World",
-      "title": "Netanyahu says Israel 'acted alone' in attack on Iranian gas field"
-    },
-    {
-      "source": "BBC World",
-      "title": "Nearly 100 ships pass the Hormuz Strait - who is getting through?"
-    },
-    {
-      "source": "BBC World",
-      "title": "Teenager among first to be executed over Iran's anti-government protests"
-    },
-    {
-      "source": "BBC World",
-      "title": "'You can't smell Nowruz in the air': Iran marks Persian new year under threat of strikes"
-    },
-    {
-      "source": "BBC World",
-      "title": "Gas shortage caused by Iran war may push India back to dirtier fuels"
+      "title": "Oil back above $100 a barrel as conflicting claims emerge on US-Iran talks"
     }
   ],
   "total_scanned": 30,

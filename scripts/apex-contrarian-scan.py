@@ -28,6 +28,9 @@ GEO_FILE       = '/home/ubuntu/.picoclaw/logs/apex-geo-news.json'
 WEIGHTS_FILE   = '/home/ubuntu/.picoclaw/logs/apex-weights.json'
 
 YAHOO_MAP = {
+    "CRDO": "CRDO",   # user-added
+    "NFE": "NFE",   # user-added
+    "PGY": "PGY",   # user-added
     "AAPL": "AAPL",   "MSFT": "MSFT",   "GOOGL": "GOOGL",
     "AMZN": "AMZN",   "NVDA": "NVDA",   "META": "META",
     "JPM":  "JPM",    "JNJ":  "JNJ",    "AZN":  "AZN.L",
@@ -105,16 +108,17 @@ def score_contrarian(name, yahoo_ticker, currency, quality_score):
         score = 0
         reasons = []
 
-        # RSI deeply oversold on quality name = strong buy signal
-        if rsi <= 25:
+        # RSI must show genuine capitulation for contrarian entry.
+        # RSI 30-38 is just "slightly weak" — not a real oversold signal.
+        if rsi <= 20:
             score += 4
-            reasons.append(f"RSI {rsi} — deeply oversold")
-        elif rsi <= 32:
+            reasons.append(f"RSI {rsi} — extreme oversold, capitulation likely")
+        elif rsi <= 25:
             score += 3
-            reasons.append(f"RSI {rsi} — oversold")
-        elif rsi <= 38:
+            reasons.append(f"RSI {rsi} — deeply oversold")
+        elif rsi <= 30:
             score += 2
-            reasons.append(f"RSI {rsi} — approaching oversold")
+            reasons.append(f"RSI {rsi} — oversold")
 
         # Significant discount from 52-week high
         if discount_pct >= 25:

@@ -20,7 +20,7 @@ def load_env():
 try:
     env      = load_env()
     auth     = env.get('T212_AUTH','')
-    endpoint = env.get('T212_ENDPOINT','https://demo.trading212.com/api/v0')
+    endpoint = env.get('T212_ENDPOINT','')
     result   = subprocess.run([
         'curl','-s','--max-time','10',
         '-H',f'Authorization: Basic {auth}',

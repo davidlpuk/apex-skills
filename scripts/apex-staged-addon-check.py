@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 import sys as _sys
 _sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, send_telegram, t212_request
 except ImportError:
     def atomic_write(p, d):
         import json
@@ -27,40 +27,12 @@ ADDON_FILE     = '/home/ubuntu/.picoclaw/logs/apex-staged-addons.json'
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 PENDING_FILE   = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
 
-def load_env():
-    env = {}
-    try:
-        with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
-            for line in f:
-                line = line.strip()
-                if '=' in line and not line.startswith('#'):
-                    k, v = line.split('=', 1)
-                    env[k.strip()] = v.strip()
-    except Exception as _e:
-        log_error(f"Silent failure in apex-staged-addon-check.py: {_e}")
-    return env
-
-def send_telegram(msg):
-    subprocess.run(['bash','-c',
-        f'''BOT=$(cat ~/.picoclaw/config.json | grep -A2 '"telegram"' | grep token | sed 's/.*"token": "\\(.*\\)".*/\\1/')
-curl -s -X POST "https://api.telegram.org/bot$BOT/sendMessage" \
-  -d chat_id=6808823889 --data-urlencode "text={msg}"'''
-    ], capture_output=True)
-
 def get_current_price(ticker):
-    env  = load_env()
-    auth = env.get('T212_AUTH','')
-    endpoint = env.get('T212_ENDPOINT','https://demo.trading212.com/api/v0')
-    result = subprocess.run([
-        'curl','-s','-H',f'Authorization: Basic {auth}',
-        f'{endpoint}/equity/portfolio'
-    ], capture_output=True, text=True)
-    try:
-        portfolio = json.loads(result.stdout)
-        pos = next((p for p in portfolio if p.get('ticker') == ticker), None)
-        return float(pos.get('currentPrice', 0)) if pos else None
-    except:
+    portfolio = t212_request('/equity/portfolio')
+    if not isinstance(portfolio, list):
         return None
+    pos = next((p for p in portfolio if p.get('ticker') == ticker), None)
+    return float(pos.get('currentPrice', 0)) if pos else None
 
 def run():
     now = datetime.now(timezone.utc)

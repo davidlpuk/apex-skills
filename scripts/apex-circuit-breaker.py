@@ -17,13 +17,13 @@ Thresholds:
 - CRITICAL:-12% session loss — close all positions
 """
 import json
-import subprocess
+import os
 import sys
 from datetime import datetime, timezone
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, send_telegram, t212_request
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -34,6 +34,7 @@ except ImportError:
 BREAKER_FILE   = '/home/ubuntu/.picoclaw/logs/apex-circuit-breaker.json'
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 PAUSE_FLAG     = '/home/ubuntu/.picoclaw/logs/apex-paused.flag'
+ROLLING_FILE   = '/home/ubuntu/.picoclaw/logs/apex-rolling-pnl.json'
 
 # Thresholds as % of session opening portfolio value
 THRESHOLDS = {
@@ -43,60 +44,94 @@ THRESHOLDS = {
     'CRITICAL': -12.0,  # Close all positions
 }
 
-def load_env():
-    env = {}
-    try:
-        with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
-            for line in f:
-                line = line.strip()
-                if '=' in line and not line.startswith('#'):
-                    k, v = line.split('=', 1)
-                    env[k.strip()] = v.strip()
-    except Exception as e:
-        log_error(f"load_env failed: {e}")
-    return env
+# After SUSPEND auto-resume: trade at 50% sizing for this many trades
+RECOVERY_RAMP_TRADES = 5
 
-def send_telegram(msg):
-    try:
-        subprocess.run(['bash', '-c',
-            f'''BOT=$(cat ~/.picoclaw/config.json | grep -A2 '"telegram"' | grep token | sed 's/.*"token": "\\(.*\\)".*/\\1/')
-curl -s -X POST "https://api.telegram.org/bot$BOT/sendMessage" \
-  -d chat_id=6808823889 --data-urlencode "text={msg}"'''
-        ], capture_output=True)
-    except Exception as e:
-        log_error(f"send_telegram failed: {e}")
+# Rolling N-day thresholds — catches death-by-a-thousand-cuts
+# e.g. three consecutive -3% days = -9% cumulative, but daily CB never triggers
+ROLLING_THRESHOLDS = {
+    3:  -8.0,    # 3-day cumulative loss > 8% → CAUTION
+    5:  -10.0,   # 5-day cumulative loss > 10% → SUSPEND
+    10: -15.0,   # 10-day cumulative loss > 15% → HALT (same as drawdown)
+}
 
 def get_portfolio_value():
-    """Get current portfolio value from T212."""
+    """Get current portfolio value from T212 via centralised rate-limited caller."""
     try:
-        env      = load_env()
-        auth     = env.get('T212_AUTH','')
-        endpoint = env.get('T212_ENDPOINT','https://demo.trading212.com/api/v0')
-        result   = subprocess.run([
-            'curl','-s','--max-time','10',
-            '-H',f'Authorization: Basic {auth}',
-            f'{endpoint}/equity/account/cash'
-        ], capture_output=True, text=True)
-        cash = json.loads(result.stdout)
-        # Use T212's total field directly — most accurate
+        cash = t212_request('/equity/account/cash', timeout=10)
+        if cash is None:
+            return None, None
         free     = float(cash.get('free', 0))
         invested = float(cash.get('invested', 0))
         total    = round(float(cash.get('total', free + invested)), 2)
 
-        # Also get open P&L
-        port_result = subprocess.run([
-            'curl','-s','--max-time','10',
-            '-H',f'Authorization: Basic {auth}',
-            f'{endpoint}/equity/portfolio'
-        ], capture_output=True, text=True)
-        portfolio = json.loads(port_result.stdout)
-        open_pnl  = round(sum(float(p.get('ppl',0)) for p in
+        portfolio = t212_request('/equity/portfolio', timeout=10)
+        open_pnl  = round(sum(float(p.get('ppl', 0)) for p in
                           (portfolio if isinstance(portfolio, list) else [])), 2)
 
         return total, open_pnl
     except Exception as e:
         log_error(f"get_portfolio_value failed: {e}")
         return None, None
+
+def record_session_close(session_pnl_pct):
+    """
+    Record today's session P&L in the rolling history.
+    Called at end of session (or when circuit breaker runs at session close time).
+    Maintains a rolling 10-day log of session P&L percentages.
+    """
+    now    = datetime.now(timezone.utc)
+    today  = now.strftime('%Y-%m-%d')
+    rolling = safe_read(ROLLING_FILE, {'sessions': []})
+    sessions = rolling.get('sessions', [])
+
+    # Avoid duplicate entries for same day
+    sessions = [s for s in sessions if s.get('date') != today]
+    sessions.append({'date': today, 'pnl_pct': round(session_pnl_pct, 3)})
+
+    # Keep last 15 sessions
+    rolling['sessions']    = sessions[-15:]
+    rolling['last_updated'] = now.isoformat()
+    atomic_write(ROLLING_FILE, rolling)
+    return rolling
+
+
+def check_rolling_drawdown():
+    """
+    Check cumulative P&L across the last N trading sessions.
+    Catches slow bleed (multiple moderate losing sessions) that the
+    daily circuit breaker misses because it resets each morning.
+
+    Returns (status, worst_window, cumulative_pct, action)
+    """
+    rolling  = safe_read(ROLLING_FILE, {'sessions': []})
+    sessions = rolling.get('sessions', [])
+
+    if len(sessions) < 3:
+        return 'CLEAR', None, 0.0, 'Insufficient history for rolling check'
+
+    worst_status = 'CLEAR'
+    worst_window = None
+    worst_pct    = 0.0
+    action       = 'No rolling risk detected'
+
+    for window, threshold in sorted(ROLLING_THRESHOLDS.items()):
+        recent = sessions[-window:]
+        if len(recent) < window:
+            continue
+        cumulative = sum(s['pnl_pct'] for s in recent)
+        if cumulative <= threshold:
+            status = ('CAUTION' if window == 3 else
+                      'SUSPEND' if window == 5 else 'CRITICAL')
+            if cumulative < worst_pct:
+                worst_status = status
+                worst_window = window
+                worst_pct    = cumulative
+                action       = (f"{window}-day cumulative loss {cumulative:.1f}% "
+                                f"≤ threshold {threshold}% → {status}")
+
+    return worst_status, worst_window, worst_pct, action
+
 
 def record_session_open():
     """Record portfolio value at market open for session baseline."""
@@ -202,50 +237,165 @@ def check_circuit_breaker():
     })
     atomic_write(BREAKER_FILE, breaker)
 
-    # Take action if status changed
-    if status != prev_status and status != 'CLEAR':
+    # ── Auto-resume logic ──────────────────────────────────────────────
+    # If a previous SUSPEND/CAUTION was set and P&L has recovered enough,
+    # automatically lift the pause flag and notify.
+    # CRITICAL is never auto-resumed — always requires manual review.
+    RESUME_THRESHOLD = -4.0   # auto-resume when session loss recovers to -4%
+    was_suspended = prev_status in ('SUSPEND', 'CAUTION')
+    auto_resumed  = False
+
+    if was_suspended and status in ('CLEAR', 'WARNING', 'CAUTION') \
+            and session_pnl_pct > RESUME_THRESHOLD \
+            and prev_status == 'SUSPEND':
+        # Remove pause flag if it was set by circuit breaker (not manual)
+        if os.path.exists(PAUSE_FLAG):
+            try:
+                with open(PAUSE_FLAG) as f:
+                    flag_content = f.read()
+                if 'Circuit breaker' in flag_content:
+                    os.remove(PAUSE_FLAG)
+                    auto_resumed = True
+                    breaker['recovery_trades_remaining'] = RECOVERY_RAMP_TRADES
+                    send_telegram(
+                        f"✅ CIRCUIT BREAKER AUTO-RESUMED\n\n"
+                        f"Session P&L recovered to {session_pnl_pct:+.2f}% "
+                        f"(above -{abs(RESUME_THRESHOLD)}% threshold)\n"
+                        f"Portfolio: £{total}\n\n"
+                        f"Trading re-enabled at 50% sizing for next {RECOVERY_RAMP_TRADES} trades.\n"
+                        f"Recovery ramp protects against false resumptions."
+                    )
+                    log_warning(f"Circuit breaker auto-resumed — recovery ramp: {RECOVERY_RAMP_TRADES} trades at 50%")
+            except Exception as e:
+                log_error(f"auto-resume failed to remove pause flag: {e}")
+
+    # ── Status change alerts ───────────────────────────────────────────
+    if status != prev_status and status != 'CLEAR' and not auto_resumed:
         icon = {'WARNING':'⚠️','CAUTION':'🟠','SUSPEND':'🔴','CRITICAL':'🚨'}.get(status,'⚠️')
         send_telegram(
             f"{icon} CIRCUIT BREAKER — {status}\n\n"
-            f"Session P&L: £{session_pnl} ({session_pnl_pct}%)\n"
+            f"Session P&L: £{session_pnl} ({session_pnl_pct:+.2f}%)\n"
             f"Portfolio: £{total}\n"
             f"Session open: £{session_open}\n\n"
             f"Action: {action}"
+            + (f"\n\nAuto-resume at {RESUME_THRESHOLD}% — no action needed."
+               if status == 'SUSPEND' else "")
         )
         log_warning(f"Circuit breaker {status}: {session_pnl_pct}% session loss")
 
-    # Execute actions
-    if status == 'SUSPEND':
-        # Create pause flag
+    # ── Execute protective actions ─────────────────────────────────────
+    if status == 'SUSPEND' and not auto_resumed:
         with open(PAUSE_FLAG, 'w') as f:
             f.write(f"Circuit breaker SUSPEND at {now.isoformat()}\n"
-                   f"Session loss: {session_pnl_pct}%")
-        print(f"  🔴 SUSPENDED — pause flag set")
+                    f"Session loss: {session_pnl_pct}%")
+        print(f"  🔴 SUSPENDED — pause flag set (auto-resumes at {RESUME_THRESHOLD}%)")
 
     elif status == 'CRITICAL':
-        # Create pause flag + alert to close
         with open(PAUSE_FLAG, 'w') as f:
             f.write(f"Circuit breaker CRITICAL at {now.isoformat()}\n"
-                   f"Session loss: {session_pnl_pct}%")
+                    f"Session loss: {session_pnl_pct}%")
         send_telegram(
             f"🚨 CRITICAL CIRCUIT BREAKER\n\n"
             f"Session loss: {session_pnl_pct}% (£{session_pnl})\n\n"
             f"ALL TRADING SUSPENDED\n"
             f"Review open positions manually.\n"
             f"Consider closing all positions to protect capital.\n\n"
-            f"Send APEX RESUME to re-enable after review."
+            f"⚠️ CRITICAL requires manual resume — send APEX RESUME after review."
         )
         log_error(f"CRITICAL circuit breaker: {session_pnl_pct}% session loss")
+
+        # Auto partial close on CRITICAL — configurable flag
+        # Closes the largest losing position to reduce portfolio exposure
+        try:
+            _cfg = safe_read('/home/ubuntu/.picoclaw/logs/apex-autopilot.json', {})
+            if _cfg.get('auto_partial_close_on_critical', False):
+                _positions = safe_read('/home/ubuntu/.picoclaw/logs/apex-positions.json', [])
+                if _positions:
+                    # Find largest losing position by unrealised P&L (or fallback: largest by value)
+                    def _get_loss(p):
+                        pnl = p.get('unrealised_pnl', p.get('pnl', 0))
+                        try:
+                            return float(pnl)
+                        except Exception:
+                            return 0.0
+                    worst = min(_positions, key=_get_loss)
+                    worst_ticker = worst.get('t212_ticker', '')
+                    worst_name   = worst.get('name', worst_ticker)
+                    worst_pnl    = _get_loss(worst)
+                    if worst_pnl < 0:
+                        send_telegram(
+                            f"🚨 AUTO PARTIAL CLOSE — CRITICAL\n\n"
+                            f"Closing largest loser: {worst_name} ({worst_ticker})\n"
+                            f"Unrealised P&L: £{worst_pnl:.2f}\n\n"
+                            f"auto_partial_close_on_critical is enabled.\n"
+                            f"Sending close order now..."
+                        )
+                        import subprocess as _sp2
+                        _sp2.Popen([
+                            '/home/ubuntu/bin/python3',
+                            '/home/ubuntu/.picoclaw/scripts/apex-close-position.py',
+                            worst_ticker,
+                            '--reason=CRITICAL_AUTO_CLOSE',
+                        ])
+                        log_error(f"Auto partial close triggered for {worst_ticker} (P&L: £{worst_pnl:.2f})")
+        except Exception as _e:
+            log_error(f"Auto partial close failed: {_e}")
+
+    # ── Rolling multi-day drawdown check ──────────────────────────────
+    # Record today's session P&L into the rolling log, then check if
+    # cumulative losses over 3/5/10 days breaches rolling thresholds.
+    # This catches 3 × -3% days (= -9% cumulative) which daily CB misses.
+    record_session_close(session_pnl_pct)
+    roll_status, roll_window, roll_pct, roll_action = check_rolling_drawdown()
+
+    if roll_status != 'CLEAR':
+        # Escalate if rolling status is worse than daily status
+        daily_severity = ['CLEAR', 'WARNING', 'CAUTION', 'SUSPEND', 'CRITICAL']
+        if daily_severity.index(roll_status) > daily_severity.index(status):
+            prev_status = status
+            status      = roll_status
+            action      = f"ROLLING {roll_window}d: {roll_action}"
+            trigger_level = ROLLING_THRESHOLDS.get(roll_window)
+
+            # Alert on escalation
+            if status != prev_status:
+                icon = {'CAUTION': '🟠', 'SUSPEND': '🔴', 'CRITICAL': '🚨'}.get(status, '⚠️')
+                send_telegram(
+                    f"{icon} ROLLING DRAWDOWN — {status}\n\n"
+                    f"Cumulative {roll_window}-day P&L: {roll_pct:+.1f}%\n"
+                    f"Threshold: {ROLLING_THRESHOLDS[roll_window]}%\n\n"
+                    f"Daily CB resets each morning — this catches slow bleed.\n"
+                    f"Action: {action}"
+                )
+                log_warning(f"Rolling {roll_window}d drawdown {roll_pct:.1f}% → {status}")
+
+            # Set pause flag for SUSPEND/CRITICAL from rolling check
+            if status in ('SUSPEND', 'CRITICAL') and not os.path.exists(PAUSE_FLAG):
+                with open(PAUSE_FLAG, 'w') as f:
+                    f.write(f"Rolling {roll_window}d drawdown {roll_pct:.1f}% at {now.isoformat()}")
+
+    # Persist rolling status into breaker state for downstream consumers
+    breaker['rolling_status']  = roll_status
+    breaker['rolling_pct']     = roll_pct
+    breaker['rolling_window']  = roll_window
+    atomic_write(BREAKER_FILE, breaker)
 
     return status, session_pnl_pct, action
 
 def get_size_multiplier():
     """
     Returns position size multiplier based on circuit breaker state.
+    Uses the worse of: daily session status OR rolling multi-day status.
     Called by position sizer before every trade.
     """
     breaker = safe_read(BREAKER_FILE, {'status': 'CLEAR'})
     status  = breaker.get('status', 'CLEAR')
+
+    # Also factor in rolling multi-day drawdown status
+    roll_status = breaker.get('rolling_status', 'CLEAR')
+    severity    = ['CLEAR', 'WARNING', 'CAUTION', 'SUSPEND', 'CRITICAL']
+    if roll_status in severity and severity.index(roll_status) > severity.index(status):
+        status = roll_status
 
     multipliers = {
         'CLEAR':    1.0,
@@ -255,7 +405,14 @@ def get_size_multiplier():
         'CRITICAL': 0.0,
         'UNKNOWN':  0.5,
     }
-    return multipliers.get(status, 1.0), status
+    mult = multipliers.get(status, 1.0)
+
+    # Recovery ramp: after auto-resume from SUSPEND, trade at 50% for N trades
+    ramp = breaker.get('recovery_trades_remaining', 0)
+    if ramp > 0 and mult > 0:
+        mult = round(mult * 0.5, 2)
+
+    return mult, status
 
 def run():
     """Run circuit breaker check."""

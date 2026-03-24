@@ -169,6 +169,33 @@
       "market_cap": "60B",
       "fcf_yield": 9.8,
       "quality_score": 6
+    },
+    "PGY": {
+      "name": "Pagaya Technologies",
+      "market_cap": "unknown",
+      "fcf_yield": 0.0,
+      "quality_score": 8,
+      "user_added": true,
+      "added_at": "2026-03-24T16:35:38.102400+00:00",
+      "contrarian_note": "RSI 42 at add time \u2014 monitor for genuine oversold"
+    },
+    "NFE": {
+      "name": "New Fortress Energy",
+      "market_cap": "unknown",
+      "fcf_yield": 0.0,
+      "quality_score": 8,
+      "user_added": true,
+      "added_at": "2026-03-24T16:41:14.109920+00:00",
+      "contrarian_note": "RSI 30 at add time \u2014 monitor for genuine oversold"
+    },
+    "CRDO": {
+      "name": "Credo Technology",
+      "market_cap": "unknown",
+      "fcf_yield": 0.0,
+      "quality_score": 8,
+      "user_added": true,
+      "added_at": "2026-03-24T16:41:43.043551+00:00",
+      "contrarian_note": "RSI 41 at add time \u2014 monitor for genuine oversold"
     }
   },
   "energy_beneficiaries": [

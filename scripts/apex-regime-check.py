@@ -49,9 +49,9 @@ def check_regime():
         else:
             result['vix_regime'] = "EXTREME"
 
-        if vix >= 30:
+        if vix >= 35:
             result['block_reason'].append(f"VIX {vix} — extreme fear, no new longs")
-        elif vix >= 25:
+        elif vix >= 28:
             result['block_reason'].append(f"VIX {vix} — high fear, reduce position sizes by 50%")
 
     except Exception as e:
@@ -78,8 +78,8 @@ def check_regime():
         result['breadth_pct']  = breadth
         result['breadth_regime'] = "BULLISH" if breadth >= 60 else ("NEUTRAL" if breadth >= 40 else "BEARISH")
 
-        if breadth < 40:
-            result['block_reason'].append(f"Breadth {breadth}% — fewer than 40% of stocks healthy, avoid new longs")
+        if breadth < 30:
+            result['block_reason'].append(f"Breadth {breadth}% — fewer than 30% of stocks healthy, avoid new longs")
         elif breadth < 60:
             result['block_reason'].append(f"Breadth {breadth}% — neutral, be selective")
 

@@ -328,5 +328,49 @@
     "verdict": "POSITIVE",
     "confidence": "LOW \u2014 using prior",
     "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-23",
+    "name": "WisdomTree S&P 500 3x Short",
+    "ev": 0.18,
+    "ev_per_risk": 0.009,
+    "r_expect": 0.145,
+    "win_rate": 0.5,
+    "verdict": "POSITIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "INVERSE"
+  },
+  {
+    "date": "2026-03-24",
+    "name": "XOM",
+    "ev": -2.33,
+    "ev_per_risk": -0.124,
+    "r_expect": 0.02,
+    "win_rate": 0.5,
+    "verdict": "NEGATIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-24",
+    "name": "XOM",
+    "ev": -2.38,
+    "ev_per_risk": -0.124,
+    "r_expect": 0.026,
+    "win_rate": 0.5,
+    "verdict": "NEGATIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
+  },
+  {
+    "date": "2026-03-24",
+    "name": "XOM",
+    "ev": -2.71,
+    "ev_per_risk": -0.138,
+    "r_expect": 0.009,
+    "win_rate": 0.5,
+    "verdict": "NEGATIVE",
+    "confidence": "LOW \u2014 using prior",
+    "signal_type": "CONTRARIAN"
   }
 ]

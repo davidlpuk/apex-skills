@@ -82,7 +82,7 @@ def check_staleness():
     if generated_at:
         try:
             gen_dt  = datetime.fromisoformat(generated_at)
-            age_hrs = (now - gen_dt).seconds / 3600
+            age_hrs = (now - gen_dt).total_seconds() / 3600
             if age_hrs > 4:
                 blocks.append(f"Signal is {round(age_hrs,1)}h old — stale, regenerate")
             elif age_hrs > 2:

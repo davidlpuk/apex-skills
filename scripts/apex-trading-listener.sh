@@ -3,7 +3,7 @@
 source /home/ubuntu/.picoclaw/.env.trading212
 
 BOT_TOKEN="$APEX_BOT_TOKEN"
-CHAT_ID="6808823889"
+CHAT_ID="${APEX_CHAT_ID}"
 OFFSET_FILE="/home/ubuntu/.picoclaw/logs/apex-trading-offset.txt"
 LOG="/home/ubuntu/.picoclaw/logs/apex-trading-listener.log"
 SIGNAL_FILE="/home/ubuntu/.picoclaw/logs/apex-pending-signal.json"
@@ -25,9 +25,9 @@ save_offset() {
 
 get_pnl() {
   PORTFOLIO=$(curl -s -H "Authorization: Basic $T212_AUTH" \
-    https://demo.trading212.com/api/v0/equity/portfolio)
+    $T212_ENDPOINT/equity/portfolio)
   CASH=$(curl -s -H "Authorization: Basic $T212_AUTH" \
-    https://demo.trading212.com/api/v0/equity/account/cash)
+    $T212_ENDPOINT/equity/account/cash)
   MSG=$(python3 << PYEOF
 import json
 lines = ["💰 PROFIT & LOSS SUMMARY"]
@@ -71,7 +71,7 @@ close_position() {
     -H "Authorization: Basic $T212_AUTH" \
     -H "Content-Type: application/json" \
     -d "{\"ticker\":\"$ticker\",\"quantity\":$neg_qty}" \
-    https://demo.trading212.com/api/v0/equity/orders/market
+    $T212_ENDPOINT/equity/orders/market
 }
 
 process_message() {
@@ -183,6 +183,37 @@ print(math.floor(pos['quantity'] / 2) if pos else 0)
                 send_message "🤖 AUTOPILOT STATUS\n\n$RESULT" ;;
       esac
       ;;
+    PANIC)
+      echo "true" > /home/ubuntu/.picoclaw/logs/apex-paused.flag
+      echo "PANIC_$(date -u +%Y-%m-%dT%H:%M:%SZ)" > /home/ubuntu/.picoclaw/logs/apex-panic.flag
+      PANIC_VAL=$(curl -s -H "Authorization: Basic $T212_AUTH" \
+        $T212_ENDPOINT/equity/account/cash | \
+        python3 -c "import sys,json; d=json.load(sys.stdin); print(f'£{round(float(d.get(\"free\",0))+float(d.get(\"invested\",0)),2)}')" 2>/dev/null || echo "unknown")
+      PANIC_POS=$(python3 -c "
+import json
+try:
+    pos = json.load(open('/home/ubuntu/.picoclaw/logs/apex-positions.json'))
+    print(f'{len(pos)} open positions')
+except:
+    print('unknown positions')
+" 2>/dev/null)
+      send_message "🚨 PANIC MODE ACTIVATED
+
+All trading HALTED immediately.
+Portfolio: $PANIC_VAL
+$PANIC_POS
+
+System is paused. No new entries will be placed.
+Existing positions remain open (manual action required to close).
+
+To resume: send PANIC OFF
+To close a position: send CLOSE [ticker]"
+      ;;
+    "PANIC OFF")
+      rm -f /home/ubuntu/.picoclaw/logs/apex-paused.flag
+      rm -f /home/ubuntu/.picoclaw/logs/apex-panic.flag
+      send_message "✅ PANIC MODE CLEARED — trading restored. Monitor closely."
+      ;;
     PAUSE)
       echo "true" > /home/ubuntu/.picoclaw/logs/apex-paused.flag
       send_message "⏸️ APEX PAUSED — all trading suspended. Type RESUME to restart."
@@ -197,7 +228,7 @@ print(math.floor(pos['quantity'] / 2) if pos else 0)
         2>/dev/null || echo "none")
       AP=$(python3 /home/ubuntu/.picoclaw/scripts/apex-autopilot.py status 2>/dev/null | head -1)
       CASH_VAL=$(curl -s -H "Authorization: Basic $T212_AUTH" \
-        https://demo.trading212.com/api/v0/equity/account/cash | \
+        $T212_ENDPOINT/equity/account/cash | \
         python3 -c "import sys,json; d=json.load(sys.stdin); print(f'£{round(float(d.get(\"free\",0))+float(d.get(\"invested\",0)),2)}')" 2>/dev/null)
       send_message "📊 APEX STATUS
 Portfolio: $CASH_VAL
@@ -228,8 +259,10 @@ Uptime: $(uptime -p)"
 🤖 AUTOPILOT
   AUTOPILOT ON      — autonomous mode
   AUTOPILOT OFF     — manual mode
-  PAUSE             — emergency stop
+  PAUSE             — suspend trading
   RESUME            — restart
+  PANIC             — emergency halt + portfolio status
+  PANIC OFF         — clear panic mode
   SCAN              — run manual scan
 
 Just type naturally — 'what is my profit' works too."

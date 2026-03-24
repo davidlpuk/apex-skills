@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 import json
 import os
+import sys
 from datetime import datetime, timezone, timedelta
+
+sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
+try:
+    from apex_utils import get_portfolio_value
+except ImportError:
+    get_portfolio_value = lambda: None
 
 TRADING_STATE = '/home/ubuntu/.picoclaw/workspace/skills/apex-trading/TRADING_STATE.md'
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
@@ -16,7 +23,7 @@ import subprocess
 result = subprocess.run(
     ['bash', '-c', 'source /home/ubuntu/.picoclaw/.env.trading212 && '
      'curl -s -H "Authorization: Basic $T212_AUTH" '
-     'https://demo.trading212.com/api/v0/equity/account/cash'],
+     '$T212_ENDPOINT/equity/account/cash'],
     capture_output=True, text=True
 )
 
@@ -39,7 +46,7 @@ try:
     result2 = subprocess.run(
         ['bash', '-c', 'source /home/ubuntu/.picoclaw/.env.trading212 && '
          'curl -s -H "Authorization: Basic $T212_AUTH" '
-         'https://demo.trading212.com/api/v0/equity/portfolio'],
+         '$T212_ENDPOINT/equity/portfolio'],
         capture_output=True, text=True
     )
     positions = json.loads(result2.stdout) if result2.stdout.strip() else []
@@ -79,7 +86,7 @@ total_signals = confirmed + rejected
 win_rate = round((confirmed / total_signals * 100), 1) if total_signals > 0 else 0
 
 # --- Portfolio peak from TRADING_STATE.md ---
-portfolio_peak = 5000.00
+portfolio_peak = get_portfolio_value() or 5000.00
 try:
     with open(TRADING_STATE) as f:
         for line in f:

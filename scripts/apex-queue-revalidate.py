@@ -22,7 +22,7 @@ from datetime import datetime, timezone, timedelta
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, send_telegram
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -186,6 +186,77 @@ def check_signal_age(trade):
         log_error(f"Signal age check failed: {e}")
         return True, "Cannot check age"
 
+
+def check_score_decay(trade, current_price):
+    """
+    Score decay: a signal's effective score degrades as price moves away from
+    the signal price between generation and execution.
+
+    Logic:
+    - The original score was calculated at signal_price.
+    - If price has since moved unfavourably (up for TREND — now chasing;
+      down more for CONTRARIAN — accelerating fall), the effective edge shrinks.
+    - Decay is linear: 1 score point lost per 1% adverse price move beyond
+      a free-move buffer.
+
+    For TREND:
+      - Free buffer: +1% (price can rise slightly without decay)
+      - Decay starts: > +1% adverse (chasing — less momentum left)
+      - Each +1% above buffer = −0.5 score points
+
+    For CONTRARIAN:
+      - Free buffer: −2% (can absorb a little more weakness)
+      - Decay starts: > −2% further decline
+      - Each −1% below buffer = −0.4 score points (contrarian needs time, gentler)
+
+    Cancel if decayed score would fall below the original entry threshold (7.0).
+    """
+    if current_price is None:
+        return True, "Cannot check score decay — no current price", 0
+
+    signal_price  = float(trade.get('entry', 0))
+    original_score = float(trade.get('score', 7.5))
+    sig_type      = trade.get('signal_type', 'TREND')
+    threshold     = float(trade.get('score_threshold', 7.0))
+
+    if signal_price <= 0:
+        return True, "No signal price recorded", 0
+
+    drift_pct = (current_price - signal_price) / signal_price * 100
+
+    if sig_type == 'TREND':
+        # Chasing: price already ran up — less upside remaining
+        free_buffer = 1.0       # 1% move up is fine
+        decay_rate  = 0.5       # lose 0.5 score per % above buffer
+        adverse     = max(drift_pct - free_buffer, 0)
+    elif sig_type == 'CONTRARIAN':
+        # Falling knife: stock falling faster than expected
+        free_buffer = -2.0      # allow up to 2% further decline
+        decay_rate  = 0.4       # lose 0.4 score per % below buffer
+        adverse     = max(free_buffer - drift_pct, 0)  # positive when below buffer
+    else:
+        # INVERSE or other — simple absolute drift
+        free_buffer = 2.0
+        decay_rate  = 0.3
+        adverse     = max(abs(drift_pct) - free_buffer, 0)
+
+    score_loss    = round(adverse * decay_rate, 2)
+    decayed_score = round(original_score - score_loss, 2)
+
+    if decayed_score < threshold:
+        return (False,
+                f"Score decayed {original_score} → {decayed_score} "
+                f"(price drift {drift_pct:+.1f}%, loss {score_loss:.1f}pts) — below threshold {threshold}",
+                score_loss)
+
+    if score_loss > 0:
+        return (True,
+                f"Score mild decay {original_score} → {decayed_score} "
+                f"(drift {drift_pct:+.1f}%) — still above threshold",
+                score_loss)
+
+    return True, f"Score intact {original_score} (drift {drift_pct:+.1f}% within buffer)", 0
+
 def revalidate_queue():
     """
     Re-validate all pending queue entries.
@@ -253,6 +324,16 @@ def revalidate_queue():
         if not ok: hard_failures.append(msg)
         print(f"    {'✅' if ok else '❌'} Age: {msg}")
 
+        # Score decay — effective score at time of execution vs at generation
+        ok, msg, loss = check_score_decay(trade, current_price)
+        checks.append(('Score decay', ok, msg))
+        if not ok:
+            hard_failures.append(msg)
+        elif loss > 0:
+            soft_warnings.append(msg)
+            trade['score_at_execution'] = round(float(trade.get('score', 7.5)) - loss, 2)
+        print(f"    {'✅' if ok else '❌'} Decay: {msg}")
+
         # Verdict
         if hard_failures:
             trade['status']           = 'CANCELLED'
@@ -298,11 +379,7 @@ def revalidate_queue():
 
         msg = '\n'.join(msg_lines)
         try:
-            subprocess.run(['bash','-c',
-                f'''BOT=$(cat ~/.picoclaw/config.json | grep -A2 '"telegram"' | grep token | sed 's/.*"token": "\\(.*\\)".*/\\1/')
-curl -s -X POST "https://api.telegram.org/bot$BOT/sendMessage" \
-  -d chat_id=6808823889 --data-urlencode "text={msg}"'''
-            ], capture_output=True)
+            send_telegram(msg)
         except Exception as e:
             log_error(f"Telegram failed: {e}")
 

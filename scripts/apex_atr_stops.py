@@ -9,6 +9,12 @@ import json
 import sys
 from datetime import datetime, timezone
 
+sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
+try:
+    from apex_utils import get_portfolio_value
+except ImportError:
+    get_portfolio_value = lambda: None
+
 def calculate_atr(highs, lows, closes, period=14):
     """Average True Range calculation."""
     if len(closes) < period + 1:
@@ -72,10 +78,10 @@ def calculate_atr_stop(price, atr, atr_multiplier=2.0, signal_type='TREND'):
     Calculate ATR-based stop loss.
 
     Standard: 2x ATR below entry for trend
-    Contrarian: 1.5x ATR (tighter — mean reversion should work quickly)
+    Contrarian: 2.5x ATR (wider — buying into weakness needs room to overshoot before reverting)
     """
     if signal_type == 'CONTRARIAN':
-        multiplier = 1.5
+        multiplier = 2.5
     elif signal_type == 'EARNINGS_DRIFT':
         multiplier = 1.5
     elif signal_type == 'DIVIDEND_CAPTURE':
@@ -116,11 +122,13 @@ def calculate_atr_targets(price, atr, signal_type='TREND'):
 
     return target1, target2
 
-def get_full_atr_levels(ticker, yahoo_ticker, signal_type='TREND', portfolio=5000):
+def get_full_atr_levels(ticker, yahoo_ticker, signal_type='TREND', portfolio=None):
     """
     Get complete ATR-based trade levels.
     Returns stop, targets, quantity — all volatility adjusted.
     """
+    if portfolio is None:
+        portfolio = get_portfolio_value() or 5000
     data = get_atr_data(ticker, yahoo_ticker)
     if not data:
         # Fall back to fixed 6% stop

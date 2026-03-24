@@ -1,24 +1,17 @@
 #!/bin/bash
 
-BOT_TOKEN=$(cat ~/.picoclaw/config.json | grep -A 2 '"telegram"' | grep token | sed 's/.*"token": "\(.*\)".*/\1/')
-CHAT_ID="6808823889"
+source /home/ubuntu/.picoclaw/scripts/apex-telegram.sh
 LOG="/home/ubuntu/.picoclaw/logs/apex-cron.log"
-
-send_message() {
-  curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
-    -d chat_id="${CHAT_ID}" \
-    -d text="$1"
-}
 
 echo "$(date): Running EOD review" >> "$LOG"
 
 source /home/ubuntu/.picoclaw/.env.trading212
 
 CASH=$(curl -s -H "Authorization: Basic $T212_AUTH" \
-  https://demo.trading212.com/api/v0/equity/account/cash)
+  $T212_ENDPOINT/equity/account/cash)
 
 PORTFOLIO=$(curl -s -H "Authorization: Basic $T212_AUTH" \
-  https://demo.trading212.com/api/v0/equity/portfolio)
+  $T212_ENDPOINT/equity/portfolio)
 
 REVIEW=$(python3 - << PYEOF
 import json

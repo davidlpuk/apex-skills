@@ -1,7 +1,8 @@
 #!/bin/bash
 
-BOT_TOKEN=$(cat ~/.picoclaw/config.json | grep -A 2 '"telegram"' | grep token | sed 's/.*"token": "\(.*\)".*/\1/')
-CHAT_ID="6808823889"
+source /home/ubuntu/.picoclaw/.env.trading212
+BOT_TOKEN="${APEX_BOT_TOKEN}"
+CHAT_ID="${APEX_CHAT_ID}"
 POSITIONS_FILE="/home/ubuntu/.picoclaw/logs/apex-positions.json"
 
 send_message() {
@@ -17,7 +18,7 @@ source /home/ubuntu/.picoclaw/.env.trading212
 
 # Get current price from T212
 PORTFOLIO=$(curl -s -H "Authorization: Basic $T212_AUTH" \
-  https://demo.trading212.com/api/v0/equity/portfolio)
+  $T212_ENDPOINT/equity/portfolio)
 
 EXIT_PRICE=$(echo "$PORTFOLIO" | python3 -c "
 import sys, json
@@ -35,7 +36,6 @@ print(pos['quantity'] if pos else 0)
 " 2>/dev/null)
 
 if [ "$OUTCOME_TYPE" = "TRIM" ]; then
-  import math
   SELL_QTY=$(python3 -c "import math; print(math.floor(float('$QTY') / 2))")
 else
   SELL_QTY=$QTY
@@ -48,7 +48,7 @@ RESPONSE=$(curl -s -X POST \
   -H "Authorization: Basic $T212_AUTH" \
   -H "Content-Type: application/json" \
   -d "{\"ticker\":\"$TICKER\",\"quantity\":$NEG_QTY}" \
-  https://demo.trading212.com/api/v0/equity/orders/market)
+  $T212_ENDPOINT/equity/orders/market)
 
 ORDER_ID=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('id','ERROR'))" 2>/dev/null)
 
@@ -56,12 +56,24 @@ if [ "$ORDER_ID" != "ERROR" ] && [ -n "$ORDER_ID" ]; then
   # Log outcome
   RESULT=$(python3 /home/ubuntu/.picoclaw/scripts/apex-log-outcome.py "$TICKER" "$EXIT_PRICE" "$OUTCOME_TYPE")
 
-  # Update or remove from positions
+  # Update or remove from positions (atomic write)
   python3 << PYEOF
-import json, math
+import json, math, sys
+sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
+try:
+    from apex_utils import atomic_write, safe_read
+except ImportError:
+    def safe_read(p, d=None):
+        try:
+            with open(p) as f: return json.load(f)
+        except Exception: return d if d is not None else {}
+    def atomic_write(p, d):
+        with open(p, 'w') as f: json.dump(d, f, indent=2)
+        return True
 
-with open('$POSITIONS_FILE') as f:
-    positions = json.load(f)
+positions = safe_read('$POSITIONS_FILE', [])
+if not isinstance(positions, list):
+    positions = []
 
 if '$OUTCOME_TYPE' == 'TRIM':
     for p in positions:
@@ -70,8 +82,7 @@ if '$OUTCOME_TYPE' == 'TRIM':
 else:
     positions = [p for p in positions if p.get('t212_ticker','').upper() != '$TICKER'.upper()]
 
-with open('$POSITIONS_FILE', 'w') as f:
-    json.dump(positions, f, indent=2)
+atomic_write('$POSITIONS_FILE', positions)
 PYEOF
 
   send_message "✅ $OUTCOME_TYPE EXECUTED

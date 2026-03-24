@@ -18,7 +18,7 @@ from datetime import datetime, timezone, timedelta
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning, log_info
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, log_info, send_telegram, t212_request
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -136,29 +136,6 @@ DATA_SPECS = {
 # Previous values cache for change detection
 PREV_VALUES = {}
 
-def load_env():
-    env = {}
-    try:
-        with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
-            for line in f:
-                line = line.strip()
-                if '=' in line and not line.startswith('#'):
-                    k, v = line.split('=', 1)
-                    env[k.strip()] = v.strip()
-    except Exception as e:
-        log_error(f"load_env failed: {e}")
-    return env
-
-def send_telegram(msg):
-    try:
-        subprocess.run(['bash', '-c',
-            f'''BOT=$(cat ~/.picoclaw/config.json | grep -A2 '"telegram"' | grep token | sed 's/.*"token": "\\(.*\\)".*/\\1/')
-curl -s -X POST "https://api.telegram.org/bot$BOT/sendMessage" \
-  -d chat_id=6808823889 --data-urlencode "text={msg}"'''
-        ], capture_output=True)
-    except Exception as e:
-        log_error(f"send_telegram failed: {e}")
-
 # ============================================================
 # CHECK 1: DATA FRESHNESS
 # ============================================================
@@ -234,17 +211,7 @@ def verify_price(ticker, signal_price, currency='USD'):
     Block if discrepancy > 3%.
     """
     try:
-        env      = load_env()
-        auth     = env.get('T212_AUTH', '')
-        endpoint = env.get('T212_ENDPOINT', 'https://demo.trading212.com/api/v0')
-
-        result = subprocess.run([
-            'curl', '-s', '--max-time', '10',
-            '-H', f'Authorization: Basic {auth}',
-            f'{endpoint}/equity/portfolio'
-        ], capture_output=True, text=True)
-
-        portfolio = json.loads(result.stdout)
+        portfolio = t212_request('/equity/portfolio', timeout=10)
         if not isinstance(portfolio, list):
             return True, "Cannot fetch T212 portfolio — skipping price check"
 

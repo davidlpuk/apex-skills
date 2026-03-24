@@ -1,7 +1,8 @@
 #!/bin/bash
 
-BOT_TOKEN=$(cat ~/.picoclaw/config.json | grep -A 2 '"telegram"' | grep token | sed 's/.*"token": "\(.*\)".*/\1/')
-CHAT_ID="6808823889"
+source /home/ubuntu/.picoclaw/.env.trading212
+BOT_TOKEN="${APEX_BOT_TOKEN}"
+CHAT_ID="${APEX_CHAT_ID}"
 LOG="/home/ubuntu/.picoclaw/logs/apex-cron.log"
 
 send_message() {

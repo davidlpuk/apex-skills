@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-03-21 11:14 UTC",
-  "count": 21,
+  "timestamp": "2026-03-24 16:53 UTC",
+  "count": 45,
   "data": {
     "AAPL": {
       "profile": {
@@ -40,8 +40,8 @@
       "profile": {
         "symbol": "MSFT",
         "name": "Microsoft Corporation",
-        "price": 381.87,
-        "market_cap": 2835625328100.0,
+        "price": 381.85,
+        "market_cap": 2835476815500.0,
         "beta": 1.108,
         "dividend": 3.48,
         "range_52w": "344.79-555.45",
@@ -74,8 +74,8 @@
       "profile": {
         "symbol": "NVDA",
         "name": "NVIDIA Corporation",
-        "price": 172.7,
-        "market_cap": 4197473723300.9995,
+        "price": 172.93,
+        "market_cap": 4203063541746.0,
         "beta": 2.375,
         "dividend": 0.04,
         "range_52w": "86.62-212.19",
@@ -112,7 +112,7 @@
         "symbol": "GOOGL",
         "name": "Alphabet Inc.",
         "price": 301.0,
-        "market_cap": 3641197095416.9995,
+        "market_cap": 3641197199262.0,
         "beta": 1.112,
         "dividend": 0.84,
         "range_52w": "140.53-349",
@@ -665,9 +665,9 @@
         "symbol": "WMT",
         "name": "Walmart Inc.",
         "price": 119.02,
-        "market_cap": 948875379828.0,
+        "market_cap": 948875362213.0,
         "beta": 0.657,
-        "dividend": 0.94,
+        "dividend": 0.9525,
         "range_52w": "79.81-134.69",
         "industry": "Discount Stores",
         "exchange": "NASDAQ"
@@ -683,13 +683,494 @@
         "gross_margin": 0.249,
         "net_margin": 0.031,
         "op_margin": 0.042,
-        "dividend_yield": 0.0079,
+        "dividend_yield": 0.008,
         "fcf_yield": 0.0413,
         "peg": 0
       },
       "fund_score": 5,
       "fund_class": "NEUTRAL",
       "reasons": []
+    },
+    "NFE": {
+      "profile": {
+        "symbol": "NFE",
+        "name": "New Fortress Energy Inc.",
+        "price": 0.7437,
+        "market_cap": 211621926.0,
+        "beta": 1.021,
+        "dividend": 0.4,
+        "range_52w": "0.71-12.59",
+        "industry": "Regulated Gas",
+        "exchange": "NASDAQ"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "AMD": {
+      "profile": {
+        "symbol": "AMD",
+        "name": "Advanced Micro Devices, Inc.",
+        "price": 203.43,
+        "market_cap": 331674306300.0,
+        "beta": 2.022,
+        "dividend": 0.0,
+        "range_52w": "76.48-267.08",
+        "industry": "Semiconductors",
+        "exchange": "NASDAQ"
+      },
+      "ratios": {
+        "pe": 47.8,
+        "ev_ebitda": 47.8,
+        "ev_fcf": 51.7,
+        "debt_equity": -0.15,
+        "roe": 0,
+        "roa": 0,
+        "current_ratio": 2.85,
+        "gross_margin": 0.495,
+        "net_margin": 0.125,
+        "op_margin": 0.107,
+        "dividend_yield": 0.0,
+        "fcf_yield": 0.0193,
+        "peg": 0
+      },
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": [
+        "EV/EBITDA 47.8 \u2014 expensive",
+        "Gross margin 49.5% \u2014 strong",
+        "D/E -0.15 \u2014 low debt",
+        "Beta 2.02 \u2014 high volatility, careful with contrarian"
+      ]
+    },
+    "AXP": {
+      "profile": {
+        "symbol": "AXP",
+        "name": "American Express Company",
+        "price": 301.88501,
+        "market_cap": 207953990408.0,
+        "beta": 1.152,
+        "dividend": 3.28,
+        "range_52w": "220.43-387.49",
+        "industry": "Financial - Credit Services",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "CRDO": {
+      "profile": {
+        "symbol": "CRDO",
+        "name": "Credo Technology Group Holding Ltd",
+        "price": 99.9,
+        "market_cap": 18426549006.0,
+        "beta": 2.676,
+        "dividend": 0.0,
+        "range_52w": "29.09-213.8",
+        "industry": "Communication Equipment",
+        "exchange": "NASDAQ"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "ASML": {
+      "profile": {
+        "symbol": "ASML",
+        "name": "ASML Holding N.V.",
+        "price": 1396.3823,
+        "market_cap": 538190860734.0,
+        "beta": 1.431,
+        "dividend": 6.97065,
+        "range_52w": "578.51-1547.22",
+        "industry": "Semiconductors",
+        "exchange": "NASDAQ"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "C": {
+      "profile": {
+        "symbol": "C",
+        "name": "Citigroup Inc.",
+        "price": 114.06,
+        "market_cap": 199527434929.0,
+        "beta": 1.131,
+        "dividend": 2.36,
+        "range_52w": "55.51-125.16",
+        "industry": "Banks - Diversified",
+        "exchange": "NYSE"
+      },
+      "ratios": {
+        "pe": 25.1,
+        "ev_ebitda": 25.1,
+        "ev_fcf": 26.0,
+        "debt_equity": 15.86,
+        "roe": 0,
+        "roa": 0,
+        "current_ratio": 0.48,
+        "gross_margin": 0.446,
+        "net_margin": 0.085,
+        "op_margin": 0.118,
+        "dividend_yield": 0.0207,
+        "fcf_yield": 0.0385,
+        "peg": 0
+      },
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": [
+        "Gross margin 44.6% \u2014 strong",
+        "D/E 15.86 \u2014 high debt"
+      ]
+    },
+    "CRM": {
+      "profile": {
+        "symbol": "CRM",
+        "name": "Salesforce, Inc.",
+        "price": 184.36,
+        "market_cap": 172745308017.0,
+        "beta": 1.307,
+        "dividend": 1.664,
+        "range_52w": "174.57-296.05",
+        "industry": "Software - Application",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "DHR": {
+      "profile": {
+        "symbol": "DHR",
+        "name": "Danaher Corporation",
+        "price": 190.91,
+        "market_cap": 134999906490.0,
+        "beta": 0.964,
+        "dividend": 1.28,
+        "range_52w": "171-242.8",
+        "industry": "Medical - Diagnostics & Research",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "INTC": {
+      "profile": {
+        "symbol": "INTC",
+        "name": "Intel Corporation",
+        "price": 43.845,
+        "market_cap": 219005775000.0,
+        "beta": 1.375,
+        "dividend": 0.125,
+        "range_52w": "17.67-54.6",
+        "industry": "Semiconductors",
+        "exchange": "NASDAQ"
+      },
+      "ratios": {
+        "pe": 14.5,
+        "ev_ebitda": 14.5,
+        "ev_fcf": -42.1,
+        "debt_equity": 2.25,
+        "roe": 0,
+        "roa": 0,
+        "current_ratio": 2.02,
+        "gross_margin": 0.348,
+        "net_margin": -0.005,
+        "op_margin": -0.0,
+        "dividend_yield": 0.0029,
+        "fcf_yield": 0,
+        "peg": 0
+      },
+      "fund_score": 4,
+      "fund_class": "NEUTRAL",
+      "reasons": [
+        "EV/EBITDA 14.5 \u2014 reasonable",
+        "D/E 2.25 \u2014 high debt",
+        "Net margin -0.5% \u2014 unprofitable"
+      ]
+    },
+    "MRK": {
+      "profile": {
+        "symbol": "MRK",
+        "name": "Merck & Co., Inc.",
+        "price": 115.685,
+        "market_cap": 286018668867.0,
+        "beta": 0.264,
+        "dividend": 3.32,
+        "range_52w": "73.31-125.14",
+        "industry": "Drug Manufacturers - General",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "SPXU": {
+      "profile": {
+        "symbol": "SPXU",
+        "name": "ProShares - UltraPro Short S&P500",
+        "price": 56.155,
+        "market_cap": 489658393.0,
+        "beta": -2.78,
+        "dividend": 2.14587,
+        "range_52w": "46.65-153",
+        "industry": "Asset Management - Leveraged",
+        "exchange": "AMEX"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "SQQQ": {
+      "profile": {
+        "symbol": "SQQQ",
+        "name": "ProShares - UltraPro Short QQQ",
+        "price": 78.28,
+        "market_cap": 3555712597.0,
+        "beta": -3.09,
+        "dividend": 6.41375,
+        "range_52w": "61.72-289",
+        "industry": "Asset Management",
+        "exchange": "NASDAQ"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "SAN": {
+      "profile": {
+        "symbol": "SAN",
+        "name": "Banco Santander, S.A.",
+        "price": 10.935,
+        "market_cap": 160506365323.0,
+        "beta": 0.923,
+        "dividend": 0.28,
+        "range_52w": "5.54-13.24",
+        "industry": "Banks - Diversified",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "MCD": {
+      "profile": {
+        "symbol": "MCD",
+        "name": "McDonald's Corporation",
+        "price": 310.145,
+        "market_cap": 221320849974.0,
+        "beta": 0.496,
+        "dividend": 7.26,
+        "range_52w": "283.47-341.75",
+        "industry": "Restaurants",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "MS": {
+      "profile": {
+        "symbol": "MS",
+        "name": "Morgan Stanley",
+        "price": 166.18,
+        "market_cap": 263870609033.0,
+        "beta": 1.207,
+        "dividend": 3.925,
+        "range_52w": "94.33-192.68",
+        "industry": "Financial - Capital Markets",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "NWG": {
+      "profile": {
+        "symbol": "NWG",
+        "name": "NatWest Group plc",
+        "price": 14.425,
+        "market_cap": 29012178789.0,
+        "beta": 0.794,
+        "dividend": 0.85532,
+        "range_52w": "10.4-19.36",
+        "industry": "Banks - Diversified",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "ORCL": {
+      "profile": {
+        "symbol": "ORCL",
+        "name": "Oracle Corporation",
+        "price": 148.73,
+        "market_cap": 427754296650.0,
+        "beta": 1.648,
+        "dividend": 2.0,
+        "range_52w": "118.86-345.72",
+        "industry": "Software - Infrastructure",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "PGY": {
+      "profile": {
+        "symbol": "PGY",
+        "name": "Pagaya Technologies Ltd.",
+        "price": 11.474,
+        "market_cap": 946888131.0,
+        "beta": 5.942,
+        "dividend": 0.0,
+        "range_52w": "8.5-44.99",
+        "industry": "Software - Infrastructure",
+        "exchange": "NASDAQ"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "QCOM": {
+      "profile": {
+        "symbol": "QCOM",
+        "name": "QUALCOMM Incorporated",
+        "price": 128.2,
+        "market_cap": 136923393999.0,
+        "beta": 1.267,
+        "dividend": 3.56,
+        "range_52w": "120.8-205.95",
+        "industry": "Semiconductors",
+        "exchange": "NASDAQ"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "QQQS": {
+      "profile": {
+        "symbol": "QQQS",
+        "name": "Invesco NASDAQ Future Gen 200 ETF",
+        "price": 34.005,
+        "market_cap": 9489299.0,
+        "beta": 1.62,
+        "dividend": 1.185,
+        "range_52w": "19.55-37.53",
+        "industry": "Asset Management",
+        "exchange": "NASDAQ"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "VOD": {
+      "profile": {
+        "symbol": "VOD",
+        "name": "Vodafone Group Public Limited Company",
+        "price": 14.71,
+        "market_cap": 36050160778.0,
+        "beta": 0.34,
+        "dividend": 0.50315,
+        "range_52w": "8.05-15.91",
+        "industry": "Telecommunications Services",
+        "exchange": "NASDAQ"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "TSLA": {
+      "profile": {
+        "symbol": "TSLA",
+        "name": "Tesla, Inc.",
+        "price": 383.51001,
+        "market_cap": 1439095226829.0,
+        "beta": 1.926,
+        "dividend": 0.0,
+        "range_52w": "214.25-498.83",
+        "industry": "Auto - Manufacturers",
+        "exchange": "NASDAQ"
+      },
+      "ratios": {
+        "pe": 122.6,
+        "ev_ebitda": 122.6,
+        "ev_fcf": 231.9,
+        "debt_equity": -0.69,
+        "roe": 0,
+        "roa": 0,
+        "current_ratio": 2.16,
+        "gross_margin": 0.18,
+        "net_margin": 0.04,
+        "op_margin": 0.046,
+        "dividend_yield": 0.0,
+        "fcf_yield": 0.0043,
+        "peg": 0
+      },
+      "fund_score": 4,
+      "fund_class": "NEUTRAL",
+      "reasons": [
+        "EV/EBITDA 122.6 \u2014 expensive",
+        "D/E -0.69 \u2014 low debt",
+        "Beta 1.93 \u2014 high volatility, careful with contrarian"
+      ]
+    },
+    "TTE": {
+      "profile": {
+        "symbol": "TTE",
+        "name": "TotalEnergies SE",
+        "price": 89.2,
+        "market_cap": 198648662962.0,
+        "beta": 0.281,
+        "dividend": 3.82542,
+        "range_52w": "52.78-91.38",
+        "industry": "Oil & Gas Integrated",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
+    },
+    "TMO": {
+      "profile": {
+        "symbol": "TMO",
+        "name": "Thermo Fisher Scientific Inc.",
+        "price": 489.91,
+        "market_cap": 181993847338.0,
+        "beta": 0.971,
+        "dividend": 1.76,
+        "range_52w": "385.46-643.99",
+        "industry": "Medical - Diagnostics & Research",
+        "exchange": "NYSE"
+      },
+      "ratios": null,
+      "fund_score": 5,
+      "fund_class": "NEUTRAL",
+      "reasons": []
     }
-  }
+  },
+  "partial": true
 }

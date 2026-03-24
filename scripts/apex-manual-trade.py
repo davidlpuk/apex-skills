@@ -4,10 +4,95 @@ import sys
 import subprocess
 from datetime import datetime, timezone
 
+import os
+
 TICKER_MAP     = '/home/ubuntu/.picoclaw/scripts/apex-ticker-map.json'
 QUALITY_FILE   = '/home/ubuntu/.picoclaw/scripts/apex-quality-universe.json'
 SIGNAL_FILE    = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
 MANUAL_STATE   = '/home/ubuntu/.picoclaw/logs/apex-manual-trade-state.json'
+BREAKER_FILE   = '/home/ubuntu/.picoclaw/logs/apex-circuit-breaker.json'
+GEO_FILE       = '/home/ubuntu/.picoclaw/logs/apex-geo-news.json'
+POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
+
+def run_safety_gates(instrument, data):
+    """
+    Lightweight safety checks shown alongside the trade card.
+    Returns (warnings, hard_blocks).
+    Warnings are informational — trade can still proceed.
+    Hard blocks prevent execution; user must override explicitly.
+    """
+    warnings    = []
+    hard_blocks = []
+
+    # 1. Circuit breaker state
+    try:
+        if os.path.exists(BREAKER_FILE):
+            breaker = json.load(open(BREAKER_FILE))
+            status  = breaker.get('status', 'CLEAR')
+            pnl_pct = breaker.get('session_pnl_pct', 0)
+            if status == 'CRITICAL':
+                hard_blocks.append(
+                    f"🚨 CIRCUIT BREAKER CRITICAL — session {pnl_pct:+.1f}%. All trading halted.")
+            elif status == 'SUSPEND':
+                hard_blocks.append(
+                    f"🔴 CIRCUIT BREAKER SUSPEND — session {pnl_pct:+.1f}%. New entries blocked.")
+            elif status == 'CAUTION':
+                warnings.append(
+                    f"🟠 Circuit breaker CAUTION — session {pnl_pct:+.1f}%. Sizing at 50%.")
+            elif status == 'WARNING':
+                warnings.append(
+                    f"⚠️ Circuit breaker WARNING — session {pnl_pct:+.1f}%.")
+    except Exception:
+        pass
+
+    # 2. Geo news — warn on energy instruments during active alerts
+    try:
+        if os.path.exists(GEO_FILE):
+            geo     = json.load(open(GEO_FILE))
+            overall = geo.get('overall', 'CLEAR')
+            ENERGY  = {'XOM','CVX','SHEL','TTE','BP','XLE','IUES'}
+            if overall == 'ALERT':
+                if instrument in ENERGY and instrument in geo.get('energy_victims', []):
+                    warnings.append(
+                        f"⚠️ GEO ALERT: {geo.get('active_event','active event')} — "
+                        f"{instrument} flagged as geo risk instrument.")
+                else:
+                    warnings.append(
+                        f"⚠️ GEO ALERT active ({geo.get('active_event','')}) — elevated market risk.")
+    except Exception:
+        pass
+
+    # 3. Position count and duplicate check
+    try:
+        positions = json.load(open(POSITIONS_FILE)) if os.path.exists(POSITIONS_FILE) else []
+        if len(positions) >= 4:
+            warnings.append(f"⚠️ Already holding {len(positions)} positions — portfolio fully allocated.")
+        try:
+            t212 = json.load(open(TICKER_MAP)).get(instrument, {}).get('t212', '')
+            if t212 and any(p.get('t212_ticker') == t212 for p in positions):
+                warnings.append(f"⚠️ You already hold {instrument} — this adds to an existing position.")
+        except Exception:
+            pass
+    except Exception:
+        pass
+
+    # 4. Cash reserve check
+    try:
+        sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
+        from apex_utils import get_free_cash
+        free_cash = get_free_cash() or 0
+        notional  = data.get('notional', 0)
+        if free_cash > 0 and notional > free_cash * 0.90:
+            warnings.append(
+                f"⚠️ Cash: trade needs £{notional:.2f} but 90% limit = "
+                f"£{free_cash*0.9:.2f} (free: £{free_cash:.2f}). Reduce qty.")
+        elif free_cash > 0 and notional > free_cash * 0.70:
+            warnings.append(
+                f"💡 This trade uses {notional/free_cash*100:.0f}% of free cash (£{free_cash:.2f}).")
+    except Exception:
+        pass
+
+    return warnings, hard_blocks
 
 # Natural language instrument recognition
 INSTRUMENT_ALIASES = {
@@ -283,14 +368,34 @@ def process_message(text, bot_token, chat_id):
                 state['awaiting'] = 'confirm_trade'
                 save_manual_state(state)
 
+                # Safety gates — run checks before showing card
+                gate_warnings, gate_blocks = run_safety_gates(state['instrument'], data)
+
+                # Hard block — don't proceed, inform user
+                if gate_blocks:
+                    block_msg = (
+                        f"🚫 TRADE BLOCKED — {state['instrument']}\n\n"
+                        + "\n".join(gate_blocks)
+                        + "\n\nSend APEX RESUME to unlock, or check system status."
+                    )
+                    send(block_msg)
+                    clear_manual_state()
+                    return True
+
                 rsi_note = "oversold ✅" if data['rsi'] < 35 else ("neutral" if data['rsi'] < 55 else "overbought ⚠️")
                 trend    = "above" if data['price'] > data['ema50'] else "below"
                 notional = round(data['quantity'] * data['price'], 2)
                 risk_per_share = round(data['price'] - data['stop'], 2)
 
+                # Prepend warnings to card if any
+                warning_block = ""
+                if gate_warnings:
+                    warning_block = "\n".join(gate_warnings) + "\n\n"
+
                 card = (
                     f"📊 {state['instrument']} — LIVE DATA\n\n"
-                    f"💰 Price: £{data['price']} {data['currency']}\n"
+                    + warning_block
+                    + f"💰 Price: £{data['price']} {data['currency']}\n"
                     f"📈 RSI: {data['rsi']} ({rsi_note})\n"
                     f"📉 Trend: {trend} 50-day EMA (£{data['ema50']})\n"
                     f"📊 52w range: £{data['low_52']} – £{data['high_52']}\n"

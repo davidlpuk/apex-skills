@@ -1,24 +1,24 @@
 {
-  "timestamp": "2026-03-22 18:14 UTC",
+  "timestamp": "2026-03-24 13:41 UTC",
   "all_clear": true,
   "failures": [],
   "warnings": [],
   "files_checked": 12,
   "data_snapshot": {
     "apex-regime.json": {
-      "vix": 26.34,
-      "breadth_pct": 26.7
+      "vix": 27.42,
+      "breadth_pct": 30.0
     },
     "apex-regime-scaling.json": {
-      "vix": 26.34,
-      "combined_scale": 0.241
+      "vix": 27.42,
+      "combined_scale": 0.275
     },
     "apex-sentiment.json": {
-      "market_sentiment": -0.381
+      "market_sentiment": -0.144
     },
     "apex-market-direction.json": {},
     "apex-drawdown.json": {
-      "drawdown_pct": 0.03
+      "drawdown_pct": 0.06
     },
     "apex-fundamentals.json": {},
     "apex-relative-strength.json": {},
@@ -26,7 +26,7 @@
     "apex-autopilot.json": {},
     "apex-geo-news.json": {},
     "apex-breadth-thrust.json": {
-      "current_breadth": 54.5
+      "current_breadth": 63.6
     }
   },
   "status": "CLEAR"

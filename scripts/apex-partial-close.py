@@ -12,13 +12,13 @@ Professional approach:
 - Never let a winner turn into a loser
 """
 import json
-import subprocess
 import sys
 from datetime import datetime, timezone
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import (atomic_write, safe_read, log_error, log_warning, send_telegram,
+                            locked_read_modify_write, t212_request)
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -29,95 +29,48 @@ except ImportError:
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 OUTCOMES_FILE  = '/home/ubuntu/.picoclaw/logs/apex-outcomes.json'
 
-def load_env():
-    env = {}
-    try:
-        with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
-            for line in f:
-                line = line.strip()
-                if '=' in line and not line.startswith('#'):
-                    k, v = line.split('=', 1)
-                    env[k.strip()] = v.strip()
-    except Exception as e:
-        log_error(f"load_env failed: {e}")
-    return env
-
-def send_telegram(msg):
-    try:
-        subprocess.run(['bash', '-c',
-            f'''BOT=$(cat ~/.picoclaw/config.json | grep -A2 '"telegram"' | grep token | sed 's/.*"token": "\\(.*\\)".*/\\1/')
-curl -s -X POST "https://api.telegram.org/bot$BOT/sendMessage" \
-  -d chat_id=6808823889 --data-urlencode "text={msg}"'''
-        ], capture_output=True)
-    except Exception as e:
-        log_error(f"send_telegram failed: {e}")
-
 def execute_partial_close(ticker, name, close_qty, current_price):
     """Place a market sell order for partial quantity."""
     try:
-        env      = load_env()
-        auth     = env.get('T212_AUTH','')
-        endpoint = env.get('T212_ENDPOINT','https://demo.trading212.com/api/v0')
-
-        result = subprocess.run([
-            'curl','-s','-X','POST',
-            '-H',f'Authorization: Basic {auth}',
-            '-H','Content-Type: application/json',
-            '-d',f'{{"ticker":"{ticker}","quantity":{close_qty}}}',
-            f'{endpoint}/equity/orders/market'
-        ], capture_output=True, text=True)
-
-        data = json.loads(result.stdout)
-        if data.get('id'):
+        data = t212_request('/equity/orders/market', method='POST', payload={
+            "ticker":   ticker,
+            "quantity": round(float(close_qty) * -1, 8),
+        })
+        if data and data.get('id'):
             return True, data['id']
-        return False, result.stdout
+        return False, str(data)
     except Exception as e:
         log_error(f"execute_partial_close failed: {e}")
         return False, str(e)
 
-def update_stop_in_t212(ticker, entry_price, remaining_qty):
-    """Update stop loss to breakeven after partial close."""
+def update_stop_in_t212(ticker, entry_price, remaining_qty, atr=None):
+    """Cancel existing stop and place new breakeven stop after partial close.
+    Uses ATR-based stop width if available — 0.5× ATR below entry survives
+    normal intraday noise. Falls back to 0.5% below entry if no ATR."""
     try:
-        env      = load_env()
-        auth     = env.get('T212_AUTH','')
-        endpoint = env.get('T212_ENDPOINT','https://demo.trading212.com/api/v0')
-
         # Cancel existing stop orders for this ticker
-        orders_result = subprocess.run([
-            'curl','-s','-H',f'Authorization: Basic {auth}',
-            f'{endpoint}/equity/orders'
-        ], capture_output=True, text=True)
-
-        orders = json.loads(orders_result.stdout)
+        orders = t212_request('/equity/orders')
         if isinstance(orders, list):
             for order in orders:
                 if (order.get('ticker') == ticker and
-                    order.get('type') == 'STOP' and
-                    order.get('status') == 'NEW'):
-                    # Cancel old stop
-                    subprocess.run([
-                        'curl','-s','-X','DELETE',
-                        '-H',f'Authorization: Basic {auth}',
-                        f'{endpoint}/equity/orders/{order["id"]}'
-                    ], capture_output=True)
+                        order.get('type') == 'STOP' and
+                        order.get('status') == 'NEW'):
+                    t212_request(f'/equity/orders/{order["id"]}', method='DELETE')
 
-        # Place new stop at breakeven
-        new_stop = round(entry_price * 0.999, 2)  # Slightly below entry
-        result   = subprocess.run([
-            'curl','-s','-X','POST',
-            '-H',f'Authorization: Basic {auth}',
-            '-H','Content-Type: application/json',
-            '-d',json.dumps({
-                "ticker":        ticker,
-                "quantity":      remaining_qty,
-                "stopPrice":     new_stop,
-                "timeValidity":  "GOOD_TILL_CANCEL"
-            }),
-            f'{endpoint}/equity/orders/stop'
-        ], capture_output=True, text=True)
+        # ATR-based breakeven stop — survives intraday noise
+        if atr and float(atr) > 0:
+            new_stop = round(entry_price - (float(atr) * 0.5), 2)
+        else:
+            # Fallback: 0.5% below entry
+            new_stop = round(entry_price * 0.995, 2)
 
-        data = json.loads(result.stdout)
-        return data.get('id') is not None, new_stop
+        data = t212_request('/equity/orders/stop', method='POST', payload={
+            "ticker":       ticker,
+            "quantity":     round(float(remaining_qty) * -1, 8),
+            "stopPrice":    new_stop,
+            "timeValidity": "GOOD_TILL_CANCEL",
+        })
+        return (data is not None and data.get('id') is not None), new_stop
 
     except Exception as e:
         log_error(f"update_stop_in_t212 failed: {e}")
@@ -136,6 +89,7 @@ def process_t1_hit(position, current_price):
     t1      = float(position.get('target1', 0))
     t2      = float(position.get('target2', 0))
     stop    = float(position.get('stop', 0))
+    atr     = position.get('atr', 0)
 
     # Check if already partially closed
     if position.get('partial_closed'):
@@ -159,38 +113,50 @@ def process_t1_hit(position, current_price):
     print(f"  Closing {close_qty} of {qty} shares (50%)")
     print(f"  P&L on closed portion: £{pnl_closed}")
 
-    # Execute partial close
+    # Fix 5: Stop FIRST, then sell — remaining 50% is never naked
+    # If stop update fails, abort the partial close entirely (position stays intact with original stop)
+    stop_ok, new_stop = update_stop_in_t212(ticker, entry, remaining_qty, atr=atr)
+    if not stop_ok:
+        send_telegram(
+            f"⚠️ T1 HIT but could not place breakeven stop for {name}\n"
+            f"Partial close ABORTED — position intact with original stop.\n"
+            f"Manual check required."
+        )
+        log_error(f"Stop update failed for {name} — partial close aborted")
+        return False, "Stop update failed — partial close aborted"
+
+    # Execute partial close only after stop is confirmed
     ok, order_id = execute_partial_close(ticker, name, close_qty, current_price)
 
     if not ok:
         send_telegram(
             f"⚠️ PARTIAL CLOSE FAILED\n\n"
             f"{name}\n"
-            f"Could not close {close_qty} shares at T1\n"
+            f"Breakeven stop placed (£{new_stop}) but sell order failed.\n"
             f"Error: {order_id}\n\n"
             f"Manual action required."
         )
         log_error(f"Partial close failed for {name}: {order_id}")
         return False, f"Order failed: {order_id}"
 
-    # Update stop to breakeven in T212
-    stop_ok, new_stop = update_stop_in_t212(ticker, entry, remaining_qty)
-
-    # Update position tracking
-    positions = safe_read(POSITIONS_FILE, [])
-    for pos in positions:
-        if pos.get('t212_ticker') == ticker:
-            pos['quantity']      = remaining_qty
-            pos['stop']          = new_stop
-            pos['partial_closed']= True
-            pos['partial_close_price'] = current_price
-            pos['partial_close_qty']   = close_qty
-            pos['partial_close_pnl']   = pnl_closed
-            pos['partial_close_time']  = now.isoformat()
-            pos['partial_close_r']     = r_achieved
-            break
-
-    atomic_write(POSITIONS_FILE, positions)
+    # Update position tracking under file lock to prevent race with concurrent cron jobs
+    _t = ticker; _rq = remaining_qty; _ns = new_stop; _cp = current_price
+    _cq = close_qty; _pc = pnl_closed; _ni = now.isoformat(); _ra = r_achieved
+    def _update_pos(positions):
+        positions = positions or []
+        for pos in positions:
+            if pos.get('t212_ticker') == _t:
+                pos['quantity']           = _rq
+                pos['stop']               = _ns
+                pos['partial_closed']     = True
+                pos['partial_close_price']= _cp
+                pos['partial_close_qty']  = _cq
+                pos['partial_close_pnl']  = _pc
+                pos['partial_close_time'] = _ni
+                pos['partial_close_r']    = _ra
+                break
+        return positions
+    locked_read_modify_write(POSITIONS_FILE, _update_pos, default=[])
 
     # Log partial close to outcomes
     try:

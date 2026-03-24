@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, get_portfolio_value
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -63,8 +63,10 @@ def get_sector(ticker):
     """Get sector for a ticker."""
     return INSTRUMENT_SECTOR.get(ticker, 'Other')
 
-def analyse_concentration(positions, portfolio_value=5000):
+def analyse_concentration(positions, portfolio_value=None):
     """Analyse current sector concentration."""
+    if portfolio_value is None:
+        portfolio_value = get_portfolio_value() or 5000
     sector_data = {}
 
     for pos in positions:
@@ -86,11 +88,13 @@ def analyse_concentration(positions, portfolio_value=5000):
 
     return sector_data
 
-def check_concentration(new_signal, positions, portfolio_value=5000):
+def check_concentration(new_signal, positions, portfolio_value=None):
     """
     Check if adding new signal would breach concentration limits.
     Returns (allowed, reason)
     """
+    if portfolio_value is None:
+        portfolio_value = get_portfolio_value() or 5000
     new_ticker = new_signal.get('t212_ticker', '')
     new_sector = get_sector(new_ticker)
     new_notional = float(new_signal.get('quantity', 0)) * float(new_signal.get('entry', 0))

@@ -1,12 +1,11 @@
 {
-  "vix": 26.34,
+  "vix": 27.42,
   "vix_regime": "HIGH",
-  "breadth_pct": 26.7,
+  "breadth_pct": 30.0,
   "breadth_regime": "BEARISH",
-  "overall": "BLOCKED",
+  "overall": "CLEAR",
   "block_reason": [
-    "VIX 26.34 \u2014 high fear, reduce position sizes by 50%",
-    "Breadth 26.7% \u2014 fewer than 40% of stocks healthy, avoid new longs"
+    "Breadth 30.0% \u2014 neutral, be selective"
   ],
-  "timestamp": "2026-03-20 15:10 UTC"
+  "timestamp": "2026-03-24 13:37 UTC"
 }

@@ -1,0 +1,474 @@
+[
+  {
+    "date": "2026-03-24",
+    "timestamp": "2026-03-24T12:30:51.043931+00:00",
+    "regime": "BLOCKED",
+    "vix": 26.97,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "WARN",
+    "candidates_total": 9,
+    "qualified_count": 9,
+    "blocked_count": 0,
+    "best_signal": "XOM",
+    "best_type": "CONTRARIAN",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "ULVR",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 10.59,
+        "adjustments": [
+          "MACRO: -1 (Copper FALLING -7.2% \u2014 growth concern)",
+          "MACRO: -1 (GBP stable \u2014 no currency risk)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.3%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Consumer is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ABBV",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 6.0,
+        "adj_score": 6.0,
+        "rsi": 12.4,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.3%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))",
+          "Fundamentals: +1 (STRONG)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "GSK",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 15.92,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.3%)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AZN",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 14.35,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.3%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "NOVO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 50.88,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.3%)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "XOM",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 71.21,
+        "adjustments": [
+          "MACRO: +1 (Crude RISING +5.1% \u2014 energy tailwind)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "OPTIONS: +1 (C/P ratio 2.5x \u2014 dominant call buying)",
+          "Breadth: -1 (deterioration -10.3%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: +3 (Energy is leading sector (10/10 rotation score) | Energy breadth strong (100.0% above 200 EMA))",
+          "Geo: +2 (Geo-reversal: XOM benefits from current conflict)",
+          "Fundamentals: +1 (STRONG)",
+          "Sentiment: +1 (POSITIVE +0.12)",
+          "Adjustment cap: +8.0 capped to +5.0"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "CVX",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 77.85,
+        "adjustments": [
+          "MACRO: +1 (Crude RISING +5.1% \u2014 energy tailwind)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.3%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: +3 (Energy is leading sector (10/10 rotation score) | Energy breadth strong (100.0% above 200 EMA))",
+          "Geo: +2 (Geo-reversal: CVX benefits from current conflict)",
+          "Fundamentals: +1 (STRONG)",
+          "Sentiment: +1 (POSITIVE +0.12)",
+          "Adjustment cap: +7.0 capped to +5.0"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 57.8,
+        "adjustments": [
+          "MACRO: +1 (VIX 26.8 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 65.2,
+        "adjustments": [
+          "MACRO: +1 (VIX 26.8 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ]
+  },
+  {
+    "date": "2026-03-24",
+    "timestamp": "2026-03-24T13:39:03.481262+00:00",
+    "regime": "CLEAR",
+    "vix": 27.42,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 8,
+    "qualified_count": 8,
+    "blocked_count": 0,
+    "best_signal": "XOM",
+    "best_type": "CONTRARIAN",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "ABBV",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 6.39,
+        "adjustments": [
+          "RS: -1 (RS STRONG_LAGGARD (-7.0% vs market))",
+          "MTF: +2 (Weekly BULL \u2014 contrarian is pullback in uptrend, ideal)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))",
+          "Fundamentals: +1 (STRONG)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ULVR",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 10.34,
+        "adjustments": [
+          "MTF: -1 (Weekly BEAR \u2014 contrarian is catching falling knife, caution)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Consumer is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "GSK",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 6.0,
+        "adj_score": 6.0,
+        "rsi": 14.88,
+        "adjustments": [
+          "MTF: +2 (Weekly BULL \u2014 contrarian is pullback in uptrend, ideal)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AZN",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 6.0,
+        "adj_score": 6.0,
+        "rsi": 13.8,
+        "adjustments": [
+          "MTF: +2 (Weekly BULL \u2014 contrarian is pullback in uptrend, ideal)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "NOVO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 37.78,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "UNH",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 1.0,
+        "adj_score": 1.0,
+        "rsi": 28.77,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "XOM",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 81.34,
+        "adjustments": [
+          "RS: +1 (RS STRONG_LEADER (+10.6% vs market))",
+          "MTF: +2 (Weekly STRONG_BULL \u2014 contrarian is pullback in uptrend, idea)",
+          "MACRO: -1 (Crude FALLING -4.0% \u2014 energy headwind)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "OPTIONS: +1 (C/P ratio 2.5x \u2014 dominant call buying)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: +3 (Energy is leading sector (10/10 rotation score) | Energy breadth strong (100.0% above 200 EMA))",
+          "Geo: +2 (Geo-reversal: XOM benefits from current conflict)",
+          "Fundamentals: +1 (STRONG)",
+          "Sentiment: -1 (NEGATIVE -0.28)",
+          "Adjustment cap: +7.0 capped to +5.0"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "CVX",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 86.84,
+        "adjustments": [
+          "RS: +1 (RS STRONG_LEADER (+14.7% vs market))",
+          "MTF: +2 (Weekly STRONG_BULL \u2014 contrarian is pullback in uptrend, idea)",
+          "MACRO: -1 (Crude FALLING -4.0% \u2014 energy headwind)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: +3 (Energy is leading sector (10/10 rotation score) | Energy breadth strong (100.0% above 200 EMA))",
+          "Geo: +2 (Geo-reversal: CVX benefits from current conflict)",
+          "Fundamentals: +1 (STRONG)",
+          "Sentiment: -1 (NEGATIVE -0.28)",
+          "Adjustment cap: +6.0 capped to +5.0"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ]
+  },
+  {
+    "date": "2026-03-24",
+    "timestamp": "2026-03-24T13:42:09.378066+00:00",
+    "regime": "CLEAR",
+    "vix": 27.42,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 8,
+    "qualified_count": 8,
+    "blocked_count": 0,
+    "best_signal": "XOM",
+    "best_type": "CONTRARIAN",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "ABBV",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 6.46,
+        "adjustments": [
+          "RS: -1 (RS STRONG_LAGGARD (-7.0% vs market))",
+          "MTF: +2 (Weekly BULL \u2014 contrarian is pullback in uptrend, ideal)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))",
+          "Fundamentals: +1 (STRONG)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ULVR",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 10.29,
+        "adjustments": [
+          "MTF: -1 (Weekly BEAR \u2014 contrarian is catching falling knife, caution)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Consumer is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "GSK",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 6.0,
+        "adj_score": 6.0,
+        "rsi": 13.08,
+        "adjustments": [
+          "MTF: +2 (Weekly BULL \u2014 contrarian is pullback in uptrend, ideal)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AZN",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 6.0,
+        "adj_score": 6.0,
+        "rsi": 13.74,
+        "adjustments": [
+          "MTF: +2 (Weekly BULL \u2014 contrarian is pullback in uptrend, ideal)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "NOVO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 37.75,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "UNH",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 1.0,
+        "adj_score": 1.0,
+        "rsi": 28.63,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Sector: -1 (Healthcare is lagging sector (0/10 rotation score))"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "XOM",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 81.4,
+        "adjustments": [
+          "RS: +1 (RS STRONG_LEADER (+10.6% vs market))",
+          "MTF: +2 (Weekly STRONG_BULL \u2014 contrarian is pullback in uptrend, idea)",
+          "MACRO: -1 (Crude FALLING -4.0% \u2014 energy headwind)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "OPTIONS: +1 (C/P ratio 2.5x \u2014 dominant call buying)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: +3 (Energy is leading sector (10/10 rotation score) | Energy breadth strong (100.0% above 200 EMA))",
+          "Geo: +2 (Geo-reversal: XOM benefits from current conflict)",
+          "Fundamentals: +1 (STRONG)",
+          "Sentiment: -1 (NEGATIVE -0.28)",
+          "Adjustment cap: +7.0 capped to +5.0"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "CVX",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 86.85,
+        "adjustments": [
+          "RS: +1 (RS STRONG_LEADER (+14.7% vs market))",
+          "MTF: +2 (Weekly STRONG_BULL \u2014 contrarian is pullback in uptrend, idea)",
+          "MACRO: -1 (Crude FALLING -4.0% \u2014 energy headwind)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -10.7%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: +3 (Energy is leading sector (10/10 rotation score) | Energy breadth strong (100.0% above 200 EMA))",
+          "Geo: +2 (Geo-reversal: CVX benefits from current conflict)",
+          "Fundamentals: +1 (STRONG)",
+          "Sentiment: -1 (NEGATIVE -0.28)",
+          "Adjustment cap: +6.0 capped to +5.0"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ]
+  }
+]

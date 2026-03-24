@@ -1,1 +1,64 @@
-[]
+[
+  {
+    "id": 1,
+    "queued_at": "2026-03-24T13:42:09.486688+00:00",
+    "queued_date": "2026-03-24 13:42 UTC",
+    "source": "decision_engine",
+    "name": "CVX",
+    "t212_ticker": "CVX_US_EQ",
+    "entry": 207.32,
+    "stop": 194.88,
+    "target1": 225.98,
+    "target2": 238.42,
+    "quantity": 1.55,
+    "score": 0,
+    "adjusted_score": 10.0,
+    "signal_type": "CONTRARIAN",
+    "rsi": 86.85,
+    "sector": "",
+    "currency": "USD",
+    "ev": 5.8,
+    "risk_amount": 0,
+    "notional": 321.35,
+    "sizing_rationale": "",
+    "reasons": [
+      "Tier-1 quality (score 9/10)",
+      "MACD turning \u2014 early reversal signal",
+      "Geo-reversal: energy beneficiary during Middle East conflict"
+    ],
+    "status": "EXECUTED",
+    "notes": "",
+    "executed_at": "2026-03-24T13:42:27.131075+00:00"
+  },
+  {
+    "id": 2,
+    "queued_at": "2026-03-24T13:42:09.613143+00:00",
+    "queued_date": "2026-03-24 13:42 UTC",
+    "source": "decision_engine",
+    "name": "ABBV",
+    "t212_ticker": "ABBV_US_EQ",
+    "entry": 203.27,
+    "stop": 191.07,
+    "target1": 221.57000000000005,
+    "target2": 233.77000000000004,
+    "quantity": 1.26,
+    "score": 0,
+    "adjusted_score": 8.0,
+    "signal_type": "CONTRARIAN",
+    "rsi": 6.46,
+    "sector": "",
+    "currency": "USD",
+    "ev": 4.61,
+    "risk_amount": 0,
+    "notional": 256.12,
+    "sizing_rationale": "",
+    "reasons": [
+      "RSI 6.46 \u2014 extreme oversold, capitulation likely",
+      "Down 15.5% from 52w high",
+      "Tier-1 quality (score 9/10)"
+    ],
+    "status": "EXECUTED",
+    "notes": "",
+    "executed_at": "2026-03-24T13:42:27.131075+00:00"
+  }
+]

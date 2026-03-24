@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 import sys as _sys
 _sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, send_telegram
 except ImportError:
     def atomic_write(p, d):
         import json
@@ -33,15 +33,6 @@ def load_queue():
 
 def save_queue(queue):
     atomic_write(QUEUE_FILE, queue)
-
-def send_telegram(message):
-    subprocess.run([
-        'bash', '-c',
-        f'''BOT_TOKEN=$(cat ~/.picoclaw/config.json | grep -A 2 '"telegram"' | grep token | sed 's/.*"token": "\\(.*\\)".*/\\1/')
-curl -s -X POST "https://api.telegram.org/bot${{BOT_TOKEN}}/sendMessage" \
-  -d chat_id="6808823889" \
-  --data-urlencode "text={message}"'''
-    ], capture_output=True, text=True)
 
 def add_to_queue(signal):
     queue = load_queue()
@@ -83,6 +74,60 @@ def add_to_queue(signal):
 
     print(f"✅ Trade queued: {entry['name']} (ID #{entry['id']})")
     return entry
+
+def add_scored_signal(signal):
+    """
+    Queue a fully-scored signal from the decision engine.
+    Unlike add_to_queue() (manual), this preserves all scored fields and
+    sends a quieter notification — used for 2nd/3rd signals in multi-signal day.
+    All safety gates still apply at execution time via autopilot.
+    """
+    queue = load_queue()
+    now   = datetime.now(timezone.utc)
+
+    entry = {
+        'id':              len(queue) + 1,
+        'queued_at':       now.isoformat(),
+        'queued_date':     now.strftime('%Y-%m-%d %H:%M UTC'),
+        'source':          'decision_engine',
+        'name':            signal.get('name', '?'),
+        't212_ticker':     signal.get('t212_ticker', ''),
+        'entry':           signal.get('entry', 0),
+        'stop':            signal.get('stop', 0),
+        'target1':         signal.get('target1', 0),
+        'target2':         signal.get('target2', 0),
+        'quantity':        signal.get('quantity', 0),
+        'score':           signal.get('score', 0),
+        'adjusted_score':  signal.get('adjusted_score', signal.get('score', 0)),
+        'signal_type':     signal.get('signal_type', 'TREND'),
+        'rsi':             signal.get('rsi', 0),
+        'sector':          signal.get('sector', ''),
+        'currency':        signal.get('currency', 'USD'),
+        'ev':              signal.get('ev', 0),
+        'risk_amount':     signal.get('risk_amount', 0),
+        'notional':        signal.get('notional', 0),
+        'sizing_rationale': signal.get('sizing_rationale', ''),
+        'reasons':         signal.get('reasons', []),
+        'status':          'QUEUED',
+        'notes':           signal.get('notes', ''),
+    }
+
+    queue.append(entry)
+    save_queue(queue)
+
+    score = entry['adjusted_score']
+    send_telegram(
+        f"📋 SIGNAL QUEUED (#{entry['id']})\n\n"
+        f"{entry['name']} | Score {score:.1f}/10 | {entry['signal_type']}\n"
+        f"Entry: {entry['entry']} | Stop: {entry['stop']}\n"
+        f"EV: {entry.get('ev', '?')} | Risk: £{entry.get('risk_amount', '?')}\n\n"
+        f"Will execute at 09:30 UTC (after primary signal).\n"
+        f"Reply QUEUE CANCEL {entry['id']} to remove."
+    )
+
+    print(f"✅ Scored signal queued: {entry['name']} score={score:.1f} (ID #{entry['id']})")
+    return entry
+
 
 def cancel_queue(trade_id):
     queue = load_queue()

@@ -1,88 +1,88 @@
 {
-  "timestamp": "2026-03-22 11:25 UTC",
+  "timestamp": "2026-03-24 13:37 UTC",
   "macro_data": {
     "crude_oil": {
       "ticker": "CL=F",
-      "current": 98.23,
-      "daily_chg": 2.17,
-      "weekly_chg": 5.06,
-      "direction": "RISING"
+      "current": 92.45,
+      "daily_chg": 4.9,
+      "weekly_chg": -4.02,
+      "direction": "FALLING"
     },
     "brent": {
       "ticker": "BZ=F",
-      "current": 106.41,
-      "daily_chg": -2.06,
-      "weekly_chg": 6.19,
-      "direction": "RISING"
+      "current": 103.59,
+      "daily_chg": 3.65,
+      "weekly_chg": -3.53,
+      "direction": "FALLING"
     },
     "treasury_10y": {
       "ticker": "^TNX",
-      "current": 4.391,
-      "daily_chg": 2.57,
-      "weekly_chg": 4.05,
+      "current": 4.404,
+      "daily_chg": 1.62,
+      "weekly_chg": 3.4,
       "direction": "RISING"
     },
     "treasury_2y": {
       "ticker": "^IRX",
-      "current": 3.618,
-      "daily_chg": 0.17,
+      "current": 3.623,
+      "daily_chg": 0.3,
       "weekly_chg": 0.36,
       "direction": "STABLE"
     },
     "gbp_usd": {
       "ticker": "GBPUSD=X",
-      "current": 1.3341,
-      "daily_chg": -0.63,
-      "weekly_chg": 0.2,
+      "current": 1.3376,
+      "daily_chg": 0.33,
+      "weekly_chg": 0.12,
       "direction": "STABLE"
     },
     "usd_cny": {
       "ticker": "CNY=X",
-      "current": 6.8852,
-      "daily_chg": 0.18,
-      "weekly_chg": -0.16,
+      "current": 6.8928,
+      "daily_chg": 0.1,
+      "weekly_chg": 0.09,
       "direction": "STABLE"
     },
     "dollar_index": {
       "ticker": "DX-Y.NYB",
-      "current": 99.65,
-      "daily_chg": 0.42,
-      "weekly_chg": -0.06,
+      "current": 99.479,
+      "daily_chg": 0.53,
+      "weekly_chg": -0.61,
       "direction": "STABLE"
     },
     "hyg": {
       "ticker": "HYG",
-      "current": 78.92,
-      "daily_chg": -0.93,
-      "weekly_chg": -0.67,
+      "current": 79.195,
+      "daily_chg": -0.31,
+      "weekly_chg": -0.26,
       "direction": "STABLE"
     },
     "lqd": {
       "ticker": "LQD",
-      "current": 107.85,
-      "daily_chg": -1.23,
-      "weekly_chg": -0.77,
+      "current": 108.08,
+      "daily_chg": -0.44,
+      "weekly_chg": -0.58,
       "direction": "STABLE"
     },
     "vix": {
       "ticker": "^VIX",
-      "current": 26.78,
-      "daily_chg": 11.31,
-      "weekly_chg": 13.91,
+      "current": 27.42,
+      "daily_chg": 4.86,
+      "weekly_chg": 9.29,
       "direction": "RISING"
     },
     "gold": {
       "ticker": "GC=F",
-      "current": 4574.8999,
-      "daily_chg": -0.56,
-      "weekly_chg": -8.39,
+      "current": 4377.5,
+      "daily_chg": -0.6,
+      "weekly_chg": -10.48,
       "direction": "FALLING"
     },
     "copper": {
       "ticker": "HG=F",
-      "current": 5.3745,
-      "daily_chg": -1.08,
-      "weekly_chg": -7.18,
+      "current": 5.4095,
+      "daily_chg": -0.55,
+      "weekly_chg": -2.6,
       "direction": "FALLING"
     }
   },

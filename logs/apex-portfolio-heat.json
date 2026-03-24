@@ -1,0 +1,108 @@
+{
+  "total_heat_pct": 2.7,
+  "total_heat_gbp": 136.08,
+  "sector_heat": {
+    "etf": {
+      "risk_gbp": 57.85,
+      "positions": 3,
+      "risk_pct": 1.15
+    },
+    "financials": {
+      "risk_gbp": 41.93,
+      "positions": 1,
+      "risk_pct": 0.83
+    },
+    "technology": {
+      "risk_gbp": 8.98,
+      "positions": 1,
+      "risk_pct": 0.18
+    },
+    "energy": {
+      "risk_gbp": 27.32,
+      "positions": 1,
+      "risk_pct": 0.54
+    }
+  },
+  "hot_sectors": {},
+  "position_count": 6,
+  "position_heat": [
+    {
+      "ticker": "V_US_EQ",
+      "name": "Visa",
+      "sector": "financials",
+      "entry": 300.27,
+      "stop": 291.85,
+      "quantity": 4.98,
+      "risk_gbp": 41.93,
+      "risk_pct": 0.833,
+      "notional_gbp": 1495.34,
+      "notional_pct": 29.7
+    },
+    {
+      "ticker": "XOM_US_EQ",
+      "name": "Exxon Mobil",
+      "sector": "energy",
+      "entry": 158.86,
+      "stop": 152.03,
+      "quantity": 4.0,
+      "risk_gbp": 27.32,
+      "risk_pct": 0.543,
+      "notional_gbp": 635.44,
+      "notional_pct": 12.6
+    },
+    {
+      "ticker": "VUAGl_EQ",
+      "name": "Vanguard S&P 500 (Acc)",
+      "sector": "etf",
+      "entry": 95.1,
+      "stop": 92.2,
+      "quantity": 8.0,
+      "risk_gbp": 23.2,
+      "risk_pct": 0.461,
+      "notional_gbp": 760.8,
+      "notional_pct": 15.1
+    },
+    {
+      "ticker": "CVX_US_EQ",
+      "name": "CVX",
+      "sector": "etf",
+      "entry": 207.32,
+      "stop": 194.88,
+      "quantity": 1.55,
+      "risk_gbp": 19.28,
+      "risk_pct": 0.383,
+      "notional_gbp": 321.35,
+      "notional_pct": 6.4
+    },
+    {
+      "ticker": "ABBV_US_EQ",
+      "name": "ABBV",
+      "sector": "etf",
+      "entry": 203.27,
+      "stop": 191.07,
+      "quantity": 1.26,
+      "risk_gbp": 15.37,
+      "risk_pct": 0.305,
+      "notional_gbp": 256.12,
+      "notional_pct": 5.1
+    },
+    {
+      "ticker": "AAPL_US_EQ",
+      "name": "Apple",
+      "sector": "technology",
+      "entry": 248.63,
+      "stop": 239.74,
+      "quantity": 1.01,
+      "risk_gbp": 8.98,
+      "risk_pct": 0.178,
+      "notional_gbp": 251.12,
+      "notional_pct": 5.0
+    }
+  ],
+  "portfolio_value": 5032.08,
+  "status": "NORMAL",
+  "multiplier": 1.0,
+  "note": "Heat 2.7% \u2014 full sizing available",
+  "block_new_entries": false,
+  "updated_at": "2026-03-24T17:43:04.504222+00:00"
+}

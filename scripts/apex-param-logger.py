@@ -18,13 +18,14 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, send_telegram
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
         return True
     def log_error(m): print(f'ERROR: {m}')
     def log_warning(m): print(f'WARNING: {m}')
+    def send_telegram(m): print(f'TELEGRAM: {m}')
 
 PARAM_LOG_FILE  = '/home/ubuntu/.picoclaw/logs/apex-param-log.json'
 OUTCOMES_FILE   = '/home/ubuntu/.picoclaw/logs/apex-outcomes.json'

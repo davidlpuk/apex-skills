@@ -1,41 +1,71 @@
 {
-  "timestamp": "2026-03-22 10:22 UTC",
+  "timestamp": "2026-03-23 17:26 UTC",
   "status": "COLLECTING",
   "min_trades": 50,
-  "portfolio": 5000,
+  "portfolio": 5015.53,
   "kelly_table": {
     "TREND": {
       "win_rate": 0.517,
       "kelly_full": 0.2163,
       "kelly_half": 0.1081,
-      "risk_gbp": 400.0
+      "risk_gbp": 401.24
     },
     "CONTRARIAN": {
       "win_rate": 0.565,
       "kelly_full": 0.2569,
       "kelly_half": 0.1284,
-      "risk_gbp": 400.0
+      "risk_gbp": 401.24
     },
     "INVERSE": {
       "win_rate": 0.5,
       "kelly_full": 0.1667,
       "kelly_half": 0.0833,
-      "risk_gbp": 400.0
+      "risk_gbp": 401.24
     },
     "EARNINGS_DRIFT": {
       "win_rate": 0.55,
       "kelly_full": 0.2731,
       "kelly_half": 0.1365,
-      "risk_gbp": 400.0
+      "risk_gbp": 401.24
     },
     "DIVIDEND_CAPTURE": {
       "win_rate": 0.6,
       "kelly_full": 0.3,
       "kelly_half": 0.15,
-      "risk_gbp": 400.0
+      "risk_gbp": 401.24
     }
   },
   "current_risk": 50,
   "half_kelly_factor": 0.5,
-  "max_position_pct": 0.08
+  "max_position_pct": 0.08,
+  "signal_audits": [
+    {
+      "timestamp": "2026-03-24T13:39:06.028885+00:00",
+      "signal": "Exxon Mobil",
+      "verdict": "REDUCE",
+      "kelly_half_risk": 542.02,
+      "recommended_risk": 401.13
+    },
+    {
+      "timestamp": "2026-03-24T13:39:33.556480+00:00",
+      "signal": "Exxon Mobil",
+      "verdict": "REDUCE",
+      "kelly_half_risk": 542.02,
+      "recommended_risk": 401.13
+    },
+    {
+      "timestamp": "2026-03-24T13:42:10.922458+00:00",
+      "signal": "Exxon Mobil",
+      "verdict": "REDUCE",
+      "kelly_half_risk": 542.02,
+      "recommended_risk": 401.13
+    },
+    {
+      "timestamp": "2026-03-24T13:42:25.811785+00:00",
+      "signal": "Exxon Mobil",
+      "verdict": "REDUCE",
+      "kelly_half_risk": 542.02,
+      "recommended_risk": 401.13
+    }
+  ]
 }

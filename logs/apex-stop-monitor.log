@@ -117,3 +117,214 @@ Visa: £302.42 | Entry £300.27 | Stop £282.45 | T1 £327.53 | R:0.12
 Apple: £248.63 | Entry £248.63 | Stop £233.71 | T1 £271.01 | R:0.0
 No trailing stop updates needed
 Fri Mar 20 16:30:02 UTC 2026: Stop monitor complete
+Mon Mar 23 09:00:05 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 09:00:06 UTC 2026: Stop monitor complete
+Mon Mar 23 09:30:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 09:30:03 UTC 2026: Stop monitor complete
+Mon Mar 23 10:00:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 10:00:03 UTC 2026: Stop monitor complete
+Mon Mar 23 10:30:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 10:30:03 UTC 2026: Stop monitor complete
+Mon Mar 23 11:00:02 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 11:00:03 UTC 2026: Stop monitor complete
+Mon Mar 23 11:30:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 11:30:03 UTC 2026: Stop monitor complete
+Mon Mar 23 12:00:04 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 12:00:04 UTC 2026: Stop monitor complete
+Mon Mar 23 12:30:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 12:30:03 UTC 2026: Stop monitor complete
+Mon Mar 23 13:00:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 13:00:04 UTC 2026: Stop monitor complete
+Mon Mar 23 13:30:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 13:30:03 UTC 2026: Stop monitor complete
+Mon Mar 23 14:00:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 14:00:03 UTC 2026: Stop monitor complete
+Mon Mar 23 14:30:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 14:30:03 UTC 2026: Stop monitor complete
+Mon Mar 23 15:00:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 15:00:03 UTC 2026: Stop monitor complete
+Mon Mar 23 15:30:02 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 15:30:03 UTC 2026: Stop monitor complete
+Mon Mar 23 16:00:03 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 16:00:03 UTC 2026: Stop monitor complete
+Mon Mar 23 16:30:02 UTC 2026: Running stop monitor
+No trailing stop updates needed
+Mon Mar 23 16:30:03 UTC 2026: Stop monitor complete
+Tue Mar 24 09:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Vanguard S&P 500 (Acc): £94.478 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.21 | MAE:-0.65% MFE:0%
+Exxon Mobil: £161.38 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.37 | MAE:0% MFE:1.59%
+Visa: £303.98 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.44 | MAE:0% MFE:1.24%
+Apple: £251.49 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.32 | MAE:0% MFE:1.15%
+Updated positions: Vanguard S&P 500 (Acc), Exxon Mobil, Visa, Apple
+Tue Mar 24 09:00:11 UTC 2026: Stop monitor complete
+Tue Mar 24 09:30:02 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Vanguard S&P 500 (Acc): £94.478 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.21 | MAE:-0.65% MFE:0%
+Exxon Mobil: £161.56 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.4 | MAE:0% MFE:1.7%
+Visa: £303.44 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.38 | MAE:0% MFE:1.24%
+Apple: £251.1 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.28 | MAE:0% MFE:1.15%
+Updated positions: Exxon Mobil
+Tue Mar 24 09:30:10 UTC 2026: Stop monitor complete
+Tue Mar 24 10:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Vanguard S&P 500 (Acc): £94.557 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.19 | MAE:-0.65% MFE:0%
+Exxon Mobil: £161.47 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.38 | MAE:0% MFE:1.7%
+Visa: £303.52 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.39 | MAE:0% MFE:1.24%
+Apple: £251.75 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.35 | MAE:0% MFE:1.25%
+Updated positions: Apple
+Tue Mar 24 10:00:11 UTC 2026: Stop monitor complete
+Tue Mar 24 10:30:02 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Vanguard S&P 500 (Acc): £94.558 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.19 | MAE:-0.65% MFE:0%
+Exxon Mobil: £161.41 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.37 | MAE:0% MFE:1.7%
+Visa: £304.07 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.45 | MAE:0% MFE:1.27%
+Apple: £251.5 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.32 | MAE:0% MFE:1.25%
+Updated positions: Visa
+Tue Mar 24 10:30:10 UTC 2026: Stop monitor complete
+Tue Mar 24 11:00:01 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Vanguard S&P 500 (Acc): £94.577 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.18 | MAE:-0.65% MFE:0%
+Exxon Mobil: £161.58 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.4 | MAE:0% MFE:1.71%
+Visa: £304.53 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.51 | MAE:0% MFE:1.42%
+Apple: £251.51 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.32 | MAE:0% MFE:1.25%
+Updated positions: Exxon Mobil, Visa
+Tue Mar 24 11:00:09 UTC 2026: Stop monitor complete
+Tue Mar 24 11:30:02 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Vanguard S&P 500 (Acc): £94.451 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.22 | MAE:-0.68% MFE:0%
+Exxon Mobil: £161.58 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.4 | MAE:0% MFE:1.71%
+Visa: £304.46 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.5 | MAE:0% MFE:1.42%
+Apple: £251.4 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.31 | MAE:0% MFE:1.25%
+Updated positions: Vanguard S&P 500 (Acc)
+Tue Mar 24 11:30:09 UTC 2026: Stop monitor complete
+Tue Mar 24 12:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Vanguard S&P 500 (Acc): £94.408 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.24 | MAE:-0.73% MFE:0%
+Exxon Mobil: £161.57 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.4 | MAE:0% MFE:1.71%
+Visa: £304.46 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.5 | MAE:0% MFE:1.42%
+Apple: £251.3 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.3 | MAE:0% MFE:1.25%
+Updated positions: Vanguard S&P 500 (Acc)
+Tue Mar 24 12:00:11 UTC 2026: Stop monitor complete
+Tue Mar 24 12:30:09 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Vanguard S&P 500 (Acc): £94.401 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.24 | MAE:-0.74% MFE:0%
+Exxon Mobil: £161.7 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.42 | MAE:0% MFE:1.79%
+Visa: £303.36 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.37 | MAE:0% MFE:1.42%
+Apple: £251.13 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.28 | MAE:0% MFE:1.25%
+Updated positions: Vanguard S&P 500 (Acc), Exxon Mobil
+Tue Mar 24 12:30:17 UTC 2026: Stop monitor complete
+Tue Mar 24 13:00:02 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Vanguard S&P 500 (Acc): £94.161 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.32 | MAE:-0.99% MFE:0%
+Visa: £303.16 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.34 | MAE:0% MFE:1.42%
+Apple: £250.8 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.24 | MAE:0% MFE:1.25%
+Exxon Mobil: £161.56 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.4 | MAE:0% MFE:1.79%
+Updated positions: Vanguard S&P 500 (Acc)
+Tue Mar 24 13:00:10 UTC 2026: Stop monitor complete
+Tue Mar 24 13:30:02 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.178 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.32 | MAE:-0.99% MFE:0%
+Visa: £302.73 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.29 | MAE:0% MFE:1.42%
+Apple: £250.68 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.23 | MAE:0% MFE:1.25%
+Exxon Mobil: £161.72 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.42 | MAE:0% MFE:1.8%
+Updated positions: Exxon Mobil
+Tue Mar 24 13:30:10 UTC 2026: Stop monitor complete
+Tue Mar 24 14:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.097 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.35 | MAE:-1.05% MFE:0%
+Visa: £301.98 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.2 | MAE:0% MFE:1.42%
+Apple: £251.91 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.37 | MAE:0% MFE:1.32%
+Exxon Mobil: £164.76 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.86 | MAE:0% MFE:3.71%
+CVX: £207.41 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.01 | MAE:0% MFE:0.04%
+ABBV: £202.69 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:-0.05 | MAE:-0.29% MFE:0%
+Updated positions: Vanguard S&P 500 (Acc), Apple, Exxon Mobil, CVX, ABBV
+Tue Mar 24 14:00:11 UTC 2026: Stop monitor complete
+Tue Mar 24 14:30:02 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.173 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.32 | MAE:-1.05% MFE:0%
+Visa: £302.18 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.23 | MAE:0% MFE:1.42%
+Apple: £252.54 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.44 | MAE:0% MFE:1.57%
+Exxon Mobil: £165.82 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.02 | MAE:0% MFE:4.38%
+CVX: £209.15 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.15 | MAE:0% MFE:0.88%
+ABBV: £204.54 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.1 | MAE:-0.29% MFE:0.62%
+Updated positions: Apple, Exxon Mobil, CVX, ABBV
+Tue Mar 24 14:30:10 UTC 2026: Stop monitor complete
+Tue Mar 24 15:00:02 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.349 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.26 | MAE:-1.05% MFE:0%
+Visa: £304.01 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.44 | MAE:0% MFE:1.42%
+Apple: £252.52 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.44 | MAE:0% MFE:1.57%
+Exxon Mobil: £166.07 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.06 | MAE:0% MFE:4.54%
+CVX: £208.34 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.08 | MAE:0% MFE:0.88%
+ABBV: £204.38 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.09 | MAE:-0.29% MFE:0.62%
+Updated positions: Exxon Mobil
+Tue Mar 24 15:00:10 UTC 2026: Stop monitor complete
+Tue Mar 24 15:30:02 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.659 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.15 | MAE:-1.05% MFE:0%
+Visa: £304.38 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.49 | MAE:0% MFE:1.42%
+Apple: £254.02 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.61 | MAE:0% MFE:2.17%
+Exxon Mobil: £166.66 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.14 | MAE:0% MFE:4.91%
+CVX: £208.79 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.12 | MAE:0% MFE:0.88%
+ABBV: £205.79 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.21 | MAE:-0.29% MFE:1.24%
+Updated positions: Apple, Exxon Mobil, ABBV
+Tue Mar 24 15:30:10 UTC 2026: Stop monitor complete
+Tue Mar 24 16:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.681 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.14 | MAE:-1.05% MFE:0%
+Visa: £303.78 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.42 | MAE:0% MFE:1.42%
+Apple: £253.93 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.6 | MAE:0% MFE:2.17%
+Exxon Mobil: £167.33 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.24 | MAE:0% MFE:5.33%
+CVX: £209.44 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.17 | MAE:0% MFE:1.02%
+ABBV: £205.6 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.19 | MAE:-0.29% MFE:1.24%
+Updated positions: Exxon Mobil, CVX
+Tue Mar 24 16:00:12 UTC 2026: Stop monitor complete
+Tue Mar 24 16:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.703 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.14 | MAE:-1.05% MFE:0%
+Visa: £304.81 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.54 | MAE:0% MFE:1.51%
+Apple: £254.63 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.67 | MAE:0% MFE:2.41%
+Exxon Mobil: £166.14 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.07 | MAE:0% MFE:5.33%
+CVX: £208.76 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.12 | MAE:0% MFE:1.02%
+ABBV: £205.46 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.18 | MAE:-0.29% MFE:1.24%
+Updated positions: Visa, Apple
+Tue Mar 24 16:30:10 UTC 2026: Stop monitor complete

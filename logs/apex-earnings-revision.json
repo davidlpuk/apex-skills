@@ -1,0 +1,12 @@
+{
+  "instruments": {
+    "AAPL": {
+      "fetched_at": "2026-03-24T18:09:48.212378+00:00",
+      "raises": 0,
+      "cuts": 0,
+      "adjustment": 0.0,
+      "reasons": []
+    }
+  },
+  "last_updated": "2026-03-24T18:09:48.212378+00:00"
+}

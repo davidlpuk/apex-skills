@@ -29,7 +29,7 @@ def load_slippage():
 def save_slippage(data):
     atomic_write(SLIPPAGE_FILE, data)
 
-def log_slippage(name, ticker, intended_price, actual_price, quantity, side="BUY"):
+def log_slippage(name, ticker, intended_price, actual_price, quantity, side="BUY", stop_price=0):
     db      = load_slippage()
     now     = datetime.now(timezone.utc)
 
@@ -38,18 +38,26 @@ def log_slippage(name, ticker, intended_price, actual_price, quantity, side="BUY
     slip_cost      = round(abs(slip_per_share) * quantity, 2)
     direction      = "AGAINST" if slip_per_share > 0 else ("IN_FAVOUR" if slip_per_share < 0 else "NONE")
 
+    # Cost as % of risk budget
+    risk_per_share   = abs(intended_price - stop_price) if stop_price > 0 else intended_price * 0.06
+    risk_gbp         = round(risk_per_share * quantity, 2)
+    cost_as_pct_risk = round(slip_cost / risk_gbp * 100, 1) if risk_gbp > 0 else 0.0
+
     record = {
-        "date":           now.strftime('%Y-%m-%d'),
-        "name":           name,
-        "ticker":         ticker,
-        "side":           side,
-        "intended_price": intended_price,
-        "actual_price":   actual_price,
-        "quantity":       quantity,
-        "slip_per_share": slip_per_share,
-        "slip_pct":       slip_pct,
-        "slip_cost":      slip_cost,
-        "direction":      direction
+        "date":             now.strftime('%Y-%m-%d'),
+        "name":             name,
+        "ticker":           ticker,
+        "side":             side,
+        "intended_price":   intended_price,
+        "actual_price":     actual_price,
+        "quantity":         quantity,
+        "slip_per_share":   slip_per_share,
+        "slip_pct":         slip_pct,
+        "slip_cost":        slip_cost,
+        "direction":        direction,
+        "stop_price":       stop_price,
+        "risk_gbp":         risk_gbp,
+        "cost_as_pct_risk": cost_as_pct_risk,
     }
 
     db['records'].append(record)
@@ -111,5 +119,6 @@ if __name__ == '__main__':
             intended_price=float(sys.argv[4]),
             actual_price=float(sys.argv[5]),
             quantity=float(sys.argv[6]),
-            side=sys.argv[7] if len(sys.argv) > 7 else "BUY"
+            side=sys.argv[7] if len(sys.argv) > 7 else "BUY",
+            stop_price=float(sys.argv[8]) if len(sys.argv) > 8 else 0,
         )

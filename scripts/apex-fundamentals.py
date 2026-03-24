@@ -23,30 +23,106 @@ except ImportError:
 
 FUNDAMENTALS_FILE = '/home/ubuntu/.picoclaw/logs/apex-fundamentals.json'
 
-def load_env():
-    env = {}
+def _get_api_key():
     try:
-        with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
-            for line in f:
-                line = line.strip()
-                if '=' in line and not line.startswith('#'):
-                    k, v = line.split('=', 1)
-                    env[k.strip()] = v.strip()
-    except:
-        pass
-    return env
+        from apex_config import get_env
+        return get_env('FMP_API_KEY', '')
+    except ImportError:
+        try:
+            with open('/home/ubuntu/.picoclaw/.env.trading212') as f:
+                for line in f:
+                    if line.strip().startswith('FMP_API_KEY='):
+                        return line.strip().split('=', 1)[1]
+        except Exception:
+            pass
+        return ''
 
-API_KEY = load_env().get('FMP_API_KEY', '')
+API_KEY = _get_api_key()
 BASE    = 'https://financialmodelingprep.com/stable'
 
-# Universe to fetch fundamentals for
-FUNDAMENTAL_UNIVERSE = [
+# Base universe — always included regardless of quality-universe file
+_BASE_UNIVERSE = [
     "AAPL","MSFT","NVDA","GOOGL","AMZN","META",
     "JPM","GS","V","BAC","BLK",
     "JNJ","PFE","UNH","ABBV",
     "XOM","CVX",
     "KO","PEP","PG","WMT",
 ]
+
+def _us_listed_tickers():
+    """
+    Return a set of tickers that are US-listed, based on apex-ticker-map.json.
+    A ticker is considered US-listed if its T212 ticker ends in '_US_EQ'
+    or its currency is 'USD'.  Tickers starting with a digit (e.g. 3UKS)
+    are always excluded — US exchanges don't use numeric-prefixed tickers.
+    """
+    us = set()
+    try:
+        tm_path = '/home/ubuntu/.picoclaw/scripts/apex-ticker-map.json'
+        with open(tm_path) as f:
+            tm = json.load(f)
+        for ticker, meta in tm.items():
+            if ticker[0].isdigit():
+                continue
+            if not isinstance(meta, dict):
+                continue  # legacy string-value entries
+            t212 = meta.get('t212', '')
+            ccy  = meta.get('currency', '')
+            if t212.endswith('_US_EQ') or ccy == 'USD':
+                us.add(ticker)
+    except Exception as e:
+        log_warning(f'Could not read ticker map for US filter: {e}')
+    return us
+
+
+def build_universe():
+    """
+    Build the full fundamental universe dynamically.
+    Merges the hardcoded base list with every US-listed stock currently in
+    apex-quality-universe.json (which includes user-added stocks from
+    the watchlist).  Non-US / UK / ETF tickers are excluded because FMP
+    free tier only covers US-listed equities.
+    """
+    us_tickers = _us_listed_tickers()
+    universe = set(_BASE_UNIVERSE)
+    try:
+        qu_path = '/home/ubuntu/.picoclaw/scripts/apex-quality-universe.json'
+        with open(qu_path) as f:
+            qu = json.load(f)
+        for ticker in qu.get('quality_stocks', {}).keys():
+            if ticker[0].isdigit():
+                continue  # numeric-prefix = non-US ETF
+            if '.' in ticker:
+                continue  # e.g. BRK.B style — handle separately if needed
+            # Accept if explicitly US-listed OR if not in ticker map at all
+            # (base universe stocks pre-date the map)
+            if ticker in us_tickers or ticker not in _us_listed_tickers.__globals__.get('_tm_cache', {}):
+                universe.add(ticker)
+    except Exception as e:
+        log_warning(f'Could not read quality universe: {e}')
+
+    # Final guard: remove anything that is explicitly non-US per ticker map
+    try:
+        tm_path = '/home/ubuntu/.picoclaw/scripts/apex-ticker-map.json'
+        with open(tm_path) as f:
+            tm = json.load(f)
+        to_remove = set()
+        for t in universe:
+            if t in tm:
+                meta = tm[t]
+                t212 = meta.get('t212', '')
+                ccy  = meta.get('currency', '')
+                # Known non-US: GBX/GBP currency or T212 ticker without _US_EQ
+                if ccy in ('GBP', 'GBX', 'EUR') or (t212 and not t212.endswith('_US_EQ')):
+                    to_remove.add(t)
+        universe -= to_remove
+    except Exception:
+        pass
+
+    return sorted(universe)
+
+# Dynamic universe — rebuilt each run so new watchlist additions are included
+FUNDAMENTAL_UNIVERSE = build_universe()
 
 def fmp_request(endpoint, params=None):
     p = params or {}
@@ -212,13 +288,32 @@ def classify_fundamental_score(score):
     if score >= 2: return "WEAK"
     return "POOR"
 
-def run():
+def run(symbols=None):
+    """
+    Fetch and score fundamentals.
+
+    Args:
+        symbols: optional list of specific tickers to fetch/refresh.
+                 If None, fetches the full dynamic universe.
+                 Existing data for other tickers is preserved when symbols is given.
+    """
     now     = datetime.now(timezone.utc)
-    results = {}
+    universe = symbols if symbols else build_universe()
 
-    print(f"Fetching fundamentals for {len(FUNDAMENTAL_UNIVERSE)} instruments...", flush=True)
+    # If fetching a subset, load existing data so we can merge
+    if symbols:
+        try:
+            with open(FUNDAMENTALS_FILE) as f:
+                existing = json.load(f)
+            results = existing.get('data', {})
+        except Exception:
+            results = {}
+    else:
+        results = {}
 
-    for symbol in FUNDAMENTAL_UNIVERSE:
+    print(f"Fetching fundamentals for {len(universe)} instruments...", flush=True)
+
+    for symbol in universe:
         print(f"  {symbol}...", flush=True)
 
         profile = get_profile(symbol)
@@ -248,6 +343,7 @@ def run():
         'timestamp': now.strftime('%Y-%m-%d %H:%M UTC'),
         'count':     len(results),
         'data':      results,
+        'partial':   symbols is not None,
     }
 
     atomic_write(FUNDAMENTALS_FILE, output)

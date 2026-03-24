@@ -19,13 +19,14 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, send_telegram
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
         return True
     def log_error(m): print(f'ERROR: {m}')
-    def log_warning(m): print(f'WARRANTY: {m}')
+    def log_warning(m): print(f'WARNING: {m}')
+    def send_telegram(m): print(f'TELEGRAM: {m[:80]}')
 
 SHAW_FILE      = '/home/ubuntu/.picoclaw/logs/apex-shaw-test.json'
 SLIPPAGE_FILE  = '/home/ubuntu/.picoclaw/logs/apex-slippage.json'
@@ -36,7 +37,7 @@ SLIPPAGE_ALERT_PCT = 0.75  # Alert if slippage > 0.75%
 FILL_TIMEOUT_MINS  = 30    # Flag unfilled orders after 30 mins
 
 def record_fill(signal_name, ticker, signal_price, fill_price,
-                quantity, signal_type, order_type='LIMIT'):
+                quantity, signal_type, order_type='LIMIT', stop_price=0):
     """
     Record an actual fill and calculate slippage.
     Called immediately after every order confirmation.
@@ -60,6 +61,11 @@ def record_fill(signal_name, ticker, signal_price, fill_price,
     fx_cost    = round(fill_price * quantity * 0.0015, 2) if is_usd else 0
     total_cost = round(slip_gbp + fx_cost, 2)
 
+    # Cost as % of risk budget — if stop is 2% away and costs are 0.6%, that's 30% of risk
+    _risk_per_share  = abs(signal_price - stop_price) if stop_price > 0 else signal_price * 0.06
+    _risk_gbp        = round(_risk_per_share * quantity, 2)
+    cost_as_pct_risk = round(total_cost / _risk_gbp * 100, 1) if _risk_gbp > 0 else 0.0
+
     # Impact on EV
     # Every £1 of slippage reduces EV by £1
     ev_impact = -total_cost
@@ -80,8 +86,11 @@ def record_fill(signal_name, ticker, signal_price, fill_price,
         'slip_direction':slip_direction,
         'fx_cost_gbp':   fx_cost,
         'total_cost_gbp':total_cost,
-        'ev_impact':     ev_impact,
-        'is_usd':        is_usd,
+        'ev_impact':      ev_impact,
+        'is_usd':         is_usd,
+        'stop_price':     stop_price,
+        'risk_gbp':       _risk_gbp,
+        'cost_as_pct_risk': cost_as_pct_risk,
     }
 
     # Load and append to slippage log
@@ -95,6 +104,16 @@ def record_fill(signal_name, ticker, signal_price, fill_price,
     # Alert on large slippage
     if slip_pct > SLIPPAGE_ALERT_PCT:
         log_warning(f"HIGH SLIPPAGE: {signal_name} {slip_pct}% (£{slip_gbp}) on {fill_price} vs signal {signal_price}")
+
+    # Alert if friction burns >25% of risk budget
+    if cost_as_pct_risk > 25 and _risk_gbp > 0:
+        send_telegram(
+            f"⚠️ HIGH FRICTION COST — {signal_name}\n\n"
+            f"Transaction cost = {cost_as_pct_risk:.0f}% of risk budget\n"
+            f"Cost: £{total_cost} | Risk: £{_risk_gbp}\n\n"
+            f"Consider wider stop or larger position to improve cost efficiency."
+        )
+        log_warning(f"Friction cost {cost_as_pct_risk:.0f}% of risk on {signal_name}")
 
     return record
 
@@ -189,8 +208,16 @@ def audit_signal_liquidity(signal):
 
     round_trip = round(total_cost + exit_ghost, 2)
 
+    # Cost as % of risk budget — pre-trade estimate
+    stop_price       = float(signal.get('stop', 0))
+    risk_per_share   = abs(entry - stop_price) if stop_price > 0 else entry * 0.06
+    risk_gbp         = round(risk_per_share * quantity, 2)
+    est_cost_pct_risk = round(round_trip / risk_gbp * 100, 1) if risk_gbp > 0 else 0.0
+
     verdict = "APPROVED"
-    if estimated_slip_pct > SLIPPAGE_ALERT_PCT:
+    if est_cost_pct_risk > 30:
+        verdict = f"BLOCK — est. cost {est_cost_pct_risk:.0f}% of risk budget (>30% threshold)"
+    elif estimated_slip_pct > SLIPPAGE_ALERT_PCT:
         verdict = "REDUCE — high historical slippage on this instrument"
     elif estimated_slip_pct > SLIPPAGE_WARN_PCT:
         verdict = "CAUTION — above average slippage expected"
@@ -206,6 +233,8 @@ def audit_signal_liquidity(signal):
         'entry_cost_gbp':      total_cost,
         'exit_ghost_gbp':      exit_ghost,
         'round_trip_cost_gbp': round_trip,
+        'risk_gbp':            risk_gbp,
+        'est_cost_pct_risk':   est_cost_pct_risk,
         'data_source':         data_source,
         'verdict':             verdict,
     }

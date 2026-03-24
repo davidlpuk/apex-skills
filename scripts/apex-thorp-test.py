@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, log_warning
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, get_portfolio_value
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -116,11 +116,13 @@ def check_ruination_risk(kelly_fraction, portfolio_value, risk_per_trade, consec
         f"After {consecutive_losses} losses: -{drawdown_pct}% ({survival_pct}% remaining)"
     )
 
-def calculate_optimal_size(signal, portfolio_value=5000):
+def calculate_optimal_size(signal, portfolio_value=None):
     """
     Calculate Kelly-optimal position size for a signal.
     Returns full sizing recommendation with ruination check.
     """
+    if portfolio_value is None:
+        portfolio_value = get_portfolio_value() or 5000
     sig_type   = signal.get('signal_type', 'TREND')
     entry      = float(signal.get('entry', 0))
     stop       = float(signal.get('stop', 0))
@@ -274,7 +276,7 @@ def run():
     print(f"  {'Signal Type':20} {'WR':8} {'Full Kelly':12} {'Half Kelly':12} {'£ Risk*':10}")
     print(f"  {'-'*65}")
 
-    portfolio = 5000
+    portfolio = get_portfolio_value() or 5000
     results   = {}
 
     for sig_type, stats in BACKTEST_PRIORS.items():
@@ -322,8 +324,10 @@ def run():
     print(f"\n✅ Thorp test saved")
     return output
 
-def audit_signal(signal, portfolio_value=5000):
+def audit_signal(signal, portfolio_value=None):
     """Called by decision engine for every signal."""
+    if portfolio_value is None:
+        portfolio_value = get_portfolio_value() or 5000
     result = calculate_optimal_size(signal, portfolio_value)
     if not result:
         return None
@@ -359,7 +363,7 @@ if __name__ == '__main__':
         'target1': 171.02, 'rsi': 61.9,
         'confidence_pct': 73.3,
     }
-    result = calculate_optimal_size(test_signal, 5000)
+    result = calculate_optimal_size(test_signal, get_portfolio_value() or 5000)
     if result:
         print(f"\n  Win rate used:      {round(result['win_rate']*100,1)}% ({result['stats_source']})")
         print(f"  Full Kelly:         {result['kelly_full_pct']}% = £{result['kelly_full_risk']}")

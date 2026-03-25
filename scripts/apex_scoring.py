@@ -36,11 +36,19 @@ _LAYER_WEIGHT_CACHE = {}
 _LAYER_WEIGHT_LOADED = False
 
 
+_LEARNED_WEIGHTS_FILE = f'{_LOGS}/apex-learned-weights.json'
+
 def _load_layer_weights() -> dict:
     """
-    Load adaptive layer weights from backtest v2 OOS ablation results.
+    Load adaptive layer weights — prefers Bayesian learned weights over static
+    backtest ablation step-function.
 
-    Weight mapping (from layers_impact in insights):
+    Priority:
+    1. apex-learned-weights.json (Bayesian, continuous [0.3–1.5]) — if present
+       and n_signals_matched >= 10
+    2. apex-backtest-v2-insights.json (4-level step function) — fallback
+
+    Weight mapping for fallback (from layers_impact in insights):
         significant=True  AND lift >= 2.0%  → 1.2  (amplify: strongly validated)
         significant=True  AND lift >= 0.5%  → 1.0  (neutral: validated)
         significant=False AND lift >= 0.5%  → 0.75 (reduce: marginal significance)
@@ -53,6 +61,22 @@ def _load_layer_weights() -> dict:
     if _LAYER_WEIGHT_LOADED:
         return _LAYER_WEIGHT_CACHE
 
+    # ── Primary: Bayesian learned weights ──────────────────────────
+    try:
+        learned = safe_read(_LEARNED_WEIGHTS_FILE, {})
+        if learned and learned.get('n_signals_matched', 0) >= 10:
+            layers = learned.get('layers', {})
+            weights = {k: v.get('weight', 1.0) for k, v in layers.items()}
+            if weights:
+                log_info(f"Learned weights loaded ({learned['n_signals_matched']} matched): "
+                         f"{', '.join(f'{k}={v:.2f}' for k,v in sorted(weights.items()))}")
+                _LAYER_WEIGHT_CACHE  = weights
+                _LAYER_WEIGHT_LOADED = True
+                return weights
+    except Exception as e:
+        log_warning(f"Learned weights load failed (falling back): {e}")
+
+    # ── Fallback: backtest v2 OOS ablation step-function ───────────
     try:
         bt     = safe_read(_BT_INSIGHTS_V2, {})
         layers = bt.get('layers_impact', {})
@@ -824,6 +848,48 @@ def score_signal_with_intelligence(signal, intel):
     except Exception as _e:
         failed_layers.append('ADAPTER')
         log_error(f"Score adapter failed (non-fatal): {_e}")
+
+    # Layer 19: Adversarial exploitation boost
+    # Reads apex-adversarial-results.json exploitation_opportunities; applies
+    # +1 score when the current signal matches a validated positive pattern
+    # (>= 15 trades, lower CI > 0.60). Capped at +1 total from this layer.
+    try:
+        _adv = safe_read(f'{_LOGS}/apex-adversarial-results.json', {})
+        _exploit_ops = _adv.get('exploitation_opportunities', [])
+        _adv_boost = 0.0
+        _adv_reasons = []
+        for _op in _exploit_ops:
+            if _op.get('n_trades', 0) < 15:
+                continue
+            if _op.get('win_rate_ci', [0, 0])[0] < 0.60:
+                continue
+            _dims = _op.get('dimensions', {})
+            _match = True
+            for _dim_key, _dim_val in _dims.items():
+                if _dim_key == 'signal_type' and signal_type != _dim_val:
+                    _match = False; break
+                elif _dim_key == 'sector':
+                    _sig_sector = signal.get('sector', intel.get('sector', ''))
+                    if _sig_sector != _dim_val:
+                        _match = False; break
+                elif _dim_key == 'rsi_bucket':
+                    _rsi = signal.get('rsi', 50)
+                    _rsi_b = ('<30' if _rsi < 30 else '30-45' if _rsi < 45 else
+                              '45-60' if _rsi < 60 else '>60')
+                    if _rsi_b != _dim_val:
+                        _match = False; break
+            if _match:
+                _adv_boost = min(1.0, _adv_boost + 1.0)
+                _adv_reasons.append(
+                    f"Adversarial: +1 (validated edge: {_op.get('condition','?')[:60]} "
+                    f"WR={_op.get('win_rate',0):.0%} n={_op.get('n_trades',0)})"
+                )
+                break  # cap at one boost
+        if _adv_boost > 0:
+            total_score += _adv_boost
+            adjustments.extend(_adv_reasons)
+    except Exception as _adv_e:
+        pass  # Layer 19 is fully optional — silent failure
 
     # Layer confidence — how many of the 14 tracked layers ran without error
     _TOTAL_TRACKED_LAYERS = 15  # 14 original + VOL_ACCUMULATION

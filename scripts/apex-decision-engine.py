@@ -1296,6 +1296,38 @@ def run():
     # Log this decision run (all candidates, scores, blocks, winner)
     log_decision_run(all_signals, blocked_map, qualified, best, intel)
 
+    # ── Monte Carlo rollout simulation ────────────────────────────
+    try:
+        _rollout_mod = _load_module('rollout', f'{SCRIPTS}/apex-rollout-sim.py')
+        if _rollout_mod:
+            _sim_signal = {
+                'name': best.get('name', '?'),
+                't212_ticker': best.get('t212_ticker', ''),
+                'ticker': best.get('ticker', ''),
+                'entry': entry,
+                'stop': stop,
+                'target1': t1,
+                'target2': t2,
+                'signal_type': best.get('signal_type', 'TREND'),
+                'atr': best.get('atr_used', best.get('atr', 0)),
+            }
+            _sim_result = _rollout_mod.simulate_trade_montecarlo(
+                _sim_signal, intel)
+            if _sim_result and _sim_result.get('verdict') != 'SKIP':
+                best['sim_win_rate']    = _sim_result.get('sim_win_rate')
+                best['sim_expected_r']  = _sim_result.get('sim_expected_r')
+                best['sim_verdict']     = _sim_result.get('verdict')
+                best['sim_p_day1_stop'] = _sim_result.get('sim_p_day1_stop')
+                _sv = _sim_result.get('verdict', 'PASS')
+                print(f"  Rollout sim: {_sv} | WR={_sim_result.get('sim_win_rate',0):.0%} "
+                      f"| E[R]={_sim_result.get('sim_expected_r',0):+.2f} "
+                      f"| Day1Stop={_sim_result.get('sim_p_day1_stop',0):.0%}")
+                if _sv == 'FAIL':
+                    print(f"  ⚠️  Rollout FAIL — simulation suggests poor risk structure")
+                    # Advisory penalty, logged but not blocking
+    except Exception as _sim_e:
+        print(f"  Rollout sim skipped: {_sim_e}")
+
     # Save and notify
     pending = save_and_notify(best, intel, qty, notional)
     print(f"\n  Signal saved: {pending.get('name')} | {qty} shares @ £{best.get('entry',0)}")

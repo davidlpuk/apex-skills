@@ -5,6 +5,47 @@
 
 ---
 
+## 2026-03-25 — AlphaGo-inspired learning capabilities (4-phase implementation)
+
+**Files changed (new):**
+- `scripts/apex-trajectory-tracker.py` → `logs/apex-trajectory-state.json`
+- `scripts/apex-rollout-sim.py` → `logs/apex-rollout-results.json`
+- `scripts/apex-weight-optimizer.py` (rewritten) → `logs/apex-learned-weights.json`
+- `scripts/apex-adversarial-test.py` → `logs/apex-adversarial-results.json`
+- `scripts/apex-trajectory-learner.py` → `logs/apex-trajectory-insights.json`
+- `scripts/apex-regime-fuzzer.py` → `logs/apex-regime-fuzz-results.json`
+
+**Files changed (modified):**
+- `scripts/apex_scoring.py` — `_load_layer_weights()` now prefers `apex-learned-weights.json` (Bayesian, continuous [0.3–1.5]) over static step-function; added Layer 19 (adversarial exploitation boost, +1 for validated positive patterns)
+- `scripts/apex_filters.py` — Added `is_adversarial_blocked()` + integrated into `is_blocked()`; reads anti-rules from `apex-adversarial-results.json`
+- `scripts/apex-decision-engine.py` — Integrated Monte Carlo rollout sim after EV calculation (advisory soft gate: -1 if sim_win_rate < 35% or day1_stop > 25%)
+- `scripts/apex-trailing-stop.py` — `_sortino_partial_fraction()` now accepts position; trajectory insights can override fraction to 33% for T2-runner profile trades
+
+### Phase 1 — Foundation
+- **Trajectory tracker** (runs daily 16:35): snapshots open position P&L daily (r_current, MAE, MFE, edge_velocity, stop_distance_pct). Archives complete trajectory + outcome when trade closes. Capped at 200 completed trajectories.
+- **Monte Carlo rollout** (inline in decision engine): 1000 GBM paths using recent vol + VIX inflation. Tests stop/T1/T2 structure. Outputs sim_win_rate, sim_expected_r, sim_p_day1_stop, verdict.
+
+### Phase 2 — Core Learning
+- **Bayesian weight optimizer** (runs Mon 07:07): replaces simple win-rate optimizer. Maintains Beta(α,β) distributions per layer, seeded from backtest priors (Beta(5,5) uninformative). Updates from matched decision_log → outcomes pairs. Layer weight = 0.3 + 1.2 × posterior_mean. Activates (replaces step-function) at 10+ matched signal-outcome pairs.
+
+### Phase 3 — Adversarial
+- **Adversarial tester** (runs Mon 07:10): combinatorial cross-tabs across 8 dimensions (signal_type, VIX, RSI, regime, breadth, day, sector, score). Wilson CI flags failure modes (upper CI < 45%) and exploitation opportunities (lower CI > 60%). Generates anti-rules for filter pipeline.
+
+### Phase 4 — Trajectory Learning
+- **Trajectory learner** (runs Mon 07:05): learns early-cut (r < -0.3R by day 2 → recommend early exit if recovery < 30%) and T2-runner (velocity > 0.2R/day at midpoint → reduce T1 partial if T2 rate > 60%).
+- **Regime fuzzer** (monthly): 3 stress scenarios (VIX spike to 40, breadth collapse, geo+CB storm). Validates circuit breaker and regime scaling respond correctly.
+
+### Cron additions needed
+```
+07:05 Mon  /home/ubuntu/.picoclaw/scripts/apex-trajectory-learner.py
+07:10 Mon  /home/ubuntu/.picoclaw/scripts/apex-adversarial-test.py
+16:35 Daily /home/ubuntu/.picoclaw/scripts/apex-trajectory-tracker.py
+Monthly    /home/ubuntu/.picoclaw/scripts/apex-regime-fuzzer.py
+```
+(07:07 Mon weight-optimizer already in cron — script replaced in-place)
+
+---
+
 ## 2026-03-25 — Fix black swan: volume collapse false alarms during market hours
 
 **Files changed:** `scripts/apex-blackswan-test.py`

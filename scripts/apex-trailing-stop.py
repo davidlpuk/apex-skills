@@ -33,27 +33,65 @@ SHARPE_FILE    = '/home/ubuntu/.picoclaw/logs/apex-sharpe.json'
 LOG            = '/home/ubuntu/.picoclaw/logs/apex-orders.log'
 
 
-def _sortino_partial_fraction():
+_TRAJECTORY_INSIGHTS_FILE = '/home/ubuntu/.picoclaw/logs/apex-trajectory-insights.json'
+
+
+def _sortino_partial_fraction(position=None):
     """
     Dynamic partial close fraction at T1, based on Sortino ratio.
     Sortino >= 2.0 → 33%  (system proven — let winners run)
     Sortino >= 1.0 → 50%  (default)
     Sortino < 0.5  → 66%  (unproven — bank more)
     Cold-start (< 5 trades): 50%
+
+    Trajectory override (when apex-trajectory-insights.json available):
+    - If t2_runner is recommended AND position velocity matches profile → 33%
+    - Base Sortino calculation otherwise.
     """
+    base = 0.5
     try:
         data = safe_read(SHARPE_FILE, {})
         if data.get('total_trades', 0) < 5:
-            return 0.5
-        sortino = float(data.get('sortino_ratio', data.get('sharpe_ratio', 0)))
-        if sortino >= 2.0:
-            return 0.33
-        elif sortino >= 1.0:
-            return 0.50
+            base = 0.5
         else:
-            return 0.66
+            sortino = float(data.get('sortino_ratio', data.get('sharpe_ratio', 0)))
+            if sortino >= 2.0:
+                base = 0.33
+            elif sortino >= 1.0:
+                base = 0.50
+            else:
+                base = 0.66
     except Exception:
-        return 0.5
+        base = 0.5
+
+    # Trajectory insights override — reduce partial if position looks like a T2 runner
+    if position:
+        try:
+            insights = safe_read(_TRAJECTORY_INSIGHTS_FILE, {})
+            t2 = insights.get('t2_runner', {})
+            if (insights.get('status') == 'OK'
+                    and t2.get('recommended', False)
+                    and t2.get('partial_fraction_override')):
+                # Check if this position's current velocity exceeds the threshold
+                vel_threshold = t2.get('velocity_threshold', 0.2)
+                entry  = float(position.get('entry', 0))
+                stop   = float(position.get('stop', entry * 0.94))
+                curr   = float(position.get('current', entry))
+                opened = position.get('opened', '')
+                if entry and stop and entry != stop and opened:
+                    from datetime import date
+                    try:
+                        days = max(1, (date.today() - date.fromisoformat(opened)).days)
+                    except Exception:
+                        days = 1
+                    r_current = (curr - entry) / (entry - stop)
+                    velocity = r_current / days
+                    if velocity >= vel_threshold:
+                        return float(t2['partial_fraction_override'])
+        except Exception:
+            pass  # Non-critical — fall back to Sortino-based fraction
+
+    return base
 
 def load_positions():
     try:
@@ -266,6 +304,9 @@ def run():
 
         # Check Target 1 hit — adaptive partial close + ratchet stop on remainder
         elif not t1_hit and current >= target1:
+            # Per-position fraction: trajectory insights may override if T2 runner profile
+            pos_fraction  = _sortino_partial_fraction(pos)
+            close_fraction = pos_fraction
             sell_qty      = round(quantity * close_fraction, 8)
             remaining_qty = round(quantity - sell_qty, 8)
             t1_pnl        = round(sell_qty * (current - entry), 2)

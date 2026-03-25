@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-03-25 — Fix black swan: volume collapse false alarms during market hours
+
+**Files changed:** `scripts/apex-blackswan-test.py`
+
+### Problem
+Alert fired at 16:02 UTC (90 min into NYSE session) for Visa, Apple, CVX, ABBV
+all showing volume at 22–28% of 20-day average. These were all false alarms.
+
+Root cause: `detect_volume_collapse()` compared `today_vol` (partial intraday
+volume accumulated so far) against `avg_vol_20` (average of 20 **complete** daily
+volumes). At 90 min into a 390-min session, any stock looks like a "collapse"
+because only 23.6% of the day has elapsed. The stocks were actually running at
+95–120% of their expected intraday pace — completely normal.
+
+Replay of ABBV: 1,679,629 shares / 7,468,301 avg = 22.5% raw.
+Adjusted: 7,468,301 × 0.236 = 1,762,519 scaled avg → 95.3% of pace. No alert.
+
+### Fix: `_session_fraction()` + intraday scaling
+- New `_session_fraction(yahoo_ticker)` function calculates what fraction of the
+  trading session has elapsed (`elapsed_mins / session_length`):
+  - NYSE (US tickers): 14:30–21:00 UTC (390 min)
+  - LSE (`.L` tickers): 08:00–16:30 UTC (510 min)
+  - Pre-market, post-market, weekends → returns 1.0 (full-day comparison, no scaling)
+  - Floor at 0.05 to prevent division by near-zero at the opening print
+- `detect_volume_collapse()` now scales `avg_vol_20` by `session_frac` before
+  comparing. Outside market hours, `frac=1.0` so behaviour is unchanged.
+- Output includes `session_frac` and `session_label` fields for auditability
+
+---
+
 ## 2026-03-25 — Layer redundancy discount: fix multicollinearity in composite score
 
 **Files changed:** `scripts/apex_scoring.py`

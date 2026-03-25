@@ -211,6 +211,47 @@ def detect_vix_regime_change():
         log_error(f"VIX regime change detection failed: {e}")
         return None
 
+# Session schedule in UTC minutes-since-midnight
+# Used to scale the 20-day average volume down to match elapsed session time,
+# preventing false "volume collapse" alerts early in the trading day.
+_SESSIONS = {
+    'US':  {'open': 14*60+30, 'close': 21*60,    'mins': 390},  # NYSE/NASDAQ 14:30–21:00 UTC
+    'LSE': {'open':  8*60,    'close': 16*60+30,  'mins': 510},  # LSE 08:00–16:30 UTC
+}
+
+def _session_fraction(yahoo_ticker: str) -> tuple:
+    """
+    Return (fraction_elapsed, session_name) for the primary exchange of a ticker.
+
+    Fraction is the proportion of the trading day that has elapsed so far:
+      0.0  = session not started yet (pre-market)
+      0.25 = 25% of session done (e.g. 90 min into NYSE)
+      1.0  = session complete (post-market or weekend)
+
+    Floor at 0.05 to avoid division by near-zero on the opening print.
+    When outside all sessions the full-day volume is already final → returns 1.0.
+    """
+    now_utc  = datetime.now(timezone.utc)
+    weekday  = now_utc.weekday()   # 0=Mon … 4=Fri, 5=Sat, 6=Sun
+    if weekday >= 5:
+        return 1.0, 'closed'
+
+    now_mins = now_utc.hour * 60 + now_utc.minute
+    skey     = 'LSE' if yahoo_ticker.endswith('.L') else 'US'
+    sess     = _SESSIONS[skey]
+
+    if now_mins < sess['open']:
+        # Pre-market: today's volume row is yesterday's complete volume → 1.0
+        return 1.0, f'{skey}_pre'
+    if now_mins >= sess['close']:
+        # Post-market: session complete → 1.0
+        return 1.0, f'{skey}_post'
+
+    elapsed  = now_mins - sess['open']
+    fraction = max(0.05, min(1.0, elapsed / sess['mins']))
+    return round(fraction, 3), f'{skey}_intraday'
+
+
 # ============================================================
 # VECTOR 4: VOLUME COLLAPSE DETECTOR
 # ============================================================
@@ -218,6 +259,19 @@ def detect_volume_collapse(positions):
     """
     Detect if volume has collapsed on open positions.
     Volume < 30% of 20-day average = institutional exit warning.
+
+    Intraday scaling: when called during market hours, today's volume is
+    a partial-session figure. Comparing it directly against a full 20-day
+    average produces false alarms early in the session (e.g. at 90 min in,
+    any stock appears to have only ~23% of its daily average). The fix:
+    scale avg_vol_20 by the fraction of the session elapsed before comparing.
+
+    Example — AAPL at 16:02 UTC (90 min into NYSE session):
+      today_vol    = 10,049,530
+      avg_vol_20   = 40,376,916
+      session frac = 90/390 = 0.231
+      scaled_avg   = 40,376,916 × 0.231 = 9,327,068
+      vol_ratio    = 10,049,530 / 9,327,068 = 107.7%  → NORMAL (was falsely 24.9%)
     """
     collapses = []
 
@@ -234,23 +288,33 @@ def detect_volume_collapse(positions):
             if hist.empty or len(hist) < 5:
                 continue
 
-            volumes     = [float(v) for v in hist['Volume']]
-            avg_vol_20  = sum(volumes[-20:]) / min(20, len(volumes))
-            today_vol   = volumes[-1]
+            volumes    = [float(v) for v in hist['Volume']]
+            avg_vol_20 = sum(volumes[-20:]) / min(20, len(volumes))
+            today_vol  = volumes[-1]
 
             if avg_vol_20 == 0:
                 continue
 
-            vol_ratio = round(today_vol / avg_vol_20 * 100, 1)
+            # Scale the daily average down to match how much of the session has elapsed.
+            # Outside market hours (pre/post/weekend) fraction=1.0 → no change.
+            sess_frac, sess_label = _session_fraction(yahoo)
+            scaled_avg = avg_vol_20 * sess_frac
+            vol_ratio  = round(today_vol / scaled_avg * 100, 1) if scaled_avg > 0 else 0
 
             if vol_ratio < (100 - VOLUME_COLLAPSE_PCT):
                 collapses.append({
-                    'name':       name,
-                    'ticker':     ticker,
-                    'vol_ratio':  vol_ratio,
-                    'today_vol':  int(today_vol),
-                    'avg_vol_20': int(avg_vol_20),
-                    'note':       f"Volume only {vol_ratio}% of 20-day avg — possible institutional exit",
+                    'name':          name,
+                    'ticker':        ticker,
+                    'vol_ratio':     vol_ratio,
+                    'today_vol':     int(today_vol),
+                    'avg_vol_20':    int(avg_vol_20),
+                    'session_frac':  sess_frac,
+                    'session_label': sess_label,
+                    'note':          (
+                        f"Volume only {vol_ratio}% of session-adjusted avg "
+                        f"({sess_label}, {round(sess_frac*100)}% of day elapsed) "
+                        f"— possible institutional exit"
+                    ),
                 })
         except Exception as e:
             log_error(f"Volume collapse detection failed for {name}: {e}")

@@ -27,6 +27,65 @@ _SCRIPTS = '/home/ubuntu/.picoclaw/scripts'
 _LOGS    = '/home/ubuntu/.picoclaw/logs'
 QUALITY_FILE = f'{_SCRIPTS}/apex-quality-universe.json'
 
+_BT_INSIGHTS_V2 = f'{_LOGS}/apex-backtest-v2-insights.json'
+
+# Cached layer weights — refreshed once per process lifetime
+# Structure: {'RS': 1.2, 'MTF': 1.0, 'FRED': 0.5, 'SENTIMENT': 0.75}
+_LAYER_WEIGHT_CACHE = {}
+_LAYER_WEIGHT_LOADED = False
+
+
+def _load_layer_weights() -> dict:
+    """
+    Load adaptive layer weights from backtest v2 OOS ablation results.
+
+    Weight mapping (from layers_impact in insights):
+        significant=True  AND lift >= 2.0%  → 1.2  (amplify: strongly validated)
+        significant=True  AND lift >= 0.5%  → 1.0  (neutral: validated)
+        significant=False AND lift >= 0.5%  → 0.75 (reduce: marginal significance)
+        otherwise                           → 0.5  (halve: not statistically validated)
+
+    Only layers present in the ablation study are weighted; all others use 1.0.
+    Returns {} if insights file unavailable — caller treats missing key as weight=1.0.
+    """
+    global _LAYER_WEIGHT_CACHE, _LAYER_WEIGHT_LOADED
+    if _LAYER_WEIGHT_LOADED:
+        return _LAYER_WEIGHT_CACHE
+
+    try:
+        bt     = safe_read(_BT_INSIGHTS_V2, {})
+        layers = bt.get('layers_impact', {})
+        weights = {}
+        for layer_name, data in layers.items():
+            lift_str = str(data.get('oos_lift', '0%'))
+            try:
+                lift = abs(float(lift_str.replace('%', '').replace('+', '').strip()))
+            except ValueError:
+                lift = 0.0
+            sig = bool(data.get('significant', False))
+
+            if sig and lift >= 2.0:
+                weights[layer_name.upper()] = 1.2
+            elif sig and lift >= 0.5:
+                weights[layer_name.upper()] = 1.0
+            elif not sig and lift >= 0.5:
+                weights[layer_name.upper()] = 0.75
+            else:
+                weights[layer_name.upper()] = 0.5
+
+        if weights:
+            log_info(f"Layer weights loaded from v2 insights: "
+                     f"{', '.join(f'{k}={v}' for k,v in sorted(weights.items()))}")
+
+        _LAYER_WEIGHT_CACHE  = weights
+        _LAYER_WEIGHT_LOADED = True
+        return weights
+
+    except Exception as e:
+        log_error(f"_load_layer_weights failed (non-fatal): {e}")
+        _LAYER_WEIGHT_LOADED = True
+        return {}
+
 # ── Module cache — module-level so scoring layers can access it ───────────────
 # Previously this was a local inside run(), causing NameError inside
 # score_signal_with_intelligence() for RS and MTF layers (silently caught).
@@ -135,15 +194,59 @@ def get_geo_adjustment(name, intel):
     return 0, []
 
 
+# ── Ticker normalisation ──────────────────────────────────────────────────────
+# Canonical Yahoo → T212 map. Signals from market-data and contrarian-scan carry
+# a Yahoo ticker in 'ticker' but no 't212_ticker'. Resolving once here means all
+# 18 scoring layers can rely on signal['yahoo_ticker'] and signal['t212_ticker']
+# without individual cascading .get() chains that silently return the wrong format.
+
+_YAHOO_TO_T212 = {
+    'AAPL':'AAPL_US_EQ',  'MSFT':'MSFT_US_EQ',  'NVDA':'NVDA_US_EQ',
+    'GOOGL':'GOOGL_US_EQ','AMZN':'AMZN_US_EQ',  'META':'META_US_EQ',
+    'TSLA':'TSLA_US_EQ',  'V':'V_US_EQ',         'XOM':'XOM_US_EQ',
+    'CVX':'CVX_US_EQ',    'JPM':'JPM_US_EQ',     'GS':'GS_US_EQ',
+    'ABBV':'ABBV_US_EQ',  'JNJ':'JNJ_US_EQ',     'UNH':'UNH_US_EQ',
+    'NFLX':'NFLX_US_EQ',  'HOOD':'HOOD_US_EQ',   'PLTR':'PLTR_US_EQ',
+    'BAC':'BAC_US_EQ',    'BLK':'BLK_US_EQ',     'KO':'KO_US_EQ',
+    'PEP':'PEP_US_EQ',    'PG':'PG_US_EQ',       'WMT':'WMT_US_EQ',
+    'VUAG.L':'VUAGl_EQ',  'QQQS.L':'QQQSl_EQ',
+    'AZN.L':'AZN_EQ',     'SHEL.L':'SHEL_EQ',    'HSBA.L':'HSBA_EQ',
+    'GSK.L':'GSK_EQ',     'ULVR.L':'ULVR_EQ',
+    'SQQQ':'SQQQ_EQ',     'SPXU':'SPXU_EQ',
+}
+
+def _resolve_tickers(signal):
+    """
+    Ensure signal has both 'yahoo_ticker' and 't212_ticker' set consistently.
+    Mutates the signal dict in-place; safe to call multiple times (idempotent).
+    """
+    yahoo = signal.get('yahoo_ticker') or signal.get('ticker', '')
+    t212  = signal.get('t212_ticker', '')
+
+    # Derive T212 from Yahoo if missing
+    if yahoo and not t212:
+        t212 = _YAHOO_TO_T212.get(yahoo, '')
+
+    # Derive Yahoo from T212 by stripping suffix if still missing
+    if t212 and not yahoo:
+        yahoo = t212.replace('_US_EQ', '').replace('_EQ', '').replace('l_EQ', '')
+
+    signal['yahoo_ticker'] = yahoo
+    signal['t212_ticker']  = t212
+
+
 # ── LAYER 3: Full 18-layer signal scoring ────────────────────────────────────
 
 def score_signal_with_intelligence(signal, intel):
+    _resolve_tickers(signal)   # normalise ticker fields once before any layer reads them
     name        = signal.get('name', '')
     base_score  = float(signal.get('total_score', signal.get('contrarian_score', signal.get('score', 0))))
     signal_type = signal.get('signal_type', 'TREND')
 
-    adjustments = []
-    total_score = base_score
+    adjustments   = []
+    failed_layers = []   # tracks which scoring layers raised exceptions
+    total_score   = base_score
+    _lw          = _load_layer_weights()   # {} if no insights file — all weights default to 1.0
 
     # Layer: Relative strength adjustment
     try:
@@ -151,9 +254,13 @@ def score_signal_with_intelligence(signal, intel):
         if _rs_mod:
             _rs_adj, _rs_reason = _rs_mod.get_rs_adjustment(name, signal_type)
             if _rs_adj != 0:
+                _rs_w   = _lw.get('RS', 1.0)
+                _rs_adj = round(_rs_adj * _rs_w, 2)
                 total_score += _rs_adj
-                adjustments.append(f"RS: {'+' if _rs_adj > 0 else ''}{_rs_adj} ({_rs_reason})")
+                _w_tag = f" [w={_rs_w}]" if _rs_w != 1.0 else ""
+                adjustments.append(f"RS: {_rs_adj:+.2g}{_w_tag} ({_rs_reason})")
     except Exception as _e:
+        failed_layers.append('RS')
         log_error(f"RS adjustment failed for {name}: {_e}")
 
     # Layer: Multi-timeframe analysis adjustment
@@ -162,9 +269,13 @@ def score_signal_with_intelligence(signal, intel):
         if _mtf_mod:
             _mtf_adj, _mtf_reason = _mtf_mod.get_adjustment_for_signal(name, signal_type)
             if _mtf_adj != 0:
+                _mtf_w   = _lw.get('MTF', 1.0)
+                _mtf_adj = round(_mtf_adj * _mtf_w, 2)
                 total_score += _mtf_adj
-                adjustments.append(f"MTF: {'+' if _mtf_adj > 0 else ''}{_mtf_adj} ({_mtf_reason[:60]})")
+                _w_tag = f" [w={_mtf_w}]" if _mtf_w != 1.0 else ""
+                adjustments.append(f"MTF: {_mtf_adj:+.2g}{_w_tag} ({_mtf_reason[:60]})")
     except Exception as _e:
+        failed_layers.append('MTF')
         log_error(f"MTF adjustment failed for {name}: {_e}")
 
     # Layer 14: Cross-asset macro confirmation
@@ -175,6 +286,18 @@ def score_signal_with_intelligence(signal, intel):
         _mac = _ilu_mac.module_from_spec(_spec_mac)
         _spec_mac.loader.exec_module(_mac)
         _mdata = safe_read(f'{_LOGS}/apex-macro-signals.json', {})
+        # Staleness gate — skip macro layer if data is >12h old (same pattern as sentiment 24h gate)
+        _mac_ts  = _mdata.get('timestamp', '')
+        _mac_age = 0
+        try:
+            from datetime import datetime as _dt2, timezone as _tz2
+            _mac_dt  = _dt2.strptime(_mac_ts, '%Y-%m-%d %H:%M UTC').replace(tzinfo=_tz2.utc)
+            _mac_age = (_dt2.now(_tz2.utc) - _mac_dt).total_seconds() / 3600
+            if _mac_age > 12:
+                adjustments.append(f"MACRO: skipped — data {_mac_age:.0f}h old (max 12h)")
+                raise Exception("stale")
+        except ValueError:
+            pass  # timestamp missing or unparseable — proceed anyway
         _md    = _mdata.get('macro_data', {})
         if _md:
             _yahoo_ticker  = signal.get('ticker', name)
@@ -197,7 +320,9 @@ def score_signal_with_intelligence(signal, intel):
                 for _mr in _macro_reasons[:2]:
                     adjustments.append(f"MACRO: {'+' if _macro_adj > 0 else ''}{_macro_adj} ({_mr[:55]})")
     except Exception as _e:
-        log_error(f"Macro adjustment failed for {name}: {_e}")
+        if str(_e) != 'stale':
+            failed_layers.append('MACRO')
+            log_error(f"Macro adjustment failed for {name}: {_e}")
 
     # Layer 14.5: Cross-asset divergence signal
     try:
@@ -206,12 +331,12 @@ def score_signal_with_intelligence(signal, intel):
             "div", f"{_SCRIPTS}/apex-divergence-detector.py")
         _div = _ilu_div.module_from_spec(_spec_div)
         _spec_div.loader.exec_module(_div)
-        _raw_ticker_div = signal.get('t212_ticker', signal.get('ticker', name))
-        _div_adj, _div_reasons = _div.get_divergence_adjustment(name, _raw_ticker_div, signal_type)
+        _div_adj, _div_reasons = _div.get_divergence_adjustment(name, signal['t212_ticker'] or signal['yahoo_ticker'], signal_type)
         if _div_adj != 0:
             total_score += _div_adj
             adjustments.append(f"DIVERGE: {_div_adj:+.1f} ({_div_reasons[0][:55] if _div_reasons else ''})")
     except Exception as _e:
+        failed_layers.append('DIVERGE')
         log_error(f"Divergence adjustment failed for {name}: {_e}")
 
     # Layer 15: EDGAR Insider Data
@@ -226,6 +351,7 @@ def score_signal_with_intelligence(signal, intel):
             total_score += _ins_adj
             adjustments.append(f"INSIDER: +{_ins_adj} ({_ins_reasons[0][:55] if _ins_reasons else ''})")
     except Exception as _e:
+        failed_layers.append('INSIDER')
         log_error(f"Insider adjustment failed for {name}: {_e}")
 
     # Layer 15.5: Earnings Revision Momentum
@@ -235,12 +361,12 @@ def score_signal_with_intelligence(signal, intel):
             "rev", f"{_SCRIPTS}/apex-earnings-revision.py")
         _rev = _ilu_rev.module_from_spec(_spec_rev)
         _spec_rev.loader.exec_module(_rev)
-        _raw_ticker_rev = signal.get('t212_ticker', signal.get('ticker', name))
-        _rev_adj, _rev_reasons = _rev.get_revision_momentum(name, _raw_ticker_rev, signal_type)
+        _rev_adj, _rev_reasons = _rev.get_revision_momentum(name, signal['t212_ticker'] or signal['yahoo_ticker'], signal_type)
         if _rev_adj != 0:
             total_score += _rev_adj
             adjustments.append(f"REVISION: {_rev_adj:+.1f} ({_rev_reasons[0][:55] if _rev_reasons else ''})")
     except Exception as _e:
+        failed_layers.append('REVISION')
         log_error(f"Earnings revision adjustment failed for {name}: {_e}")
 
     # Layer 16: FRED Macro Economic Signal
@@ -252,9 +378,13 @@ def score_signal_with_intelligence(signal, intel):
         _spec_fred.loader.exec_module(_fred)
         _fred_adj, _fred_reasons = _fred.get_fred_adjustment(signal_type)
         if _fred_adj != 0:
+            _fred_w   = _lw.get('FRED', 1.0)
+            _fred_adj = round(_fred_adj * _fred_w, 2)
             total_score += _fred_adj
-            adjustments.append(f"FRED: {_fred_adj:+d} ({_fred_reasons[0][:55] if _fred_reasons else ''})")
+            _w_tag = f" [w={_fred_w}]" if _fred_w != 1.0 else ""
+            adjustments.append(f"FRED: {_fred_adj:+.2g}{_w_tag} ({_fred_reasons[0][:55] if _fred_reasons else ''})")
     except Exception as _e:
+        failed_layers.append('FRED')
         log_error(f"FRED adjustment failed for {name}: {_e}")
 
     # Layer 17: Options Flow Signal
@@ -273,18 +403,45 @@ def score_signal_with_intelligence(signal, intel):
         }
         _OPTS_UNIVERSE = {'AAPL','MSFT','NVDA','AMZN','GOOGL','META',
                           'TSLA','V','XOM','CVX','HOOD','PLTR','NFLX'}
-        _raw_ticker  = signal.get('t212_ticker', signal.get('ticker', name))
-        _opts_ticker = _T212_TO_YAHOO_OPTS.get(
-            _raw_ticker,
-            _raw_ticker.replace('_US_EQ','').replace('_EQ','')
-        )
+        # Options universe uses Yahoo tickers — use yahoo_ticker directly (already normalised)
+        _opts_ticker = signal['yahoo_ticker'] or signal['t212_ticker'].replace('_US_EQ','').replace('_EQ','')
         if _opts_ticker in _OPTS_UNIVERSE:
             _opts_adj, _opts_reasons = _opts.get_options_adjustment(_opts_ticker, signal_type)
             if _opts_adj != 0:
                 total_score += _opts_adj
                 adjustments.append(f"OPTIONS: {_opts_adj:+d} ({_opts_reasons[0][:55] if _opts_reasons else ''})")
     except Exception as _e:
+        failed_layers.append('OPTIONS')
         log_error(f"Options flow adjustment failed for {name}: {_e}")
+
+    # VOL_ACCUMULATION: institutional volume spike signal
+    try:
+        _vol_w   = _lw.get('VOL_ACCUMULATION', 1.0)
+        _vol_adj = 0.0
+        _vol_reason = ""
+        _vr = signal.get('volume_ratio', signal.get('vol_ratio'))
+        if _vr is not None:
+            _vr = float(_vr)
+            _trend = signal.get('trend', '')
+            if signal_type == 'TREND':
+                if _vr >= 2.0 and _trend == 'BULLISH':
+                    _vol_adj    = 1.0
+                    _vol_reason = f"vol {_vr}x avg — institutional buying ({_trend})"
+                elif _vr >= 2.0 and _trend == 'BEARISH':
+                    _vol_adj    = -1.0
+                    _vol_reason = f"vol {_vr}x avg — distribution warning ({_trend})"
+            elif signal_type == 'CONTRARIAN':
+                if _vr >= 2.0:
+                    _vol_adj    = 0.5
+                    _vol_reason = f"vol {_vr}x avg — capitulation volume (reversal signal)"
+        if _vol_adj:
+            _vol_adj_weighted = round(_vol_adj * _vol_w, 2)
+            total_score += _vol_adj_weighted
+            _w_tag = f" [w={_vol_w}]" if _vol_w != 1.0 else ""
+            adjustments.append(f"VOL_ACCUMULATION: {_vol_adj_weighted:+.2g}{_w_tag} ({_vol_reason})")
+    except Exception as _e:
+        failed_layers.append('VOL_ACCUMULATION')
+        log_error(f"VOL_ACCUMULATION adjustment failed for {name}: {_e}")
 
     # Breadth thrust regime adjustment
     try:
@@ -298,15 +455,32 @@ def score_signal_with_intelligence(signal, intel):
             total_score -= 1
             adjustments.append(f"Breadth: -1 (deterioration {_bt_data.get('divergence',{}).get('breadth_trend',0):+.1f}%)")
     except Exception as _e:
-        log_error(f"Silent failure in apex_scoring.py: {_e}")
+        failed_layers.append('BREADTH')
+        log_error(f"Breadth thrust adjustment failed for {name}: {_e}")
 
-    # Backtest instrument boost
+    # Backtest instrument boost (v2 with OOS validation, falls back to v1)
     try:
-        with open(f'{_LOGS}/apex-backtest-insights.json') as _f:
-            bt = json.load(_f)
-        signal_type_key = 'trend_strategy' if signal_type == 'TREND' else 'contrarian_strategy'
-        best  = bt.get(signal_type_key, {}).get('best_instruments', [])
-        worst = bt.get(signal_type_key, {}).get('worst_instruments', [])
+        _bt_v2_path = f'{_LOGS}/apex-backtest-v2-insights.json'
+        _bt_v1_path = f'{_LOGS}/apex-backtest-insights.json'
+        import os as _os
+        import time as _time
+        # Fix 4: warn if backtest insights are stale (>7 days)
+        if _os.path.exists(_bt_v2_path):
+            _bt_age_days = (_time.time() - _os.path.getmtime(_bt_v2_path)) / 86400
+            if _bt_age_days > 7:
+                adjustments.append(
+                    f"BACKTEST-WARN: insights {_bt_age_days:.0f}d old — re-run apex-backtest-v2.py")
+        if _os.path.exists(_bt_v2_path):
+            with open(_bt_v2_path) as _f:
+                bt = json.load(_f)
+            best  = bt.get('backtest_boost_instruments', bt.get('best_instruments', []))
+            worst = bt.get('backtest_penalise_instruments', bt.get('worst_instruments', []))
+        else:
+            with open(_bt_v1_path) as _f:
+                bt = json.load(_f)
+            signal_type_key = 'trend_strategy' if signal_type == 'TREND' else 'contrarian_strategy'
+            best  = bt.get(signal_type_key, {}).get('best_instruments', [])
+            worst = bt.get(signal_type_key, {}).get('worst_instruments', [])
         if name in best:
             total_score += 1
             adjustments.append(f"Backtest: +1 (top performer for {signal_type})")
@@ -314,13 +488,20 @@ def score_signal_with_intelligence(signal, intel):
             total_score -= 1
             adjustments.append(f"Backtest: -1 (poor performer for {signal_type})")
     except Exception as _e:
-        log_error(f"Silent failure in apex_scoring.py: {_e}")
+        failed_layers.append('BACKTEST')
+        log_error(f"Backtest adjustment failed for {name}: {_e}")
 
-    # Sector rotation boost
-    sector_boost, sector_reason = get_sector_boost(name, intel)
-    if sector_boost != 0:
-        total_score += sector_boost
-        adjustments.append(f"Sector: {'+' if sector_boost > 0 else ''}{sector_boost} ({sector_reason})")
+    # Sector rotation boost — skip if data is stale (>24h)
+    _sect_age    = intel.get('file_ages_hours', {}).get('sector_rotation', 0)
+    _breadth_age = intel.get('file_ages_hours', {}).get('breadth', 0)
+    if _sect_age > 24 or _breadth_age > 24:
+        adjustments.append(
+            f"SECTOR: skipped — sector_rotation {_sect_age:.0f}h old, breadth {_breadth_age:.0f}h old (max 24h)")
+    else:
+        sector_boost, sector_reason = get_sector_boost(name, intel)
+        if sector_boost != 0:
+            total_score += sector_boost
+            adjustments.append(f"Sector: {'+' if sector_boost > 0 else ''}{sector_boost} ({sector_reason})")
 
     # Geo adjustment
     geo_boost, geo_reasons = get_geo_adjustment(name, intel)
@@ -390,7 +571,8 @@ def score_signal_with_intelligence(signal, intel):
                 total_score -= 1
                 adjustments.append(f"Short interest: -1 ({round(_short_pct,1)}% float short)")
     except Exception as _e:
-        log_error(f"Silent failure in apex_scoring.py: {_e}")
+        failed_layers.append('FUND5')
+        log_error(f"Fundamentals5 adjustment failed for {name}: {_e}")
 
     # Fundamental data boost (legacy EV/EBITDA score)
     try:
@@ -422,7 +604,8 @@ def score_signal_with_intelligence(signal, intel):
                 total_score -= 1
                 adjustments.append(f"Fundamentals: -1 ({_fund_class})")
     except Exception as _e:
-        log_error(f"Silent failure in apex_scoring.py: {_e}")
+        failed_layers.append('FUND')
+        log_error(f"Fundamentals adjustment failed for {name}: {_e}")
 
     # Sentiment adjustment
     try:
@@ -454,29 +637,38 @@ def score_signal_with_intelligence(signal, intel):
             _energy_favs = _qdb.get('geo_event_map',{}).get('iran_war',{}).get('favour',[])
             _geo_favoured = name in _energy_favs
         except Exception as _e:
-            log_error(f"Silent failure in apex_scoring.py: {_e}")
+            if str(_e) != 'stale':
+                log_error(f"Silent failure in apex_scoring.py: {_e}")
+
+        _sent_w = _lw.get('SENTIMENT', 1.0)
 
         if _geo_favoured and _sent.get('geo_status') == 'ALERT':
             adjustments.append("Sentiment: geo-override (news negative but fundamentals bullish)")
-        elif _sentiment >= 0.3:
-            total_score += 2
-            adjustments.append(f"Sentiment: +2 (VERY POSITIVE {_sentiment:+.2f})")
-        elif _sentiment >= 0.1:
-            total_score += 1
-            adjustments.append(f"Sentiment: +1 (POSITIVE {_sentiment:+.2f})")
-        elif _sentiment <= -0.3:
-            total_score -= 2
-            adjustments.append(f"Sentiment: -2 (VERY NEGATIVE {_sentiment:+.2f})")
-        elif _sentiment <= -0.1:
-            total_score -= 1
-            adjustments.append(f"Sentiment: -1 (NEGATIVE {_sentiment:+.2f})")
+        else:
+            _raw_sent_adj = (
+                2 if _sentiment >= 0.3 else
+                1 if _sentiment >= 0.1 else
+               -2 if _sentiment <= -0.3 else
+               -1 if _sentiment <= -0.1 else 0
+            )
+            if _raw_sent_adj != 0:
+                _sent_adj = round(_raw_sent_adj * _sent_w, 2)
+                total_score += _sent_adj
+                _w_tag = f" [w={_sent_w}]" if _sent_w != 1.0 else ""
+                _lbl   = ("VERY POSITIVE" if _sentiment >= 0.3 else
+                          "POSITIVE"      if _sentiment >= 0.1 else
+                          "VERY NEGATIVE" if _sentiment <= -0.3 else "NEGATIVE")
+                adjustments.append(f"Sentiment: {_sent_adj:+.2g}{_w_tag} ({_lbl} {_sentiment:+.2f})")
 
         if _sent.get('crisis_detected', False) and signal_type == 'TREND':
-            total_score -= 2
-            adjustments.append("Sentiment: -2 (market crisis language detected)")
+            _crisis_adj = round(-2 * _sent_w, 2)
+            total_score += _crisis_adj
+            adjustments.append(f"Sentiment: {_crisis_adj:+.2g} (market crisis language detected)")
 
     except Exception as _e:
-        log_error(f"Silent failure in apex_scoring.py: {_e}")
+        if str(_e) != 'stale':
+            failed_layers.append('SENTIMENT')
+            log_error(f"Sentiment adjustment failed for {name}: {_e}")
 
     # Drawdown note — actual sizing handled in position sizer
     if intel['drawdown_status'] != 'NORMAL':
@@ -495,7 +687,17 @@ def score_signal_with_intelligence(signal, intel):
             for _lr in _learned_reasons:
                 adjustments.append(_lr)
     except Exception as _e:
+        failed_layers.append('ADAPTER')
         log_error(f"Score adapter failed (non-fatal): {_e}")
+
+    # Layer confidence — how many of the 14 tracked layers ran without error
+    _TOTAL_TRACKED_LAYERS = 15  # 14 original + VOL_ACCUMULATION
+    layer_confidence = round(1.0 - (len(failed_layers) / _TOTAL_TRACKED_LAYERS), 2)
+    if failed_layers:
+        adjustments.append(
+            f"Layer confidence: {layer_confidence:.0%} "
+            f"({len(failed_layers)} failed: {', '.join(failed_layers)})"
+        )
 
     # Cap total adjustment to prevent correlated alpha inflation
     total_adjustment  = total_score - base_score
@@ -510,9 +712,11 @@ def score_signal_with_intelligence(signal, intel):
     max_expected   = 15.0
     confidence_pct = round(min(100, max(0, (raw_score / max_expected) * 100)), 1)
 
-    signal['adjusted_score'] = capped_score
-    signal['raw_score']      = raw_score
-    signal['confidence_pct'] = confidence_pct
-    signal['adjustments']    = adjustments
+    signal['adjusted_score']   = capped_score
+    signal['raw_score']        = raw_score
+    signal['confidence_pct']   = confidence_pct
+    signal['adjustments']      = adjustments
+    signal['layer_confidence'] = layer_confidence
+    signal['failed_layers']    = failed_layers
 
     return signal

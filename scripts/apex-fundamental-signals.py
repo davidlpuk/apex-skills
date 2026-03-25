@@ -25,7 +25,9 @@ except ImportError:
     def log_warning(m): print(f'WARNING: {m}')
 
 
-OUTPUT_FILE = '/home/ubuntu/.picoclaw/logs/apex-fundamental-signals.json'
+OUTPUT_FILE  = '/home/ubuntu/.picoclaw/logs/apex-fundamental-signals.json'
+QUOTA_FILE   = '/home/ubuntu/.picoclaw/logs/apex-fmp-quota.json'
+CACHE_MAX_AGE_DAYS = 7   # skip instruments refreshed within this many days
 
 def _get_api_key():
     try:
@@ -61,18 +63,52 @@ YAHOO_MAP = {
 }
 
 _fmp_call_count = 0
+DAILY_LIMIT     = 230   # leave 20 calls headroom vs FMP's 250
+
+
+def _quota_used_today():
+    """Return calls used today across all Apex scripts."""
+    try:
+        q = json.load(open(QUOTA_FILE))
+        if q.get('date') == datetime.now(timezone.utc).strftime('%Y-%m-%d'):
+            return int(q.get('calls', 0))
+    except Exception:
+        pass
+    return 0
+
+
+def _quota_record(n):
+    """Add n calls to today's shared quota file."""
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    try:
+        q = json.load(open(QUOTA_FILE))
+        if q.get('date') != today:
+            q = {'date': today, 'calls': 0, 'by_script': {}}
+    except Exception:
+        q = {'date': today, 'calls': 0, 'by_script': {}}
+    q['calls'] = int(q.get('calls', 0)) + n
+    q.setdefault('by_script', {})
+    q['by_script']['fundamental-signals'] = q['by_script'].get('fundamental-signals', 0) + n
+    try:
+        with open(QUOTA_FILE, 'w') as f:
+            json.dump(q, f, indent=2)
+    except Exception:
+        pass
+
 
 def fmp_request(endpoint, params=None):
     global _fmp_call_count
     import time
 
-    # Rate limit — max 200 calls per run, 0.5s between calls
-    _fmp_call_count += 1
-    if _fmp_call_count > 200:
-        print(f"  ⚠️ FMP rate limit guard — stopping at {_fmp_call_count} calls")
+    # Check shared daily quota first
+    if _quota_used_today() >= DAILY_LIMIT:
+        if _fmp_call_count == 0:
+            log_warning(f"FMP daily quota at/near {DAILY_LIMIT} — skipping fundamental signals")
         return None
+
+    _fmp_call_count += 1
     if _fmp_call_count > 1:
-        time.sleep(0.5)
+        time.sleep(0.3)
 
     p = params or {}
     p['apikey'] = API_KEY
@@ -81,10 +117,10 @@ def fmp_request(endpoint, params=None):
         req = urllib.request.Request(url, headers={'User-Agent':'ApexBot/1.0'})
         with urllib.request.urlopen(req, timeout=10) as r:
             data = json.loads(r.read())
-            # Detect rate limit response
+            _quota_record(1)
             if isinstance(data, dict) and 'Error Message' in data:
                 if 'Limit' in data['Error Message']:
-                    print(f"  ⚠️ FMP daily limit reached — {_fmp_call_count} calls used")
+                    log_warning(f"FMP daily limit reached after {_fmp_call_count} calls")
                     return None
             return data
     except:
@@ -160,15 +196,10 @@ def get_insider_signal(symbol):
     Cluster of buys in last 90 days = strong bullish signal.
     """
     try:
-        # EDGAR full-text search for Form 4
-        # Use FMP insider trading with transaction type filter
-        url = f"https://financialmodelingprep.com/stable/insider-trading?symbol={symbol}&limit=50&apikey={API_KEY}"
-        req = urllib.request.Request(url, headers={
-            'User-Agent': 'ApexBot research@apex.com',
-            'Accept': 'application/json'
-        })
-        with urllib.request.urlopen(req, timeout=10) as r:
-            data = json.loads(r.read())
+        # Routes through fmp_request() so shared quota counter is updated
+        data = fmp_request('insider-trading', {'symbol': symbol, 'limit': 50})
+        if data is None:
+            return None
 
         # Filter to actual purchases (P) in last 90 days
         cutoff = datetime.now(timezone.utc) - timedelta(days=90)
@@ -246,15 +277,17 @@ def get_insider_signal(symbol):
 # ============================================================
 # 3. DIVIDEND SAFETY via payout ratio
 # ============================================================
-def get_dividend_safety(symbol):
+def get_dividend_safety(symbol, income=None):
     """
     Checks dividend safety using payout ratio and coverage.
     Payout ratio > 80% = danger. > 100% = cut likely.
+    Pass income= to reuse an already-fetched income statement (saves 1 FMP call).
     """
     # Get dividend data
     div_data = fmp_request('dividends', {'symbol': symbol, 'limit': 4})
-    # Get income statement for EPS
-    income   = fmp_request('income-statement', {'symbol': symbol, 'limit': 1})
+    # Reuse income statement if caller already fetched it
+    if income is None:
+        income = fmp_request('income-statement', {'symbol': symbol, 'limit': 1})
 
     if not div_data or not isinstance(div_data, list):
         return {'has_dividend': False, 'signal': 0, 'note': 'No dividend'}
@@ -386,15 +419,17 @@ def get_short_interest(symbol):
 # ============================================================
 # 5. EARNINGS QUALITY / ACCRUALS RATIO
 # ============================================================
-def get_earnings_quality(symbol):
+def get_earnings_quality(symbol, income_data=None):
     """
     Accruals ratio = (Net Income - Operating Cash Flow) / Total Assets
     Low/negative accruals = earnings backed by cash = HIGH QUALITY
     High accruals = earnings not backed by cash = RED FLAG
+    Pass income_data= to reuse an already-fetched income statement (saves 1 FMP call).
     """
     cf_data     = fmp_request('cash-flow-statement', {'symbol': symbol, 'limit': 2})
     bal_data    = fmp_request('balance-sheet-statement', {'symbol': symbol, 'limit': 1})
-    income_data = fmp_request('income-statement', {'symbol': symbol, 'limit': 1})
+    if income_data is None:
+        income_data = fmp_request('income-statement', {'symbol': symbol, 'limit': 1})
 
     if not cf_data or not isinstance(cf_data, list):
         return None
@@ -511,14 +546,36 @@ def run():
     print(f"\n=== APEX FUNDAMENTAL SIGNALS ===")
     print(f"Running 5-factor analysis on {len(UNIVERSE)} instruments...\n")
 
+    # Load existing cache to skip recently-refreshed instruments
+    existing = safe_read(OUTPUT_FILE, {})
+    cached_data = existing.get('data', {})
+    quota_before = _quota_used_today()
+    skipped = 0
+
     for symbol in UNIVERSE:
+        # Skip if cached within CACHE_MAX_AGE_DAYS
+        cached_sym = cached_data.get(symbol, {})
+        cached_ts  = cached_sym.get('fetched_at', '')
+        if cached_ts:
+            try:
+                age_days = (now - datetime.fromisoformat(cached_ts)).total_seconds() / 86400
+                if age_days < CACHE_MAX_AGE_DAYS:
+                    results[symbol] = cached_sym
+                    skipped += 1
+                    continue
+            except Exception:
+                pass
+
         print(f"  {symbol}...", flush=True)
+
+        # Fetch income statement once — shared by dividend safety + earnings quality
+        income = fmp_request('income-statement', {'symbol': symbol, 'limit': 1})
 
         revisions = get_earnings_revisions(symbol)
         insider   = get_insider_signal(symbol)
-        dividend  = get_dividend_safety(symbol)
+        dividend  = get_dividend_safety(symbol, income=income)
         short     = get_short_interest(symbol)
-        accruals  = get_earnings_quality(symbol)
+        accruals  = get_earnings_quality(symbol, income_data=income)
 
         comp_score, composite, reasons = calculate_composite_score(
             revisions, insider, dividend, short, accruals
@@ -533,6 +590,7 @@ def run():
             'dividend':        dividend,
             'short_interest':  short,
             'accruals':        accruals,
+            'fetched_at':      now.isoformat(),
         }
 
         rev_trend = revisions['trend'] if revisions else 'N/A'
@@ -563,7 +621,9 @@ def run():
         reason = data['reasons'][0][:45] if data['reasons'] else '—'
         print(f"{icon} {sym:6} {data['composite_score']:+6}     {data['composite']:20} {reason}")
 
-    print(f"\n✅ Fundamental signals saved for {len(results)} instruments")
+    calls_used = _quota_used_today() - quota_before
+    print(f"\n✅ Fundamental signals: {len(results) - skipped} refreshed, {skipped} from cache")
+    print(f"   FMP calls this run: {calls_used} | quota used today: {_quota_used_today()}/250")
     return output
 
 if __name__ == '__main__':

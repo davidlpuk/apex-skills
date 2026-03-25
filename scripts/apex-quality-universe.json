@@ -196,6 +196,15 @@
       "user_added": true,
       "added_at": "2026-03-24T16:41:43.043551+00:00",
       "contrarian_note": "RSI 41 at add time \u2014 monitor for genuine oversold"
+    },
+    "IUIT": {
+      "name": "iShares US IT ETF",
+      "market_cap": "unknown",
+      "fcf_yield": 0.0,
+      "quality_score": 8,
+      "user_added": true,
+      "added_at": "2026-03-25T10:55:15.942288+00:00",
+      "contrarian_note": "RSI 38 at add time \u2014 monitor for genuine oversold"
     }
   },
   "energy_beneficiaries": [

@@ -474,5 +474,12 @@
     "currency": "USD",
     "sector": "Technology",
     "user_added": true
+  },
+  "IUIT": {
+    "t212": "IUITl_EQ",
+    "name": "iShares US IT ETF",
+    "currency": "GBP",
+    "sector": "Technology",
+    "user_added": true
   }
 }

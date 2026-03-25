@@ -15,6 +15,73 @@ try:
 except ImportError:
     def get_portfolio_value(): return None
 
+MAE_MFE_FILE = '/home/ubuntu/.picoclaw/logs/apex-mae-mfe-calibration.json'
+
+# Default ATR multipliers (used when no calibration data)
+_ATR_DEFAULTS = {
+    'CONTRARIAN':       {'stop': 2.5, 't1': 2.0, 't2': 3.5},
+    'EARNINGS_DRIFT':   {'stop': 1.5, 't1': 2.0, 't2': 3.5},
+    'DIVIDEND_CAPTURE': {'stop': 1.0, 't1': 1.0, 't2': 1.5},
+    'DEFAULT':          {'stop': 2.0, 't1': 2.0, 't2': 3.5},
+}
+
+def _load_calibrated_multipliers(signal_type: str) -> dict:
+    """
+    Load ATR multipliers calibrated from MAE/MFE analysis.
+
+    Stop adjustment logic (from stop efficiency):
+      STOPS_TOO_TIGHT  → widen stop 10% (trades closing before reaching stop)
+      SLIPPAGE_RISK    → tighten stop 10% (losses exceeding 1R via slippage)
+      STOPS_MECHANICAL → no change (stops working as intended)
+
+    Target adjustment:
+      Uses optimal_t1_r from MFE analysis when available and well-sampled.
+      Falls back to default multipliers.
+
+    Returns {'stop': float, 't1': float, 't2': float, 'source': str}.
+    """
+    base = _ATR_DEFAULTS.get(signal_type, _ATR_DEFAULTS['DEFAULT']).copy()
+    base['source'] = 'default'
+
+    try:
+        with open(MAE_MFE_FILE) as f:
+            cal = json.load(f)
+
+        sig_cal = cal.get('by_signal_type', {}).get(signal_type, {})
+        if sig_cal.get('insufficient') or not sig_cal:
+            # Try aggregate
+            agg = cal.get('aggregate', {})
+            mae = agg.get('mae', {})
+            mfe = agg.get('mfe', {})
+        else:
+            mae = sig_cal.get('mae', {})
+            mfe = sig_cal.get('mfe', {})
+
+        if mae.get('insufficient') and mfe.get('insufficient'):
+            return base
+
+        # --- Stop calibration ---
+        stop_eff = mae.get('stop_efficiency', 'STOPS_MECHANICAL')
+        if stop_eff == 'STOPS_TOO_TIGHT':
+            base['stop'] = round(base['stop'] * 1.10, 2)
+            base['source'] = f'calibrated (stop widened 10%: {stop_eff})'
+        elif stop_eff == 'SLIPPAGE_RISK':
+            base['stop'] = round(base['stop'] * 0.90, 2)
+            base['source'] = f'calibrated (stop tightened 10%: {stop_eff})'
+        else:
+            base['source'] = f'calibrated ({stop_eff})'
+
+        # --- T1 target calibration from optimal_t1_r ---
+        if not mfe.get('insufficient') and mfe.get('n', 0) >= 10:
+            opt_t1 = mfe.get('optimal_t1_r')
+            if opt_t1 and 1.0 <= opt_t1 <= 5.0:
+                base['t1'] = round(opt_t1, 2)
+
+    except Exception:
+        pass  # graceful fallback to defaults
+
+    return base
+
 def calculate_atr(highs, lows, closes, period=14):
     """Average True Range calculation."""
     if len(closes) < period + 1:
@@ -77,45 +144,38 @@ def calculate_atr_stop(price, atr, atr_multiplier=2.0, signal_type='TREND'):
     """
     Calculate ATR-based stop loss.
 
-    Standard: 2x ATR below entry for trend
-    Contrarian: 2.5x ATR (wider — buying into weakness needs room to overshoot before reverting)
+    Multipliers are loaded from MAE/MFE calibration when available,
+    falling back to hardcoded defaults:
+      TREND default:            2.0× ATR
+      CONTRARIAN default:       2.5× ATR (wider — buying into weakness)
+      EARNINGS_DRIFT default:   1.5× ATR
+      DIVIDEND_CAPTURE default: 1.0× ATR (tight — income trade)
     """
-    if signal_type == 'CONTRARIAN':
-        multiplier = 2.5
-    elif signal_type == 'EARNINGS_DRIFT':
-        multiplier = 1.5
-    elif signal_type == 'DIVIDEND_CAPTURE':
-        multiplier = 1.0  # Very tight — income trade
-    else:
-        multiplier = atr_multiplier
+    mults      = _load_calibrated_multipliers(signal_type)
+    multiplier = mults['stop'] if signal_type in _ATR_DEFAULTS else atr_multiplier
 
-    stop         = round(price - (atr * multiplier), 2)
-    stop_pct     = round((price - stop) / price * 100, 2)
-    risk_share   = round(price - stop, 2)
+    stop       = round(price - (atr * multiplier), 2)
+    stop_pct   = round((price - stop) / price * 100, 2)
+    risk_share = round(price - stop, 2)
 
     return {
         "stop":        stop,
         "stop_pct":    stop_pct,
         "risk_share":  risk_share,
         "multiplier":  multiplier,
-        "atr_used":    round(atr, 4)
+        "atr_used":    round(atr, 4),
+        "mult_source": mults.get('source', 'default'),
     }
 
 def calculate_atr_targets(price, atr, signal_type='TREND'):
     """
     Calculate targets based on ATR multiples.
-    Target 1: 2x ATR above entry
-    Target 2: 3.5x ATR above entry
+    T1/T2 multiples are loaded from MAE/MFE calibration when available.
+    Default: T1 = 2.0×, T2 = 3.5× (DIVIDEND: T1 = 1.0×, T2 = 1.5×)
     """
-    if signal_type == 'CONTRARIAN':
-        t1_mult = 2.0
-        t2_mult = 3.5
-    elif signal_type == 'DIVIDEND_CAPTURE':
-        t1_mult = 1.0  # Just capture the dividend move
-        t2_mult = 1.5
-    else:
-        t1_mult = 2.0
-        t2_mult = 3.5
+    mults   = _load_calibrated_multipliers(signal_type)
+    t1_mult = mults['t1']
+    t2_mult = mults['t2']
 
     target1 = round(price + atr * t1_mult, 2)
     target2 = round(price + atr * t2_mult, 2)

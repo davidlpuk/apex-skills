@@ -168,7 +168,20 @@ def get_live_prices():
     portfolio = t212_request('/equity/portfolio')
     if not isinstance(portfolio, list):
         return {}
-    return {p['ticker']: float(p.get('currentPrice', 0)) for p in portfolio}
+    # Load stored entry prices to detect GBX (pence) vs GBP mismatch.
+    # T212 returns currentPrice in pence for UK LSE instruments (e.g. 3UKSl_EQ).
+    # If currentPrice is 20x+ the stored entry, divide by 100 to convert to GBP.
+    positions = load_positions()
+    entry_map = {p.get('t212_ticker'): float(p.get('entry', 0)) for p in positions}
+    result = {}
+    for p in portfolio:
+        ticker = p['ticker']
+        price  = float(p.get('currentPrice', 0))
+        entry  = entry_map.get(ticker, 0)
+        if entry > 0 and price > entry * 20:
+            price = round(price / 100, 4)
+        result[ticker] = price
+    return result
 
 def run():
     positions       = load_positions()

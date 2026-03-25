@@ -31,17 +31,33 @@ except ImportError:
     def log_error(m): print(f'ERROR: {m}')
     def log_warning(m): print(f'WARNING: {m}')
 
+try:
+    from apex_config import (CB_WARNING, CB_CAUTION, CB_SUSPEND, CB_CRITICAL, CB_RESUME,
+                              CB_MULT_WARNING, CB_MULT_CAUTION, CB_MULT_SUSPEND,
+                              CB_MULT_CRITICAL, CB_MULT_UNKNOWN)
+except ImportError:
+    CB_WARNING      = -3.0
+    CB_CAUTION      = -5.0
+    CB_SUSPEND      = -8.0
+    CB_CRITICAL     = -12.0
+    CB_RESUME       = -4.0
+    CB_MULT_WARNING  = 0.75
+    CB_MULT_CAUTION  = 0.50
+    CB_MULT_SUSPEND  = 0.0
+    CB_MULT_CRITICAL = 0.0
+    CB_MULT_UNKNOWN  = 0.5
+
 BREAKER_FILE   = '/home/ubuntu/.picoclaw/logs/apex-circuit-breaker.json'
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 PAUSE_FLAG     = '/home/ubuntu/.picoclaw/logs/apex-paused.flag'
 ROLLING_FILE   = '/home/ubuntu/.picoclaw/logs/apex-rolling-pnl.json'
 
-# Thresholds as % of session opening portfolio value
+# Thresholds sourced from apex_config — edit thresholds there, not here
 THRESHOLDS = {
-    'WARNING':  -3.0,   # Alert only
-    'CAUTION':  -5.0,   # Reduce sizing
-    'SUSPEND':  -8.0,   # Halt new entries
-    'CRITICAL': -12.0,  # Close all positions
+    'WARNING':  CB_WARNING,
+    'CAUTION':  CB_CAUTION,
+    'SUSPEND':  CB_SUSPEND,
+    'CRITICAL': CB_CRITICAL,
 }
 
 # After SUSPEND auto-resume: trade at 50% sizing for this many trades
@@ -241,7 +257,7 @@ def check_circuit_breaker():
     # If a previous SUSPEND/CAUTION was set and P&L has recovered enough,
     # automatically lift the pause flag and notify.
     # CRITICAL is never auto-resumed — always requires manual review.
-    RESUME_THRESHOLD = -4.0   # auto-resume when session loss recovers to -4%
+    RESUME_THRESHOLD = CB_RESUME  # auto-resume threshold — set in apex_config.py
     was_suspended = prev_status in ('SUSPEND', 'CAUTION')
     auto_resumed  = False
 
@@ -397,13 +413,14 @@ def get_size_multiplier():
     if roll_status in severity and severity.index(roll_status) > severity.index(status):
         status = roll_status
 
+    # Multipliers sourced from apex_config — edit there, not here
     multipliers = {
         'CLEAR':    1.0,
-        'WARNING':  0.75,
-        'CAUTION':  0.50,
-        'SUSPEND':  0.0,
-        'CRITICAL': 0.0,
-        'UNKNOWN':  0.5,
+        'WARNING':  CB_MULT_WARNING,
+        'CAUTION':  CB_MULT_CAUTION,
+        'SUSPEND':  CB_MULT_SUSPEND,
+        'CRITICAL': CB_MULT_CRITICAL,
+        'UNKNOWN':  CB_MULT_UNKNOWN,
     }
     mult = multipliers.get(status, 1.0)
 

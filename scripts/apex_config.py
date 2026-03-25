@@ -33,6 +33,13 @@ CB_SUSPEND  = -8.0    # Halt all new entries
 CB_CRITICAL = -12.0   # Close all positions — manual resume required
 CB_RESUME   = -4.0    # Auto-resume threshold after SUSPEND
 
+# ── Circuit Breaker Sizing Multipliers ───────────────────────────────────────
+CB_MULT_WARNING  = 0.75  # Trade at 75% size during WARNING
+CB_MULT_CAUTION  = 0.50  # Trade at 50% size during CAUTION
+CB_MULT_SUSPEND  = 0.0   # No new trades during SUSPEND
+CB_MULT_CRITICAL = 0.0   # No new trades during CRITICAL
+CB_MULT_UNKNOWN  = 0.5   # Conservative default when status is unknown
+
 # ── Position Sizing ───────────────────────────────────────────────────────────
 BASE_RISK_PCT          = 0.01   # 1% of portfolio per trade
 MAX_RISK_PCT           = 0.025  # 2.5% hard cap
@@ -55,6 +62,10 @@ MAX_HOLD_INVERSE       = 3      # Leveraged inverse ETFs decay fast
 
 # ── T212 API Rate Limiting ────────────────────────────────────────────────────
 T212_MIN_INTERVAL      = 0.6    # Min seconds between T212 API calls
+
+# ── Order Fill Polling ────────────────────────────────────────────────────────
+T212_FILL_POLL_COUNT   = 18     # Attempts before deferring (18 × interval = 3 min)
+T212_FILL_POLL_INTERVAL = 10    # Seconds between fill-status polls
 
 # ── ATR Stop Multipliers ──────────────────────────────────────────────────────
 ATR_STOP_TREND         = 2.0    # ATR multiplier for trend trades

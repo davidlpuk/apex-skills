@@ -85,7 +85,35 @@ INSTRUMENT_SECTOR = {
     "ULVR":"Consumer Staples",
 }
 
+QUOTA_FILE  = '/home/ubuntu/.picoclaw/logs/apex-fmp-quota.json'
+DAILY_LIMIT = 230
+
+
+def _quota_check_and_record():
+    """Return True if quota allows another call, and record it."""
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    try:
+        q = json.load(open(QUOTA_FILE))
+        if q.get('date') != today:
+            q = {'date': today, 'calls': 0, 'by_script': {}}
+    except Exception:
+        q = {'date': today, 'calls': 0, 'by_script': {}}
+    if int(q.get('calls', 0)) >= DAILY_LIMIT:
+        return False
+    q['calls'] = int(q.get('calls', 0)) + 1
+    q.setdefault('by_script', {})
+    q['by_script']['contrarian-gates'] = q['by_script'].get('contrarian-gates', 0) + 1
+    try:
+        with open(QUOTA_FILE, 'w') as f:
+            json.dump(q, f, indent=2)
+    except Exception:
+        pass
+    return True
+
+
 def fmp_request(endpoint, params=None):
+    if not _quota_check_and_record():
+        return None
     p = params or {}
     p['apikey'] = API_KEY
     url = f"{BASE}/{endpoint}?" + urllib.parse.urlencode(p)
@@ -194,7 +222,8 @@ def check_catalyst(symbol, yahoo):
                     for ed in earn_dates:
                         try:
                             import pandas as _pd
-                            ed_naive  = _pd.Timestamp(ed).tz_localize(None) if _pd.Timestamp(ed).tzinfo else _pd.Timestamp(ed)
+                            _ts = _pd.Timestamp(ed)
+                            ed_naive  = _ts.tz_convert(None) if _ts.tzinfo else _ts
                             days_away = (ed_naive - datetime.now()).days
                             if 0 <= days_away <= 45:
                                 catalysts.append(f"Earnings in {days_away} days — potential reset catalyst")

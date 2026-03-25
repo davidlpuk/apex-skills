@@ -32,6 +32,62 @@ GEO_FILE         = '/home/ubuntu/.picoclaw/logs/apex-geo-news.json'
 DIRECTION_FILE   = '/home/ubuntu/.picoclaw/logs/apex-market-direction.json'
 QUALITY_FILE     = '/home/ubuntu/.picoclaw/scripts/apex-quality-universe.json'
 BREAKER_FILE     = '/home/ubuntu/.picoclaw/logs/apex-circuit-breaker.json'
+BT_V2_INSIGHTS   = '/home/ubuntu/.picoclaw/logs/apex-backtest-v2-insights.json'
+
+def load_backtest_calibration(signal_type: str) -> dict:
+    """
+    Load optimal parameters from backtest v2 walk-forward insights.
+
+    Returns a dict with at minimum:
+        score_threshold (float)  — calibrated minimum score gate
+        vix_block       (float)  — calibrated VIX block level
+        source          (str)    — 'v2_insights' | 'default'
+
+    Falls back to safe defaults if the insights file is absent or malformed.
+    The defaults are deliberately conservative (same as existing hardcoded values)
+    so this gate never loosens the system relative to the status quo.
+    """
+    _DEFAULTS = {
+        'TREND':            {'score_threshold': 7.0, 'vix_block': 33},
+        'CONTRARIAN':       {'score_threshold': 6.5, 'vix_block': 36},
+        'INVERSE':          {'score_threshold': 7.0, 'vix_block': 28},
+        'EARNINGS_DRIFT':   {'score_threshold': 7.0, 'vix_block': 33},
+        'DIVIDEND_CAPTURE': {'score_threshold': 6.5, 'vix_block': 33},
+    }
+    default = _DEFAULTS.get(signal_type, _DEFAULTS['TREND']).copy()
+    default['source'] = 'default'
+
+    try:
+        bt = safe_read(BT_V2_INSIGHTS, {})
+        if not bt:
+            return default
+        optimal = bt.get('optimal_params', {}).get(signal_type, {})
+        if not optimal:
+            # Try aggregate across both modes
+            for mode_key in ('TREND', 'CONTRARIAN'):
+                candidate = bt.get('optimal_params', {}).get(mode_key, {})
+                if candidate:
+                    optimal = candidate
+                    break
+        if not optimal:
+            return default
+
+        result = {
+            'score_threshold': float(optimal.get('score_threshold', default['score_threshold'])),
+            'vix_block':       float(optimal.get('vix_block',       default['vix_block'])),
+            'atr_stop_mult':   float(optimal.get('atr_stop_mult',   2.0)),
+            'max_hold_days':   int(optimal.get('max_hold_days',     15)),
+            'source':          'v2_insights',
+        }
+        # Safety guard: never accept below the default threshold
+        # (backtest could produce a lower threshold due to data lookahead artefacts)
+        result['score_threshold'] = max(result['score_threshold'], default['score_threshold'])
+        return result
+
+    except Exception as e:
+        log_error(f"load_backtest_calibration failed (non-fatal): {e}")
+        return default
+
 
 def load_autopilot():
     try:
@@ -236,8 +292,8 @@ def geo_news_check(signal):
     name   = signal.get('name', '')
     sector = signal.get('sector', '')
 
-    # Contrarian trades allowed during geo alert — buying the panic dip
-    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL']:
+    # Contrarian and TACO trades allowed during geo alert — buying the panic dip
+    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL', 'TACO_CONTRARIAN']:
         return "CLEAR", []
 
     # All TREND/momentum entries blocked during geo ALERT — uncertainty too high
@@ -246,8 +302,8 @@ def geo_news_check(signal):
 def market_direction_check(signal):
     signal_type = signal.get('signal_type', 'TREND')
 
-    # Contrarian trades ignore market direction — that's the whole point
-    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL']:
+    # Contrarian and TACO trades ignore market direction — that's the whole point
+    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL', 'TACO_CONTRARIAN']:
         return "CLEAR", []
 
     try:
@@ -260,8 +316,8 @@ def market_direction_check(signal):
 def regime_check(signal):
     signal_type = signal.get('signal_type', 'TREND')
 
-    # Contrarian trades work during regime blocks — skip this check
-    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL']:
+    # Contrarian and TACO trades work during regime blocks — skip this check
+    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL', 'TACO_CONTRARIAN']:
         return "CLEAR", []
 
     try:
@@ -283,7 +339,8 @@ def regime_check(signal):
 
 def contrarian_quality_check(signal):
     signal_type = signal.get('signal_type', 'TREND')
-    if signal_type != 'CONTRARIAN':
+    # TACO_CONTRARIAN trades ETFs which are not in the quality universe — skip check
+    if signal_type not in ('CONTRARIAN',):
         return "CLEAR", []
 
     name = signal.get('name', '')
@@ -438,14 +495,22 @@ def get_dynamic_position_size(signal):
         log_error(f"get_dynamic_position_size failed: {e}")
         return None
 
-def execute_autonomously():
-    result = subprocess.run(
-        ['bash', '/home/ubuntu/.picoclaw/scripts/apex-execute-order.sh'],
-        capture_output=True, text=True
-    )
+def execute_autonomously(dry_run=False):
+    if dry_run:
+        result = subprocess.run(
+            ['/home/ubuntu/bin/python3',
+             '/home/ubuntu/.picoclaw/scripts/apex_order_executor.py',
+             '--dry-run'],
+            capture_output=True, text=True
+        )
+    else:
+        result = subprocess.run(
+            ['bash', '/home/ubuntu/.picoclaw/scripts/apex-execute-order.sh'],
+            capture_output=True, text=True
+        )
     return result.returncode == 0
 
-def run(mode='check'):
+def run(mode='check', dry_run=False):
     config = load_autopilot()
     now    = datetime.now(timezone.utc)
     today  = now.strftime('%Y-%m-%d')
@@ -511,8 +576,26 @@ def run(mode='check'):
     ticker      = signal.get('t212_ticker', '?')
     signal_type = signal.get('signal_type', 'TREND')
 
-    type_icon = "🔄" if signal_type == 'CONTRARIAN' else "📈"
-    type_label = "CONTRARIAN" if signal_type == 'CONTRARIAN' else "TREND"
+    type_icon  = ("🌮" if signal_type == 'TACO_CONTRARIAN'
+                  else ("🔄" if signal_type == 'CONTRARIAN' else "📈"))
+    type_label = ("TACO_CONTRARIAN" if signal_type == 'TACO_CONTRARIAN'
+                  else ("CONTRARIAN" if signal_type == 'CONTRARIAN' else "TREND"))
+
+    # Backtest-calibrated score gate
+    bt_cal = load_backtest_calibration(signal_type)
+    cal_threshold = bt_cal['score_threshold']
+    if score < cal_threshold:
+        reason = (
+            f"Score {score} below calibrated threshold {cal_threshold} "
+            f"for {signal_type} [{bt_cal['source']}]"
+        )
+        send_telegram(f"🤖 SCORE GATE\n\n{type_icon} {name} ({type_label})\n{reason}")
+        print(f"SCORE GATE: {reason}")
+        return
+    if bt_cal['source'] == 'v2_insights':
+        print(f"  Backtest gate: score {score} >= {cal_threshold} (v2 calibrated)")
+    else:
+        print(f"  Score gate: {score} >= {cal_threshold} (default threshold)")
 
     # Intraday signal decay — re-score at current price before executing
     decay_ok, decay_msg, effective_score = check_intraday_signal_decay(signal)
@@ -595,7 +678,11 @@ def run(mode='check'):
             "si", "/home/ubuntu/.picoclaw/scripts/apex-simons-test.py")
         _si = _ilu_si.module_from_spec(_spec_si)
         _spec_si.loader.exec_module(_si)
-        _regime = intel.get('regime_label', 'NEUTRAL') if hasattr(signal, 'get') else 'NEUTRAL'
+        try:
+            import json as _json
+            _regime = _json.load(open('/home/ubuntu/.picoclaw/logs/apex-regime.json')).get('regime_label', 'NEUTRAL')
+        except Exception:
+            _regime = 'NEUTRAL'
         noise, regime_wr, is_sig, simons_rec = _si.audit_signal(signal, _regime)
         print(f"  Simons: noise={noise}/10 | {simons_rec[:60]}")
         if noise >= 9 and is_sig:
@@ -669,8 +756,8 @@ def run(mode='check'):
             )
             print(f"SAFE HAVEN BLOCKED: score={_shv_score} level={_shv_level}")
             return
-        elif _shv_score >= 6:  # WARNING — log but allow CONTRARIAN
-            if signal.get('signal_type', 'TREND') != 'CONTRARIAN':
+        elif _shv_score >= 6:  # WARNING — log but allow CONTRARIAN and TACO (both are volatility-spike trades)
+            if signal.get('signal_type', 'TREND') not in ('CONTRARIAN', 'TACO_CONTRARIAN'):
                 send_telegram(
                     f"🟠 SAFE HAVEN WARNING BLOCK\n\n{name}\n"
                     f"Safe haven score {_shv_score}/12 ({_shv_level})\n"
@@ -717,17 +804,24 @@ def run(mode='check'):
     reasons = signal.get('reasons', [])
     reason_str = ' | '.join(reasons[:2]) if reasons else ''
 
-    if signal_type == 'CONTRARIAN':
-        send_telegram(f"🤖 AUTOPILOT EXECUTING — CONTRARIAN\n\n🔄 {name}\nRSI: {rsi} (deeply oversold)\nEntry: £{entry} | Stop: £{stop}\nC-Score: {score}/10\n{reason_str}\n\nBuying quality at discount...")
+    _dry_prefix = "🔬 DRY-RUN: " if dry_run else ""
+    if signal_type == 'TACO_CONTRARIAN':
+        _taco_conf = signal.get('taco_confidence', 0)
+        _taco_st   = signal.get('taco_status', '?')
+        _tranche   = signal.get('taco_tranche', 1)
+        send_telegram(f"{_dry_prefix}🤖 AUTOPILOT EXECUTING — TACO\n\n🌮 {name} (Tranche {_tranche})\nStatus: {_taco_st} | Confidence: {_taco_conf:.0%}\nEntry: ${entry} | Stop: ${stop}\nTarget: ${signal.get('target1','?')}\n\nBuying the TACO dip...")
+    elif signal_type == 'CONTRARIAN':
+        send_telegram(f"{_dry_prefix}🤖 AUTOPILOT EXECUTING — CONTRARIAN\n\n🔄 {name}\nRSI: {rsi} (deeply oversold)\nEntry: £{entry} | Stop: £{stop}\nC-Score: {score}/10\n{reason_str}\n\nBuying quality at discount...")
     else:
-        send_telegram(f"🤖 AUTOPILOT EXECUTING — TREND\n\n📈 {name}\nEntry: £{entry} | Stop: £{stop}\nScore: {score}/10\n\nPlacing orders now...")
+        send_telegram(f"{_dry_prefix}🤖 AUTOPILOT EXECUTING — TREND\n\n📈 {name}\nEntry: £{entry} | Stop: £{stop}\nScore: {score}/10\n\nPlacing orders now...")
 
-    success = execute_autonomously()
+    success = execute_autonomously(dry_run=dry_run)
 
     if success:
-        config['trades_today']            = config.get('trades_today', 0) + 1
-        config['total_autonomous_trades'] = config.get('total_autonomous_trades', 0) + 1
-        config['last_trade_time']         = now.isoformat()
+        if not dry_run:
+            config['trades_today']            = config.get('trades_today', 0) + 1
+            config['total_autonomous_trades'] = config.get('total_autonomous_trades', 0) + 1
+            config['last_trade_time']         = now.isoformat()
 
         # Decrement recovery ramp if active (post-SUSPEND 50% sizing period)
         try:
@@ -752,13 +846,21 @@ def run(mode='check'):
         })
         save_autopilot(config)
 
-        if signal_type == 'CONTRARIAN':
+        if dry_run:
+            send_telegram(f"🔬 DRY-RUN COMPLETE\n\n{name} passed all {13} gate checks\nWould have placed: qty={signal.get('quantity','?')} entry=£{entry} stop=£{stop}\nScore={score} | No real orders placed.")
+        elif signal_type == 'CONTRARIAN':
             send_telegram(f"🤖 CONTRARIAN TRADE COMPLETE\n\n✅ {name} purchased at discount\nEntry: £{entry} | Stop: £{stop} (in T212)\nRSI was {rsi} — mean reversion play\nC-Score: {score}/10\n\nApex will monitor for return to 50-day EMA.\nType AUTOPILOT OFF anytime.")
         else:
             send_telegram(f"🤖 TREND TRADE COMPLETE\n\n✅ {name} purchased\nEntry: £{entry} | Stop: £{stop} (in T212)\nScore: {score}/10\n\nType AUTOPILOT OFF anytime.")
     else:
-        send_telegram(f"🤖 EXECUTION FAILED\n\n{name} order failed — check logs.")
+        send_telegram(f"{'🔬 DRY-RUN FAILED' if dry_run else '🤖 EXECUTION FAILED'}\n\n{name} order failed — check logs.")
 
 if __name__ == '__main__':
-    mode = sys.argv[1] if len(sys.argv) > 1 else 'check'
-    run(mode)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('mode', nargs='?', default='check',
+                        help='Mode: check | on | off | status')
+    parser.add_argument('--dry-run', action='store_true',
+                        help='Run all gate checks but skip real order placement')
+    args = parser.parse_args()
+    run(args.mode, dry_run=args.dry_run)

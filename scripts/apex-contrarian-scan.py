@@ -28,6 +28,7 @@ GEO_FILE       = '/home/ubuntu/.picoclaw/logs/apex-geo-news.json'
 WEIGHTS_FILE   = '/home/ubuntu/.picoclaw/logs/apex-weights.json'
 
 YAHOO_MAP = {
+    "IUIT": "IUIT.L",   # user-added
     "CRDO": "CRDO",   # user-added
     "NFE": "NFE",   # user-added
     "PGY": "PGY",   # user-added
@@ -43,6 +44,7 @@ YAHOO_MAP = {
 }
 
 CURRENCY_MAP = {
+    "IUIT": "GBP",  # user-added
     "AZN": "GBX", "SHEL": "GBX", "GSK": "GBX", "ULVR": "GBX",
     "REL": "GBX", "BA":   "GBX", "HSBA":"GBX", "LGEN": "GBX",
     "IMB": "GBX", "BATS": "GBX",
@@ -84,6 +86,9 @@ def score_contrarian(name, yahoo_ticker, currency, quality_score):
         low_52   = fix_pence(round(float(close.min()), 2), currency)
         ema200   = round(float(close.ewm(span=200).mean().iloc[-1]), 2)
         ema50    = round(float(close.ewm(span=50).mean().iloc[-1]), 2)
+
+        avg_vol   = float(volume.rolling(20).mean().iloc[-1])
+        vol_ratio = round(float(volume.iloc[-1]) / avg_vol, 2) if avg_vol > 0 else 1.0
 
         # RSI 14
         delta  = close.diff()
@@ -164,6 +169,7 @@ def score_contrarian(name, yahoo_ticker, currency, quality_score):
             "macd_hist":     round(macd_hist, 4),
             "macd_rising":   macd_rising,
             "quality_score": quality_score,
+            "vol_ratio":     vol_ratio,
             "contrarian_score": score,
             "max_score":     10,
             "reasons":       reasons,

@@ -32,10 +32,37 @@ except ImportError as _e:
     print(f"FATAL: apex_utils not available — {_e}")
     sys.exit(2)
 
+try:
+    from apex_config import T212_FILL_POLL_COUNT, T212_FILL_POLL_INTERVAL
+except ImportError:
+    T212_FILL_POLL_COUNT    = 18
+    T212_FILL_POLL_INTERVAL = 10
+
 SIGNAL_FILE    = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 LOG            = '/home/ubuntu/.picoclaw/logs/apex-orders.log'
 TRADING_STATE  = '/home/ubuntu/.picoclaw/workspace/skills/apex-trading/TRADING_STATE.md'
+
+# Alpaca executor — preferred for US stocks when credentials are configured
+try:
+    import importlib.util as _ilu
+    _spec = _ilu.spec_from_file_location(
+        "apex_alpaca_executor",
+        "/home/ubuntu/.picoclaw/scripts/apex-alpaca-executor.py")
+    _alpaca_mod = _ilu.module_from_spec(_spec)
+    _spec.loader.exec_module(_alpaca_mod)
+    _ALPACA_AVAILABLE = _alpaca_mod.is_configured()
+except Exception:
+    _alpaca_mod = None
+    _ALPACA_AVAILABLE = False
+
+# US tickers that qualify for Alpaca execution (from apex-alpaca.py)
+_ALPACA_US_TICKERS = {
+    "AAPL","MSFT","NVDA","GOOGL","AMZN","META","TSLA","CRM","ORCL",
+    "AMD","INTC","QCOM","JPM","GS","MS","BAC","BLK","AXP","C","V",
+    "JNJ","PFE","MRK","UNH","ABBV","TMO","DHR","KO","PEP","MCD",
+    "WMT","PG","XOM","CVX","NVO"
+}
 
 
 def _log(msg: str) -> None:
@@ -95,10 +122,88 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
         send_telegram("⚠️ Signal file incomplete — no ticker or quantity.")
         return False
 
+    if entry > 0 and stop > 0 and stop >= entry:
+        _log(f"ERROR: Invalid stops for {name}: entry={entry} stop={stop} — stop must be below entry")
+        send_telegram(f"⚠️ Trade rejected — invalid stops: entry {entry} <= stop {stop} for {name}")
+        return False
+
     if dry_run:
         _log(f"DRY-RUN: Would place {quantity} × {ticker} @ £{entry} (stop £{stop})")
         send_telegram(f"🔬 DRY-RUN: {name} ({ticker}) {quantity}×£{entry} stop:£{stop}")
         return True
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Alpaca routing: US stocks with Alpaca credentials configured go via Alpaca
+    # (DMA, smart order routing, fractional shares) — T212 is fallback.
+    # ─────────────────────────────────────────────────────────────────────────
+    alpaca_ticker = signal.get('ticker', ticker).replace('_US_EQ', '').replace('_EQ', '')
+    use_alpaca = (
+        _ALPACA_AVAILABLE
+        and _alpaca_mod is not None
+        and alpaca_ticker.upper() in _ALPACA_US_TICKERS
+    )
+
+    if use_alpaca:
+        _log(f"Routing {alpaca_ticker} → Alpaca (US stock, DMA available)")
+        alpaca_signal = {**signal, 'ticker': alpaca_ticker}
+        ap_result = _alpaca_mod.execute(alpaca_signal, dry_run=dry_run)
+
+        if ap_result['success']:
+            entry_id   = ap_result.get('entry_order_id')
+            stop_id    = ap_result.get('stop_order_id')
+            filled_qty = ap_result.get('filled_qty', quantity)
+            venue      = 'ALPACA'
+
+            # Write position to positions file (same schema as T212 path)
+            today    = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+            now_iso  = datetime.now(timezone.utc).isoformat()
+            status   = 'protected' if stop_id else ('awaiting_fill' if filled_qty == 0 else 'unprotected')
+            unprotected = not stop_id and filled_qty > 0
+
+            def _write_alpaca(positions):
+                positions = positions or []
+                positions = [p for p in positions
+                             if not (p.get('t212_ticker') == ticker and p.get('status') == 'pending')]
+                positions.append({
+                    "t212_ticker": ticker, "name": name,
+                    "quantity": quantity, "entry": entry, "stop": stop,
+                    "target1": target1, "target2": target2, "score": score,
+                    "rsi": rsi, "macd": macd, "sector": sector, "atr": atr,
+                    "signal_type": signal_type, "currency": currency,
+                    "opened": today, "opened_iso": now_iso,
+                    "entry_order_id": str(entry_id) if entry_id else None,
+                    "stop_order_id": str(stop_id) if stop_id else None,
+                    "status": status, "order_type": f"{ap_result.get('order_type','LIMIT')}+STOP",
+                    "venue": "ALPACA", "unprotected": unprotected,
+                })
+                return positions
+            locked_read_modify_write(POSITIONS_FILE, _write_alpaca, default=[])
+
+            if unprotected:
+                send_telegram(
+                    f"🚨 UNPROTECTED POSITION (Alpaca) — ACTION REQUIRED\n\n"
+                    f"{name} ({alpaca_ticker})\nEntry placed but stop loss FAILED.\n"
+                    f"Log in to Alpaca and set stop at ${stop}"
+                )
+            elif status == 'protected':
+                send_telegram(
+                    f"✅ TRADE PLACED (Alpaca)\n"
+                    f"🏷 {name} ({alpaca_ticker})\n"
+                    f"📐 Qty: {filled_qty} shares\n"
+                    f"💰 Entry: ${entry} ({ap_result.get('order_type','LIMIT')})\n"
+                    f"🛑 Stop: ${stop} (GTC)\n"
+                    f"🎯 T1: ${target1} | T2: ${target2}\n"
+                    f"📊 Score: {score}/10\n"
+                    f"🔖 Entry ID: {entry_id} | Stop ID: {stop_id}\n"
+                    f"🏦 Venue: Alpaca (DMA)"
+                )
+                try:
+                    os.remove(SIGNAL_FILE)
+                except FileNotFoundError:
+                    pass
+            return True
+        else:
+            _log(f"Alpaca execution failed: {ap_result.get('error')} — falling back to T212")
 
     today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
     now_iso = datetime.now(timezone.utc).isoformat()
@@ -194,8 +299,14 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
     # ─────────────────────────────────────────────────────────────────────────
     _log(f"Step 2b: Waiting for entry fill — polling order {entry_id}")
     filled_qty = 0.0
-    for _poll in range(18):   # 18 × 10 s = 3 minutes
-        order_status = t212_request(f'/equity/orders/{entry_id}') or {}
+    for _poll in range(T212_FILL_POLL_COUNT):
+        _raw = t212_request(f'/equity/orders/{entry_id}')
+        if _raw is None:
+            # API returned None — 404 (order gone) or transient error.
+            # Don't keep hammering a dead order ID every 10s for 3 minutes.
+            _log(f"  Poll {_poll+1}: order {entry_id} not found (API error/404) — deferring stop")
+            break
+        order_status = _raw
         filled_qty = float(order_status.get('filledQuantity', 0))
         status_str = order_status.get('status', 'UNKNOWN')
         if filled_qty > 0:
@@ -209,8 +320,9 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
                 f"Order {entry_id} was {status_str}. No position opened."
             )
             return False
-        _log(f"  Poll {_poll+1}/18: filledQty={filled_qty} status={status_str} — waiting 10s")
-        time.sleep(10)
+        _log(f"  Poll {_poll+1}/{T212_FILL_POLL_COUNT}: filledQty={filled_qty} "
+             f"status={status_str} — waiting {T212_FILL_POLL_INTERVAL}s")
+        time.sleep(T212_FILL_POLL_INTERVAL)
 
     if filled_qty == 0:
         # Order not filled within 3 min (e.g. pre-market limit) — save

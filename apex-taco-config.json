@@ -1,0 +1,104 @@
+{
+  "enabled": true,
+  "version": 1,
+
+  "ticker_map": {
+    "broad_market": {
+      "yahoo":      "SPYL.L",
+      "t212_ticker": "SPYLs_EQ",
+      "name":       "SPDR S&P 500 (Acc)",
+      "currency":   "GBP"
+    },
+    "tech": {
+      "yahoo":      "QQQ",
+      "t212_ticker": "QQQ_EQ",
+      "name":       "Invesco QQQ Trust Series 1",
+      "currency":   "USD"
+    },
+    "industrials": {
+      "yahoo":      "XLI",
+      "t212_ticker": "SXLIl_EQ",
+      "name":       "SPDR S&P U.S. Industrials Select Sector (Acc)",
+      "currency":   "USD"
+    },
+    "energy": {
+      "yahoo":      "XLE",
+      "t212_ticker": "SXLEl_EQ",
+      "name":       "SPDR S&P U.S. Energy Select Sector (Acc)",
+      "currency":   "USD"
+    },
+    "semiconductors": {
+      "yahoo":      "SMH",
+      "t212_ticker": "SMHl_EQ",
+      "name":       "VanEck Semiconductor (Acc)",
+      "currency":   "USD"
+    }
+  },
+
+  "threat_type_to_ticker": {
+    "TARIFF_BROAD":   "broad_market",
+    "TARIFF_TECH":    "tech",
+    "TARIFF_CHINA":   "tech",
+    "GEO_ENERGY":     "energy",
+    "TARIFF_DEFENSE": "industrials",
+    "TARIFF_SEMI":    "semiconductors",
+    "DEFAULT":        "broad_market"
+  },
+
+  "classifier": {
+    "vix_spike_threshold_pct":      15.0,
+    "rhetoric_score_min":           2,
+    "action_score_min":             2,
+    "walkback_score_min":           2,
+    "confidence_min_armed":         0.65,
+    "high_confidence_threshold":    0.80,
+    "escalation_confidence_penalty": 0.15,
+    "escalation_count_threshold":   3,
+    "state_ttl_hours":              24,
+    "fundamental_vix_keywords": [
+      "earnings", "recession", "credit", "bank run", "default",
+      "fed rate", "interest rate", "inflation", "jobs report",
+      "gdp", "unemployment", "financial crisis", "bank failure"
+    ]
+  },
+
+  "monitor": {
+    "armed_expiry_trading_days":        5,
+    "friday_blackout_hour_utc":         14,
+    "min_confidence_for_armed":         0.65,
+    "first_tranche_size_multiplier":    0.5,
+    "full_size_multiplier":             1.0,
+    "high_confidence_size_multiplier":  1.5,
+    "high_confidence_threshold":        0.80,
+    "max_injection_retries":            6
+  },
+
+  "outcomes": {
+    "exhausted_event_count_30d":        4,
+    "exhausted_win_rate_threshold":     0.55,
+    "exhausted_consecutive_declining":  3,
+    "exhausted_recovery_trading_days":  15
+  },
+
+  "keywords": {
+    "rhetoric": [
+      "threat", "tariff", "warn", "ultimatum", "deadline",
+      "consider", "propose", "may impose", "could sanction",
+      "warning", "threatens", "threatened", "vow", "vows"
+    ],
+    "action": [
+      "enacted", "signed", "effective", "implemented", "confirmed",
+      "deployed", "launched", "executed", "took effect", "in effect",
+      "imposes", "imposed", "activated"
+    ],
+    "walkback": [
+      "paused", "delayed", "exemption", "negotiating", "softened",
+      "reconsidering", "90-day", "extension", "pause", "delay",
+      "exempt", "renegotiate", "eased", "backed down", "reversed"
+    ]
+  },
+
+  "cron_classifier": "*/15 8-16 * * 1-5",
+  "cron_monitor":    "*/5 8-16 * * 1-5",
+  "cron_outcomes":   "0 17 * * 1-5"
+}

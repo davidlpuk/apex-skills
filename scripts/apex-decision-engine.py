@@ -149,7 +149,7 @@ def _gather_intelligence_stub():
 
 SECTOR_MAP = {
     "Energy":     ["XOM","CVX","SHEL","BP","TTE","IUES","NG_EQ","SSE_EQ","INRG","NFE"],
-    "Technology": ["AAPL","MSFT","NVDA","GOOGL","AMZN","META","AMD","CRM","ORCL","QCOM","IITU","CRDO"],
+    "Technology": ["AAPL","MSFT","NVDA","GOOGL","AMZN","META","AMD","CRM","ORCL","QCOM","IITU","CRDO","IUIT"],
     "Financials": ["JPM","GS_EQ","MS_EQ","BAC","BLK","V_US","AXP","HSBA","BARC","NWG","IUFS","PGY"],
     "Healthcare": ["JNJ","PFE","MRK","UNH","ABBV","AZN","GSK","TMO","DHR","IUHC","NOVO"],
     "Consumer":   ["KO","PEP","MCD","WMT","PG","DGE","ULVR","CPG","IMB","BATS","IUCD"],
@@ -960,6 +960,7 @@ def log_decision_run(all_signals, blocked_map, qualified, best, intel):
             }
             signals_log.append(entry)
 
+        _ages = intel.get('file_ages_hours', {})
         run_record = {
             "date":             datetime.now(timezone.utc).strftime('%Y-%m-%d'),
             "timestamp":        datetime.now(timezone.utc).isoformat(),
@@ -975,6 +976,10 @@ def log_decision_run(all_signals, blocked_map, qualified, best, intel):
             "best_type":        best.get('signal_type') if best else None,
             "best_score":       best.get('adjusted_score') if best else None,
             "signals":          signals_log,
+            "data_provenance": {
+                k: {"age_hours": v, "stale": v > 12}
+                for k, v in _ages.items()
+            },
         }
 
         # Keep last 90 days of runs (cap at 200 entries)

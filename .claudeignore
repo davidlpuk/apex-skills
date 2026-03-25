@@ -1,0 +1,30 @@
+# Claude Code — files to exclude from auto-indexing and search
+# This prevents Claude from spending tokens reading large runtime data files
+
+# Runtime JSON state files — read by dashboard at runtime, not relevant to code changes
+logs/
+data/
+
+# Python caches
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# Virtual environments — never need reading
+apex_venv/
+venv/
+.venv/
+
+# Large static data files in scripts/
+scripts/apex-quality-universe.json
+scripts/t212-instruments-cache.json
+scripts/apex-ticker-map.json
+
+# Build/workspace artifacts
+workspace/
+
+# Credentials — should never be read
+.env*
+*.env
+config.json
+apex-google-credentials.json

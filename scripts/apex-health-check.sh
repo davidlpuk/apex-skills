@@ -5,6 +5,26 @@ LOG="/home/ubuntu/.picoclaw/logs/apex-health.log"
 LOGS_DIR="/home/ubuntu/.picoclaw/logs"
 PYTHON=/home/ubuntu/bin/python3
 
+# Email fallback — activate by adding APEX_ALERT_EMAIL=you@example.com to .env.trading212
+source /home/ubuntu/.picoclaw/.env.trading212 2>/dev/null
+APEX_ALERT_EMAIL="${APEX_ALERT_EMAIL:-}"
+
+send_email_fallback() {
+  local subject="$1"
+  local body="$2"
+  if [ -z "$APEX_ALERT_EMAIL" ]; then
+    echo "$(date): Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212" >> "$LOG"
+    return
+  fi
+  if ! command -v mail &>/dev/null; then
+    echo "$(date): Email fallback skipped — mail command not found (install mailutils)" >> "$LOG"
+    return
+  fi
+  echo "$body" | mail -s "$subject" "$APEX_ALERT_EMAIL" 2>/dev/null \
+    && echo "$(date): Email alert sent to $APEX_ALERT_EMAIL" >> "$LOG" \
+    || echo "$(date): Email alert FAILED to send to $APEX_ALERT_EMAIL" >> "$LOG"
+}
+
 echo "$(date): Running health check" >> "$LOG"
 
 ISSUES=()
@@ -135,7 +155,9 @@ import json
 try:
     with open('$LOGS_DIR/apex-positions.json') as f:
         p = json.load(f)
-    print(len(p))
+    # Exclude awaiting_fill — not yet confirmed in T212
+    confirmed = [x for x in p if x.get('status') != 'awaiting_fill']
+    print(len(confirmed))
 except:
     print(0)
 " 2>/dev/null)
@@ -253,6 +275,19 @@ Autopilot: $AP_STATUS
 Uptime: $UPTIME
 
 Immediate attention required."
+
+  send_email_fallback \
+    "APEX CRITICAL ALERT — ${#ISSUES[@]} issue(s)" \
+    "APEX HEALTH ALERT — $(date)
+
+Critical issues detected:
+$ISSUE_STR
+$WARN_STR
+
+Autopilot: $AP_STATUS | Uptime: $UPTIME
+
+This is an automated fallback alert from apex-health-check.sh.
+Telegram may be unreachable — log in to check the system directly."
 
   echo "$(date): CRITICAL — ${#ISSUES[@]} issues, ${#WARNINGS[@]} warnings" >> "$LOG"
 

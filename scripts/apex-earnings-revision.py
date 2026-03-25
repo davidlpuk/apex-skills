@@ -32,7 +32,31 @@ except ImportError:
     def log_warning(m): print(f'WARNING: {m}')
 
 REVISION_FILE = '/home/ubuntu/.picoclaw/logs/apex-earnings-revision.json'
+QUOTA_FILE    = '/home/ubuntu/.picoclaw/logs/apex-fmp-quota.json'
 CACHE_MAX_AGE = 86400  # 24h in seconds
+DAILY_LIMIT   = 230
+
+
+def _quota_check_and_record():
+    """Return True if quota allows another call, and record it."""
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    try:
+        q = json.load(open(QUOTA_FILE))
+        if q.get('date') != today:
+            q = {'date': today, 'calls': 0, 'by_script': {}}
+    except Exception:
+        q = {'date': today, 'calls': 0, 'by_script': {}}
+    if int(q.get('calls', 0)) >= DAILY_LIMIT:
+        return False
+    q['calls'] = int(q.get('calls', 0)) + 1
+    q.setdefault('by_script', {})
+    q['by_script']['earnings-revision'] = q['by_script'].get('earnings-revision', 0) + 1
+    try:
+        with open(QUOTA_FILE, 'w') as f:
+            json.dump(q, f, indent=2)
+    except Exception:
+        pass
+    return True
 
 # T212 ticker → Yahoo ticker mapping
 T212_TO_YAHOO = {
@@ -58,102 +82,71 @@ def _get_fmp_key():
     return os.environ.get('FMP_KEY', '')
 
 
-def _fetch_price_targets(symbol, fmp_key):
+def _fetch_target_summary(symbol, fmp_key):
     """
-    Fetch analyst price targets from FMP.
-    Returns list of {date, priceTarget, analystName} dicts or [].
+    Fetch price target summary from FMP stable endpoint.
+    Returns summary dict or None.
+    Uses stable/price-target-summary (replaces legacy v4/price-target).
     """
     if not fmp_key:
-        return []
+        return None
+    if not _quota_check_and_record():
+        log_warning("FMP daily quota reached — skipping earnings revision fetch")
+        return None
     try:
-        import urllib.request
-        url = (f"https://financialmodelingprep.com/api/v4/price-target"
-               f"?symbol={symbol}&apikey={fmp_key}&limit=50")
+        import urllib.request, urllib.error
+        url = (f"https://financialmodelingprep.com/stable/price-target-summary"
+               f"?symbol={symbol}&apikey={fmp_key}")
         req = urllib.request.Request(url, headers={'User-Agent': 'ApexBot/1.0'})
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode())
-            if isinstance(data, list):
-                return data
+            if isinstance(data, list) and data:
+                return data[0]
     except Exception as e:
-        log_error(f"FMP price targets fetch failed for {symbol}: {e}")
-    return []
+        log_error(f"FMP target summary fetch failed for {symbol}: {e}")
+    return None
 
 
-def _analyse_revisions(targets, days=30):
+def _analyse_revisions(summary):
     """
-    Analyse price target revisions over the last N days.
+    Derive revision momentum from price-target-summary.
+    Compares lastMonthAvgPriceTarget vs lastQuarterAvgPriceTarget to infer
+    whether analysts have been raising or cutting targets recently.
     Returns (raises, cuts, net_signal, reasons).
     """
-    if not targets:
+    if not summary:
         return 0, 0, 0.0, []
 
-    now        = datetime.now(timezone.utc)
-    cutoff     = now - timedelta(days=days)
+    month_avg   = float(summary.get('lastMonthAvgPriceTarget') or 0)
+    quarter_avg = float(summary.get('lastQuarterAvgPriceTarget') or 0)
+    month_count = int(summary.get('lastMonthCount') or 0)
+
+    if month_avg <= 0 or quarter_avg <= 0 or month_count == 0:
+        return 0, 0, 0.0, []
+
+    pct_change = (month_avg - quarter_avg) / quarter_avg * 100
 
     raises = 0
     cuts   = 0
+    signal = 0.0
     reasons = []
 
-    # Sort by date descending
-    sorted_targets = sorted(targets, key=lambda x: x.get('publishedDate', ''), reverse=True)
-
-    # Group by analyst to track changes
-    by_analyst = {}
-    for t in sorted_targets:
-        analyst = t.get('analystName') or t.get('analystCompany', 'Unknown')
-        date_str = t.get('publishedDate', '')
-        if not date_str:
-            continue
-        try:
-            t_date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-            if t_date.tzinfo is None:
-                t_date = t_date.replace(tzinfo=timezone.utc)
-        except Exception:
-            continue
-
-        target_price = float(t.get('priceTarget', 0) or 0)
-        if target_price <= 0:
-            continue
-
-        if analyst not in by_analyst:
-            by_analyst[analyst] = []
-        by_analyst[analyst].append({'date': t_date, 'price': target_price})
-
-    # Check each analyst's most recent change within the window
-    for analyst, history in by_analyst.items():
-        if len(history) < 2:
-            # Only one data point — check if it's a recent new coverage
-            if history[0]['date'] >= cutoff:
-                pass  # New coverage, not a revision
-            continue
-
-        # Most recent vs previous
-        recent   = history[0]
-        previous = history[1]
-
-        if recent['date'] < cutoff:
-            continue  # Most recent change is outside the window
-
-        change = recent['price'] - previous['price']
-        if change > 0:
-            raises += 1
-            reasons.append(f"{analyst[:20]} raised target ${previous['price']:.0f}→${recent['price']:.0f}")
-        elif change < 0:
-            cuts += 1
-            reasons.append(f"{analyst[:20]} cut target ${previous['price']:.0f}→${recent['price']:.0f}")
-
-    # Net signal
-    net = raises - cuts
-    if raises >= 3:
+    if pct_change >= 6 and month_count >= 3:
+        raises = 3
         signal = 1.5
-    elif raises == 2:
+        reasons.append(f"{month_count} analysts raised targets +{pct_change:.1f}% vs quarterly avg (${quarter_avg:.0f}→${month_avg:.0f})")
+    elif pct_change >= 3 and month_count >= 2:
+        raises = 2
         signal = 1.0
-    elif cuts >= 3:
+        reasons.append(f"{month_count} analysts raised targets +{pct_change:.1f}% vs quarterly avg (${quarter_avg:.0f}→${month_avg:.0f})")
+    elif pct_change <= -6 and month_count >= 3:
+        cuts = 3
         signal = -1.5
-    elif cuts == 2:
+        reasons.append(f"{month_count} analysts cut targets {pct_change:.1f}% vs quarterly avg (${quarter_avg:.0f}→${month_avg:.0f})")
+    elif pct_change <= -3 and month_count >= 2:
+        cuts = 2
         signal = -1.0
-    else:
-        signal = 0.0
+        reasons.append(f"{month_count} analysts cut targets {pct_change:.1f}% vs quarterly avg (${quarter_avg:.0f}→${month_avg:.0f})")
 
     return raises, cuts, signal, reasons
 
@@ -190,9 +183,9 @@ def get_revision_momentum(instrument_name, t212_ticker='', signal_type='TREND'):
 
     # Fetch fresh data
     fmp_key = _get_fmp_key()
-    targets = _fetch_price_targets(yahoo, fmp_key)
+    summary = _fetch_target_summary(yahoo, fmp_key)
 
-    raises, cuts, adjustment, reasons = _analyse_revisions(targets)
+    raises, cuts, adjustment, reasons = _analyse_revisions(summary)
 
     # Store in cache
     if 'instruments' not in cache:

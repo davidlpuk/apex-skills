@@ -11,7 +11,9 @@ Scenarios it catches:
 
 Runs after every order execution and on the 30-min stop monitor cycle.
 """
+import glob
 import json
+import os
 import subprocess
 import sys
 import time
@@ -81,15 +83,21 @@ def auto_fix_unprotected(unprotected):
             continue
 
         print(f"  🔧 Auto-fixing {ticker}: placing stop @ £{stop} qty={quantity}")
-        order_id = place_stop_order(ticker, quantity, stop)
-        # No manual sleep needed — t212_request rate limiter handles spacing
+        order_id = None
+        for attempt in range(1, 4):
+            order_id = place_stop_order(ticker, quantity, stop)
+            if order_id:
+                break
+            if attempt < 3:
+                print(f"  ⏳ {ticker}: attempt {attempt} failed, retrying...")
+                time.sleep(2)
 
         if order_id:
             fixed.append({'ticker': ticker, 'stop': stop, 'order_id': order_id})
             print(f"  ✅ Stop placed for {ticker} — order {order_id}")
         else:
             failed.append({'ticker': ticker, 'reason': 'T212 API error'})
-            print(f"  ❌ Failed to place stop for {ticker}")
+            print(f"  ❌ Failed to place stop for {ticker} after 3 attempts")
 
     return fixed, failed
 
@@ -215,7 +223,7 @@ def check_api_health():
 
 def check_stale_pending_positions():
     """
-    Detect positions stuck in 'pending' or 'entry_placed' status.
+    Detect positions stuck in 'pending', 'entry_placed', or 'awaiting_fill' status.
     These indicate the execute-order script crashed mid-flight.
     A position stuck in these states for > 30 minutes needs investigation.
     Returns list of stale entries.
@@ -225,11 +233,14 @@ def check_stale_pending_positions():
     stale = []
     for p in positions:
         status = p.get('status', '')
-        if status not in ('pending', 'entry_placed'):
+        if status not in ('pending', 'entry_placed', 'awaiting_fill'):
             continue
-        opened = p.get('opened', '')
+        # Prefer opened_iso (full datetime) over opened (date-only) to avoid
+        # midnight-parse false positives — e.g. opened="2026-03-25" parses as
+        # 00:00 UTC and appears 575m stale at 09:35 even if opened_iso shows 09:33.
+        opened_raw = p.get('opened_iso') or p.get('opened', '')
         try:
-            opened_dt = datetime.fromisoformat(opened) if 'T' in str(opened) else datetime.strptime(opened, '%Y-%m-%d').replace(tzinfo=timezone.utc)
+            opened_dt = datetime.fromisoformat(str(opened_raw).replace('Z', '+00:00'))
             if opened_dt.tzinfo is None:
                 opened_dt = opened_dt.replace(tzinfo=timezone.utc)
             age_mins = (now - opened_dt).total_seconds() / 60
@@ -293,6 +304,24 @@ def check_addon_orders():
 
         # Filled — place stop for the addon quantity
         print(f"  ✅ {ticker}: addon filled {filled_qty} shares — placing stop @ £{stop}")
+
+        # Duplicate guard: re-fetch live orders immediately before placement
+        # to prevent two concurrent watchdog runs placing the same stop
+        _live_orders = get_open_orders() or []
+        if any(o.get('ticker') == ticker and o.get('type') == 'STOP'
+               and o.get('status') in ('NEW', 'WORKING') for o in _live_orders):
+            log_warning(f"addon stop: stop already exists for {ticker} — skipping (duplicate guard)")
+            def _clear_addon_dup(positions, _t=ticker):
+                for p in (positions or []):
+                    if p.get('t212_ticker') == _t:
+                        p.pop('pending_addon_order_id', None)
+                        p.pop('pending_addon_qty', None)
+                        p.pop('pending_addon_stop', None)
+                return positions
+            locked_read_modify_write(POSITIONS_FILE, _clear_addon_dup, default=[])
+            actions.append(f"ADDON_STOP_SKIPPED: {ticker} (stop already exists)")
+            continue
+
         neg_qty = round(filled_qty * -1, 8)
         stop_id = None
         for attempt in range(1, 4):
@@ -391,6 +420,24 @@ def check_and_place_deferred_stops():
 
         # Order filled — place stop now
         print(f"  ✅ {ticker}: filled {filled_qty} shares — placing stop @ £{stop}")
+
+        # Duplicate guard: re-fetch live orders immediately before placement
+        # to prevent two concurrent watchdog runs placing the same stop
+        _live_orders = get_open_orders() or []
+        if any(o.get('ticker') == ticker and o.get('type') == 'STOP'
+               and o.get('status') in ('NEW', 'WORKING') for o in _live_orders):
+            log_warning(f"deferred stop: stop already exists for {ticker} — skipping (duplicate guard)")
+            def _mark_protected_dup(positions, _t=ticker):
+                for p in (positions or []):
+                    if p.get('t212_ticker') == _t and p.get('status') == 'awaiting_fill':
+                        p['status']      = 'protected'
+                        p['unprotected'] = False
+                        p.pop('deferred_stop', None)
+                return positions
+            locked_read_modify_write(POSITIONS_FILE, _mark_protected_dup, default=[])
+            actions.append(f"DEFERRED_SKIPPED: {ticker} (stop already exists)")
+            continue
+
         neg_qty  = round(filled_qty * -1, 8)
         stop_id  = None
         for attempt in range(1, 4):
@@ -455,6 +502,19 @@ def run():
     alerts   = []
     warnings = []
 
+    # ── STOP_MISSING flag files ───────────────────────────────────────────────
+    # Created by executor / deferred-stop logic when stop placement fails.
+    # Surface immediately so they never go unnoticed.
+    LOG_DIR = '/home/ubuntu/.picoclaw/logs'
+    stop_missing_flags = glob.glob(f'{LOG_DIR}/STOP_MISSING_*')
+    if stop_missing_flags:
+        for flag_path in stop_missing_flags:
+            flag_ticker = os.path.basename(flag_path).replace('STOP_MISSING_', '')
+            msg = f"STOP_MISSING: {flag_ticker} — stop placement previously failed, position may be unprotected"
+            alerts.append(msg)
+            print(f"  🚨 {msg}")
+    # ─────────────────────────────────────────────────────────────────────────
+
     # API health (call 1: /equity/account/cash)
     api_ok, api_msg = check_api_health()
     print(f"  {'✅' if api_ok else '❌'} API: {api_msg}")
@@ -473,6 +533,13 @@ def run():
 
         for f in fixed:
             alerts.append(f"AUTO-FIXED: stop placed for {f['ticker']} @ £{f['stop']} (order {f['order_id']})")
+            # Clear the STOP_MISSING flag if it exists — position is now protected
+            flag_path = f"{LOG_DIR}/STOP_MISSING_{f['ticker']}"
+            try:
+                os.remove(flag_path)
+                print(f"  🧹 Cleared STOP_MISSING flag for {f['ticker']}")
+            except FileNotFoundError:
+                pass
         for f in failed:
             alerts.append(f"UNPROTECTED: {f['ticker']} — stop placement failed ({f['reason']})")
 

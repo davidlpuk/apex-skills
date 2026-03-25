@@ -54,9 +54,17 @@ try:
     free     = float(d.get("free", 0))
     invested = float(d.get("invested", 0))
     total    = round(free + invested, 2)
-    lines.append(f"\n💼 Portfolio: £{total} | Cash: £{round(free,2)} | Invested: £{round(invested,2)}")
+    if total > 0:
+        lines.append(f"\n💼 Portfolio: £{total} | Cash: £{round(free,2)} | Invested: £{round(invested,2)}")
+    else:
+        raise ValueError("zero total")
 except:
-    pass
+    try:
+        import json as _j
+        c = _j.load(open("/home/ubuntu/.picoclaw/logs/apex-portfolio-cache.json"))
+        v = c.get("value")
+        if v: lines.append(f"\n💼 Portfolio: £{v} (cached) — live data unavailable")
+    except: pass
 print("\n".join(lines))
 PYEOF
 )
@@ -116,7 +124,62 @@ process_message() {
       get_pnl
       ;;
     CONFIRM)
-      if [ -f "$SIGNAL_FILE" ]; then
+      if [ "$arg1" = "TACO" ]; then
+        # TACO confirmation gate — set confirmed=true in apex-taco-pending.json
+        TACO_PENDING="/home/ubuntu/.picoclaw/logs/apex-taco-pending.json"
+        if [ -f "$TACO_PENDING" ]; then
+          RESULT=$(python3 << 'PYEOF'
+import json, sys
+path = "/home/ubuntu/.picoclaw/logs/apex-taco-pending.json"
+try:
+    with open(path) as f:
+        data = json.load(f)
+    if not data.get("event_id"):
+        print("NO_EVENT")
+        sys.exit(0)
+    if data.get("confirmed"):
+        print("ALREADY_CONFIRMED")
+        sys.exit(0)
+    data["confirmed"] = True
+    import tempfile, os
+    d = os.path.dirname(path)
+    with tempfile.NamedTemporaryFile(mode="w", dir=d, delete=False, suffix=".tmp") as tf:
+        json.dump(data, tf, indent=2)
+        tmp = tf.name
+    os.replace(tmp, path)
+    print(f"CONFIRMED|{data.get('event_id','?')}|{data.get('taco_status','?')}|{data.get('confidence',0):.0%}|{data.get('taco_tranche',1)}")
+except Exception as e:
+    print(f"ERROR|{e}")
+PYEOF
+)
+          case "$RESULT" in
+            CONFIRMED*)
+              EID=$(echo "$RESULT" | cut -d'|' -f2)
+              TSTAT=$(echo "$RESULT" | cut -d'|' -f3)
+              CONF=$(echo "$RESULT" | cut -d'|' -f4)
+              TRANCHE=$(echo "$RESULT" | cut -d'|' -f5)
+              send_message "🌮 TACO CONFIRMED
+
+Event: $EID
+Status: $TSTAT | Confidence: $CONF | Tranche: $TRANCHE
+
+Signal authorised. Autopilot will execute on next 5-min cycle.
+Send CANCEL TACO to abort before then."
+              ;;
+            ALREADY_CONFIRMED*)
+              send_message "🌮 TACO already confirmed — awaiting autopilot execution."
+              ;;
+            NO_EVENT*)
+              send_message "⚠️ No active TACO event to confirm."
+              ;;
+            ERROR*)
+              send_message "❌ TACO confirm error: $RESULT"
+              ;;
+          esac
+        else
+          send_message "⚠️ No TACO pending file found. Is the monitor running?"
+        fi
+      elif [ -f "$SIGNAL_FILE" ]; then
         send_message "⏳ Placing order..."
         /home/ubuntu/.picoclaw/scripts/apex-execute-order.sh
       else
@@ -124,9 +187,17 @@ process_message() {
       fi
       ;;
     REJECT|CANCEL)
-      rm -f "$SIGNAL_FILE"
-      rm -f /home/ubuntu/.picoclaw/logs/apex-manual-trade-state.json
-      send_message "❌ Cancelled."
+      if [ "$arg1" = "TACO" ]; then
+        # Cancel a pending TACO signal before autopilot executes
+        TACO_PENDING="/home/ubuntu/.picoclaw/logs/apex-taco-pending.json"
+        rm -f "$TACO_PENDING"
+        rm -f "$SIGNAL_FILE"
+        send_message "🌮 TACO CANCELLED — signal cleared. Monitor returns to ARMED state."
+      else
+        rm -f "$SIGNAL_FILE"
+        rm -f /home/ubuntu/.picoclaw/logs/apex-manual-trade-state.json
+        send_message "❌ Cancelled."
+      fi
       ;;
     ADJUST)
       if [ -f "/home/ubuntu/.picoclaw/logs/apex-manual-trade-state.json" ]; then
@@ -229,7 +300,26 @@ To close a position: send CLOSE [ticker]"
       AP=$(python3 /home/ubuntu/.picoclaw/scripts/apex-autopilot.py status 2>/dev/null | head -1)
       CASH_VAL=$(curl -s -H "Authorization: Basic $T212_AUTH" \
         $T212_ENDPOINT/equity/account/cash | \
-        python3 -c "import sys,json; d=json.load(sys.stdin); print(f'£{round(float(d.get(\"free\",0))+float(d.get(\"invested\",0)),2)}')" 2>/dev/null)
+        python3 -c "
+import sys, json
+CACHE='/home/ubuntu/.picoclaw/logs/apex-portfolio-cache.json'
+result = None
+try:
+    d = json.load(sys.stdin)
+    total = round(float(d.get('free',0)) + float(d.get('invested',0)), 2)
+    if total > 0:
+        result = f'£{total}'
+except Exception:
+    pass
+if not result:
+    try:
+        c = json.load(open(CACHE))
+        v = c.get('value')
+        result = f'£{v} (cached)' if v else '£? (unavailable)'
+    except Exception:
+        result = '£? (unavailable)'
+print(result)
+" 2>/dev/null)
       send_message "📊 APEX STATUS
 Portfolio: $CASH_VAL
 $AP
@@ -239,6 +329,44 @@ Uptime: $(uptime -p)"
     SCAN)
       send_message "⏳ Running scan..."
       /home/ubuntu/.picoclaw/scripts/apex-morning-scan.sh
+      ;;
+    TACO)
+      # TACO STATUS command
+      TACO_STATE="/home/ubuntu/.picoclaw/logs/apex-taco-state.json"
+      TACO_MON="/home/ubuntu/.picoclaw/logs/apex-taco-monitor-state.json"
+      python3 << 'PYEOF'
+import json
+from datetime import datetime, timezone
+def r(f, d={}):
+    try:
+        with open(f) as fh: return json.load(fh)
+    except: return d
+state = r("/home/ubuntu/.picoclaw/logs/apex-taco-state.json")
+mon   = r("/home/ubuntu/.picoclaw/logs/apex-taco-monitor-state.json")
+out   = r("/home/ubuntu/.picoclaw/logs/apex-taco-outcomes.json")
+exp   = state.get("expires_at","")
+stale = False
+if exp:
+    try:
+        e = datetime.fromisoformat(exp)
+        if e.tzinfo is None: e = e.replace(tzinfo=timezone.utc)
+        stale = datetime.now(timezone.utc) > e
+    except: stale = True
+status = state.get("status","NEUTRAL")
+if stale: status = "NEUTRAL (stale)"
+lines = [
+    "🌮 TACO STATUS",
+    f"Classifier: {status}",
+    f"Confidence: {state.get('confidence',0):.0%}",
+    f"VIX spike:  {state.get('vix_spike_pct',0):+.1f}%",
+    f"Monitor:    {mon.get('state','NEUTRAL')}",
+    f"Event ID:   {mon.get('event_id') or 'none'}",
+    f"",
+    f"30d trades: {out.get('count_30d',0)} | Win: {out.get('win_rate',0):.0%}",
+    f"Exhausted:  {out.get('exhausted',False)}",
+]
+print("\n".join(lines))
+PYEOF
       ;;
     HELP)
       send_message "🤖 APEX TRADING BOT
@@ -264,6 +392,11 @@ Uptime: $(uptime -p)"
   PANIC             — emergency halt + portfolio status
   PANIC OFF         — clear panic mode
   SCAN              — run manual scan
+
+🌮 TACO MODULE
+  TACO              — TACO regime status
+  CONFIRM TACO      — authorise TACO signal
+  CANCEL TACO       — abort TACO signal
 
 Just type naturally — 'what is my profit' works too."
       ;;

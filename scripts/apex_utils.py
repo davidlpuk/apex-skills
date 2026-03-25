@@ -366,8 +366,11 @@ import time
 # processes via a shared file lock. Prevents 429 bursts when
 # cron jobs fire simultaneously.
 # ============================================================
-_T212_RATE_FILE    = f'{LOG_DIR}/apex-t212-last-call'
-_T212_MIN_INTERVAL = 0.6   # 600ms minimum between calls
+_T212_RATE_FILE = f'{LOG_DIR}/apex-t212-last-call'
+try:
+    from apex_config import T212_MIN_INTERVAL as _T212_MIN_INTERVAL
+except ImportError:
+    _T212_MIN_INTERVAL = 0.6   # fallback if apex_config unavailable
 
 def _t212_rate_limit():
     """

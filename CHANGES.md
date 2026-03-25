@@ -5,6 +5,47 @@
 
 ---
 
+## 2026-03-25 — Layer redundancy discount: fix multicollinearity in composite score
+
+**Files changed:** `scripts/apex_scoring.py`
+
+### Problem
+`apex-layer-audit.py` revealed 11 scoring layers had only ~5.3 effective independent
+dimensions (52% redundancy). Worst offenders: BREADTH↔FRED r=+1.000, GEO↔SENT r=−1.000,
+GEO↔SECTOR r=+0.94. Correlated layers firing together were double-counting the same
+underlying signal, inflating composite scores beyond their true informational content.
+
+### Changes
+
+#### `_parse_layer_contribs(adjustments)` — new helper
+Parses the existing adjustment-string list back into `{LAYER_NAME: contribution}` using
+the same regex and alias map as `apex-layer-audit.py`. No changes to individual layer
+blocks — non-invasive.
+
+#### `_apply_redundancy_discount(adjustments)` — new helper
+For each high-correlation pair (|r| ≥ 0.70) in `apex-layer-audit.json`:
+- Loads the pair's empirical Pearson r
+- Checks if both layers fired AND if the co-firing is **consistent with the historical
+  correlation pattern**: `sign(val_a × val_b) == sign(r)`
+  - r=+1.0, both negative (consistent) → redundant → discount ✓
+  - r=−1.0, opposite dirs (consistent) → redundant → discount ✓
+  - r=−1.0, same direction (inconsistent) → unusual agreement = genuine signal → no discount ✓
+  - r=+1.0, opposite dirs (inconsistent) → genuine conflict → no discount ✓
+- Discounts the smaller-magnitude contributor by |r| (r=1.0 → 100%, r=0.7 → 70%)
+- Returns `(delta_float, explanation_strings)` — transparent in adjustment log
+
+#### Wired into `score_signal_with_intelligence`
+Applied BEFORE the existing ±5 adjustment cap. Notes appear in `signal['adjustments']`
+as `"Redundancy discount: +1.00 (BREADTH↔FRED r=+1.00, BREADTH ×0.0 marginal)"`.
+
+#### Live results on existing decision log
+- Most signals: +1.00 correction (BREADTH+FRED double-count removed)
+- XOM/CVX energy: −2.43 correction (GEO×SECTOR×FUND cluster partially redundant)
+- Falls back silently to (0, []) when `apex-layer-audit.json` absent (no-op on first boot)
+- Self-updates as audit file is refreshed by `python3 apex-layer-audit.py`
+
+---
+
 ## 2026-03-25 — Score lift: uncertainty-aware Kelly, slippage model, layer audit
 
 **Files changed:** `scripts/apex-kelly-v2.py`, `scripts/apex-expected-value.py`, `scripts/apex-layer-audit.py` (new)

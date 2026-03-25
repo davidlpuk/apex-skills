@@ -10,6 +10,7 @@ Key design decisions:
 - All scoring logic is verbatim from apex-decision-engine.py layers 2+3.
 """
 import json
+import re
 import sys
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
@@ -85,6 +86,140 @@ def _load_layer_weights() -> dict:
         log_error(f"_load_layer_weights failed (non-fatal): {e}")
         _LAYER_WEIGHT_LOADED = True
         return {}
+
+# ── Redundancy discount helpers ──────────────────────────────────────────────
+# Maps the label prefix used in adjustment strings → canonical layer name.
+# Must stay in sync with apex-layer-audit.py _LAYER_ALIAS.
+_REDUND_ALIAS = {
+    'macro':          'MACRO',
+    'fred':           'FRED',
+    'breadth':        'BREADTH',
+    'breadth thrust': 'BREADTH',
+    'backtest':       'BACKTEST',
+    'sector':         'SECTOR',
+    'fundamentals':   'FUND',
+    'fundamentals5':  'FUND',
+    'fundamental':    'FUND',
+    'rs':             'RS',
+    'mtf':            'MTF',
+    'insider':        'INSIDER',
+    'sentiment':      'SENT',
+    'options':        'OPTIONS',
+    'geo':            'GEO',
+    'diverge':        'DIVERGE',
+    'revision':       'REVISION',
+    'vol_accumulation': 'VOL',
+}
+_REDUND_ADJ_RE = re.compile(r'^([A-Za-z_\s]+?)\s*:\s*([+-]?\d+(?:\.\d+)?)', re.IGNORECASE)
+
+
+def _parse_layer_contribs(adjustments: list) -> dict:
+    """
+    Parse the existing adjustment string list into {LAYER_NAME: cumulative_contribution}.
+
+    Uses the same regex as apex-layer-audit.py so canonical layer names match
+    the correlation pairs stored in apex-layer-audit.json.
+
+    Multiple firings of the same layer (e.g. two MACRO lines) are summed.
+    Non-numeric adjustments (staleness notes, caps) are silently skipped.
+    """
+    contribs = {}
+    for adj in adjustments:
+        m = _REDUND_ADJ_RE.match(adj.strip())
+        if not m:
+            continue
+        raw_label = m.group(1).strip().lower()
+        try:
+            val = float(m.group(2))
+        except ValueError:
+            continue
+        layer = _REDUND_ALIAS.get(raw_label, raw_label.upper().replace(' ', '_'))
+        contribs[layer] = contribs.get(layer, 0) + val
+    return contribs
+
+
+def _apply_redundancy_discount(adjustments: list) -> tuple:
+    """
+    Reduce score inflation when highly-correlated layers co-fire in the same direction.
+
+    Mechanism:
+      1. Load pairwise layer correlations from apex-layer-audit.json
+         (refreshed by running apex-layer-audit.py — no live API calls here).
+      2. For each high-correlation pair (|r| >= 0.70) where both fired:
+         - Same direction  → redundant. Discount smaller contribution by |r|.
+           e.g. BREADTH=-1, FRED=-1, r=+1.0 → discount = 1.0, delta = +1.0
+           (only -1 net instead of -2)
+         - Opposite direction → genuinely conflicting info, no discount.
+      3. Returns (total_delta_float, list_of_explanation_strings).
+         delta is added to total_score by the caller before the adjustment cap.
+
+    Falls back to (0, []) silently when audit file is absent or has no pairs,
+    so the scorer continues working even if the audit has never been run.
+    """
+    audit = safe_read(f'{_LOGS}/apex-layer-audit.json', {})
+    pairs = audit.get('high_corr_pairs', [])
+    if not pairs:
+        return 0.0, []
+
+    contribs = _parse_layer_contribs(adjustments)
+    if not contribs:
+        return 0.0, []
+
+    total_delta     = 0.0
+    notes           = []
+    processed_pairs = set()
+
+    for pair in pairs:
+        la  = str(pair.get('la', '')).upper()
+        lb  = str(pair.get('lb', '')).upper()
+        r   = float(pair.get('r', 0))
+
+        if abs(r) < 0.70:
+            continue
+
+        key = frozenset([la, lb])
+        if key in processed_pairs:
+            continue
+
+        val_a = contribs.get(la, 0)
+        val_b = contribs.get(lb, 0)
+
+        if val_a == 0 or val_b == 0:
+            continue  # at least one layer didn't fire on this signal
+
+        # Discount only when the co-firing is CONSISTENT with the historical correlation.
+        #
+        # Consistent = sign(val_a × val_b) == sign(r):
+        #   r > 0, both same direction  → they always do this → redundant → discount ✓
+        #   r < 0, opposite directions  → they always do this → redundant → discount ✓
+        #   r > 0, opposite directions  → unusual divergence  → genuine conflict → no discount
+        #   r < 0, same direction       → unusual agreement   → stronger signal  → no discount
+        #
+        # Example: GEO=+2 and SENT=+1 when r(GEO,SENT)=-1.0 → both positive despite always
+        # going opposite = rare agreement = genuine signal, not redundancy.
+        if (val_a * val_b * r) <= 0:
+            continue  # firing inconsistent with historical pattern — keep both at full weight
+
+        # Discount the smaller-magnitude contributor proportionally to |r|.
+        # r=1.0 → 100% of smaller removed (fully redundant)
+        # r=0.7 → 70% of smaller removed
+        if abs(val_a) <= abs(val_b):
+            redundant_layer, redundant_val = la, val_a
+        else:
+            redundant_layer, redundant_val = lb, val_b
+
+        discount_amount = redundant_val * abs(r)   # same sign as original contribution
+        score_delta     = -discount_amount          # undo the double-count
+
+        total_delta += score_delta
+        processed_pairs.add(key)
+        notes.append(
+            f"Redundancy discount: {score_delta:+.2f} "
+            f"({la}↔{lb} r={r:+.2f}, {redundant_layer} ×{round(1-abs(r),2)} marginal)"
+        )
+
+    return round(total_delta, 3), notes
+
 
 # ── Module cache — module-level so scoring layers can access it ───────────────
 # Previously this was a local inside run(), causing NameError inside
@@ -698,6 +833,15 @@ def score_signal_with_intelligence(signal, intel):
             f"Layer confidence: {layer_confidence:.0%} "
             f"({len(failed_layers)} failed: {', '.join(failed_layers)})"
         )
+
+    # Redundancy discount — remove double-counted contributions from correlated layers.
+    # Uses empirical pairwise correlations from apex-layer-audit.json.
+    # Operates on the already-logged adjustments strings (non-invasive — no changes to
+    # individual layer blocks above). Falls back silently when audit file absent.
+    _redund_delta, _redund_notes = _apply_redundancy_discount(adjustments)
+    if _redund_delta != 0:
+        total_score += _redund_delta
+        adjustments.extend(_redund_notes)
 
     # Cap total adjustment to prevent correlated alpha inflation
     total_adjustment  = total_score - base_score

@@ -65,6 +65,34 @@ _ALPACA_US_TICKERS = {
 }
 
 
+_AUTOPILOT_FILE = '/home/ubuntu/.picoclaw/logs/apex-autopilot.json'
+
+
+def _is_practice_mode() -> bool:
+    """
+    Returns True if apex-autopilot.json mode is PRACTICE (or file absent/unreadable).
+    The mode field in apex-autopilot.json is authoritative:
+      "mode": "PRACTICE"  → dry-run enforced regardless of CLI flags
+      "mode": "LIVE"      → real execution proceeds (user must set this explicitly)
+    Safe default: PRACTICE.
+    """
+    try:
+        with open(_AUTOPILOT_FILE) as f:
+            config = json.load(f)
+        return config.get('mode', 'PRACTICE') != 'LIVE'
+    except Exception:
+        return True  # Safe default — never accidentally go live
+
+
+def _get_mode() -> str:
+    """Return mode string from autopilot config ('LIVE' or 'PRACTICE')."""
+    try:
+        with open(_AUTOPILOT_FILE) as f:
+            return json.load(f).get('mode', 'PRACTICE')
+    except Exception:
+        return 'PRACTICE'
+
+
 def _log(msg: str) -> None:
     ts = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
     line = f"{ts}: {msg}"
@@ -127,9 +155,11 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
         send_telegram(f"⚠️ Trade rejected — invalid stops: entry {entry} <= stop {stop} for {name}")
         return False
 
-    if dry_run:
-        _log(f"DRY-RUN: Would place {quantity} × {ticker} @ £{entry} (stop £{stop})")
-        send_telegram(f"🔬 DRY-RUN: {name} ({ticker}) {quantity}×£{entry} stop:£{stop}")
+    # Practice mode gate — apex-autopilot.json mode field is authoritative
+    if dry_run or _is_practice_mode():
+        _mode = _get_mode()
+        _log(f"DRY-RUN [{_mode}]: Would place {quantity} × {ticker} @ £{entry} (stop £{stop})")
+        send_telegram(f"🔬 DRY-RUN [{_mode}]: {name} ({ticker}) {quantity}×£{entry} stop:£{stop}")
         return True
 
     # ─────────────────────────────────────────────────────────────────────────

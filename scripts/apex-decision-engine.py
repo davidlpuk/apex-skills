@@ -1277,6 +1277,12 @@ def run():
 
     print(f"  EV: £{ev_data['ev']} ({ev_data['verdict']}) | R-expect: {ev_data['r_expectancy']} | Breakeven WR: {round(ev_data['breakeven_wr']*100,1)}%")
 
+    # FX drag advisory — USD instruments face higher EV bar
+    if ev_data.get('fx_degraded'):
+        _eff_ratio = ev_data.get('effective_min_ev_ratio', 2.0)
+        if ev_data['ev_per_risk'] < _eff_ratio and ev_data['ev_per_risk'] > 0:
+            print(f"  ⚠️  FX drag: USD instrument — EV ratio {ev_data['ev_per_risk']:.2f} < {_eff_ratio:.1f} required (0.30% round-trip FX)")
+
     # Option A — EV hard gate (only activates with 10+ real trades)
     if ev_data['ev'] < -5 and ev_data['sample_size'] >= 10:
         name = best.get('name', '?')
@@ -1328,6 +1334,25 @@ def run():
     except Exception as _sim_e:
         print(f"  Rollout sim skipped: {_sim_e}")
 
+    # Hard position limit check — prevent exceeding MAX_OPEN_POSITIONS
+    _open_count = len(intel.get('open_positions', []))
+    try:
+        import importlib.util as _ilu_cfg
+        _cfg_spec = _ilu_cfg.spec_from_file_location("_cfg", "/home/ubuntu/.picoclaw/scripts/apex_config.py")
+        _cfg_mod  = _ilu_cfg.module_from_spec(_cfg_spec)
+        _cfg_spec.loader.exec_module(_cfg_mod)
+        _max_pos = getattr(_cfg_mod, 'MAX_OPEN_POSITIONS', 6)
+    except Exception:
+        _max_pos = 6
+    if _open_count >= _max_pos:
+        log_decision_run(all_signals, blocked_map, qualified, None, intel)
+        send_telegram(
+            f"⚠️ POSITION LIMIT — {_open_count}/{_max_pos} positions open\n"
+            f"Skipping {best.get('name','?')} — reduce existing positions first."
+        )
+        print(f"  Position limit reached ({_open_count}/{_max_pos}) — no new entry")
+        return
+
     # Save and notify
     pending = save_and_notify(best, intel, qty, notional)
     print(f"\n  Signal saved: {pending.get('name')} | {qty} shares @ £{best.get('entry',0)}")
@@ -1355,6 +1380,10 @@ def run():
                 continue
             if _runner_up.get('name') == best.get('name'):
                 continue
+            # Skip if queuing this signal would exceed position limit
+            if (_open_count + 1 + _queued_count) >= _max_pos:
+                print(f"  Skipping runner-up {_runner_up.get('name','?')} — would exceed position limit ({_max_pos})")
+                break
             # Resolve T212 ticker if not already set
             if not _runner_up.get('t212_ticker'):
                 _ru_name = _runner_up.get('name', '')

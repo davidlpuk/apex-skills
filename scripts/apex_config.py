@@ -48,7 +48,8 @@ MAX_OPEN_POSITIONS     = 6      # Maximum concurrent positions
 MAX_SECTOR_POSITIONS   = 2      # Max positions in one sector
 
 # ── Signal Quality Gates ──────────────────────────────────────────────────────
-MIN_EV_RATIO           = 1.5    # Minimum expected value ratio
+MIN_EV_RATIO           = 1.5    # Minimum expected value ratio (GBP instruments)
+MIN_EV_USD_RATIO       = 2.0    # Higher bar for USD instruments — 0.30% round-trip FX drag
 MIN_WIN_RATE           = 45     # Minimum historical win rate %
 MIN_SIGNAL_SCORE       = 6      # Minimum score to qualify for entry
 

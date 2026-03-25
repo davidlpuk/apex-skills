@@ -297,7 +297,10 @@ def calculate_ev(entry, stop, target1, target2, signal_type=None, quantity=1,
         "breakeven_wr":      breakeven_wr,
         "verdict":           "POSITIVE" if ev > 0 else ("MARGINAL" if ev > -2 else "NEGATIVE"),
         "confidence":        "HIGH" if sample_size >= 20 else ("MEDIUM" if sample_size >= 10 else "LOW — using prior"),
-        "signal_type":       signal_type or "UNKNOWN"
+        "signal_type":       signal_type or "UNKNOWN",
+        "fx_degraded":       currency == 'USD',
+        "fx_drag_pct":       round(tc_rate * 100, 2) if currency == 'USD' else 0,
+        "effective_min_ev_ratio": 2.0 if currency == 'USD' else 1.5,
     }
 
 

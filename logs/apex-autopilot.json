@@ -7,9 +7,12 @@
   "max_positions": 6,
   "max_daily_loss": 150,
   "daily_loss_today": 0,
-  "daily_loss_date": "2026-03-24",
+  "daily_loss_date": "2026-03-25",
   "total_autonomous_trades": 0,
   "last_trade_time": null,
   "safety_override": false,
-  "log": []
+  "log": [],
+  "max_autonomous_trades_live": 1,
+  "require_telegram_confirm": true,
+  "daily_loss_limit_gbp": 50
 }

@@ -610,6 +610,28 @@ def run(mode='check', dry_run=False):
     if effective_score != score:
         signal['score_at_execution'] = effective_score
 
+    # VWAP entry gate — advisory score adjustment (not blocking)
+    try:
+        import importlib.util as _ilu_vwap
+        _vwap_spec = _ilu_vwap.spec_from_file_location(
+            "vwap_gate", "/home/ubuntu/.picoclaw/scripts/apex-vwap-gate.py")
+        _vwap_mod = _ilu_vwap.module_from_spec(_vwap_spec)
+        _vwap_spec.loader.exec_module(_vwap_mod)
+        _yahoo_ticker = signal.get('t212_ticker', signal.get('ticker', name))
+        _vwap_result  = _vwap_mod.check_vwap_entry(name, _yahoo_ticker, signal_type)
+        _vwap_verdict = _vwap_result.get('verdict', 'SKIP')
+        _vwap_adj     = _vwap_result.get('score_adj', 0)
+        print(f"  VWAP gate: {_vwap_verdict} ({_vwap_result.get('reason','')}) | score adj: {_vwap_adj:+.1f}")
+        signal['vwap_verdict']    = _vwap_verdict
+        signal['vwap_deviation']  = _vwap_result.get('deviation_pct')
+        signal['vwap_score_adj']  = _vwap_adj
+        if _vwap_verdict == 'POOR':
+            effective_score = round(effective_score + _vwap_adj, 2)
+            signal['score_at_execution'] = effective_score
+            print(f"  VWAP POOR — score adjusted to {effective_score:.1f}")
+    except Exception as _ve:
+        print(f"  VWAP gate skipped: {_ve}")
+
     # Safety checks
     blocks = safety_check(config, signal)
     if blocks:

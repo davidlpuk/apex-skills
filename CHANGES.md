@@ -5,6 +5,30 @@
 
 ---
 
+## 2026-03-25 — Top 5 trader recommendations: edge proof, position limits, FX drag, VWAP gate, live mode
+
+**Files changed (new):**
+- `scripts/apex-edge-proof.py` → `logs/apex-edge-proof.json` — weekly statistical edge validation per signal type (Wilson CI, exact binomial p-value, expectancy in R). Verdicts: CONFIRMED / MARGINAL / NOT_PROVEN / INSUFFICIENT_DATA. Runs Mon 07:08.
+- `scripts/apex-vwap-gate.py` — VWAP entry timing gate. Fetches 5-min bars, calculates intraday VWAP, returns IDEAL/OK/POOR verdict + score adjustment. Signal-type aware: CONTRARIAN wants price below VWAP, INVERSE above, TREND near VWAP.
+
+**Files changed (modified):**
+- `scripts/apex_config.py` — Added `MIN_EV_USD_RATIO = 2.0` (higher bar for USD instruments, 0.30% round-trip FX drag on T212)
+- `scripts/apex-expected-value.py` — Added `fx_degraded`, `fx_drag_pct`, `effective_min_ev_ratio` to `calculate_ev()` return dict
+- `scripts/apex-decision-engine.py` — Hard position limit check before `save_and_notify()` (blocks if open ≥ MAX_OPEN_POSITIONS); blocks runner-up queuing if it would push open+queued over limit; FX drag advisory warning for USD instruments with low EV ratio
+- `scripts/apex-trade-queue.py` — Position limit guard in `add_scored_signal()`: skips if open + queued ≥ MAX_OPEN_POSITIONS
+- `scripts/apex_order_executor.py` — `mode` field in `apex-autopilot.json` is now authoritative. `_is_practice_mode()` enforces dry-run when mode ≠ "LIVE" regardless of CLI flags. Added `_get_mode()` helper.
+- `scripts/apex-autopilot.py` — VWAP gate integrated after signal decay check: POOR verdict applies -0.5 score penalty (advisory, not blocking)
+- `logs/apex-autopilot.json` — Added safety guardrails for live mode: `max_autonomous_trades_live: 1`, `require_telegram_confirm: true`, `daily_loss_limit_gbp: 50`
+
+**To go live:** Change `"mode": "LIVE"` in `apex-autopilot.json`. No code changes needed.
+
+**Cron addition:**
+```
+08 07 * * 1  /home/ubuntu/bin/python3 /home/ubuntu/.picoclaw/scripts/apex-edge-proof.py
+```
+
+---
+
 ## 2026-03-25 — AlphaGo-inspired learning capabilities (4-phase implementation)
 
 **Files changed (new):**

@@ -82,6 +82,25 @@ def add_scored_signal(signal):
     sends a quieter notification — used for 2nd/3rd signals in multi-signal day.
     All safety gates still apply at execution time via autopilot.
     """
+    # Position limit guard — don't queue if already at max open + queued
+    try:
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location("_cfg", "/home/ubuntu/.picoclaw/scripts/apex_config.py")
+        _cm = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_cm)
+        _max_pos = getattr(_cm, 'MAX_OPEN_POSITIONS', 6)
+    except Exception:
+        _max_pos = 6
+    try:
+        with open('/home/ubuntu/.picoclaw/logs/apex-positions.json') as _pf:
+            _positions = json.load(_pf)
+        _open_count = len(_positions) if isinstance(_positions, list) else len(_positions.get('positions', []))
+    except Exception:
+        _open_count = 0
+    _existing_queued = len([t for t in load_queue() if t.get('status') == 'QUEUED'])
+    if (_open_count + _existing_queued) >= _max_pos:
+        print(f"  Skipping queue: position limit reached ({_open_count} open + {_existing_queued} queued = {_max_pos})")
+        return None
+
     queue = load_queue()
     now   = datetime.now(timezone.utc)
 

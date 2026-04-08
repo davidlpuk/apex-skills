@@ -1,12 +1,28 @@
 {
   "instruments": {
     "AAPL": {
-      "fetched_at": "2026-03-24T18:09:48.212378+00:00",
+      "fetched_at": "2026-03-25T14:54:12.199097+00:00",
+      "raises": 2,
+      "cuts": 0,
+      "adjustment": 1.0,
+      "reasons": [
+        "3 analysts raised targets +5.8% vs quarterly avg ($312\u2192$330)"
+      ]
+    },
+    "NVDA": {
+      "fetched_at": "2026-03-25T14:54:12.618642+00:00",
+      "raises": 0,
+      "cuts": 0,
+      "adjustment": 0.0,
+      "reasons": []
+    },
+    "XOM": {
+      "fetched_at": "2026-03-25T14:54:12.935444+00:00",
       "raises": 0,
       "cuts": 0,
       "adjustment": 0.0,
       "reasons": []
     }
   },
-  "last_updated": "2026-03-24T18:09:48.212378+00:00"
+  "last_updated": "2026-03-25T14:54:12.935444+00:00"
 }

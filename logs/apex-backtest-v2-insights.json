@@ -1,0 +1,291 @@
+{
+  "version": 2,
+  "generated": "2026-03-25",
+  "mode": "CONTRARIAN",
+  "oos_validation": {
+    "mean_oos_win_rate": 48.2,
+    "mean_oos_win_rate_ci": [
+      41.2,
+      55.2
+    ],
+    "mean_oos_expectancy": 0.771,
+    "mean_oos_expectancy_ci": [
+      0.485,
+      1.052
+    ],
+    "oos_sharpe": 3.85,
+    "n_oos_trades": 193,
+    "p_value_vs_random": 1.0,
+    "parameter_stability": "STABLE"
+  },
+  "optimal_params": {
+    "CONTRARIAN": {
+      "score_threshold": 8,
+      "atr_stop_mult": 1.5,
+      "atr_target_t1": 3.0,
+      "atr_target_t2": 5.0,
+      "max_hold_days": 15,
+      "vix_block": 36
+    }
+  },
+  "backtest_boost_instruments": [
+    "XOM",
+    "MSFT",
+    "NVDA",
+    "CVX"
+  ],
+  "backtest_penalise_instruments": [
+    "META",
+    "ABBV",
+    "AZN",
+    "AAPL",
+    "AMZN",
+    "HSBA",
+    "GOOGL",
+    "GSK",
+    "JPM",
+    "SHEL",
+    "ULVR",
+    "V",
+    "VUAG"
+  ],
+  "best_instruments": [
+    "XOM",
+    "MSFT",
+    "NVDA",
+    "CVX"
+  ],
+  "worst_instruments": [
+    "META",
+    "ABBV",
+    "AZN",
+    "AAPL",
+    "AMZN",
+    "HSBA",
+    "GOOGL",
+    "GSK",
+    "JPM",
+    "SHEL",
+    "ULVR",
+    "V",
+    "VUAG"
+  ],
+  "instrument_detail": {
+    "META": {
+      "wins": 9,
+      "n": 17,
+      "win_rate": 52.9,
+      "ci": [
+        31.0,
+        73.8
+      ],
+      "p_value": 0.495,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "ABBV": {
+      "wins": 8,
+      "n": 16,
+      "win_rate": 50.0,
+      "ci": [
+        28.0,
+        72.0
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "AZN": {
+      "wins": 4,
+      "n": 16,
+      "win_rate": 25.0,
+      "ci": [
+        10.2,
+        49.5
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "AAPL": {
+      "wins": 5,
+      "n": 15,
+      "win_rate": 33.3,
+      "ci": [
+        15.2,
+        58.3
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "XOM": {
+      "wins": 10,
+      "n": 14,
+      "win_rate": 71.4,
+      "ci": [
+        45.4,
+        88.3
+      ],
+      "p_value": 0.0914,
+      "significant": true,
+      "verdict": "INCLUDE"
+    },
+    "AMZN": {
+      "wins": 4,
+      "n": 12,
+      "win_rate": 33.3,
+      "ci": [
+        13.8,
+        60.9
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "HSBA": {
+      "wins": 7,
+      "n": 12,
+      "win_rate": 58.3,
+      "ci": [
+        31.9,
+        80.7
+      ],
+      "p_value": 0.3833,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "GOOGL": {
+      "wins": 5,
+      "n": 11,
+      "win_rate": 45.5,
+      "ci": [
+        21.3,
+        72.0
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "GSK": {
+      "wins": 1,
+      "n": 10,
+      "win_rate": 10.0,
+      "ci": [
+        1.8,
+        40.4
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "MSFT": {
+      "wins": 7,
+      "n": 9,
+      "win_rate": 77.8,
+      "ci": [
+        45.3,
+        93.7
+      ],
+      "p_value": 0.09,
+      "significant": true,
+      "verdict": "INCLUDE"
+    },
+    "JPM": {
+      "wins": 4,
+      "n": 9,
+      "win_rate": 44.4,
+      "ci": [
+        18.9,
+        73.3
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "SHEL": {
+      "wins": 5,
+      "n": 9,
+      "win_rate": 55.6,
+      "ci": [
+        26.7,
+        81.1
+      ],
+      "p_value": 0.5009,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "ULVR": {
+      "wins": 5,
+      "n": 9,
+      "win_rate": 55.6,
+      "ci": [
+        26.7,
+        81.1
+      ],
+      "p_value": 0.5009,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "NVDA": {
+      "wins": 7,
+      "n": 8,
+      "win_rate": 87.5,
+      "ci": [
+        52.9,
+        97.8
+      ],
+      "p_value": 0.0328,
+      "significant": true,
+      "verdict": "INCLUDE"
+    },
+    "CVX": {
+      "wins": 7,
+      "n": 8,
+      "win_rate": 87.5,
+      "ci": [
+        52.9,
+        97.8
+      ],
+      "p_value": 0.0328,
+      "significant": true,
+      "verdict": "INCLUDE"
+    },
+    "V": {
+      "wins": 4,
+      "n": 8,
+      "win_rate": 50.0,
+      "ci": [
+        21.5,
+        78.5
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "VUAG": {
+      "wins": 1,
+      "n": 7,
+      "win_rate": 14.3,
+      "ci": [
+        2.6,
+        51.3
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "JNJ": {
+      "wins": 0,
+      "n": 3,
+      "win_rate": 0.0,
+      "ci": [
+        0.0,
+        56.1
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "INSUFFICIENT"
+    }
+  }
+}

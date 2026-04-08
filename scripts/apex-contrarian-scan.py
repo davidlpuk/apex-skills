@@ -28,6 +28,9 @@ GEO_FILE       = '/home/ubuntu/.picoclaw/logs/apex-geo-news.json'
 WEIGHTS_FILE   = '/home/ubuntu/.picoclaw/logs/apex-weights.json'
 
 YAHOO_MAP = {
+    "LEN": "LEN",   # user-added
+    "ALLE": "ALLE",   # user-added
+    "POOL": "POOL",   # user-added
     "IUIT": "IUIT.L",   # user-added
     "CRDO": "CRDO",   # user-added
     "NFE": "NFE",   # user-added

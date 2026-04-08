@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[CLAUDE REMINDER] File edited — update /home/ubuntu/.picoclaw/CHANGES.md if this is a meaningful change.\""
+          }
+        ]
+      }
+    ]
+  }
+}

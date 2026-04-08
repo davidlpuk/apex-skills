@@ -1,0 +1,12 @@
+{
+  "computed_at": "2026-04-07T17:00:01.497376+00:00",
+  "count_30d": 1,
+  "win_rate": 0.0,
+  "avg_r": -0.62,
+  "avg_recovery_magnitude_pct": 0.0,
+  "avg_time_to_walkback_hours": 0.0,
+  "is_declining": false,
+  "exhausted": false,
+  "last_event_date": "2026-04-07",
+  "trading_days_since_last_event": 0
+}

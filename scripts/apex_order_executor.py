@@ -17,6 +17,7 @@ All T212 API calls go through t212_request() (rate limiter + retry).
 All position writes go through locked_read_modify_write() (file locking).
 """
 import json
+import math
 import os
 import sys
 import time
@@ -27,16 +28,18 @@ try:
     from apex_utils import (
         safe_read, atomic_write, log_error, log_warning,
         locked_read_modify_write, t212_request, send_telegram,
+        get_fx_rate,
     )
 except ImportError as _e:
     print(f"FATAL: apex_utils not available — {_e}")
     sys.exit(2)
 
 try:
-    from apex_config import T212_FILL_POLL_COUNT, T212_FILL_POLL_INTERVAL
+    from apex_config import T212_FILL_POLL_COUNT, T212_FILL_POLL_INTERVAL, SIGNAL_MAX_AGE_HOURS
 except ImportError:
     T212_FILL_POLL_COUNT    = 18
     T212_FILL_POLL_INTERVAL = 10
+    SIGNAL_MAX_AGE_HOURS    = 6
 
 SIGNAL_FILE    = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
@@ -93,6 +96,94 @@ def _get_mode() -> str:
         return 'PRACTICE'
 
 
+# Maximum favourable/unfavourable drift from signal price before rejection.
+# Tighter than queue-revalidate thresholds because this fires at execution time,
+# not at morning revalidation. A 1% drift between scan and execution means EV
+# is already off by significant basis points, and slippage is compounded.
+# For LONG entries:
+#   drift_pct > 0 = price went UP  (bad for TREND — chasing)
+#   drift_pct < 0 = price went DOWN (bad for INVERSE — already moved)
+_STALENESS_LIMITS = {
+    # signal_type: (max_up_drift_pct, max_down_drift_pct)
+    'TREND':            (1.0,  3.0),  # Up 1% = chasing; down 3% = broken
+    'EARNINGS_DRIFT':   (1.0,  3.0),
+    'DIVIDEND_CAPTURE': (1.5,  2.5),
+    'CONTRARIAN':       (3.0,  5.0),  # Contrarian tolerates wider drift
+    'TACO_CONTRARIAN':  (3.0,  5.0),
+    'INVERSE':          (2.0,  2.0),  # Inverse ETF — tight on either side
+    'GEO_REVERSAL':     (3.0,  3.0),
+    'DEFAULT':          (1.5,  3.0),
+}
+
+
+def _check_entry_staleness(ticker: str, signal_entry: float, signal_type: str) -> dict:
+    """
+    Verify the signal's entry price is still close to the current market price.
+    Returns {'ok': bool, 'current': float, 'drift_pct': float, 'reason': str}.
+
+    Fail-open: if price fetch fails, allow the trade (don't block on data
+    failures — queue revalidation already did the morning check).
+    """
+    try:
+        import yfinance as yf
+        # Convert T212 ticker to yahoo equivalent via existing map
+        from apex_utils import safe_read
+        ticker_map = safe_read('/home/ubuntu/.picoclaw/scripts/apex-ticker-map.json', {}) or {}
+        # apex-ticker-map.json stores {yahoo: t212} pairs — invert it
+        reverse_map = {v: k for k, v in ticker_map.items() if isinstance(k, str) and isinstance(v, str)}
+        yahoo_ticker = reverse_map.get(ticker)
+        if not yahoo_ticker:
+            # Best-effort: strip T212 suffix
+            yahoo_ticker = ticker.replace('_US_EQ', '').replace('_EQ', '')
+
+        hist = yf.Ticker(yahoo_ticker).history(period='1d', interval='5m')
+        if hist.empty:
+            return {'ok': True, 'current': None, 'drift_pct': 0.0,
+                    'reason': 'no live price available — allowing'}
+        current = float(hist['Close'].iloc[-1])
+
+        # Handle LSE pence quotes on UK instruments
+        if yahoo_ticker.endswith('.L') and current > signal_entry * 10:
+            current = round(current / 100, 4)
+
+        if signal_entry <= 0:
+            return {'ok': True, 'current': current, 'drift_pct': 0.0, 'reason': 'no signal entry to compare'}
+
+        drift_pct = (current - signal_entry) / signal_entry * 100
+
+        max_up, max_down = _STALENESS_LIMITS.get(signal_type, _STALENESS_LIMITS['DEFAULT'])
+
+        if drift_pct > max_up:
+            return {
+                'ok':        False,
+                'current':   round(current, 4),
+                'drift_pct': round(drift_pct, 2),
+                'reason':    (f"Price drifted UP {drift_pct:+.2f}% "
+                              f"(limit +{max_up}% for {signal_type}) — chasing, entry invalidated")
+            }
+        if drift_pct < -max_down:
+            return {
+                'ok':        False,
+                'current':   round(current, 4),
+                'drift_pct': round(drift_pct, 2),
+                'reason':    (f"Price drifted DOWN {drift_pct:+.2f}% "
+                              f"(limit -{max_down}% for {signal_type}) — thesis broken, entry invalidated")
+            }
+        return {
+            'ok':        True,
+            'current':   round(current, 4),
+            'drift_pct': round(drift_pct, 2),
+            'reason':    'within tolerance'
+        }
+    except Exception as e:
+        # Fail-closed: price feed errors block execution.
+        # A stale price assumption invalidates EV and R-multiple calculations.
+        # The morning queue-revalidation already passed — if the live feed is
+        # now down, do not commit capital on an unverified entry.
+        return {'ok': False, 'current': None, 'drift_pct': 0.0,
+                'reason': f'staleness check failed (price feed down): {e} — blocking until feed recovers'}
+
+
 def _log(msg: str) -> None:
     ts = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
     line = f"{ts}: {msg}"
@@ -125,22 +216,30 @@ def _remove_pending(ticker: str) -> None:
     locked_read_modify_write(POSITIONS_FILE, _rm, default=[])
 
 
-def execute(signal: dict, dry_run: bool = False) -> bool:
+def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
     """
     Execute a trade from a signal dict.
     Returns True on full success (entry + stop placed).
+    _mode: pre-read mode string — callers should pass this to avoid a
+    re-read race where mode could change between signal generation and execution.
     """
+    # ── Mode locked at call time — do not re-read mid-execution ──────────────
+    # If mode flips PRACTICE → LIVE between signal generation and execution,
+    # the executor uses whichever mode was captured at main() entry.
+    if _mode is None:
+        _mode = _get_mode()
+
     ticker   = signal.get('t212_ticker', '')
     name     = signal.get('name', ticker)
-    quantity = float(signal.get('quantity', 0))
-    entry    = float(signal.get('entry', 0))
-    stop     = float(signal.get('stop', 0))
-    target1  = float(signal.get('target1', 0))
-    target2  = float(signal.get('target2', 0))
-    score    = float(signal.get('score', 0))
-    rsi      = float(signal.get('rsi', 0))
-    macd     = float(signal.get('macd', 0))
-    sector   = signal.get('sector') or 'ETF'
+    quantity = float(signal.get('quantity', 0) or 0)
+    entry    = float(signal.get('entry', 0) or 0)
+    stop     = float(signal.get('stop', 0) or 0)
+    target1  = float(signal.get('target1', 0) or 0)
+    target2  = float(signal.get('target2', 0) or 0)
+    score    = float(signal.get('score', 0) or 0)
+    rsi      = float(signal.get('rsi', 0) or 0)
+    macd     = float(signal.get('macd', 0) or 0)
+    sector   = signal.get('sector') or 'UNKNOWN'
     atr      = signal.get('atr', 0)
     signal_type = signal.get('signal_type', 'TREND')
     currency = signal.get('currency', 'GBP')
@@ -150,14 +249,43 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
         send_telegram("⚠️ Signal file incomplete — no ticker or quantity.")
         return False
 
+    # ── NaN/Inf pre-flight gate ───────────────────────────────────────────────
+    # Python's json module serialises float('nan') as the bare word NaN which
+    # is invalid JSON.  If a NaN leaks through (e.g. from a failed price fetch
+    # or calculation error), it must be caught before any API call is made.
+    _nan_fields = []
+    for _fname, _fval in [('quantity', quantity), ('entry', entry), ('stop', stop)]:
+        if math.isnan(_fval) or math.isinf(_fval) or _fval <= 0:
+            _nan_fields.append(f"{_fname}={_fval}")
+    if _nan_fields:
+        _log(f"ERROR: Signal has NaN/zero critical fields: {', '.join(_nan_fields)} — aborting and removing signal")
+        send_telegram(
+            f"⚠️ SIGNAL REJECTED — NaN/INVALID FIELDS\n\n"
+            f"{name} ({ticker})\n"
+            f"Bad fields: {', '.join(_nan_fields)}\n\n"
+            f"Signal deleted. Re-run morning scan to regenerate."
+        )
+        try:
+            os.remove(SIGNAL_FILE)
+        except FileNotFoundError:
+            pass
+        return False
+
+    # ── ATR sanity check ─────────────────────────────────────────────────────
+    try:
+        _atr_val = float(atr) if atr else 0.0
+        if _atr_val <= 0:
+            log_warning(f"Signal for {name} has ATR={atr} — trailing stop and target calculations may be degenerate")
+    except (TypeError, ValueError):
+        log_warning(f"Signal for {name} has non-numeric ATR={atr!r}")
+
     if entry > 0 and stop > 0 and stop >= entry:
         _log(f"ERROR: Invalid stops for {name}: entry={entry} stop={stop} — stop must be below entry")
         send_telegram(f"⚠️ Trade rejected — invalid stops: entry {entry} <= stop {stop} for {name}")
         return False
 
-    # Practice mode gate — apex-autopilot.json mode field is authoritative
-    if dry_run or _is_practice_mode():
-        _mode = _get_mode()
+    # Practice mode gate — mode was captured at main() entry and is now fixed
+    if dry_run or _mode != 'LIVE':
         _log(f"DRY-RUN [{_mode}]: Would place {quantity} × {ticker} @ £{entry} (stop £{stop})")
         send_telegram(f"🔬 DRY-RUN [{_mode}]: {name} ({ticker}) {quantity}×£{entry} stop:£{stop}")
         return True
@@ -200,11 +328,13 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
                     "target1": target1, "target2": target2, "score": score,
                     "rsi": rsi, "macd": macd, "sector": sector, "atr": atr,
                     "signal_type": signal_type, "currency": currency,
+                    "fx_at_entry": get_fx_rate(currency),
                     "opened": today, "opened_iso": now_iso,
                     "entry_order_id": str(entry_id) if entry_id else None,
                     "stop_order_id": str(stop_id) if stop_id else None,
                     "status": status, "order_type": f"{ap_result.get('order_type','LIMIT')}+STOP",
                     "venue": "ALPACA", "unprotected": unprotected,
+                    "unrealised_pnl": 0.0,
                 })
                 return positions
             locked_read_modify_write(POSITIONS_FILE, _write_alpaca, default=[])
@@ -235,13 +365,89 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
         else:
             _log(f"Alpaca execution failed: {ap_result.get('error')} — falling back to T212")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # Pre-flight: Re-validate portfolio heat at execution time.
+    # The heat gate already ran during signal evaluation (apex-autopilot.py
+    # safety_check), but new positions may have been added since then.
+    # This ensures we never exceed the 8% heat cap at the moment of order
+    # placement, not just at signal generation time.
+    # Non-blocking on error — never let monitoring failure abort execution.
+    # ─────────────────────────────────────────────────────────────────────────
+    try:
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location(
+            "ph", "/home/ubuntu/.picoclaw/scripts/apex-portfolio-heat.py")
+        _ph = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_ph)
+        _heat_mult, _heat_status, _heat_pct = _ph.get_heat_multiplier()
+        if _heat_status == 'CRITICAL':
+            _log(f"EXECUTION ABORTED: portfolio heat {_heat_pct:.1f}% exceeds 8% cap at order time")
+            send_telegram(
+                f"🛑 ORDER ABORTED — portfolio heat\n\n"
+                f"{name} ({ticker})\n"
+                f"Heat at execution time: {_heat_pct:.1f}% (max 8%).\n"
+                f"Signal preserved — will retry when risk reduces."
+            )
+            return False
+    except Exception as _heat_err:
+        log_warning(f"Portfolio heat pre-flight check failed (non-blocking): {_heat_err}")
+
     today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
     now_iso = datetime.now(timezone.utc).isoformat()
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Staleness gate: reject if price has drifted unfavourably since scan.
+    # The signal was generated at scan time (e.g. 08:30 UTC) but may not be
+    # executing until 09:30 or 13:05 UTC. Price can drift significantly in
+    # that window, invalidating the R-multiple and EV calculation.
+    # Thresholds per signal type are tighter here than in queue-revalidate
+    # because this is the last check before committing capital.
+    # ─────────────────────────────────────────────────────────────────────────
+    stale_check = _check_entry_staleness(ticker, entry, signal_type)
+    if not stale_check['ok']:
+        _log(f"STALENESS ABORT: {stale_check['reason']}")
+        feed_down = stale_check.get('current') is None  # True = feed error, False = actual drift
+        if feed_down:
+            # Price feed is unavailable — preserve the signal and retry next cycle.
+            # Deleting here would silently kill a valid signal on a temporary outage.
+            send_telegram(
+                f"⏱ ENTRY DEFERRED — PRICE FEED DOWN\n\n"
+                f"{name} ({ticker})\n"
+                f"Signal entry: £{entry}\n\n"
+                f"{stale_check['reason']}\n"
+                f"Signal preserved — will retry when feed recovers."
+            )
+        else:
+            # Price has genuinely drifted — thesis is invalidated, delete signal.
+            send_telegram(
+                f"⏱ ENTRY REJECTED — PRICE DRIFT\n\n"
+                f"{name} ({ticker})\n"
+                f"Signal entry: £{entry}\n"
+                f"Current price: £{stale_check['current']}\n"
+                f"Drift: {stale_check['drift_pct']:+.2f}%\n\n"
+                f"{stale_check['reason']}\n"
+                f"No position opened — waiting for better entry."
+            )
+            try:
+                os.remove(SIGNAL_FILE)
+            except FileNotFoundError:
+                pass
+        return False
+
+    if stale_check.get('current'):
+        _log(f"Staleness OK: signal £{entry} vs current £{stale_check['current']} "
+             f"({stale_check['drift_pct']:+.2f}%)")
 
     # ─────────────────────────────────────────────────────────────────────────
     # Step 0: Write PENDING entry BEFORE any API call
     # ─────────────────────────────────────────────────────────────────────────
     _log(f"Step 0: Writing PENDING entry for {ticker}")
+
+    try:
+        fx_at_entry = get_fx_rate(currency)
+    except Exception as _fx_e:
+        log_warning(f"FX snapshot failed for {currency}: {_fx_e}")
+        fx_at_entry = 1.0
 
     def _write_pending(positions):
         positions = positions or []
@@ -264,12 +470,14 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
             "atr":            atr,
             "signal_type":    signal_type,
             "currency":       currency,
+            "fx_at_entry":    fx_at_entry,
             "opened":         today,
             "opened_iso":     now_iso,
             "entry_order_id": None,
             "stop_order_id":  None,
             "status":         "pending",
             "order_type":     "LIMIT+STOP",
+            "unrealised_pnl": 0.0,
         })
         return positions
 
@@ -371,6 +579,20 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
             f"Stop at £{stop} will be placed automatically once the order fills.\n"
             f"Apex will check every 30 minutes."
         )
+        # Spawn watchdog immediately in the background so it can catch a quick
+        # fill and place the stop without waiting up to 30 min for the next
+        # scheduled cron cycle.  This closes the largest part of the protection gap.
+        try:
+            import subprocess as _sp_deferred
+            _sp_deferred.Popen(
+                [sys.executable,
+                 '/home/ubuntu/.picoclaw/scripts/apex-broker-watchdog.py'],
+                stdout=_sp_deferred.DEVNULL,
+                stderr=_sp_deferred.DEVNULL,
+            )
+            _log("Watchdog spawned in background to monitor fill and place deferred stop")
+        except Exception as _wd_e:
+            log_warning(f"Could not spawn background watchdog: {_wd_e}")
         return True   # not an error — position is being managed
 
     # Use actual filled quantity for the stop (may differ from requested)
@@ -427,6 +649,24 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
             os.remove(SIGNAL_FILE)
         except FileNotFoundError:
             pass
+
+        # ── Recovery ramp decrement ───────────────────────────────────────────
+        # After a SUSPEND auto-resume, circuit breaker sets recovery_trades_remaining=N
+        # and halves position sizing for that many trades.  Decrement here — the
+        # executor is the only place that confirms a real trade was placed.
+        try:
+            from apex_utils import locked_read_modify_write as _lrmw
+            _CB_FILE = '/home/ubuntu/.picoclaw/logs/apex-circuit-breaker.json'
+            def _decrement_ramp(cb):
+                cb = cb or {}
+                ramp = cb.get('recovery_trades_remaining', 0)
+                if ramp > 0:
+                    cb['recovery_trades_remaining'] = ramp - 1
+                    _log(f"Recovery ramp: {ramp} → {ramp - 1} trades remaining at reduced sizing")
+                return cb
+            _lrmw(_CB_FILE, _decrement_ramp, default={})
+        except Exception as _ramp_e:
+            log_warning(f"Recovery ramp decrement failed (non-blocking): {_ramp_e}")
 
         send_telegram(
             f"✅ TRADE PLACED\n"
@@ -499,6 +739,8 @@ def execute(signal: dict, dry_run: bool = False) -> bool:
             "sector":         sector,
             "atr":            atr,
             "signal_type":    signal_type,
+            "currency":       currency,
+            "fx_at_entry":    fx_at_entry,
             "opened":         today,
             "entry_order_id": str(entry_id),
             "stop_order_id":  None,
@@ -531,6 +773,11 @@ def main() -> None:
                         help='Path to signal JSON file')
     args = parser.parse_args()
 
+    # ── Read mode ONCE here and lock it for the entire execution ─────────────
+    # Prevents a mode flip (PRACTICE → LIVE) mid-execution from silently
+    # changing behaviour after the signal was already validated in PRACTICE.
+    mode_at_entry = _get_mode()
+
     signal_path = args.signal
     if not os.path.exists(signal_path):
         _log(f"ERROR: Signal file not found: {signal_path}")
@@ -548,7 +795,34 @@ def main() -> None:
         send_telegram("⚠️ Signal file empty or invalid.")
         sys.exit(1)
 
-    success = execute(signal, dry_run=args.dry_run)
+    # ── Signal TTL gate ───────────────────────────────────────────────────────
+    # A signal generated at 08:30 is only valid for the current session.
+    # If still pending after _SIGNAL_MAX_AGE_HOURS (default 6h), the thesis
+    # may have changed — delete and force a fresh scan rather than executing
+    # on stale entry assumptions.
+    generated_at_str = signal.get('generated_at', '')
+    if generated_at_str:
+        try:
+            generated_at = datetime.fromisoformat(
+                generated_at_str.replace('Z', '+00:00'))
+            age_hours = (datetime.now(timezone.utc) - generated_at).total_seconds() / 3600
+            if age_hours > SIGNAL_MAX_AGE_HOURS:
+                _log(f"SIGNAL EXPIRED: {age_hours:.1f}h old (max {SIGNAL_MAX_AGE_HOURS}h) — deleting")
+                send_telegram(
+                    f"⏰ SIGNAL EXPIRED — NOT EXECUTED\n\n"
+                    f"{signal.get('name', '?')} ({signal.get('t212_ticker', '?')})\n"
+                    f"Signal was {age_hours:.1f}h old (max {SIGNAL_MAX_AGE_HOURS}h).\n\n"
+                    f"Signal deleted. Re-run morning scan to regenerate a fresh entry."
+                )
+                try:
+                    os.remove(signal_path)
+                except FileNotFoundError:
+                    pass
+                sys.exit(1)
+        except Exception as _ttl_e:
+            _log(f"WARNING: Cannot parse generated_at '{generated_at_str}': {_ttl_e}")
+
+    success = execute(signal, dry_run=args.dry_run, _mode=mode_at_entry)
     sys.exit(0 if success else 1)
 
 

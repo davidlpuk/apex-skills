@@ -75,8 +75,10 @@ def gather_intelligence():
 
     # Regime
     regime = load_json(REGIME_FILE)
-    intel['vix']            = float(regime.get('vix', 20))
-    intel['breadth']        = float(regime.get('breadth_pct', 50))
+    _vix_raw     = regime.get('vix', 20)
+    _breadth_raw = regime.get('breadth_pct', 50)
+    intel['vix']     = float(_vix_raw)     if _vix_raw     is not None else 20.0
+    intel['breadth'] = float(_breadth_raw) if _breadth_raw is not None else 50.0
     intel['regime_status']  = regime.get('overall', 'CLEAR')
     intel['regime_reasons'] = regime.get('block_reason', [])
 

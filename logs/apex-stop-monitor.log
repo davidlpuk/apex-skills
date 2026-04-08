@@ -328,3 +328,1650 @@ CVX: £208.76 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.12 | MAE:0% M
 ABBV: £205.46 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.18 | MAE:-0.29% MFE:1.24%
 Updated positions: Visa, Apple
 Tue Mar 24 16:30:10 UTC 2026: Stop monitor complete
+Wed Mar 25 09:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.907 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.07 | MAE:-1.05% MFE:0%
+Visa: £306.2 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.7 | MAE:0% MFE:1.97%
+Apple: £253.51 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.55 | MAE:0% MFE:2.41%
+Exxon Mobil: £163.37 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.66 | MAE:0% MFE:5.33%
+CVX: £204.57 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.22 | MAE:-1.33% MFE:1.02%
+ABBV: £206.01 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.22 | MAE:-0.29% MFE:1.35%
+SPDR S&P 500 (Acc): £16.335 | Entry £653.18 | Stop £633.5846 | T1 £691.2622 | R:-32.5 | MAE:-97.5% MFE:0%
+  🚨 STOP HIT — SPDR S&P 500 (Acc)
+Updated positions: Visa, CVX, ABBV, SPDR S&P 500 (Acc)
+Wed Mar 25 09:00:11 UTC 2026: Stop monitor complete
+Wed Mar 25 09:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.989 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.04 | MAE:-1.05% MFE:0%
+Visa: £306.48 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.74 | MAE:0% MFE:2.07%
+Apple: £253.21 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.52 | MAE:0% MFE:2.41%
+Exxon Mobil: £163.77 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.72 | MAE:0% MFE:5.33%
+CVX: £204.73 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.21 | MAE:-1.33% MFE:1.02%
+ABBV: £205.99 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.22 | MAE:-0.29% MFE:1.35%
+SPDR S&P 500 (Acc): £16.335 | Entry £653.18 | Stop £633.5846 | T1 £691.2622 | R:-32.5 | MAE:-97.5% MFE:0%
+  🚨 STOP HIT — SPDR S&P 500 (Acc)
+WisdomTree FTSE 100 3x Short: £129.1 | Entry £1.3 | Stop £1.17 | T1 £1.43 | R:983.08 | MAE:0% MFE:9830.77%
+  🎯 TARGET 2 HIT — AUTO-CLOSING WisdomTree FTSE 100 3x Short
+Updated positions: Visa, WisdomTree FTSE 100 3x Short, WisdomTree FTSE 100 3x Short
+Wed Mar 25 09:30:13 UTC 2026: Stop monitor complete
+Wed Mar 25 10:00:08 UTC 2026: Running stop monitor
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £95.059 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.01 | MAE:-1.05% MFE:0%
+Visa: £306.29 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.71 | MAE:0% MFE:2.07%
+Apple: £253.4 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.54 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.09 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.77 | MAE:0% MFE:5.33%
+CVX: £205.28 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.16 | MAE:-1.33% MFE:1.02%
+ABBV: £205.99 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.22 | MAE:-0.29% MFE:1.35%
+SPDR S&P 500 (Acc): £16.291 | Entry £653.18 | Stop £633.5846 | T1 £691.2622 | R:-32.5 | MAE:-97.51% MFE:0%
+  🚨 STOP HIT — SPDR S&P 500 (Acc)
+WisdomTree NASDAQ 100 3x Short: £3.299 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.03 | MAE:0% MFE:0.27%
+Updated positions: SPDR S&P 500 (Acc), WisdomTree NASDAQ 100 3x Short
+Wed Mar 25 10:00:12 UTC 2026: Stop monitor complete
+Wed Mar 25 10:30:06 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.969 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.05 | MAE:-1.05% MFE:0%
+Visa: £306.25 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.71 | MAE:0% MFE:2.07%
+Apple: £253.28 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.52 | MAE:0% MFE:2.41%
+Exxon Mobil: £163.75 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.72 | MAE:0% MFE:5.33%
+CVX: £205.01 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.19 | MAE:-1.33% MFE:1.02%
+ABBV: £205.99 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.22 | MAE:-0.29% MFE:1.35%
+SPDR S&P 500 (Acc): £16.291 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:0.0 | MAE:0.01% MFE:0.01%
+WisdomTree NASDAQ 100 3x Short: £3.3 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.03 | MAE:0% MFE:0.3%
+Updated positions: SPDR S&P 500 (Acc), SPDR S&P 500 (Acc), WisdomTree NASDAQ 100 3x Short
+Wed Mar 25 10:30:10 UTC 2026: Stop monitor complete
+Wed Mar 25 11:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.921 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.06 | MAE:-1.05% MFE:0%
+Visa: £305.55 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.63 | MAE:0% MFE:2.07%
+Apple: £253.48 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.55 | MAE:0% MFE:2.41%
+Exxon Mobil: £163.39 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.66 | MAE:0% MFE:5.33%
+CVX: £205.02 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.18 | MAE:-1.33% MFE:1.02%
+ABBV: £206.02 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.23 | MAE:-0.29% MFE:1.35%
+SPDR S&P 500 (Acc): £16.285 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.01 | MAE:-0.03% MFE:0.01%
+WisdomTree NASDAQ 100 3x Short: £3.291 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.0 | MAE:0% MFE:0.3%
+Updated positions: SPDR S&P 500 (Acc)
+Wed Mar 25 11:00:09 UTC 2026: Stop monitor complete
+Wed Mar 25 11:30:07 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £95.003 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.03 | MAE:-1.05% MFE:0%
+Visa: £305.77 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.65 | MAE:0% MFE:2.07%
+Apple: £253.82 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.58 | MAE:0% MFE:2.41%
+Exxon Mobil: £162.88 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.59 | MAE:0% MFE:5.33%
+CVX: £204.39 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.24 | MAE:-1.41% MFE:1.02%
+ABBV: £206.18 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.24 | MAE:-0.29% MFE:1.43%
+SPDR S&P 500 (Acc): £16.285 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.01 | MAE:-0.03% MFE:0.01%
+WisdomTree NASDAQ 100 3x Short: £3.285 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:-0.02 | MAE:-0.15% MFE:0.3%
+Updated positions: CVX, ABBV, WisdomTree NASDAQ 100 3x Short
+Wed Mar 25 11:30:12 UTC 2026: Stop monitor complete
+Wed Mar 25 12:00:09 UTC 2026: Running stop monitor
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £95.063 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.01 | MAE:-1.05% MFE:0%
+Visa: £306.53 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.74 | MAE:0% MFE:2.08%
+Apple: £253.61 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.56 | MAE:0% MFE:2.41%
+Exxon Mobil: £162.95 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.6 | MAE:0% MFE:5.33%
+CVX: £204.98 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.19 | MAE:-1.41% MFE:1.02%
+ABBV: £205.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.22 | MAE:-0.29% MFE:1.43%
+SPDR S&P 500 (Acc): £16.319 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:0.06 | MAE:-0.03% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.273 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:-0.05 | MAE:-0.52% MFE:0.3%
+Updated positions: Visa, SPDR S&P 500 (Acc), WisdomTree NASDAQ 100 3x Short
+Wed Mar 25 12:00:12 UTC 2026: Stop monitor complete
+Wed Mar 25 12:30:15 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.999 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.03 | MAE:-1.05% MFE:0%
+Visa: £304.99 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.56 | MAE:0% MFE:2.08%
+Apple: £253.89 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.59 | MAE:0% MFE:2.41%
+Exxon Mobil: £163.14 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.63 | MAE:0% MFE:5.33%
+CVX: £204.42 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.23 | MAE:-1.41% MFE:1.02%
+ABBV: £206.51 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.27 | MAE:-0.29% MFE:1.59%
+SPDR S&P 500 (Acc): £16.319 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:0.06 | MAE:-0.03% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.3 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.03 | MAE:-0.52% MFE:0.3%
+Updated positions: ABBV
+Wed Mar 25 12:30:19 UTC 2026: Stop monitor complete
+Wed Mar 25 13:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £95.087 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.0 | MAE:-1.05% MFE:0%
+Visa: £306.01 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.68 | MAE:0% MFE:2.08%
+Apple: £254.37 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.65 | MAE:0% MFE:2.41%
+Exxon Mobil: £163.01 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.61 | MAE:0% MFE:5.33%
+CVX: £204.24 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.25 | MAE:-1.49% MFE:1.02%
+ABBV: £206.26 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.25 | MAE:-0.29% MFE:1.59%
+SPDR S&P 500 (Acc): £16.319 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:0.06 | MAE:-0.03% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.3 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.03 | MAE:-0.52% MFE:0.3%
+Updated positions: CVX
+Wed Mar 25 13:00:12 UTC 2026: Stop monitor complete
+Wed Mar 25 13:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £95.091 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.0 | MAE:-1.05% MFE:0%
+Visa: £306.1 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.69 | MAE:0% MFE:2.08%
+Apple: £254.4 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.65 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.66 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.85 | MAE:0% MFE:5.33%
+CVX: £206.62 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.06 | MAE:-1.49% MFE:1.02%
+ABBV: £205.49 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.18 | MAE:-0.29% MFE:1.59%
+SPDR S&P 500 (Acc): £16.299 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:0.02 | MAE:-0.03% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.299 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.03 | MAE:-0.52% MFE:0.3%
+No trailing stop updates needed
+Wed Mar 25 13:30:12 UTC 2026: Stop monitor complete
+Wed Mar 25 14:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.989 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.04 | MAE:-1.05% MFE:0%
+Visa: £306.11 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.69 | MAE:0% MFE:2.08%
+Apple: £251.95 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.37 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.34 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.8 | MAE:0% MFE:5.33%
+CVX: £205.95 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.11 | MAE:-1.49% MFE:1.02%
+ABBV: £208.69 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.44 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.248 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.08 | MAE:-0.25% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.32 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.09 | MAE:-0.52% MFE:0.91%
+Updated positions: ABBV, SPDR S&P 500 (Acc), WisdomTree NASDAQ 100 3x Short
+Wed Mar 25 14:00:12 UTC 2026: Stop monitor complete
+Wed Mar 25 14:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £95.123 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:0.01 | MAE:-1.05% MFE:0.02%
+Visa: £304.6 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.51 | MAE:0% MFE:2.08%
+Apple: £252.85 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.47 | MAE:0% MFE:2.41%
+Exxon Mobil: £163.8 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.72 | MAE:0% MFE:5.33%
+CVX: £205.39 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.16 | MAE:-1.49% MFE:1.02%
+ABBV: £208.3 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.41 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.248 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.08 | MAE:-0.25% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.314 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.07 | MAE:-0.52% MFE:0.91%
+Updated positions: Vanguard S&P 500 (Acc)
+Wed Mar 25 14:30:12 UTC 2026: Stop monitor complete
+Wed Mar 25 15:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £95.153 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:0.02 | MAE:-1.05% MFE:0.06%
+Visa: £305.44 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.61 | MAE:0% MFE:2.08%
+Apple: £253.42 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.54 | MAE:0% MFE:2.41%
+Exxon Mobil: £163.28 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.65 | MAE:0% MFE:5.33%
+CVX: £205.91 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.11 | MAE:-1.49% MFE:1.02%
+ABBV: £208.04 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.39 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.299 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:0.02 | MAE:-0.25% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.274 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:-0.05 | MAE:-0.52% MFE:0.91%
+Updated positions: Vanguard S&P 500 (Acc)
+Wed Mar 25 15:00:12 UTC 2026: Stop monitor complete
+Wed Mar 25 15:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.679 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.15 | MAE:-1.05% MFE:0.06%
+Visa: £304.45 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.5 | MAE:0% MFE:2.08%
+Apple: £254.21 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.63 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.26 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.79 | MAE:0% MFE:5.33%
+CVX: £206.72 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.05 | MAE:-1.49% MFE:1.02%
+ABBV: £208.5 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.43 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.238 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.1 | MAE:-0.31% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.326 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.11 | MAE:-0.52% MFE:1.09%
+Updated positions: SPDR S&P 500 (Acc), WisdomTree NASDAQ 100 3x Short
+Wed Mar 25 15:30:12 UTC 2026: Stop monitor complete
+Wed Mar 25 16:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.981 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.04 | MAE:-1.05% MFE:0.06%
+Visa: £303.69 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.41 | MAE:0% MFE:2.08%
+Apple: £253.41 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.54 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.2 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.78 | MAE:0% MFE:5.33%
+CVX: £206.35 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.08 | MAE:-1.49% MFE:1.02%
+ABBV: £208.53 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.43 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.252 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.08 | MAE:-0.31% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.329 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.12 | MAE:-0.52% MFE:1.19%
+Updated positions: WisdomTree NASDAQ 100 3x Short
+Wed Mar 25 16:00:09 UTC 2026: Stop monitor complete
+Wed Mar 25 16:30:12 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.989 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.04 | MAE:-1.05% MFE:0.06%
+Visa: £305.01 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.56 | MAE:0% MFE:2.08%
+Apple: £253.93 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.6 | MAE:0% MFE:2.41%
+Exxon Mobil: £163.88 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.73 | MAE:0% MFE:5.33%
+CVX: £205.88 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.12 | MAE:-1.49% MFE:1.02%
+ABBV: £207.63 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.36 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.252 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.08 | MAE:-0.31% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.339 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.15 | MAE:-0.52% MFE:1.49%
+Updated positions: WisdomTree NASDAQ 100 3x Short
+Wed Mar 25 16:30:20 UTC 2026: Stop monitor complete
+Thu Mar 26 09:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.539 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.19 | MAE:-1.05% MFE:0.06%
+Visa: £304.27 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.48 | MAE:0% MFE:2.08%
+Apple: £252.03 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.38 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.72 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.86 | MAE:0% MFE:5.33%
+CVX: £206.78 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.04 | MAE:-1.49% MFE:1.02%
+ABBV: £207.05 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.31 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.153 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.28 | MAE:-0.84% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.399 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.33 | MAE:-0.52% MFE:3.31%
+Updated positions: SPDR S&P 500 (Acc), WisdomTree NASDAQ 100 3x Short
+Thu Mar 26 09:00:11 UTC 2026: Stop monitor complete
+Thu Mar 26 09:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.438 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.23 | MAE:-1.05% MFE:0.06%
+Visa: £303.5 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.38 | MAE:0% MFE:2.08%
+Apple: £252.2 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.4 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.79 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.87 | MAE:0% MFE:5.33%
+CVX: £206.86 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.04 | MAE:-1.49% MFE:1.02%
+ABBV: £207.02 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.31 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.143 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.3 | MAE:-0.9% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.399 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.33 | MAE:-0.52% MFE:3.31%
+Updated positions: SPDR S&P 500 (Acc)
+Thu Mar 26 09:30:11 UTC 2026: Stop monitor complete
+Thu Mar 26 10:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.397 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.24 | MAE:-1.05% MFE:0.06%
+Visa: £303.05 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.33 | MAE:0% MFE:2.08%
+Apple: £252.0 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.38 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.88 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.88 | MAE:0% MFE:5.33%
+CVX: £206.93 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.03 | MAE:-1.49% MFE:1.02%
+ABBV: £207.02 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.31 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.143 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.3 | MAE:-0.9% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.432 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.43 | MAE:-0.52% MFE:4.32%
+Updated positions: WisdomTree NASDAQ 100 3x Short
+Thu Mar 26 10:00:08 UTC 2026: Stop monitor complete
+Thu Mar 26 10:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.467 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.22 | MAE:-1.05% MFE:0.06%
+Visa: £303.71 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.41 | MAE:0% MFE:2.08%
+Apple: £252.26 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.41 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.45 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.82 | MAE:0% MFE:5.33%
+CVX: £206.52 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.06 | MAE:-1.49% MFE:1.02%
+ABBV: £206.86 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.29 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.141 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.3 | MAE:-0.91% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.409 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.36 | MAE:-0.52% MFE:4.32%
+Updated positions: SPDR S&P 500 (Acc)
+Thu Mar 26 10:30:12 UTC 2026: Stop monitor complete
+Thu Mar 26 11:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.421 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.23 | MAE:-1.05% MFE:0.06%
+Visa: £303.0 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.32 | MAE:0% MFE:2.08%
+Apple: £251.96 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.37 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.21 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.78 | MAE:0% MFE:5.33%
+CVX: £206.45 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.07 | MAE:-1.49% MFE:1.02%
+ABBV: £206.83 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.29 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.147 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.29 | MAE:-0.91% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.4 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.33 | MAE:-0.52% MFE:4.32%
+No trailing stop updates needed
+Thu Mar 26 11:00:11 UTC 2026: Stop monitor complete
+Thu Mar 26 11:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.377 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.25 | MAE:-1.05% MFE:0.06%
+Visa: £303.02 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.33 | MAE:0% MFE:2.08%
+Apple: £252.0 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.38 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.44 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.82 | MAE:0% MFE:5.33%
+CVX: £206.72 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.05 | MAE:-1.49% MFE:1.02%
+ABBV: £206.27 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.25 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.147 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.29 | MAE:-0.91% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.413 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.37 | MAE:-0.52% MFE:4.32%
+No trailing stop updates needed
+Thu Mar 26 11:30:12 UTC 2026: Stop monitor complete
+Thu Mar 26 12:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.421 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.23 | MAE:-1.05% MFE:0.06%
+Visa: £303.57 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.39 | MAE:0% MFE:2.08%
+Apple: £251.59 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.33 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.76 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.86 | MAE:0% MFE:5.33%
+CVX: £207.22 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.01 | MAE:-1.49% MFE:1.02%
+ABBV: £207.2 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.32 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.114 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.36 | MAE:-1.07% MFE:0.18%
+  ⚠️ NEAR STOP — SPDR S&P 500 (Acc) only 2.0% above stop
+WisdomTree NASDAQ 100 3x Short: £3.431 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.43 | MAE:-0.52% MFE:4.32%
+Updated positions: SPDR S&P 500 (Acc)
+Thu Mar 26 12:00:13 UTC 2026: Stop monitor complete
+Thu Mar 26 12:30:21 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.452 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.22 | MAE:-1.05% MFE:0.06%
+Visa: £302.25 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.24 | MAE:0% MFE:2.08%
+Apple: £252.0 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.38 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.79 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.87 | MAE:0% MFE:5.33%
+CVX: £206.89 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.03 | MAE:-1.49% MFE:1.02%
+ABBV: £206.83 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.29 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.114 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.36 | MAE:-1.07% MFE:0.18%
+  ⚠️ NEAR STOP — SPDR S&P 500 (Acc) only 2.0% above stop
+WisdomTree NASDAQ 100 3x Short: £3.429 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.42 | MAE:-0.52% MFE:4.32%
+No trailing stop updates needed
+Thu Mar 26 12:30:28 UTC 2026: Stop monitor complete
+Thu Mar 26 13:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.417 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.24 | MAE:-1.05% MFE:0.06%
+Visa: £303.86 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.43 | MAE:0% MFE:2.08%
+Apple: £251.75 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.35 | MAE:0% MFE:2.41%
+Exxon Mobil: £164.6 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.84 | MAE:0% MFE:5.33%
+CVX: £206.62 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.06 | MAE:-1.49% MFE:1.02%
+ABBV: £206.54 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.27 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.114 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.36 | MAE:-1.07% MFE:0.18%
+  ⚠️ NEAR STOP — SPDR S&P 500 (Acc) only 2.0% above stop
+WisdomTree NASDAQ 100 3x Short: £3.444 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.47 | MAE:-0.52% MFE:4.68%
+Updated positions: WisdomTree NASDAQ 100 3x Short
+Thu Mar 26 13:00:12 UTC 2026: Stop monitor complete
+Thu Mar 26 13:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.353 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.26 | MAE:-1.05% MFE:0.06%
+Visa: £305.46 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.62 | MAE:0% MFE:2.08%
+Apple: £250.89 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.25 | MAE:0% MFE:2.41%
+Exxon Mobil: £163.45 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.67 | MAE:0% MFE:5.33%
+CVX: £206.69 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.05 | MAE:-1.49% MFE:1.02%
+ABBV: £207.07 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.31 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.114 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.36 | MAE:-1.07% MFE:0.18%
+  ⚠️ NEAR STOP — SPDR S&P 500 (Acc) only 2.0% above stop
+WisdomTree NASDAQ 100 3x Short: £3.417 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.38 | MAE:-0.52% MFE:4.68%
+No trailing stop updates needed
+Thu Mar 26 13:30:11 UTC 2026: Stop monitor complete
+Thu Mar 26 14:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.602 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.17 | MAE:-1.05% MFE:0.06%
+Visa: £307.54 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.86 | MAE:0% MFE:2.42%
+Apple: £253.63 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.56 | MAE:0% MFE:2.41%
+Exxon Mobil: £162.51 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.53 | MAE:0% MFE:5.33%
+CVX: £205.79 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.12 | MAE:-1.49% MFE:1.02%
+ABBV: £207.71 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.36 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.114 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.36 | MAE:-1.07% MFE:0.18%
+  ⚠️ NEAR STOP — SPDR S&P 500 (Acc) only 2.0% above stop
+WisdomTree NASDAQ 100 3x Short: £3.438 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.45 | MAE:-0.52% MFE:4.68%
+Updated positions: Visa
+Thu Mar 26 14:00:13 UTC 2026: Stop monitor complete
+Thu Mar 26 14:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.602 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.17 | MAE:-1.05% MFE:0.06%
+Visa: £305.84 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.66 | MAE:0% MFE:2.42%
+Apple: £256.01 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.83 | MAE:0% MFE:2.97%
+Exxon Mobil: £162.91 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.59 | MAE:0% MFE:5.33%
+CVX: £206.13 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.1 | MAE:-1.49% MFE:1.02%
+ABBV: £208.42 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.42 | MAE:-0.29% MFE:2.67%
+SPDR S&P 500 (Acc): £16.199 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.18 | MAE:-1.07% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.399 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.33 | MAE:-0.52% MFE:4.68%
+Updated positions: Apple
+Thu Mar 26 14:30:12 UTC 2026: Stop monitor complete
+Thu Mar 26 15:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.509 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.2 | MAE:-1.05% MFE:0.06%
+Visa: £306.52 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.74 | MAE:0% MFE:2.42%
+Apple: £256.7 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.91 | MAE:0% MFE:3.25%
+Exxon Mobil: £163.27 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.65 | MAE:0% MFE:5.33%
+CVX: £206.96 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.03 | MAE:-1.49% MFE:1.02%
+ABBV: £209.26 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.49 | MAE:-0.29% MFE:2.95%
+SPDR S&P 500 (Acc): £16.141 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.3 | MAE:-1.07% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.481 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.58 | MAE:-0.52% MFE:5.81%
+Updated positions: Apple, ABBV, WisdomTree NASDAQ 100 3x Short
+Thu Mar 26 15:00:11 UTC 2026: Stop monitor complete
+Thu Mar 26 15:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.347 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.26 | MAE:-1.05% MFE:0.06%
+Visa: £305.77 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.65 | MAE:0% MFE:2.42%
+Apple: £255.65 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.79 | MAE:0% MFE:3.25%
+Exxon Mobil: £164.46 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.82 | MAE:0% MFE:5.33%
+CVX: £208.06 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.06 | MAE:-1.49% MFE:1.02%
+ABBV: £209.34 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.5 | MAE:-0.29% MFE:2.99%
+SPDR S&P 500 (Acc): £16.141 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.3 | MAE:-1.07% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.444 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.47 | MAE:-0.52% MFE:5.81%
+Updated positions: ABBV
+Thu Mar 26 15:30:11 UTC 2026: Stop monitor complete
+Thu Mar 26 16:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.381 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.25 | MAE:-1.05% MFE:0.06%
+Visa: £305.15 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.58 | MAE:0% MFE:2.42%
+Apple: £256.5 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.89 | MAE:0% MFE:3.25%
+Exxon Mobil: £164.66 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.85 | MAE:0% MFE:5.33%
+CVX: £208.53 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.1 | MAE:-1.49% MFE:1.02%
+ABBV: £209.31 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.5 | MAE:-0.29% MFE:2.99%
+SPDR S&P 500 (Acc): £16.141 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.3 | MAE:-1.07% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.44 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.45 | MAE:-0.52% MFE:5.81%
+No trailing stop updates needed
+Thu Mar 26 16:00:09 UTC 2026: Stop monitor complete
+Thu Mar 26 16:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £94.143 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.33 | MAE:-1.05% MFE:0.06%
+Visa: £303.19 | Entry £300.27 | Stop £291.85 | T1 £327.53 | R:0.35 | MAE:0% MFE:2.42%
+Apple: £256.03 | Entry £248.63 | Stop £239.74 | T1 £271.01 | R:0.83 | MAE:0% MFE:3.25%
+Exxon Mobil: £164.89 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:0.88 | MAE:0% MFE:5.33%
+CVX: £208.93 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.13 | MAE:-1.49% MFE:1.02%
+ABBV: £209.87 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.54 | MAE:-0.29% MFE:3.25%
+SPDR S&P 500 (Acc): £16.123 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.34 | MAE:-1.07% MFE:0.18%
+WisdomTree NASDAQ 100 3x Short: £3.475 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.56 | MAE:-0.52% MFE:5.81%
+Updated positions: ABBV
+Thu Mar 26 16:30:12 UTC 2026: Stop monitor complete
+Fri Mar 27 09:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Vanguard S&P 500 (Acc): £93.717 | Entry £95.1 | Stop £92.2 | T1 £102.29 | R:-0.48 | MAE:-1.45% MFE:0.06%
+  ⚠️ NEAR STOP — Vanguard S&P 500 (Acc) only 1.6% above stop
+Exxon Mobil: £166.51 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.12 | MAE:0% MFE:5.33%
+CVX: £208.6 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.1 | MAE:-1.49% MFE:1.02%
+ABBV: £210.21 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.57 | MAE:-0.29% MFE:3.41%
+SPDR S&P 500 (Acc): £15.986 | Entry £16.2891 | Stop £15.8004 | T1 £17.2388 | R:-0.62 | MAE:-1.86% MFE:0.18%
+  ⚠️ NEAR STOP — SPDR S&P 500 (Acc) only 1.2% above stop
+WisdomTree NASDAQ 100 3x Short: £3.567 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.84 | MAE:-0.52% MFE:8.42%
+Updated positions: Vanguard S&P 500 (Acc), ABBV, SPDR S&P 500 (Acc), WisdomTree NASDAQ 100 3x Short
+Fri Mar 27 09:00:11 UTC 2026: Stop monitor complete
+Fri Mar 27 09:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Exxon Mobil: £166.41 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.11 | MAE:0% MFE:5.33%
+CVX: £208.42 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.09 | MAE:-1.49% MFE:1.02%
+ABBV: £210.24 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.57 | MAE:-0.29% MFE:3.43%
+WisdomTree NASDAQ 100 3x Short: £3.571 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.85 | MAE:-0.52% MFE:8.54%
+Updated positions: ABBV, WisdomTree NASDAQ 100 3x Short
+Fri Mar 27 09:30:11 UTC 2026: Stop monitor complete
+Fri Mar 27 10:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Exxon Mobil: £166.39 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.1 | MAE:0% MFE:5.33%
+CVX: £208.37 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.08 | MAE:-1.49% MFE:1.02%
+ABBV: £210.24 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.57 | MAE:-0.29% MFE:3.43%
+WisdomTree NASDAQ 100 3x Short: £3.571 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.85 | MAE:-0.52% MFE:8.54%
+No trailing stop updates needed
+Fri Mar 27 10:00:13 UTC 2026: Stop monitor complete
+Fri Mar 27 10:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Exxon Mobil: £166.52 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.12 | MAE:0% MFE:5.33%
+CVX: £208.46 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.09 | MAE:-1.49% MFE:1.02%
+ABBV: £210.24 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.57 | MAE:-0.29% MFE:3.43%
+WisdomTree NASDAQ 100 3x Short: £3.584 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:0.89 | MAE:-0.52% MFE:8.94%
+Updated positions: WisdomTree NASDAQ 100 3x Short
+Fri Mar 27 10:30:11 UTC 2026: Stop monitor complete
+Fri Mar 27 11:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/market: HTTP Error 400: Bad Request
+t212_request 404 on /equity/orders/46451582825 — order already gone (method=DELETE)
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £165.92 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.03 | MAE:0% MFE:5.33%
+CVX: £208.5 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.09 | MAE:-1.49% MFE:1.02%
+ABBV: £210.45 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.59 | MAE:-0.29% MFE:3.53%
+WisdomTree NASDAQ 100 3x Short: £3.628 | Entry £3.29 | Stop £2.96 | T1 £3.62 | R:1.02 | MAE:-0.52% MFE:10.27%
+  🎯 TARGET 1 HIT — selling 50% (14.425 shares), ratchet stop for WisdomTree NASDAQ 100 3x Short
+  Partial close: None | Ratchet stop @ £3.459: None
+Updated positions: ABBV, WisdomTree NASDAQ 100 3x Short, WisdomTree NASDAQ 100 3x Short
+Fri Mar 27 11:00:16 UTC 2026: Stop monitor complete
+Fri Mar 27 11:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Exxon Mobil: £166.21 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.08 | MAE:0% MFE:5.33%
+CVX: £208.88 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.13 | MAE:-1.49% MFE:1.02%
+ABBV: £210.21 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.57 | MAE:-0.29% MFE:3.53%
+WisdomTree NASDAQ 100 3x Short: £3.633 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.34 | MAE:-0.52% MFE:10.43%
+Updated positions: WisdomTree NASDAQ 100 3x Short
+Fri Mar 27 11:30:11 UTC 2026: Stop monitor complete
+Fri Mar 27 12:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Exxon Mobil: £166.08 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.06 | MAE:0% MFE:5.33%
+CVX: £209.01 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.14 | MAE:-1.49% MFE:1.02%
+ABBV: £210.36 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.58 | MAE:-0.29% MFE:3.53%
+WisdomTree NASDAQ 100 3x Short: £3.62 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.33 | MAE:-0.52% MFE:10.43%
+No trailing stop updates needed
+Fri Mar 27 12:00:13 UTC 2026: Stop monitor complete
+Fri Mar 27 12:30:21 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Exxon Mobil: £165.88 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.03 | MAE:0% MFE:5.33%
+CVX: £207.57 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.02 | MAE:-1.49% MFE:1.02%
+ABBV: £211.95 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.71 | MAE:-0.29% MFE:4.27%
+WisdomTree NASDAQ 100 3x Short: £3.629 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.34 | MAE:-0.52% MFE:10.43%
+Updated positions: ABBV
+Fri Mar 27 12:30:28 UTC 2026: Stop monitor complete
+Fri Mar 27 13:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Exxon Mobil: £165.67 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.0 | MAE:0% MFE:5.33%
+CVX: £207.51 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.02 | MAE:-1.49% MFE:1.02%
+ABBV: £211.22 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.65 | MAE:-0.29% MFE:4.27%
+WisdomTree NASDAQ 100 3x Short: £3.646 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.36 | MAE:-0.52% MFE:10.82%
+Updated positions: WisdomTree NASDAQ 100 3x Short
+Fri Mar 27 13:00:12 UTC 2026: Stop monitor complete
+Fri Mar 27 13:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+Exxon Mobil: £165.91 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.03 | MAE:0% MFE:5.33%
+CVX: £208.28 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.08 | MAE:-1.49% MFE:1.02%
+ABBV: £211.43 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.67 | MAE:-0.29% MFE:4.27%
+WisdomTree NASDAQ 100 3x Short: £3.629 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.34 | MAE:-0.52% MFE:10.82%
+No trailing stop updates needed
+Fri Mar 27 13:30:11 UTC 2026: Stop monitor complete
+Fri Mar 27 14:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £168.05 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.35 | MAE:0% MFE:5.78%
+CVX: £210.48 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.25 | MAE:-1.49% MFE:1.52%
+ABBV: £211.48 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.67 | MAE:-0.29% MFE:4.27%
+WisdomTree NASDAQ 100 3x Short: £3.698 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.41 | MAE:-0.52% MFE:12.4%
+Updated positions: Exxon Mobil, CVX, WisdomTree NASDAQ 100 3x Short
+Fri Mar 27 14:00:12 UTC 2026: Stop monitor complete
+Fri Mar 27 14:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £169.27 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.52 | MAE:0% MFE:6.55%
+CVX: £211.14 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.31 | MAE:-1.49% MFE:1.84%
+ABBV: £211.81 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.7 | MAE:-0.29% MFE:4.27%
+WisdomTree NASDAQ 100 3x Short: £3.7 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.41 | MAE:-0.52% MFE:12.46%
+Updated positions: Exxon Mobil, CVX, WisdomTree NASDAQ 100 3x Short
+Fri Mar 27 14:30:12 UTC 2026: Stop monitor complete
+Fri Mar 27 15:00:11 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £169.99 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.63 | MAE:0% MFE:7.01%
+CVX: £211.37 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.33 | MAE:-1.49% MFE:1.95%
+ABBV: £211.91 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.71 | MAE:-0.29% MFE:4.27%
+WisdomTree NASDAQ 100 3x Short: £3.695 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.4 | MAE:-0.52% MFE:12.46%
+Updated positions: Exxon Mobil, CVX
+Fri Mar 27 15:00:19 UTC 2026: Stop monitor complete
+Fri Mar 27 15:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £170.12 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.65 | MAE:0% MFE:7.09%
+CVX: £211.39 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.33 | MAE:-1.49% MFE:1.96%
+ABBV: £212.22 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.73 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.689 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.4 | MAE:-0.52% MFE:12.46%
+Updated positions: Exxon Mobil, CVX, ABBV
+Fri Mar 27 15:30:12 UTC 2026: Stop monitor complete
+Fri Mar 27 16:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £170.4 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.69 | MAE:0% MFE:7.26%
+CVX: £211.74 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.36 | MAE:-1.49% MFE:2.13%
+ABBV: £210.94 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.63 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.672 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.38 | MAE:-0.52% MFE:12.46%
+Updated positions: Exxon Mobil, CVX
+Fri Mar 27 16:00:14 UTC 2026: Stop monitor complete
+Fri Mar 27 16:30:11 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £170.52 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:1.71 | MAE:0% MFE:7.34%
+CVX: £212.15 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.39 | MAE:-1.49% MFE:2.33%
+ABBV: £210.92 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.63 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.703 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.41 | MAE:-0.52% MFE:12.55%
+Updated positions: Exxon Mobil, CVX, WisdomTree NASDAQ 100 3x Short
+Fri Mar 27 16:30:19 UTC 2026: Stop monitor complete
+Mon Mar 30 09:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/market: HTTP Error 400: Bad Request
+t212_request 404 on /equity/orders/46450667700 — order already gone (method=DELETE)
+T212 HTTP 429 on /equity/orders/stop — retry 1 in 2s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.31 | Entry £158.86 | Stop £152.03 | T1 £171.02 | R:2.12 | MAE:0% MFE:9.1%
+  🎯 TARGET 1 HIT — selling 50% (2.0 shares), ratchet stop for Exxon Mobil
+  Partial close: None | Ratchet stop @ £166.085: 46700694938
+CVX: £213.77 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.52 | MAE:-1.49% MFE:3.11%
+ABBV: £209.07 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.48 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.725 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.44 | MAE:-0.52% MFE:13.22%
+Updated positions: Exxon Mobil, Exxon Mobil, CVX, WisdomTree NASDAQ 100 3x Short
+Mon Mar 30 09:00:18 UTC 2026: Stop monitor complete
+Mon Mar 30 09:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request 404 on /equity/orders/46700694938 — order already gone (method=DELETE)
+T212 HTTP 429 on /equity/orders/stop — retry 1 in 2s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.47 | Entry £158.86 | Stop £166.085 | T1 £171.02 | R:14.61 | MAE:0% MFE:9.2%
+  📈 RATCHET UP — Exxon Mobil: stop £166.085 → £166.165 (price £173.47)
+CVX: £213.44 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.49 | MAE:-1.49% MFE:3.11%
+ABBV: £209.04 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.73 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.44 | MAE:-0.52% MFE:13.37%
+Updated positions: Exxon Mobil, Exxon Mobil, WisdomTree NASDAQ 100 3x Short
+Mon Mar 30 09:30:18 UTC 2026: Stop monitor complete
+Mon Mar 30 10:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+t212_request 404 on /equity/orders/46700695483 — order already gone (method=DELETE)
+T212 HTTP 429 on /equity/orders/stop — retry 1 in 2s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.54 | Entry £158.86 | Stop £166.165 | T1 £171.02 | R:14.68 | MAE:0% MFE:9.24%
+  📈 RATCHET UP — Exxon Mobil: stop £166.165 → £166.2 (price £173.54)
+CVX: £213.9 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.53 | MAE:-1.49% MFE:3.17%
+ABBV: £209.04 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.739 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.45 | MAE:-0.52% MFE:13.65%
+Updated positions: Exxon Mobil, Exxon Mobil, CVX, WisdomTree NASDAQ 100 3x Short
+Mon Mar 30 10:00:14 UTC 2026: Stop monitor complete
+Mon Mar 30 10:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request 404 on /equity/orders/46700695808 — order already gone (method=DELETE)
+T212 HTTP 429 on /equity/orders/stop — retry 1 in 2s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.73 | Entry £158.86 | Stop £166.2 | T1 £171.02 | R:14.87 | MAE:0% MFE:9.36%
+  📈 RATCHET UP — Exxon Mobil: stop £166.2 → £166.295 (price £173.73)
+CVX: £213.67 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.51 | MAE:-1.49% MFE:3.17%
+ABBV: £209.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.55 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.734 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.44 | MAE:-0.52% MFE:13.65%
+Updated positions: Exxon Mobil, Exxon Mobil
+Mon Mar 30 10:30:17 UTC 2026: Stop monitor complete
+Mon Mar 30 11:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request 404 on /equity/orders/46700696318 — order already gone (method=DELETE)
+T212 HTTP 429 on /equity/orders/stop — retry 1 in 2s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.78 | Entry £158.86 | Stop £166.295 | T1 £171.02 | R:14.92 | MAE:0% MFE:9.39%
+  📈 RATCHET UP — Exxon Mobil: stop £166.295 → £166.32 (price £173.78)
+CVX: £213.81 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.52 | MAE:-1.49% MFE:3.17%
+ABBV: £209.59 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.52 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.742 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.45 | MAE:-0.52% MFE:13.74%
+Updated positions: Exxon Mobil, Exxon Mobil, WisdomTree NASDAQ 100 3x Short
+Mon Mar 30 11:00:17 UTC 2026: Stop monitor complete
+Mon Mar 30 11:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.08 | Entry £158.86 | Stop £166.32 | T1 £171.02 | R:14.22 | MAE:0% MFE:9.39%
+CVX: £213.95 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.53 | MAE:-1.49% MFE:3.2%
+ABBV: £209.39 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.5 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.687 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.4 | MAE:-0.52% MFE:13.74%
+Updated positions: CVX
+Mon Mar 30 11:30:12 UTC 2026: Stop monitor complete
+Mon Mar 30 12:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £172.99 | Entry £158.86 | Stop £166.32 | T1 £171.02 | R:14.13 | MAE:0% MFE:9.39%
+CVX: £213.89 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.53 | MAE:-1.49% MFE:3.2%
+ABBV: £209.64 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.52 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.711 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.42 | MAE:-0.52% MFE:13.74%
+No trailing stop updates needed
+Mon Mar 30 12:00:13 UTC 2026: Stop monitor complete
+Mon Mar 30 12:30:21 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £172.89 | Entry £158.86 | Stop £166.32 | T1 £171.02 | R:14.03 | MAE:0% MFE:9.39%
+CVX: £213.47 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.49 | MAE:-1.49% MFE:3.2%
+ABBV: £209.88 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.54 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.683 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.39 | MAE:-0.52% MFE:13.74%
+No trailing stop updates needed
+Mon Mar 30 12:30:29 UTC 2026: Stop monitor complete
+Mon Mar 30 13:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £172.25 | Entry £158.86 | Stop £166.32 | T1 £171.02 | R:13.39 | MAE:0% MFE:9.39%
+CVX: £213.33 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.48 | MAE:-1.49% MFE:3.2%
+ABBV: £209.89 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.54 | MAE:-0.29% MFE:4.4%
+WisdomTree NASDAQ 100 3x Short: £3.691 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.4 | MAE:-0.52% MFE:13.74%
+No trailing stop updates needed
+Mon Mar 30 13:00:13 UTC 2026: Stop monitor complete
+Mon Mar 30 13:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £172.83 | Entry £158.86 | Stop £166.32 | T1 £171.02 | R:13.97 | MAE:0% MFE:9.39%
+CVX: £213.27 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.48 | MAE:-1.49% MFE:3.2%
+ABBV: £212.31 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.74 | MAE:-0.29% MFE:4.45%
+WisdomTree NASDAQ 100 3x Short: £3.676 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.39 | MAE:-0.52% MFE:13.74%
+Updated positions: ABBV
+Mon Mar 30 13:30:11 UTC 2026: Stop monitor complete
+Mon Mar 30 14:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request 404 on /equity/orders/46700696680 — order already gone (method=DELETE)
+T212 HTTP 429 on /equity/orders/stop — retry 1 in 2s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £175.01 | Entry £158.86 | Stop £166.32 | T1 £171.02 | R:16.15 | MAE:0% MFE:10.17%
+  📈 RATCHET UP — Exxon Mobil: stop £166.32 → £166.935 (price £175.01)
+CVX: £213.69 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.51 | MAE:-1.49% MFE:3.2%
+ABBV: £212.54 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.76 | MAE:-0.29% MFE:4.56%
+WisdomTree NASDAQ 100 3x Short: £3.739 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.45 | MAE:-0.52% MFE:13.74%
+Updated positions: Exxon Mobil, Exxon Mobil, ABBV
+Mon Mar 30 14:00:18 UTC 2026: Stop monitor complete
+Mon Mar 30 14:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.79 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:14.93 | MAE:0% MFE:10.17%
+CVX: £213.3 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.48 | MAE:-1.49% MFE:3.2%
+ABBV: £212.25 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.74 | MAE:-0.29% MFE:4.56%
+WisdomTree NASDAQ 100 3x Short: £3.755 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.46 | MAE:-0.52% MFE:14.13%
+Updated positions: WisdomTree NASDAQ 100 3x Short
+Mon Mar 30 14:30:12 UTC 2026: Stop monitor complete
+Mon Mar 30 15:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £174.31 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:15.45 | MAE:0% MFE:10.17%
+CVX: £214.16 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.55 | MAE:-1.49% MFE:3.3%
+ABBV: £212.86 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.79 | MAE:-0.29% MFE:4.72%
+WisdomTree NASDAQ 100 3x Short: £3.803 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.51 | MAE:-0.52% MFE:15.59%
+Updated positions: CVX, ABBV, WisdomTree NASDAQ 100 3x Short
+Mon Mar 30 15:00:12 UTC 2026: Stop monitor complete
+Mon Mar 30 15:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.72 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:14.86 | MAE:0% MFE:10.17%
+CVX: £213.33 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.48 | MAE:-1.49% MFE:3.3%
+ABBV: £212.11 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.72 | MAE:-0.29% MFE:4.72%
+WisdomTree NASDAQ 100 3x Short: £3.764 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.47 | MAE:-0.52% MFE:15.59%
+No trailing stop updates needed
+Mon Mar 30 15:30:12 UTC 2026: Stop monitor complete
+Mon Mar 30 16:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £174.25 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:15.39 | MAE:0% MFE:10.17%
+CVX: £213.6 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.5 | MAE:-1.49% MFE:3.3%
+ABBV: £212.64 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.77 | MAE:-0.29% MFE:4.72%
+WisdomTree NASDAQ 100 3x Short: £3.77 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.48 | MAE:-0.52% MFE:15.59%
+No trailing stop updates needed
+Mon Mar 30 16:00:09 UTC 2026: Stop monitor complete
+Mon Mar 30 16:30:10 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.34 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:14.48 | MAE:0% MFE:10.17%
+CVX: £212.55 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.42 | MAE:-1.49% MFE:3.3%
+ABBV: £213.05 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.8 | MAE:-0.29% MFE:4.81%
+WisdomTree NASDAQ 100 3x Short: £3.77 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.48 | MAE:-0.52% MFE:15.59%
+Updated positions: ABBV
+Mon Mar 30 16:30:18 UTC 2026: Stop monitor complete
+Tue Mar 31 09:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £171.36 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:12.5 | MAE:0% MFE:10.17%
+CVX: £210.85 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.28 | MAE:-1.49% MFE:3.3%
+ABBV: £213.48 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.84 | MAE:-0.29% MFE:5.02%
+WisdomTree NASDAQ 100 3x Short: £3.775 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.48 | MAE:-0.52% MFE:15.59%
+Updated positions: ABBV
+Tue Mar 31 09:00:12 UTC 2026: Stop monitor complete
+Tue Mar 31 09:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £170.96 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:12.1 | MAE:0% MFE:10.17%
+CVX: £210.02 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.22 | MAE:-1.49% MFE:3.3%
+ABBV: £214.03 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.88 | MAE:-0.29% MFE:5.29%
+WisdomTree NASDAQ 100 3x Short: £3.768 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.48 | MAE:-0.52% MFE:15.59%
+Updated positions: ABBV
+Tue Mar 31 09:30:12 UTC 2026: Stop monitor complete
+Tue Mar 31 10:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £171.36 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:12.5 | MAE:0% MFE:10.17%
+CVX: £210.42 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.25 | MAE:-1.49% MFE:3.3%
+ABBV: £214.03 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.88 | MAE:-0.29% MFE:5.29%
+WisdomTree NASDAQ 100 3x Short: £3.788 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.5 | MAE:-0.52% MFE:15.59%
+No trailing stop updates needed
+Tue Mar 31 10:00:09 UTC 2026: Stop monitor complete
+Tue Mar 31 10:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £171.35 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:12.49 | MAE:0% MFE:10.17%
+CVX: £210.58 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.26 | MAE:-1.49% MFE:3.3%
+ABBV: £214.12 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.89 | MAE:-0.29% MFE:5.34%
+WisdomTree NASDAQ 100 3x Short: £3.773 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.48 | MAE:-0.52% MFE:15.59%
+Updated positions: ABBV
+Tue Mar 31 10:30:12 UTC 2026: Stop monitor complete
+Tue Mar 31 11:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £171.13 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:12.27 | MAE:0% MFE:10.17%
+CVX: £211.27 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.32 | MAE:-1.49% MFE:3.3%
+ABBV: £214.77 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.94 | MAE:-0.29% MFE:5.66%
+WisdomTree NASDAQ 100 3x Short: £3.773 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.48 | MAE:-0.52% MFE:15.59%
+Updated positions: ABBV
+Tue Mar 31 11:00:12 UTC 2026: Stop monitor complete
+Tue Mar 31 11:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £172.72 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:13.86 | MAE:0% MFE:10.17%
+CVX: £211.42 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.33 | MAE:-1.49% MFE:3.3%
+ABBV: £214.73 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.94 | MAE:-0.29% MFE:5.66%
+WisdomTree NASDAQ 100 3x Short: £3.773 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.48 | MAE:-0.52% MFE:15.59%
+No trailing stop updates needed
+Tue Mar 31 11:30:11 UTC 2026: Stop monitor complete
+Tue Mar 31 12:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £171.99 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:13.13 | MAE:0% MFE:10.17%
+CVX: £211.34 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.32 | MAE:-1.49% MFE:3.3%
+ABBV: £214.85 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.95 | MAE:-0.29% MFE:5.7%
+WisdomTree NASDAQ 100 3x Short: £3.755 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.46 | MAE:-0.52% MFE:15.59%
+Updated positions: ABBV
+Tue Mar 31 12:00:13 UTC 2026: Stop monitor complete
+Tue Mar 31 12:30:21 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £171.84 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:12.98 | MAE:0% MFE:10.17%
+CVX: £211.58 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.34 | MAE:-1.49% MFE:3.3%
+ABBV: £215.03 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.96 | MAE:-0.29% MFE:5.79%
+WisdomTree NASDAQ 100 3x Short: £3.746 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.46 | MAE:-0.52% MFE:15.59%
+Updated positions: ABBV
+Tue Mar 31 12:30:29 UTC 2026: Stop monitor complete
+Tue Mar 31 13:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £171.79 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:12.93 | MAE:0% MFE:10.17%
+CVX: £211.09 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.3 | MAE:-1.49% MFE:3.3%
+ABBV: £215.0 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.96 | MAE:-0.29% MFE:5.79%
+WisdomTree NASDAQ 100 3x Short: £3.734 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.44 | MAE:-0.52% MFE:15.59%
+No trailing stop updates needed
+Tue Mar 31 13:00:13 UTC 2026: Stop monitor complete
+Tue Mar 31 13:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £172.72 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:13.86 | MAE:0% MFE:10.17%
+CVX: £210.89 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.29 | MAE:-1.49% MFE:3.3%
+ABBV: £215.41 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.0 | MAE:-0.29% MFE:5.97%
+WisdomTree NASDAQ 100 3x Short: £3.732 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.44 | MAE:-0.52% MFE:15.59%
+Updated positions: ABBV
+Tue Mar 31 13:30:12 UTC 2026: Stop monitor complete
+Tue Mar 31 14:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £172.54 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:13.68 | MAE:0% MFE:10.17%
+CVX: £211.13 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.31 | MAE:-1.49% MFE:3.3%
+ABBV: £218.2 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.22 | MAE:-0.29% MFE:7.34%
+WisdomTree NASDAQ 100 3x Short: £3.649 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.36 | MAE:-0.52% MFE:15.59%
+Updated positions: ABBV
+Tue Mar 31 14:00:12 UTC 2026: Stop monitor complete
+Tue Mar 31 14:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.77 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:14.91 | MAE:0% MFE:10.17%
+CVX: £212.4 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.41 | MAE:-1.49% MFE:3.3%
+ABBV: £216.83 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.11 | MAE:-0.29% MFE:7.34%
+WisdomTree NASDAQ 100 3x Short: £3.662 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.37 | MAE:-0.52% MFE:15.59%
+No trailing stop updates needed
+Tue Mar 31 14:30:11 UTC 2026: Stop monitor complete
+Tue Mar 31 15:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £174.33 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:15.47 | MAE:0% MFE:10.17%
+CVX: £212.92 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.45 | MAE:-1.49% MFE:3.3%
+ABBV: £216.24 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.06 | MAE:-0.29% MFE:7.34%
+WisdomTree NASDAQ 100 3x Short: £3.737 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.45 | MAE:-0.52% MFE:15.59%
+No trailing stop updates needed
+Tue Mar 31 15:00:12 UTC 2026: Stop monitor complete
+Tue Mar 31 15:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £172.91 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:14.05 | MAE:0% MFE:10.17%
+CVX: £211.57 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.34 | MAE:-1.49% MFE:3.3%
+ABBV: £215.93 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.04 | MAE:-0.29% MFE:7.34%
+WisdomTree NASDAQ 100 3x Short: £3.688 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.4 | MAE:-0.52% MFE:15.59%
+No trailing stop updates needed
+Tue Mar 31 15:30:11 UTC 2026: Stop monitor complete
+Tue Mar 31 16:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.3 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:14.44 | MAE:0% MFE:10.17%
+CVX: £211.64 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.35 | MAE:-1.49% MFE:3.3%
+ABBV: £216.27 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.07 | MAE:-0.29% MFE:7.34%
+WisdomTree NASDAQ 100 3x Short: £3.687 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.4 | MAE:-0.52% MFE:15.59%
+No trailing stop updates needed
+Tue Mar 31 16:00:14 UTC 2026: Stop monitor complete
+Tue Mar 31 16:30:10 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+t212_request HTTPError 400 on /equity/orders/stop: HTTP Error 400: Bad Request
+Sortino partial-close fraction: 50%
+Exxon Mobil: £173.69 | Entry £158.86 | Stop £166.935 | T1 £171.02 | R:14.83 | MAE:0% MFE:10.17%
+CVX: £211.77 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:0.36 | MAE:-1.49% MFE:3.3%
+ABBV: £217.14 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.14 | MAE:-0.29% MFE:7.34%
+WisdomTree NASDAQ 100 3x Short: £3.687 | Entry £3.29 | Stop £3.459 | T1 £3.62 | R:0.4 | MAE:-0.52% MFE:15.59%
+No trailing stop updates needed
+Tue Mar 31 16:30:18 UTC 2026: Stop monitor complete
+Wed Apr  1 09:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £202.8 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.36 | MAE:-2.18% MFE:3.3%
+ABBV: £217.02 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.13 | MAE:-0.29% MFE:7.34%
+Updated positions: CVX
+Wed Apr  1 09:00:12 UTC 2026: Stop monitor complete
+Wed Apr  1 09:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £203.58 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.3 | MAE:-2.18% MFE:3.3%
+ABBV: £219.72 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.35 | MAE:-0.29% MFE:8.09%
+Updated positions: ABBV
+Wed Apr  1 09:30:12 UTC 2026: Stop monitor complete
+Wed Apr  1 10:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+CVX: £204.08 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.26 | MAE:-2.18% MFE:3.3%
+ABBV: £219.72 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.35 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 10:00:08 UTC 2026: Stop monitor complete
+Wed Apr  1 10:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £203.12 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.34 | MAE:-2.18% MFE:3.3%
+ABBV: £217.39 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.16 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 10:30:12 UTC 2026: Stop monitor complete
+Wed Apr  1 11:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £203.52 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.31 | MAE:-2.18% MFE:3.3%
+ABBV: £217.73 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.19 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 11:00:12 UTC 2026: Stop monitor complete
+Wed Apr  1 11:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £203.63 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.3 | MAE:-2.18% MFE:3.3%
+ABBV: £218.53 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.25 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 11:30:12 UTC 2026: Stop monitor complete
+Wed Apr  1 12:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £204.03 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.26 | MAE:-2.18% MFE:3.3%
+ABBV: £218.48 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.25 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 12:00:13 UTC 2026: Stop monitor complete
+Wed Apr  1 12:30:21 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £202.87 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.36 | MAE:-2.18% MFE:3.3%
+ABBV: £218.06 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.21 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 12:30:28 UTC 2026: Stop monitor complete
+Wed Apr  1 13:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £203.5 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.31 | MAE:-2.18% MFE:3.3%
+ABBV: £217.54 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.17 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 13:00:12 UTC 2026: Stop monitor complete
+Wed Apr  1 13:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £202.25 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.41 | MAE:-2.45% MFE:3.3%
+ABBV: £218.94 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.28 | MAE:-0.29% MFE:8.09%
+Updated positions: CVX
+Wed Apr  1 13:30:11 UTC 2026: Stop monitor complete
+Wed Apr  1 14:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £199.47 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.63 | MAE:-3.79% MFE:3.3%
+ABBV: £217.53 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.17 | MAE:-0.29% MFE:8.09%
+Updated positions: CVX
+Wed Apr  1 14:00:12 UTC 2026: Stop monitor complete
+Wed Apr  1 14:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+CVX: £198.45 | Entry £207.32 | Stop £194.88 | T1 £225.98 | R:-0.71 | MAE:-4.28% MFE:3.3%
+  ⚠️ NEAR STOP — CVX only 1.8% above stop
+ABBV: £216.61 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.09 | MAE:-0.29% MFE:8.09%
+Updated positions: CVX
+Wed Apr  1 14:30:11 UTC 2026: Stop monitor complete
+Wed Apr  1 15:00:13 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £215.65 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.01 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 15:00:21 UTC 2026: Stop monitor complete
+Wed Apr  1 15:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £215.3 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.99 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 15:30:11 UTC 2026: Stop monitor complete
+Wed Apr  1 16:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £215.54 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:1.01 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 16:00:13 UTC 2026: Stop monitor complete
+Wed Apr  1 16:30:10 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £214.78 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.94 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  1 16:30:18 UTC 2026: Stop monitor complete
+Thu Apr  2 09:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £215.01 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.96 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 09:00:12 UTC 2026: Stop monitor complete
+Thu Apr  2 09:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £210.81 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.62 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 09:30:11 UTC 2026: Stop monitor complete
+Thu Apr  2 10:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £214.42 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.91 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 10:00:13 UTC 2026: Stop monitor complete
+Thu Apr  2 10:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £214.42 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.91 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 10:30:11 UTC 2026: Stop monitor complete
+Thu Apr  2 11:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £214.83 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.95 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 11:00:11 UTC 2026: Stop monitor complete
+Thu Apr  2 11:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £214.53 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.92 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 11:30:11 UTC 2026: Stop monitor complete
+Thu Apr  2 12:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £214.48 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.92 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 12:00:13 UTC 2026: Stop monitor complete
+Thu Apr  2 12:30:21 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £215.0 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.96 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 12:30:29 UTC 2026: Stop monitor complete
+Thu Apr  2 13:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £215.36 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.99 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 13:00:12 UTC 2026: Stop monitor complete
+Thu Apr  2 13:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £213.73 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.86 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 13:30:11 UTC 2026: Stop monitor complete
+Thu Apr  2 14:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £211.77 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.7 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 14:00:12 UTC 2026: Stop monitor complete
+Thu Apr  2 14:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £211.19 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.65 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 14:30:11 UTC 2026: Stop monitor complete
+Thu Apr  2 15:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £212.38 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.75 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 15:00:11 UTC 2026: Stop monitor complete
+Thu Apr  2 15:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £210.76 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.61 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 15:30:11 UTC 2026: Stop monitor complete
+Thu Apr  2 16:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+ABBV: £210.1 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.56 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 16:00:09 UTC 2026: Stop monitor complete
+Thu Apr  2 16:30:10 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £209.39 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.5 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Thu Apr  2 16:30:18 UTC 2026: Stop monitor complete
+Fri Apr  3 09:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 09:00:12 UTC 2026: Stop monitor complete
+Fri Apr  3 09:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 09:30:11 UTC 2026: Stop monitor complete
+Fri Apr  3 10:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 10:00:13 UTC 2026: Stop monitor complete
+Fri Apr  3 10:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 10:30:11 UTC 2026: Stop monitor complete
+Fri Apr  3 11:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 11:00:12 UTC 2026: Stop monitor complete
+Fri Apr  3 11:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 11:30:11 UTC 2026: Stop monitor complete
+Fri Apr  3 12:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 12:00:13 UTC 2026: Stop monitor complete
+Fri Apr  3 12:30:11 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 12:30:18 UTC 2026: Stop monitor complete
+Fri Apr  3 13:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 13:00:11 UTC 2026: Stop monitor complete
+Fri Apr  3 13:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 13:30:11 UTC 2026: Stop monitor complete
+Fri Apr  3 14:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 14:00:12 UTC 2026: Stop monitor complete
+Fri Apr  3 14:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 14:30:11 UTC 2026: Stop monitor complete
+Fri Apr  3 15:00:10 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 15:00:18 UTC 2026: Stop monitor complete
+Fri Apr  3 15:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 15:30:11 UTC 2026: Stop monitor complete
+Fri Apr  3 16:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 16:00:08 UTC 2026: Stop monitor complete
+Fri Apr  3 16:30:10 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Fri Apr  3 16:30:18 UTC 2026: Stop monitor complete
+Mon Apr  6 09:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.47 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 09:00:11 UTC 2026: Stop monitor complete
+Mon Apr  6 09:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £209.7 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.53 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 09:30:12 UTC 2026: Stop monitor complete
+Mon Apr  6 10:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.22 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.41 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 10:00:12 UTC 2026: Stop monitor complete
+Mon Apr  6 10:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.3 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.41 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 10:30:12 UTC 2026: Stop monitor complete
+Mon Apr  6 11:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.86 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.46 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 11:00:11 UTC 2026: Stop monitor complete
+Mon Apr  6 11:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.59 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.44 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 11:30:11 UTC 2026: Stop monitor complete
+Mon Apr  6 12:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.61 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.44 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 12:00:12 UTC 2026: Stop monitor complete
+Mon Apr  6 12:30:21 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.88 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.46 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 12:30:29 UTC 2026: Stop monitor complete
+Mon Apr  6 13:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.23 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.41 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 13:00:12 UTC 2026: Stop monitor complete
+Mon Apr  6 13:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £207.08 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.31 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 13:30:11 UTC 2026: Stop monitor complete
+Mon Apr  6 14:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.09 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.4 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 14:00:13 UTC 2026: Stop monitor complete
+Mon Apr  6 14:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.18 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.4 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 14:30:11 UTC 2026: Stop monitor complete
+Mon Apr  6 15:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £207.95 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.38 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 15:00:11 UTC 2026: Stop monitor complete
+Mon Apr  6 15:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £207.0 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.31 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 15:30:11 UTC 2026: Stop monitor complete
+Mon Apr  6 16:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+ABBV: £207.27 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.33 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 16:00:09 UTC 2026: Stop monitor complete
+Mon Apr  6 16:30:10 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £206.45 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.26 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Mon Apr  6 16:30:18 UTC 2026: Stop monitor complete
+Tue Apr  7 09:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £207.02 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.31 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 09:00:11 UTC 2026: Stop monitor complete
+Tue Apr  7 09:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £207.05 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.31 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 09:30:12 UTC 2026: Stop monitor complete
+Tue Apr  7 10:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+ABBV: £207.52 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.35 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 10:00:09 UTC 2026: Stop monitor complete
+Tue Apr  7 10:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £206.59 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.27 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 10:30:12 UTC 2026: Stop monitor complete
+Tue Apr  7 11:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £206.03 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.23 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 11:00:11 UTC 2026: Stop monitor complete
+Tue Apr  7 11:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £206.64 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.28 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 11:30:12 UTC 2026: Stop monitor complete
+Tue Apr  7 12:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+ABBV: £206.55 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.27 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 12:00:08 UTC 2026: Stop monitor complete
+Tue Apr  7 12:30:21 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £206.68 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.28 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 12:30:29 UTC 2026: Stop monitor complete
+Tue Apr  7 13:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £206.61 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.27 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 13:00:13 UTC 2026: Stop monitor complete
+Tue Apr  7 13:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £206.71 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.28 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 13:30:12 UTC 2026: Stop monitor complete
+Tue Apr  7 14:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £202.96 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:-0.03 | MAE:-0.29% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 14:00:12 UTC 2026: Stop monitor complete
+Tue Apr  7 14:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £201.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:-0.11 | MAE:-0.63% MFE:8.09%
+Updated positions: ABBV
+Tue Apr  7 14:30:11 UTC 2026: Stop monitor complete
+Tue Apr  7 15:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £202.36 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:-0.07 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 15:00:11 UTC 2026: Stop monitor complete
+Tue Apr  7 15:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £202.15 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:-0.09 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 15:30:11 UTC 2026: Stop monitor complete
+Tue Apr  7 16:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £202.38 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:-0.07 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 16:00:13 UTC 2026: Stop monitor complete
+Tue Apr  7 16:30:10 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £204.21 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.08 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Tue Apr  7 16:30:17 UTC 2026: Stop monitor complete
+Wed Apr  8 09:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £207.98 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.39 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 09:00:11 UTC 2026: Stop monitor complete
+Wed Apr  8 09:30:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £209.18 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.48 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 09:30:12 UTC 2026: Stop monitor complete
+Wed Apr  8 10:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+ABBV: £208.72 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.45 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 10:00:09 UTC 2026: Stop monitor complete
+Wed Apr  8 10:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.62 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.44 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 10:30:11 UTC 2026: Stop monitor complete
+Wed Apr  8 11:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £207.91 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.38 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 11:00:12 UTC 2026: Stop monitor complete
+Wed Apr  8 11:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.09 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.4 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 11:30:11 UTC 2026: Stop monitor complete
+Wed Apr  8 12:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.26 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.41 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 12:00:14 UTC 2026: Stop monitor complete
+Wed Apr  8 12:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+T212 HTTP 429 on /equity/portfolio — retry 3 in 10s
+t212_request HTTPError 429 on /equity/portfolio: HTTP Error 429: Too Many Requests | body={"code":"BusinessException","context":{"type":"TooManyRequests"},"errorMessage":"too many requests"}
+
+Sortino partial-close fraction: 50%
+No trailing stop updates needed
+Wed Apr  8 12:30:22 UTC 2026: Stop monitor complete
+Wed Apr  8 13:00:04 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.02 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.39 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 13:00:12 UTC 2026: Stop monitor complete
+Wed Apr  8 13:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £206.25 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.24 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 13:30:11 UTC 2026: Stop monitor complete
+Wed Apr  8 14:00:05 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+Sortino partial-close fraction: 50%
+ABBV: £207.96 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.38 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 14:00:08 UTC 2026: Stop monitor complete
+Wed Apr  8 14:30:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £208.65 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.44 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 14:30:11 UTC 2026: Stop monitor complete
+Wed Apr  8 15:00:03 UTC 2026: Running stop monitor
+T212 HTTP 429 on /equity/portfolio — retry 1 in 2s
+T212 HTTP 429 on /equity/portfolio — retry 2 in 5s
+Sortino partial-close fraction: 50%
+ABBV: £209.31 | Entry £203.27 | Stop £191.07 | T1 £221.57000000000005 | R:0.5 | MAE:-0.63% MFE:8.09%
+No trailing stop updates needed
+Wed Apr  8 15:00:11 UTC 2026: Stop monitor complete

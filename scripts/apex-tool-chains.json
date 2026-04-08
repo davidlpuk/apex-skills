@@ -1,0 +1,146 @@
+{
+  "_comment": "Declarative tool chains \u2014 composable workflows defined in config, not code.",
+  "version": "1.0",
+  "updated": "2026-04-08",
+  "chains": {
+    "morning-health": {
+      "description": "Morning data quality + integrity checks before acting on any signals",
+      "steps": [
+        "staleness-check",
+        "data-integrity",
+        "reconcile"
+      ],
+      "stop_on_error": false,
+      "tags": [
+        "health",
+        "morning"
+      ]
+    },
+    "morning-regime": {
+      "description": "Full regime assessment: direction \u2192 breadth \u2192 VIX \u2192 scaling \u2192 risk gates",
+      "steps": [
+        "market-direction",
+        "breadth-thrust",
+        "regime-check",
+        "regime-scaling",
+        "drawdown-check",
+        "circuit-breaker"
+      ],
+      "stop_on_error": true,
+      "tags": [
+        "regime",
+        "morning",
+        "core"
+      ]
+    },
+    "signal-pipeline": {
+      "description": "Full signal generation pipeline: macro \u2192 sentiment \u2192 multiframe \u2192 scans",
+      "steps": [
+        "geo-news",
+        "macro-signals",
+        "sentiment",
+        "multiframe",
+        "vix-correlation",
+        "contrarian-scan"
+      ],
+      "stop_on_error": false,
+      "tags": [
+        "signals",
+        "morning"
+      ]
+    },
+    "risk-snapshot": {
+      "description": "Full risk assessment: drawdown, VIX, circuit breaker, stress tests, sizing",
+      "steps": [
+        "drawdown-check",
+        "vix-correlation",
+        "circuit-breaker",
+        "blackswan-test",
+        "kelly-v2"
+      ],
+      "stop_on_error": false,
+      "tags": [
+        "risk"
+      ]
+    },
+    "learning-cycle": {
+      "description": "Run all self-improvement scripts: weights, trajectory, edge proof, score adapter",
+      "steps": [
+        "weight-optimizer",
+        "trajectory-learner",
+        "edge-proof",
+        "score-adapter"
+      ],
+      "stop_on_error": false,
+      "tags": [
+        "learning"
+      ]
+    },
+    "market-data-refresh": {
+      "description": "Refresh all external market data feeds",
+      "steps": [
+        "market-direction",
+        "breadth-thrust",
+        "breadth-drilldown",
+        "sector-rotation",
+        "vix-correlation",
+        "relative-strength"
+      ],
+      "stop_on_error": false,
+      "tags": [
+        "market-data",
+        "morning"
+      ]
+    },
+    "taco-cycle": {
+      "description": "Run the full TACO state machine cycle: classify \u2192 monitor \u2192 (inject if walkback)",
+      "steps": [
+        "taco-classifier",
+        "taco-monitor"
+      ],
+      "stop_on_error": true,
+      "tags": [
+        "taco"
+      ]
+    },
+    "full-morning": {
+      "description": "Complete morning preparation: health \u2192 regime \u2192 market data \u2192 signals",
+      "steps": [
+        "staleness-check",
+        "data-integrity",
+        "market-direction",
+        "breadth-thrust",
+        "regime-check",
+        "regime-scaling",
+        "drawdown-check",
+        "circuit-breaker",
+        "geo-news",
+        "macro-signals",
+        "sentiment",
+        "multiframe",
+        "contrarian-scan"
+      ],
+      "stop_on_error": false,
+      "tags": [
+        "morning",
+        "core"
+      ]
+    },
+    "performance-review": {
+      "description": "EOD performance and learning review",
+      "steps": [
+        "sharpe",
+        "mae-mfe",
+        "backtest-v2",
+        "rolling-pnl",
+        "opportunity-cost",
+        "learning-digest"
+      ],
+      "stop_on_error": false,
+      "tags": [
+        "performance",
+        "learning"
+      ]
+    }
+  }
+}

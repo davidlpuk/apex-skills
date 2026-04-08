@@ -341,10 +341,14 @@ PYEOF2
         send_message "⚠️ Digest failed — check apex-errors.log"
       ;;
     STATUS)
+      # Sync positions with T212 first so STATUS reflects manual trades/closes
+      python3 /home/ubuntu/.picoclaw/scripts/apex-reconcile.py >/dev/null 2>&1 &
+      RECON_PID=$!
       PENDING=$([ -f "$SIGNAL_FILE" ] && \
         python3 -c "import json; d=json.load(open('$SIGNAL_FILE')); print(f\"{d['name']} | entry:£{d['entry']} | stop:£{d['stop']}\")" \
         2>/dev/null || echo "none")
       AUTOPILOT=$(python3 /home/ubuntu/.picoclaw/scripts/apex-autopilot.py status 2>/dev/null | head -1)
+      wait $RECON_PID 2>/dev/null || true
       source /home/ubuntu/.picoclaw/.env.trading212
       CASH=$(curl -s -H "Authorization: Basic $T212_AUTH" \
         $T212_ENDPOINT/equity/account/cash | \

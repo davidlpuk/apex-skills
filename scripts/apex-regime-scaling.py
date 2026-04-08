@@ -30,8 +30,8 @@ def calculate_scaling():
     except:
         return default_scaling()
 
-    vix     = float(regime.get('vix', 20))
-    breadth = float(regime.get('breadth_pct', 50))
+    vix     = float(regime.get('vix') or 20)
+    breadth = float(regime.get('breadth_pct') or 50)
 
     # VIX scaling — continuous smooth curve
     # At VIX 15 → 1.0 (full size)

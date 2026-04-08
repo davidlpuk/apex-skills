@@ -1,0 +1,38 @@
+/home/ubuntu/.picoclaw/dashboard/app.py:1353: SyntaxWarning: invalid escape sequence '\s'
+  HTML = '''<!DOCTYPE html>
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7777
+ * Running on http://57.128.167.193:7777
+[33mPress CTRL+C to quit[0m
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/regime HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/signals HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/sectors HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/performance HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/sentiment HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/fundamentals HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/autopilot HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/alerts HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/queue HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/macro HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/health HTTP/1.1" 200 -
+127.0.0.1 - - [24/Mar/2026 20:57:48] "[31m[1mGET /api/taco HTTP/1.1[0m" 401 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/portfolio HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/scanner-universe HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/watchlist HTTP/1.1" 200 -
+104.28.40.132 - - [24/Mar/2026 20:57:48] "GET /api/scanner-universe HTTP/1.1" 200 -
+127.0.0.1 - - [24/Mar/2026 20:58:09] "[31m[1mGET /api/taco HTTP/1.1[0m" 401 -
+89.42.231.182 - - [24/Mar/2026 21:59:09] "[33mGET /..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd HTTP/1.1[0m" 404 -
+3.143.162.210 - - [25/Mar/2026 00:04:29] "[31m[1mGET / HTTP/1.1[0m" 401 -
+3.143.162.210 - - [25/Mar/2026 00:06:23] "[31m[1mGET / HTTP/1.1[0m" 401 -
+3.143.162.210 - - [25/Mar/2026 00:07:24] code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00{\x01\x00\x00w\x03\x03Ô£\x11UïÀ±RúiuRìéV\x0e|8ü2lî\x18/P¨I\x82j\x89¡\x16\x00\x00\x1aÀ/À+À\x11À\x07À\x13À')
+3.143.162.210 - - [25/Mar/2026 00:07:24] "[31m[1m\x16\x03\x01\x00{\x01\x00\x00w\x03\x03Ô£\x11UïÀ±RúiuRìéV\x0e|8ü2lî\x18/P¨I\x82j\x89¡\x16\x00\x00\x1aÀ/À+À\x11À\x07À\x13À\x09À\x14À[0m" 400 -
+3.143.162.210 - - [25/Mar/2026 00:09:16] code 400, message Bad request version ('À\x14À')
+3.143.162.210 - - [25/Mar/2026 00:09:16] "[31m[1m\x16\x03\x01\x00{\x01\x00\x00w\x03\x03dÚ $¨Åì$YPÀ\x8e²\x95\x80ôCiR~ñÌÍå\x1a9%×Ü´\x84ú\x00\x00\x1aÀ/À+À\x11À\x07À\x13À\x09À\x14À[0m" 400 -
+198.235.24.104 - - [25/Mar/2026 00:35:23] "[31m[1mGET / HTTP/1.1[0m" 401 -
+91.231.89.118 - - [25/Mar/2026 00:47:59] code 400, message Bad request version ('À#À¬À®À+À')
+91.231.89.118 - - [25/Mar/2026 00:47:59] "[31m[1m\x16\x03\x03\x01§\x01\x00\x01£\x03\x03ì\x8bDä\x87ß-\x07:\x1d\x86\x1c2Ø\x98øptâ0\x10KÃ½ô\x94/·èL£\x1f Nù\x9b¯Ðñý$\x07 1ÞëgH½ó£ü´\x87#\x91À\x8a£\x854\x01?\x9dÎ\x00\x8a\x00\x16\x003\x00gÀ\x9eÀ¢\x00\x9e\x009\x00kÀ\x9fÀ£\x00\x9f\x00E\x00¾\x00\x88\x00Ä\x00\x9aÀ\x08À\x09À#À¬À®À+À[0m" 400 -
+91.231.89.207 - - [25/Mar/2026 00:48:02] "[31m[1mGET / HTTP/1.1[0m" 401 -
+91.231.89.138 - - [25/Mar/2026 00:50:22] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -

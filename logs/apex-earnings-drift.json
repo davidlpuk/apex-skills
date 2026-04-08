@@ -1,4 +1,22 @@
 {
-  "timestamp": "2026-03-20 16:48 UTC",
-  "signals": []
+  "timestamp": "2026-04-08 07:26 UTC",
+  "signals": [
+    {
+      "name": "META",
+      "ticker": "META",
+      "price": NaN,
+      "rsi": 36.32,
+      "earnings_date": "2026-03-31",
+      "earnings_return": 6.67,
+      "days_since": 5,
+      "drift_return": NaN,
+      "stop": 535.83,
+      "target1": NaN,
+      "target2": NaN,
+      "quantity": 1,
+      "signal_type": "EARNINGS_DRIFT",
+      "score": 10,
+      "quality_score": 9
+    }
+  ]
 }

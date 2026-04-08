@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-04-01T14:45:05.670363+00:00",
+  "avg_corr": 0.229,
+  "pair_count": 1,
+  "is_crash_mode": false,
+  "threshold": 0.85,
+  "sizing_mult": 1.0
+}

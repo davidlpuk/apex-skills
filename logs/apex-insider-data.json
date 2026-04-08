@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-03-23 07:09 UTC",
+  "timestamp": "2026-04-06 07:09 UTC",
   "data": {
     "AAPL": {
       "status": "ACTIVE",
       "symbol": "AAPL",
       "cik": "0000320193",
-      "filing_count": 8,
+      "filing_count": 4,
       "days_back": 30,
-      "latest_filing": "2026-03-17",
+      "latest_filing": "2026-04-03",
       "adjustment": 0,
       "reasons": []
     },
@@ -15,7 +15,7 @@
       "status": "ACTIVE",
       "symbol": "MSFT",
       "cik": "0000789019",
-      "filing_count": 17,
+      "filing_count": 10,
       "days_back": 30,
       "latest_filing": "2026-03-16",
       "adjustment": 0,
@@ -25,19 +25,21 @@
       "status": "ACTIVE",
       "symbol": "GOOGL",
       "cik": "0001652044",
-      "filing_count": 19,
+      "filing_count": 22,
       "days_back": 30,
-      "latest_filing": "2026-03-18",
-      "adjustment": 0,
-      "reasons": []
+      "latest_filing": "2026-04-03",
+      "adjustment": 1,
+      "reasons": [
+        "Elevated insider activity: 22 Form 4 filings in 30 days"
+      ]
     },
     "NVDA": {
       "status": "ACTIVE",
       "symbol": "NVDA",
       "cik": "0001045810",
-      "filing_count": 18,
+      "filing_count": 14,
       "days_back": 30,
-      "latest_filing": "2026-03-20",
+      "latest_filing": "2026-03-24",
       "adjustment": 0,
       "reasons": []
     },
@@ -45,7 +47,7 @@
       "status": "ACTIVE",
       "symbol": "XOM",
       "cik": "0000034088",
-      "filing_count": 2,
+      "filing_count": 1,
       "days_back": 30,
       "latest_filing": "2026-03-17",
       "adjustment": 0,
@@ -55,9 +57,9 @@
       "status": "ACTIVE",
       "symbol": "CVX",
       "cik": "0000093410",
-      "filing_count": 11,
+      "filing_count": 2,
       "days_back": 30,
-      "latest_filing": "2026-03-10",
+      "latest_filing": "2026-04-01",
       "adjustment": 0,
       "reasons": []
     },
@@ -75,19 +77,19 @@
       "status": "ACTIVE",
       "symbol": "JPM",
       "cik": "0000019617",
-      "filing_count": 21,
+      "filing_count": 27,
       "days_back": 30,
-      "latest_filing": "2026-03-19",
+      "latest_filing": "2026-04-01",
       "adjustment": 1,
       "reasons": [
-        "Elevated insider activity: 21 Form 4 filings in 30 days"
+        "Elevated insider activity: 27 Form 4 filings in 30 days"
       ]
     },
     "JNJ": {
       "status": "ACTIVE",
       "symbol": "JNJ",
       "cik": "0000200406",
-      "filing_count": 5,
+      "filing_count": 3,
       "days_back": 30,
       "latest_filing": "2026-03-12",
       "adjustment": 0,
@@ -97,9 +99,9 @@
       "status": "ACTIVE",
       "symbol": "ABBV",
       "cik": "0001551152",
-      "filing_count": 11,
+      "filing_count": 3,
       "days_back": 30,
-      "latest_filing": "2026-03-06",
+      "latest_filing": "2026-04-02",
       "adjustment": 0,
       "reasons": []
     },
@@ -107,35 +109,26 @@
       "status": "ACTIVE",
       "symbol": "UNH",
       "cik": "0000731766",
-      "filing_count": 27,
+      "filing_count": 16,
       "days_back": 30,
       "latest_filing": "2026-03-19",
-      "adjustment": 1,
-      "reasons": [
-        "Elevated insider activity: 27 Form 4 filings in 30 days"
-      ]
+      "adjustment": 0,
+      "reasons": []
     },
     "PFE": {
       "status": "ACTIVE",
       "symbol": "PFE",
       "cik": "0000078003",
-      "filing_count": 22,
+      "filing_count": 8,
       "days_back": 30,
-      "latest_filing": "2026-03-16",
-      "adjustment": 1,
-      "reasons": [
-        "Elevated insider activity: 22 Form 4 filings in 30 days"
-      ]
-    },
-    "GS": {
-      "status": "ACTIVE",
-      "symbol": "GS",
-      "cik": "0000886982",
-      "filing_count": 1,
-      "days_back": 30,
-      "latest_filing": "2026-02-26",
+      "latest_filing": "2026-04-01",
       "adjustment": 0,
       "reasons": []
+    },
+    "GS": {
+      "status": "NO_RECENT_FILINGS",
+      "symbol": "GS",
+      "count": 0
     },
     "BLK": {
       "status": "NO_RECENT_FILINGS",
@@ -148,11 +141,16 @@
       "count": 0
     },
     "GSK": {
-      "status": "NO_RECENT_FILINGS",
+      "status": "ACTIVE",
       "symbol": "GSK",
-      "count": 0
+      "cik": "0000310158",
+      "filing_count": 3,
+      "days_back": 30,
+      "latest_filing": "2026-04-01",
+      "adjustment": 0,
+      "reasons": []
     }
   },
   "count": 16,
-  "signals": 3
+  "signals": 2
 }

@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-03-25 16:51 UTC",
+  "simulations": [
+    {
+      "ticker": "TSLA",
+      "name": "TSLA",
+      "signal_type": "CONTRARIAN",
+      "entry": 200.0,
+      "stop": 190.0,
+      "target1": 215.0,
+      "target2": 228.0,
+      "n_paths": 1000,
+      "mu": 0.0,
+      "sigma": 0.35,
+      "vix_inflation": 1.4,
+      "data_source": "default",
+      "sim_win_rate": 0.374,
+      "sim_expected_r": -0.0274,
+      "sim_p_day1_stop": 0.009,
+      "sim_mae_95th": -1.5074,
+      "sim_median_days": 10.0,
+      "sim_sharpe": -0.022,
+      "outcome_dist": {
+        "T1": 189,
+        "T2": 44,
+        "STOP": 550,
+        "TIMEOUT": 217
+      },
+      "verdict": "WARN",
+      "reason": "Win rate marginal (37.4% < 40%)"
+    }
+  ]
+}

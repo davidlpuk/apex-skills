@@ -92,7 +92,8 @@ def fetch_headlines():
                             'desc':   d[:200]
                         })
         except Exception as _e:
-            log_error(f"Silent failure in apex-sentiment.py: {_e}")
+            # RSS feeds are optional — any fetch failure is non-blocking
+            log_warning(f"apex-sentiment: could not fetch {url} — skipping ({type(_e).__name__})")
     return headlines
 
 def score_headlines(headlines, analyzer):

@@ -16,7 +16,7 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [FRED] %(levelname)s %(message)s",
-    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()]
+    handlers=[logging.FileHandler(LOG_FILE)]
 )
 log = logging.getLogger("apex-fred")
 

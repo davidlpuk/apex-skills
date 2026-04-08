@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-04-08T15:00:02.268821+00:00",
+  "score": 1,
+  "level": "CLEAR",
+  "signals": [
+    "\ud83d\udfe1 VIX fear index: +3.8% (rising = fear)"
+  ],
+  "details": {
+    "GC=F": {
+      "ticker": "GC=F",
+      "desc": "Gold futures",
+      "score": 0,
+      "pct": -0.49,
+      "price": 4780.5,
+      "direction": "up"
+    },
+    "TLT": {
+      "ticker": "TLT",
+      "desc": "US 20Y Treasury ETF",
+      "score": 0,
+      "pct": -0.06,
+      "price": 87.155,
+      "direction": "up"
+    },
+    "JPY=X": {
+      "ticker": "JPY=X",
+      "desc": "USD/JPY (yen strength)",
+      "score": 0,
+      "pct": 0.01,
+      "price": 158.288,
+      "direction": "down"
+    },
+    "CHFUSD=X": {
+      "ticker": "CHFUSD=X",
+      "desc": "CHF/USD (franc strength)",
+      "score": 0,
+      "pct": -0.01,
+      "price": 1.2681,
+      "direction": "up"
+    },
+    "ES=F": {
+      "ticker": "ES=F",
+      "desc": "S&P 500 futures",
+      "score": 0,
+      "pct": -0.2,
+      "price": 6798.0,
+      "direction": "down"
+    },
+    "^VIX": {
+      "ticker": "^VIX",
+      "desc": "VIX fear index",
+      "score": 1,
+      "pct": 3.84,
+      "price": 21.62,
+      "direction": "up"
+    }
+  },
+  "max_score": 12
+}

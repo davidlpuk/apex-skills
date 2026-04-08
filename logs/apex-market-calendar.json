@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-03-24 07:05 UTC",
+  "timestamp": "2026-04-08 07:05 UTC",
   "today": {
-    "date": "2026-03-24",
+    "date": "2026-04-08",
     "status": "OPEN",
     "message": "Both markets open",
     "us_open": true,
@@ -15,5 +15,5 @@
     "can_trade_uk": true,
     "safe_to_scan": true
   },
-  "next_trading": "2026-03-25"
+  "next_trading": "2026-04-09"
 }

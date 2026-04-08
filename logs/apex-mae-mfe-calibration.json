@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-04-07 19:41 UTC",
+  "n_trades_total": 11,
+  "n_wins_total": 7,
+  "n_losses_total": 4,
+  "aggregate": {
+    "mfe": {
+      "n": 7,
+      "insufficient": true,
+      "t1_fraction": 0.6,
+      "t2_fraction": 0.4,
+      "source": "default (insufficient data)"
+    },
+    "mae": {
+      "n": 4,
+      "insufficient": true,
+      "stop_efficiency": "UNKNOWN",
+      "avg_loss_r": 1.0
+    },
+    "ev_cmp": {
+      "win_rate": 0.6364,
+      "avg_win_r": 4.487,
+      "avg_loss_r": 0.448,
+      "model_avg_win_r": 2.6,
+      "model_ev": 1.4918,
+      "empirical_ev": 2.6927,
+      "ev_model_error": -1.2009,
+      "ev_model_error_pct": -44.6,
+      "model_overestimates": false
+    }
+  },
+  "by_signal_type": {
+    "": {
+      "n": 1,
+      "insufficient": true
+    },
+    "CONTRARIAN": {
+      "n": 3,
+      "insufficient": true
+    },
+    "INVERSE": {
+      "n": 3,
+      "insufficient": true
+    },
+    "TACO_CONTRARIAN": {
+      "n": 1,
+      "insufficient": true
+    }
+  },
+  "t1_splits": {},
+  "aggregate_t1_fraction": 0.6,
+  "aggregate_t2_fraction": 0.4
+}

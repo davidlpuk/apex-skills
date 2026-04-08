@@ -481,5 +481,46 @@
     "currency": "GBP",
     "sector": "Technology",
     "user_added": true
+  },
+  "POOL": {
+    "t212": "POOL_US_EQ",
+    "name": "POOL",
+    "currency": "USD",
+    "sector": "Consumer",
+    "user_added": true
+  },
+  "COP": {
+    "t212": "COP_US_EQ",
+    "name": "ConocoPhillips",
+    "currency": "USD"
+  },
+  "LLY": {
+    "t212": "LLY_US_EQ",
+    "name": "Eli Lilly",
+    "currency": "USD"
+  },
+  "RTX": {
+    "t212": "RTX_US_EQ",
+    "name": "RTX Corp",
+    "currency": "USD"
+  },
+  "LMT": {
+    "t212": "LMT_US_EQ",
+    "name": "Lockheed Martin",
+    "currency": "USD"
+  },
+  "ALLE": {
+    "t212": "ALLE_US_EQ",
+    "name": "ALLE",
+    "currency": "USD",
+    "sector": "Consumer",
+    "user_added": true
+  },
+  "LEN": {
+    "t212": "LEN_US_EQ",
+    "name": "LEN",
+    "currency": "USD",
+    "sector": "Consumer",
+    "user_added": true
   }
 }

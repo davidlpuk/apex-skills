@@ -1,0 +1,489 @@
+{
+  "timestamp": "2026-03-25 11:40 UTC",
+  "version": 2,
+  "mode": "CONTRARIAN",
+  "walk_forward": {
+    "n_windows": 6,
+    "train_months": 18,
+    "test_months": 6,
+    "windows": [
+      {
+        "window": 1,
+        "train_start": "2021-03-26",
+        "train_end": "2022-09-17",
+        "test_start": "2022-09-18",
+        "test_end": "2023-03-17",
+        "best_params": {
+          "score_threshold": 7,
+          "atr_stop_mult": 1.5,
+          "atr_target_t1": 3.0,
+          "atr_target_t2": 3.5,
+          "max_hold_days": 15,
+          "vix_block": 36
+        },
+        "in_sample": {
+          "n_trades": 149,
+          "win_rate": 45.6,
+          "expectancy": 0.599
+        },
+        "out_of_sample": {
+          "n_trades": 112,
+          "win_rate": 53.6,
+          "win_rate_ci": [
+            44.4,
+            62.5
+          ],
+          "avg_win_r": 2.74,
+          "avg_loss_r": -0.98,
+          "expectancy": 1.008,
+          "expectancy_ci": [
+            0.622,
+            1.389
+          ],
+          "profit_factor": 3.21,
+          "sharpe": 4.91,
+          "p_value_vs_random": 0.2549,
+          "significant": false
+        }
+      },
+      {
+        "window": 2,
+        "train_start": "2021-03-26",
+        "train_end": "2023-03-16",
+        "test_start": "2023-03-17",
+        "test_end": "2023-09-13",
+        "best_params": {
+          "score_threshold": 9,
+          "atr_stop_mult": 1.5,
+          "atr_target_t1": 3.0,
+          "atr_target_t2": 3.5,
+          "max_hold_days": 15,
+          "vix_block": 33
+        },
+        "in_sample": {
+          "n_trades": 36,
+          "win_rate": 52.8,
+          "expectancy": 1.054
+        },
+        "out_of_sample": {
+          "n_trades": 12,
+          "win_rate": 66.7,
+          "win_rate_ci": [
+            39.1,
+            86.2
+          ],
+          "avg_win_r": 2.25,
+          "avg_loss_r": -1.0,
+          "expectancy": 1.163,
+          "expectancy_ci": [
+            0.193,
+            2.114
+          ],
+          "profit_factor": 4.49,
+          "sharpe": 6.56,
+          "p_value_vs_random": 0.1973,
+          "significant": false
+        }
+      },
+      {
+        "window": 3,
+        "train_start": "2021-03-26",
+        "train_end": "2023-09-12",
+        "test_start": "2023-09-13",
+        "test_end": "2024-03-11",
+        "best_params": {
+          "score_threshold": 9,
+          "atr_stop_mult": 1.5,
+          "atr_target_t1": 3.0,
+          "atr_target_t2": 3.5,
+          "max_hold_days": 25,
+          "vix_block": 33
+        },
+        "in_sample": {
+          "n_trades": 48,
+          "win_rate": 54.2,
+          "expectancy": 1.123
+        },
+        "out_of_sample": {
+          "n_trades": 0,
+          "win_rate": 0,
+          "expectancy": 0
+        }
+      },
+      {
+        "window": 4,
+        "train_start": "2021-03-26",
+        "train_end": "2024-03-10",
+        "test_start": "2024-03-11",
+        "test_end": "2024-09-07",
+        "best_params": {
+          "score_threshold": 9,
+          "atr_stop_mult": 1.5,
+          "atr_target_t1": 3.0,
+          "atr_target_t2": 3.5,
+          "max_hold_days": 25,
+          "vix_block": 33
+        },
+        "in_sample": {
+          "n_trades": 53,
+          "win_rate": 54.7,
+          "expectancy": 1.088
+        },
+        "out_of_sample": {
+          "n_trades": 0,
+          "win_rate": 0,
+          "expectancy": 0
+        }
+      },
+      {
+        "window": 5,
+        "train_start": "2021-03-26",
+        "train_end": "2024-09-06",
+        "test_start": "2024-09-07",
+        "test_end": "2025-03-06",
+        "best_params": {
+          "score_threshold": 9,
+          "atr_stop_mult": 1.5,
+          "atr_target_t1": 3.0,
+          "atr_target_t2": 3.5,
+          "max_hold_days": 25,
+          "vix_block": 33
+        },
+        "in_sample": {
+          "n_trades": 61,
+          "win_rate": 55.7,
+          "expectancy": 1.076
+        },
+        "out_of_sample": {
+          "n_trades": 21,
+          "win_rate": 28.6,
+          "win_rate_ci": [
+            13.8,
+            50.0
+          ],
+          "avg_win_r": 2.6,
+          "avg_loss_r": -1.0,
+          "expectancy": 0.028,
+          "expectancy_ci": [
+            -0.655,
+            0.736
+          ],
+          "profit_factor": 1.04,
+          "sharpe": 0.17,
+          "p_value_vs_random": 1.0,
+          "significant": false
+        }
+      },
+      {
+        "window": 6,
+        "train_start": "2021-03-26",
+        "train_end": "2025-03-05",
+        "test_start": "2025-03-06",
+        "test_end": "2025-09-02",
+        "best_params": {
+          "score_threshold": 8,
+          "atr_stop_mult": 1.5,
+          "atr_target_t1": 3.0,
+          "atr_target_t2": 5.0,
+          "max_hold_days": 15,
+          "vix_block": 36
+        },
+        "in_sample": {
+          "n_trades": 205,
+          "win_rate": 44.4,
+          "expectancy": 0.871
+        },
+        "out_of_sample": {
+          "n_trades": 48,
+          "win_rate": 39.6,
+          "win_rate_ci": [
+            27.0,
+            53.7
+          ],
+          "avg_win_r": 2.64,
+          "avg_loss_r": -1.0,
+          "expectancy": 0.443,
+          "expectancy_ci": [
+            -0.084,
+            1.025
+          ],
+          "profit_factor": 1.73,
+          "sharpe": 2.22,
+          "p_value_vs_random": 1.0,
+          "significant": false
+        }
+      }
+    ],
+    "aggregate_oos": {
+      "n_trades": 193,
+      "win_rate": 48.2,
+      "win_rate_ci": [
+        41.2,
+        55.2
+      ],
+      "avg_win_r": 2.67,
+      "avg_loss_r": -0.99,
+      "expectancy": 0.771,
+      "expectancy_ci": [
+        0.485,
+        1.052
+      ],
+      "profit_factor": 2.5,
+      "sharpe": 3.85,
+      "p_value_vs_random": 1.0,
+      "significant": false
+    },
+    "parameter_stability": {
+      "score_threshold_values": [
+        7,
+        9,
+        9,
+        9,
+        9,
+        8
+      ],
+      "score_threshold_mode": 9,
+      "score_threshold_std": 0.8,
+      "stable": true
+    }
+  },
+  "instrument_analysis": {
+    "META": {
+      "wins": 9,
+      "n": 17,
+      "win_rate": 52.9,
+      "ci": [
+        31.0,
+        73.8
+      ],
+      "p_value": 0.495,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "ABBV": {
+      "wins": 8,
+      "n": 16,
+      "win_rate": 50.0,
+      "ci": [
+        28.0,
+        72.0
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "AZN": {
+      "wins": 4,
+      "n": 16,
+      "win_rate": 25.0,
+      "ci": [
+        10.2,
+        49.5
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "AAPL": {
+      "wins": 5,
+      "n": 15,
+      "win_rate": 33.3,
+      "ci": [
+        15.2,
+        58.3
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "XOM": {
+      "wins": 10,
+      "n": 14,
+      "win_rate": 71.4,
+      "ci": [
+        45.4,
+        88.3
+      ],
+      "p_value": 0.0914,
+      "significant": true,
+      "verdict": "INCLUDE"
+    },
+    "AMZN": {
+      "wins": 4,
+      "n": 12,
+      "win_rate": 33.3,
+      "ci": [
+        13.8,
+        60.9
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "HSBA": {
+      "wins": 7,
+      "n": 12,
+      "win_rate": 58.3,
+      "ci": [
+        31.9,
+        80.7
+      ],
+      "p_value": 0.3833,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "GOOGL": {
+      "wins": 5,
+      "n": 11,
+      "win_rate": 45.5,
+      "ci": [
+        21.3,
+        72.0
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "GSK": {
+      "wins": 1,
+      "n": 10,
+      "win_rate": 10.0,
+      "ci": [
+        1.8,
+        40.4
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "MSFT": {
+      "wins": 7,
+      "n": 9,
+      "win_rate": 77.8,
+      "ci": [
+        45.3,
+        93.7
+      ],
+      "p_value": 0.09,
+      "significant": true,
+      "verdict": "INCLUDE"
+    },
+    "JPM": {
+      "wins": 4,
+      "n": 9,
+      "win_rate": 44.4,
+      "ci": [
+        18.9,
+        73.3
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "SHEL": {
+      "wins": 5,
+      "n": 9,
+      "win_rate": 55.6,
+      "ci": [
+        26.7,
+        81.1
+      ],
+      "p_value": 0.5009,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "ULVR": {
+      "wins": 5,
+      "n": 9,
+      "win_rate": 55.6,
+      "ci": [
+        26.7,
+        81.1
+      ],
+      "p_value": 0.5009,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "NVDA": {
+      "wins": 7,
+      "n": 8,
+      "win_rate": 87.5,
+      "ci": [
+        52.9,
+        97.8
+      ],
+      "p_value": 0.0328,
+      "significant": true,
+      "verdict": "INCLUDE"
+    },
+    "CVX": {
+      "wins": 7,
+      "n": 8,
+      "win_rate": 87.5,
+      "ci": [
+        52.9,
+        97.8
+      ],
+      "p_value": 0.0328,
+      "significant": true,
+      "verdict": "INCLUDE"
+    },
+    "V": {
+      "wins": 4,
+      "n": 8,
+      "win_rate": 50.0,
+      "ci": [
+        21.5,
+        78.5
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "VUAG": {
+      "wins": 1,
+      "n": 7,
+      "win_rate": 14.3,
+      "ci": [
+        2.6,
+        51.3
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "EXCLUDE"
+    },
+    "JNJ": {
+      "wins": 0,
+      "n": 3,
+      "win_rate": 0.0,
+      "ci": [
+        0.0,
+        56.1
+      ],
+      "p_value": 1.0,
+      "significant": false,
+      "verdict": "INSUFFICIENT"
+    }
+  },
+  "instruments_significant": [
+    "XOM",
+    "MSFT",
+    "NVDA",
+    "CVX"
+  ],
+  "instruments_excluded": [
+    "META",
+    "ABBV",
+    "AZN",
+    "AAPL",
+    "AMZN",
+    "HSBA",
+    "GOOGL",
+    "GSK",
+    "JPM",
+    "SHEL",
+    "ULVR",
+    "V",
+    "VUAG"
+  ]
+}

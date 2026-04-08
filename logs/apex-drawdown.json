@@ -1,11 +1,11 @@
 {
-  "current": 5010.18,
-  "peak": 5012.96,
-  "drawdown_pct": 0.06,
-  "drawdown_amt": 2.78,
+  "current": 5034.74,
+  "peak": 5085.88,
+  "drawdown_pct": 1.01,
+  "drawdown_amt": 51.14,
   "multiplier": 1.0,
   "status": "NORMAL",
   "note": "Full position sizing",
-  "timestamp": "2026-03-24",
-  "updated_at": "2026-03-24T09:40:42.908418+00:00"
+  "timestamp": "2026-04-08",
+  "updated_at": "2026-04-08T07:55:12.403373+00:00"
 }

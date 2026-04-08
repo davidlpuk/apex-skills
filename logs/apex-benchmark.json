@@ -44,6 +44,196 @@
       "apex_return": 0.64,
       "alpha": 0.76,
       "beating": true
+    },
+    {
+      "date": "2026-03-25",
+      "prices": {
+        "VUAG": 94.96,
+        "VWRP": 1.2502,
+        "SPY": 657.93
+      },
+      "passive_values": {
+        "VUAG": 5012.67,
+        "VWRP": 5048.46,
+        "SPY": 5072.18
+      },
+      "vuag_value": 5012.67,
+      "vuag_return": 0.25,
+      "apex_value": 5036.17,
+      "apex_return": 0.72,
+      "alpha": 0.47,
+      "beating": true
+    },
+    {
+      "date": "2026-03-26",
+      "prices": {
+        "VUAG": 94.1527,
+        "VWRP": 1.2358,
+        "SPY": 649.53
+      },
+      "passive_values": {
+        "VUAG": 4970.06,
+        "VWRP": 4990.31,
+        "SPY": 5007.42
+      },
+      "vuag_value": 4970.06,
+      "vuag_return": -0.6,
+      "apex_value": 5041.82,
+      "apex_return": 0.84,
+      "alpha": 1.44,
+      "beating": true
+    },
+    {
+      "date": "2026-03-27",
+      "prices": {
+        "VUAG": 92.95,
+        "VWRP": 1.2224,
+        "SPY": 638.63
+      },
+      "passive_values": {
+        "VUAG": 4906.57,
+        "VWRP": 4936.2,
+        "SPY": 4923.39
+      },
+      "vuag_value": 4906.57,
+      "vuag_return": -1.87,
+      "apex_value": 5070.3,
+      "apex_return": 1.41,
+      "alpha": 3.28,
+      "beating": true
+    },
+    {
+      "date": "2026-03-30",
+      "prices": {
+        "VUAG": 93.43,
+        "VWRP": 1.2324,
+        "SPY": 635.515
+      },
+      "passive_values": {
+        "VUAG": 4931.91,
+        "VWRP": 4976.58,
+        "SPY": 4899.38
+      },
+      "vuag_value": 4931.91,
+      "vuag_return": -1.36,
+      "apex_value": 5092.17,
+      "apex_return": 1.84,
+      "alpha": 3.2,
+      "beating": true
+    },
+    {
+      "date": "2026-03-31",
+      "prices": {
+        "VUAG": 93.86,
+        "VWRP": 1.2366,
+        "SPY": 646.79
+      },
+      "passive_values": {
+        "VUAG": 4954.61,
+        "VWRP": 4993.54,
+        "SPY": 4986.3
+      },
+      "vuag_value": 4954.61,
+      "vuag_return": -0.91,
+      "apex_value": 5083.26,
+      "apex_return": 1.67,
+      "alpha": 2.58,
+      "beating": true
+    },
+    {
+      "date": "2026-04-01",
+      "prices": {
+        "VUAG": 95.36,
+        "VWRP": 1.2618,
+        "SPY": 657.83
+      },
+      "passive_values": {
+        "VUAG": 5033.79,
+        "VWRP": 5095.3,
+        "SPY": 5071.41
+      },
+      "vuag_value": 5033.79,
+      "vuag_return": 0.68,
+      "apex_value": 5041.89,
+      "apex_return": 0.84,
+      "alpha": 0.16,
+      "beating": true
+    },
+    {
+      "date": "2026-04-02",
+      "prices": {
+        "VUAG": 95.64,
+        "VWRP": 1.2616,
+        "SPY": 654.2658
+      },
+      "passive_values": {
+        "VUAG": 5048.57,
+        "VWRP": 5094.49,
+        "SPY": 5043.93
+      },
+      "vuag_value": 5048.57,
+      "vuag_return": 0.97,
+      "apex_value": 5037.98,
+      "apex_return": 0.76,
+      "alpha": -0.21,
+      "beating": false
+    },
+    {
+      "date": "2026-04-03",
+      "prices": {
+        "VUAG": 95.64,
+        "VWRP": 1.2616,
+        "SPY": 655.83
+      },
+      "passive_values": {
+        "VUAG": 5048.57,
+        "VWRP": 5094.49,
+        "SPY": 5055.99
+      },
+      "vuag_value": 5048.57,
+      "vuag_return": 0.97,
+      "apex_value": 5038.24,
+      "apex_return": 0.76,
+      "alpha": -0.21,
+      "beating": false
+    },
+    {
+      "date": "2026-04-06",
+      "prices": {
+        "VUAG": 95.64,
+        "VWRP": 1.2616,
+        "SPY": 658.3299
+      },
+      "passive_values": {
+        "VUAG": 5048.57,
+        "VWRP": 5094.49,
+        "SPY": 5075.26
+      },
+      "vuag_value": 5048.57,
+      "vuag_return": 0.97,
+      "apex_value": 5035.61,
+      "apex_return": 0.71,
+      "alpha": -0.26,
+      "beating": false
+    },
+    {
+      "date": "2026-04-07",
+      "prices": {
+        "VUAG": 95.36,
+        "VWRP": 1.2568,
+        "SPY": 656.19
+      },
+      "passive_values": {
+        "VUAG": 5033.79,
+        "VWRP": 5075.11,
+        "SPY": 5058.77
+      },
+      "vuag_value": 5033.79,
+      "vuag_return": 0.68,
+      "apex_value": 5032.96,
+      "apex_return": 0.66,
+      "alpha": -0.02,
+      "beating": false
     }
   ],
   "passive_units": {
@@ -52,23 +242,39 @@
     "SPY": 7.7093
   },
   "latest": {
-    "date": "2026-03-24",
+    "date": "2026-04-07",
     "prices": {
-      "VUAG": 94.61,
-      "VWRP": 1.2404,
-      "SPY": NaN
+      "VUAG": 95.36,
+      "VWRP": 1.2568,
+      "SPY": 656.19
     },
     "passive_values": {
-      "VUAG": 4994.2,
-      "VWRP": 5008.88,
-      "SPY": NaN
+      "VUAG": 5033.79,
+      "VWRP": 5075.11,
+      "SPY": 5058.77
     },
-    "vuag_value": 4994.2,
-    "vuag_return": -0.12,
-    "apex_value": 5032.17,
-    "apex_return": 0.64,
-    "alpha": 0.76,
-    "beating": true
+    "vuag_value": 5033.79,
+    "vuag_return": 0.68,
+    "apex_value": 5032.96,
+    "apex_return": 0.66,
+    "alpha": -0.02,
+    "beating": false
   },
-  "last_updated": "2026-03-24 17:43 UTC"
+  "last_updated": "2026-04-07 16:45 UTC",
+  "risk_metrics": {
+    "days": 12,
+    "apex_total_return": 0.66,
+    "vuag_total_return": 0.68,
+    "apex_annualised_return": 13.84,
+    "vuag_annualised_return": 14.19,
+    "apex_max_drawdown": 1.16,
+    "vuag_max_drawdown": 2.12,
+    "apex_sharpe": 2.17,
+    "vuag_sharpe": 1.35,
+    "apex_sortino": 3.34,
+    "vuag_sortino": 2.15,
+    "apex_calmar": 11.93,
+    "vuag_calmar": 6.69,
+    "information_ratio": -0.16
+  }
 }

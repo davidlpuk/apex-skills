@@ -4,10 +4,28 @@ Apex Utilities
 Shared utility functions used across all Apex scripts.
 """
 import json
+import math
 import os
 import tempfile
 import logging
 from datetime import datetime, timezone
+
+
+def _sanitize_nan(obj):
+    """
+    Recursively replace float NaN/Inf with None so json.dump never
+    produces the invalid JSON literal `NaN`.  Python's json module
+    writes float('nan') as the bare word NaN which is not valid JSON
+    and causes json.load to raise ValueError in strict parsers.
+    """
+    if isinstance(obj, float):
+        return None if (math.isnan(obj) or math.isinf(obj)) else obj
+    if isinstance(obj, dict):
+        return {k: _sanitize_nan(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitize_nan(v) for v in obj]
+    return obj
+
 
 # ============================================================
 # ATOMIC FILE WRITES
@@ -18,6 +36,8 @@ def atomic_write(filepath, data):
     Prevents corrupt files from interrupted writes.
     Rename is atomic on Linux — either the old file or new file
     exists, never a partial write.
+    NaN/Inf floats are sanitized to null before writing — bare NaN
+    is invalid JSON and breaks downstream json.load calls.
     """
     dirpath = os.path.dirname(filepath)
     if not dirpath:
@@ -31,7 +51,7 @@ def atomic_write(filepath, data):
             suffix='.tmp',
             encoding='utf-8'
         ) as f:
-            json.dump(data, f, indent=2, default=str)
+            json.dump(_sanitize_nan(data), f, indent=2, default=str)
             tmp_path = f.name
 
         # Atomic rename — replaces target file in one operation
@@ -182,11 +202,48 @@ def load(filename, default=None):
     return safe_read(filepath, default)
 
 def save(filename, data, backup=False):
-    """Save a file to the logs directory atomically."""
+    """
+    Save a file to the logs directory atomically.
+
+    For apex-positions.json and apex-pending-signal.json, also writes to the
+    SQLite state database (apex-state-db.py) as a hot-backup.  SQLite errors
+    are swallowed — JSON remains the authoritative source of truth during the
+    Phase 1 dual-write transition.
+    """
     filepath = f'{LOG_DIR}/{filename}'
     if backup:
-        return atomic_write_with_backup(filepath, data)
-    return atomic_write(filepath, data)
+        result = atomic_write_with_backup(filepath, data)
+    else:
+        result = atomic_write(filepath, data)
+
+    # ── SQLite dual-write (Phase 1 migration) ────────────────────────────────
+    if filename == 'apex-positions.json' and isinstance(data, list):
+        try:
+            import importlib.util as _ilu
+            _spec = _ilu.spec_from_file_location(
+                'apex_state_db',
+                '/home/ubuntu/.picoclaw/scripts/apex-state-db.py'
+            )
+            _sdb = _ilu.module_from_spec(_spec)
+            _spec.loader.exec_module(_sdb)
+            _sdb.save_positions(data)
+        except Exception as _e:
+            log_warning(f"SQLite dual-write (positions) failed (non-blocking): {_e}")
+
+    elif filename == 'apex-pending-signal.json' and isinstance(data, dict):
+        try:
+            import importlib.util as _ilu
+            _spec = _ilu.spec_from_file_location(
+                'apex_state_db',
+                '/home/ubuntu/.picoclaw/scripts/apex-state-db.py'
+            )
+            _sdb = _ilu.module_from_spec(_spec)
+            _spec.loader.exec_module(_sdb)
+            _sdb.save_pending_signal(data)
+        except Exception as _e:
+            log_warning(f"SQLite dual-write (pending_signal) failed (non-blocking): {_e}")
+
+    return result
 
 def rotate_error_log(max_lines=1000):
     """Keep error log from growing indefinitely — keep last 1000 lines."""
@@ -280,6 +337,54 @@ def send_telegram(message):
     except Exception as e:
         log_error(f"send_telegram failed: {e}")
         return False
+
+# ============================================================
+# FX RATES — account is GBP, many instruments are USD/EUR
+# ============================================================
+_MACRO_FILE = f'{LOG_DIR}/apex-macro-signals.json'
+
+
+def get_fx_rate(currency: str) -> float:
+    """
+    Return exchange rate to convert 1 unit of *currency* into GBP.
+    Used to snapshot FX at entry and attribute FX impact on close.
+
+    Reads from apex-macro-signals.json (refreshed every morning).
+    Returns 1.0 for GBP/GBX, macro-derived rates for USD/EUR/CNY,
+    or 1.0 as fail-open default (better to ignore FX than block a trade).
+
+    Examples:
+        get_fx_rate('USD') → 0.745  (1 USD = 0.745 GBP at gbp_usd=1.3413)
+        get_fx_rate('GBP') → 1.0
+        get_fx_rate('EUR') → 0.85
+    """
+    if not currency:
+        return 1.0
+    c = currency.upper()
+    if c in ('GBP', 'GBX', 'GBPENCE'):
+        return 1.0
+    try:
+        data = safe_read(_MACRO_FILE, {}) or {}
+        macro = data.get('macro_data', {})
+        if c == 'USD':
+            # gbp_usd is "how many USD per GBP" → invert for USD→GBP
+            gbp_usd = float(macro.get('gbp_usd', {}).get('current', 0))
+            if gbp_usd > 0:
+                return round(1.0 / gbp_usd, 6)
+        elif c == 'EUR':
+            # Not stored directly; approximate via GBP/USD × USD/EUR if we have it
+            # Otherwise return a sane default (no great options without a feed)
+            return 0.85  # approximate fallback
+        elif c == 'CNY':
+            # usd_cny stored → convert via GBP/USD
+            usd_cny = float(macro.get('usd_cny', {}).get('current', 0))
+            gbp_usd = float(macro.get('gbp_usd', {}).get('current', 0))
+            if usd_cny > 0 and gbp_usd > 0:
+                return round(1.0 / (usd_cny * gbp_usd), 6)
+    except Exception:
+        pass
+    return 1.0  # fail-open
+
 
 # ============================================================
 # PORTFOLIO VALUE
@@ -458,7 +563,15 @@ def t212_request(path, method='GET', payload=None, timeout=15, retries=3):
                 log_warning(f"T212 HTTP {e.code} on {path} — retry {attempt+1} in {wait}s")
                 time.sleep(wait)
                 continue
-            log_error(f"t212_request HTTPError {e.code} on {path}: {e}")
+            # 404 on order endpoints = order already triggered/cancelled externally — expected
+            if e.code == 404 and ('/equity/orders/' in path or method == 'DELETE'):
+                log_warning(f"t212_request 404 on {path} — order already gone (method={method})")
+                return None
+            try:
+                body = e.read().decode('utf-8', errors='replace')[:300]
+            except Exception:
+                body = str(e)
+            log_error(f"t212_request HTTPError {e.code} on {path}: {e} | body={body}")
             return None
         except Exception as e:
             if attempt < len(delays):

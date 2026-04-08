@@ -1,16 +1,66 @@
 {
-  "timestamp": "2026-03-22 10:26 UTC",
-  "score": 0,
-  "level": "CLEAR",
-  "action": "No black swan signals detected",
-  "events": [],
-  "gaps": [],
+  "timestamp": "2026-04-08 15:02 UTC",
+  "score": 6,
+  "level": "HIGH",
+  "action": "HALT new entries \u2014 review open positions immediately",
+  "events": [
+    "LARGE GAP: XOM_US_EQ -6.3%",
+    "LARGE GAP: GOOGL_US_EQ +4.9%",
+    "LARGE GAP: CVX_US_EQ -5.0%",
+    "EXTREME GAP: SHEL_EQ -8.8%"
+  ],
+  "gaps": [
+    {
+      "ticker": "XOM_US_EQ",
+      "yahoo": "XOM",
+      "prev_close": 163.91,
+      "today_open": 153.52,
+      "gap_pct": -6.34,
+      "day_pct": 1.06,
+      "direction": "DOWN",
+      "severity": "LARGE",
+      "note": "Gapped -6.3% overnight \u2014 verify catalyst"
+    },
+    {
+      "ticker": "GOOGL_US_EQ",
+      "yahoo": "GOOGL",
+      "prev_close": 305.46,
+      "today_open": 320.45,
+      "gap_pct": 4.91,
+      "day_pct": -1.1,
+      "direction": "UP",
+      "severity": "LARGE",
+      "note": "Gapped +4.9% overnight \u2014 verify catalyst"
+    },
+    {
+      "ticker": "CVX_US_EQ",
+      "yahoo": "CVX",
+      "prev_close": 201.54,
+      "today_open": 191.41,
+      "gap_pct": -5.03,
+      "day_pct": -0.34,
+      "direction": "DOWN",
+      "severity": "LARGE",
+      "note": "Gapped -5.0% overnight \u2014 verify catalyst"
+    },
+    {
+      "ticker": "SHEL_EQ",
+      "yahoo": "SHEL.L",
+      "prev_close": 35.68,
+      "today_open": 32.52,
+      "gap_pct": -8.84,
+      "day_pct": 4.35,
+      "direction": "DOWN",
+      "severity": "EXTREME",
+      "note": "Gapped -8.8% overnight \u2014 verify catalyst"
+    }
+  ],
   "regulatory": [],
   "vix": {
-    "current_vix": 26.78,
-    "prev_vix": 24.06,
-    "daily_jump": 11.3,
-    "weekly_move": 13.9,
+    "current_vix": 21.78,
+    "prev_vix": 25.78,
+    "daily_jump": -15.5,
+    "weekly_move": -11.2,
     "alerts": [],
     "severity": "NORMAL"
   },

@@ -470,5 +470,3623 @@
         "block_reasons": []
       }
     ]
+  },
+  {
+    "date": "2026-03-25",
+    "timestamp": "2026-03-25T08:30:10.040604+00:00",
+    "regime": "CLEAR",
+    "vix": 26.95,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 3,
+    "qualified_count": 3,
+    "blocked_count": 0,
+    "best_signal": "WisdomTree S&P 500 3x Short",
+    "best_type": "INVERSE",
+    "best_score": 8.0,
+    "signals": [
+      {
+        "name": "WisdomTree S&P 500 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 63.2,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 62.1,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 61.8,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ]
+  },
+  {
+    "date": "2026-03-25",
+    "timestamp": "2026-03-25T12:30:31.439127+00:00",
+    "regime": "CLEAR",
+    "vix": 25.06,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 3,
+    "qualified_count": 3,
+    "blocked_count": 0,
+    "best_signal": "WisdomTree S&P 500 3x Short",
+    "best_type": "INVERSE",
+    "best_score": 8.0,
+    "signals": [
+      {
+        "name": "WisdomTree S&P 500 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 63.1,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 58.7,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 60.7,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ]
+  },
+  {
+    "date": "2026-03-26",
+    "timestamp": "2026-03-26T08:30:12.624374+00:00",
+    "regime": "CLEAR",
+    "vix": 26.51,
+    "breadth": 36.7,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 4,
+    "qualified_count": 4,
+    "blocked_count": 0,
+    "best_signal": "ProShares UltraPro Short QQQ",
+    "best_type": "INVERSE",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 62.7,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 57.8,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 63.6,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 65.4,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 135.9,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 135.8,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 1.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 19.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-26",
+    "timestamp": "2026-03-26T08:30:13.742214+00:00",
+    "regime": "CLEAR",
+    "vix": 26.51,
+    "breadth": 36.7,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 4,
+    "qualified_count": 4,
+    "blocked_count": 0,
+    "best_signal": null,
+    "best_type": null,
+    "best_score": null,
+    "signals": [
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 62.7,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 57.8,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 63.6,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 65.4,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 135.9,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 135.8,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 1.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 19.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-26",
+    "timestamp": "2026-03-26T12:04:58.283294+00:00",
+    "regime": "CLEAR",
+    "vix": 27.48,
+    "breadth": 36.7,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 3,
+    "qualified_count": 3,
+    "blocked_count": 0,
+    "best_signal": "ProShares UltraPro Short QQQ",
+    "best_type": "INVERSE",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 62.7,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 59.9,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 65.4,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 139.4,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 139.4,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 4.8,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 23.4,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-26",
+    "timestamp": "2026-03-26T12:04:59.389459+00:00",
+    "regime": "CLEAR",
+    "vix": 27.48,
+    "breadth": 36.7,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 3,
+    "qualified_count": 3,
+    "blocked_count": 0,
+    "best_signal": null,
+    "best_type": null,
+    "best_score": null,
+    "signals": [
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 62.7,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 59.9,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 65.4,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 139.4,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 139.4,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 4.8,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 23.4,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-26",
+    "timestamp": "2026-03-26T12:30:13.521636+00:00",
+    "regime": "CLEAR",
+    "vix": 27.28,
+    "breadth": 36.7,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 3,
+    "qualified_count": 3,
+    "blocked_count": 0,
+    "best_signal": "ProShares UltraPro Short QQQ",
+    "best_type": "INVERSE",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 62.7,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 59.5,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 65.4,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 139.9,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 139.8,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 23.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-26",
+    "timestamp": "2026-03-26T12:30:14.625470+00:00",
+    "regime": "CLEAR",
+    "vix": 27.28,
+    "breadth": 36.7,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 3,
+    "qualified_count": 3,
+    "blocked_count": 0,
+    "best_signal": null,
+    "best_type": null,
+    "best_score": null,
+    "signals": [
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 62.7,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 59.5,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 65.4,
+        "adjustments": [
+          "MACRO: +1 (VIX 25.3 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 139.9,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 139.8,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 23.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-27",
+    "timestamp": "2026-03-27T08:30:12.949238+00:00",
+    "regime": "CLEAR",
+    "vix": 27.96,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 2,
+    "qualified_count": 2,
+    "blocked_count": 0,
+    "best_signal": "WisdomTree FTSE 100 3x Short",
+    "best_type": "INVERSE",
+    "best_score": 9.0,
+    "signals": [
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 58.1,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 65.5,
+        "adjustments": [
+          "MACRO: +1 (VIX 27.4 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 159.9,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 159.8,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 1.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 43.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-27",
+    "timestamp": "2026-03-27T12:30:14.327273+00:00",
+    "regime": "CLEAR",
+    "vix": 29.73,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 2,
+    "qualified_count": 2,
+    "blocked_count": 0,
+    "best_signal": "WisdomTree FTSE 100 3x Short",
+    "best_type": "INVERSE",
+    "best_score": 9.0,
+    "signals": [
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 61.2,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 65.5,
+        "adjustments": [
+          "MACRO: +1 (VIX 27.4 rising \u2014 inverse signal strengthened)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 163.9,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 163.8,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 47.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-30",
+    "timestamp": "2026-03-30T08:30:12.130653+00:00",
+    "regime": "BLOCKED",
+    "vix": 30.67,
+    "breadth": 23.3,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 1,
+    "qualified_count": 1,
+    "blocked_count": 0,
+    "best_signal": "WisdomTree FTSE 100 3x Short",
+    "best_type": "INVERSE",
+    "best_score": 8.0,
+    "signals": [
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 64.8,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 1.1,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 1.1,
+        "stale": false
+      },
+      "drawdown": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 1.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 115.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-30",
+    "timestamp": "2026-03-30T12:30:14.898110+00:00",
+    "regime": "BLOCKED",
+    "vix": 30.44,
+    "breadth": 23.3,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 1,
+    "qualified_count": 1,
+    "blocked_count": 0,
+    "best_signal": "WisdomTree FTSE 100 3x Short",
+    "best_type": "INVERSE",
+    "best_score": 9.0,
+    "signals": [
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 62.4,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 5.1,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 5.1,
+        "stale": false
+      },
+      "drawdown": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 119.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-31",
+    "timestamp": "2026-03-31T08:30:10.762860+00:00",
+    "regime": "BLOCKED",
+    "vix": 28.8,
+    "breadth": 20.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 0,
+    "qualified_count": 0,
+    "blocked_count": 0,
+    "best_signal": null,
+    "best_type": null,
+    "best_score": null,
+    "signals": [],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 25.1,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 25.1,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 1.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 139.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-03-31",
+    "timestamp": "2026-03-31T12:30:12.453429+00:00",
+    "regime": "BLOCKED",
+    "vix": 28.67,
+    "breadth": 20.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 0,
+    "qualified_count": 0,
+    "blocked_count": 0,
+    "best_signal": null,
+    "best_type": null,
+    "best_score": null,
+    "signals": [],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 29.1,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 29.1,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 143.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-01",
+    "timestamp": "2026-04-01T08:30:10.017085+00:00",
+    "regime": "CLEAR",
+    "vix": 24.87,
+    "breadth": 40.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 3,
+    "qualified_count": 3,
+    "blocked_count": 0,
+    "best_signal": "ProShares UltraPro Short QQQ",
+    "best_type": "INVERSE",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 61.8,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 60.8,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 9.0,
+        "adj_score": 9.0,
+        "rsi": 59.6,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 49.1,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 49.1,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 1.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 163.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-01",
+    "timestamp": "2026-04-01T12:30:13.832741+00:00",
+    "regime": "CLEAR",
+    "vix": 24.35,
+    "breadth": 40.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 4,
+    "qualified_count": 4,
+    "blocked_count": 0,
+    "best_signal": "ProShares UltraPro Short QQQ",
+    "best_type": "INVERSE",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 61.8,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 60.8,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 56.8,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree FTSE 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 7.0,
+        "adj_score": 7.0,
+        "rsi": 43.8,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.4% - ti)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 53.1,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 53.1,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 167.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-02",
+    "timestamp": "2026-04-02T08:30:10.482285+00:00",
+    "regime": "CLEAR",
+    "vix": 26.42,
+    "breadth": 33.3,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 4,
+    "qualified_count": 4,
+    "blocked_count": 0,
+    "best_signal": "ProShares UltraPro Short QQQ",
+    "best_type": "INVERSE",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 8.4,
+        "adj_score": 8.4,
+        "rsi": 36.65,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.32% stable/falling \u2014 risk-on)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: -2 (Technology breadth weak (10.0% above 200 EMA))",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 54.3,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.32% stable/falling \u2014 risk-on)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 53.9,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.32% stable/falling \u2014 risk-on)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 63.3,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.32% stable/falling \u2014 risk-on)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 73.1,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 73.1,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 1.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 187.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-02",
+    "timestamp": "2026-04-02T12:30:14.127520+00:00",
+    "regime": "CLEAR",
+    "vix": 27.84,
+    "breadth": 33.3,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 4,
+    "qualified_count": 4,
+    "blocked_count": 0,
+    "best_signal": "ProShares UltraPro Short QQQ",
+    "best_type": "INVERSE",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 8.4,
+        "adj_score": 8.4,
+        "rsi": 36.65,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.32% stable/falling \u2014 risk-on)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: -2 (Technology breadth weak (10.0% above 200 EMA))",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 54.3,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.32% stable/falling \u2014 risk-on)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 53.9,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.32% stable/falling \u2014 risk-on)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 60.3,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.32% stable/falling \u2014 risk-on)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 77.1,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 77.1,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 191.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-06",
+    "timestamp": "2026-04-06T08:30:10.026465+00:00",
+    "regime": "CLEAR",
+    "vix": 24.67,
+    "breadth": 33.3,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 5,
+    "qualified_count": 5,
+    "blocked_count": 0,
+    "best_signal": "META",
+    "best_type": "EARNINGS_DRIFT",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 10.8,
+        "adj_score": 10.0,
+        "rsi": 40.27,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.31% stable/falling \u2014 risk-on)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "OPTIONS: +1 (OTM call sweep: $610 (6.2% OTM) vol:5,678)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: +2 (Technology is leading sector (2/10 rotation score))",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)",
+          "Adjustment cap: +7.4 capped to +5.0"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 37.38,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.31% stable/falling \u2014 risk-on)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 13.0,
+        "adj_score": 10.0,
+        "rsi": 54.5,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.31% stable/falling \u2014 risk-on)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 12.0,
+        "adj_score": 10.0,
+        "rsi": 52.6,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.31% stable/falling \u2014 risk-on)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 12.0,
+        "adj_score": 10.0,
+        "rsi": 51.8,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.31% stable/falling \u2014 risk-on)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 1.1,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 1.1,
+        "stale": false
+      },
+      "drawdown": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 1.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 283.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-06",
+    "timestamp": "2026-04-06T12:30:14.423533+00:00",
+    "regime": "CLEAR",
+    "vix": 25.07,
+    "breadth": 33.3,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 5,
+    "qualified_count": 5,
+    "blocked_count": 0,
+    "best_signal": "META",
+    "best_type": "EARNINGS_DRIFT",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 10.8,
+        "adj_score": 10.0,
+        "rsi": 40.27,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.31% stable/falling \u2014 risk-on)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "OPTIONS: +1 (Unusual call activity: 10 contracts vol/OI>2.5x (top: $)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: +2 (Technology is leading sector (2/10 rotation score))",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)",
+          "Adjustment cap: +7.4 capped to +5.0"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 37.38,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.31% stable/falling \u2014 risk-on)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 13.0,
+        "adj_score": 10.0,
+        "rsi": 54.5,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.31% stable/falling \u2014 risk-on)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 12.0,
+        "adj_score": 10.0,
+        "rsi": 52.6,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.31% stable/falling \u2014 risk-on)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 12.0,
+        "adj_score": 10.0,
+        "rsi": 51.8,
+        "adjustments": [
+          "MACRO: +1 (10Y yield 4.31% stable/falling \u2014 risk-on)",
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 5.1,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 5.1,
+        "stale": false
+      },
+      "drawdown": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 287.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-07",
+    "timestamp": "2026-04-07T08:30:11.271497+00:00",
+    "regime": "CLEAR",
+    "vix": 24.77,
+    "breadth": 33.3,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 5,
+    "qualified_count": 5,
+    "blocked_count": 0,
+    "best_signal": "META",
+    "best_type": "EARNINGS_DRIFT",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 10.3,
+        "adj_score": 10.0,
+        "rsi": 35.38,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: +2 (Technology is leading sector (2/10 rotation score))",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)",
+          "Adjustment cap: +5.4 capped to +5.0"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 32.96,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 54.0,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 53.9,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 55.2,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 25.1,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 25.1,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 1.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 307.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-07",
+    "timestamp": "2026-04-07T12:30:14.472994+00:00",
+    "regime": "CLEAR",
+    "vix": 25.84,
+    "breadth": 33.3,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 5,
+    "qualified_count": 5,
+    "blocked_count": 0,
+    "best_signal": "META",
+    "best_type": "EARNINGS_DRIFT",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 10.3,
+        "adj_score": 10.0,
+        "rsi": 35.38,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: +2 (Technology is leading sector (2/10 rotation score))",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)",
+          "Adjustment cap: +5.4 capped to +5.0"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 32.96,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "WisdomTree NASDAQ 100 3x Short",
+        "signal_type": "INVERSE",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 57.3,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 54.0,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 10.0,
+        "adj_score": 10.0,
+        "rsi": 53.9,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 29.1,
+        "stale": true
+      },
+      "breadth": {
+        "age_hours": 29.1,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 311.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-08",
+    "timestamp": "2026-04-08T07:56:08.732152+00:00",
+    "regime": "CLEAR",
+    "vix": 24.17,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 13,
+    "qualified_count": 13,
+    "blocked_count": 0,
+    "best_signal": "NFE",
+    "best_type": "CONTRARIAN",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "NFE",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 9.32,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: +1 (Energy breadth strong (100.0% above 200 EMA))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "PG",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 7.0,
+        "adj_score": 7.0,
+        "rsi": 18.77,
+        "adjustments": [
+          "MTF: -1 (Weekly BEAR \u2014 contrarian is catching falling knife, caution)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ULVR",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 7.0,
+        "adj_score": 7.0,
+        "rsi": 20.98,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "MACRO: +1 (Copper RISING +2.1% \u2014 growth signal positive)",
+          "MACRO: +1 (GBP stable \u2014 no currency risk)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "NOVO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 48.75,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Healthcare is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "UNH",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 62.18,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Healthcare is lagging sector (2/10 rotation score))",
+          "Fundamentals5: +1 (NEUTRAL)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "REL",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 43.16,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "CRDO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 52.41,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Technology sector neutral)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "POOL",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 36.96,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "LLY",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 50.19,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 12.4,
+        "adj_score": 10.0,
+        "rsi": 36.32,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: -1 (Technology sector neutral)",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 34.3,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 12.0,
+        "adj_score": 10.0,
+        "rsi": 55.4,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 12.0,
+        "adj_score": 10.0,
+        "rsi": 54.7,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 0.4,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 48.5,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 0.7,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 331.3,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-08",
+    "timestamp": "2026-04-08T08:01:23.891115+00:00",
+    "regime": "CLEAR",
+    "vix": 20.88,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 13,
+    "qualified_count": 13,
+    "blocked_count": 0,
+    "best_signal": "NFE",
+    "best_type": "CONTRARIAN",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "NFE",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 9.32,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: +1 (Energy breadth strong (100.0% above 200 EMA))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "PG",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 7.0,
+        "adj_score": 7.0,
+        "rsi": 18.77,
+        "adjustments": [
+          "MTF: -1 (Weekly BEAR \u2014 contrarian is catching falling knife, caution)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ULVR",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 7.0,
+        "adj_score": 7.0,
+        "rsi": 20.65,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "MACRO: +1 (Copper RISING +2.1% \u2014 growth signal positive)",
+          "MACRO: +1 (GBP stable \u2014 no currency risk)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "NOVO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 48.75,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Healthcare is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "UNH",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 62.18,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Healthcare is lagging sector (2/10 rotation score))",
+          "Fundamentals5: +1 (NEUTRAL)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "REL",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 42.08,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "CRDO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 52.41,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Technology sector neutral)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "POOL",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 36.96,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "LLY",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 50.19,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 12.4,
+        "adj_score": 10.0,
+        "rsi": 36.32,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: -1 (Technology sector neutral)",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 34.3,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 12.0,
+        "adj_score": 10.0,
+        "rsi": 55.4,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 12.0,
+        "adj_score": 10.0,
+        "rsi": 54.7,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 48.6,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 0.7,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 331.4,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-08",
+    "timestamp": "2026-04-08T08:02:45.493171+00:00",
+    "regime": "CLEAR",
+    "vix": 20.86,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 13,
+    "qualified_count": 13,
+    "blocked_count": 0,
+    "best_signal": "NFE",
+    "best_type": "CONTRARIAN",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "NFE",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 9.32,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: +1 (Energy breadth strong (100.0% above 200 EMA))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ULVR",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 19.92,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "MACRO: +1 (Copper RISING +2.1% \u2014 growth signal positive)",
+          "MACRO: +1 (GBP stable \u2014 no currency risk)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "PG",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 7.0,
+        "adj_score": 7.0,
+        "rsi": 18.77,
+        "adjustments": [
+          "MTF: -1 (Weekly BEAR \u2014 contrarian is catching falling knife, caution)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "NOVO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 48.75,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Healthcare is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "UNH",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 62.18,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Healthcare is lagging sector (2/10 rotation score))",
+          "Fundamentals5: +1 (NEUTRAL)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "REL",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 42.62,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "CRDO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 52.41,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Technology sector neutral)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "POOL",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 36.96,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "LLY",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 50.19,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 12.4,
+        "adj_score": 10.0,
+        "rsi": 36.32,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: -1 (Technology sector neutral)",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 34.3,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short QQQ",
+        "signal_type": "INVERSE",
+        "raw_score": 12.0,
+        "adj_score": 10.0,
+        "rsi": 55.4,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ProShares UltraPro Short S&P500",
+        "signal_type": "INVERSE",
+        "raw_score": 12.0,
+        "adj_score": 10.0,
+        "rsi": 54.7,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 48.7,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 0.8,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 331.4,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-08",
+    "timestamp": "2026-04-08T11:32:00.131221+00:00",
+    "regime": "CLEAR",
+    "vix": 24.93,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 12,
+    "qualified_count": 12,
+    "blocked_count": 0,
+    "best_signal": "NFE",
+    "best_type": "CONTRARIAN",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "NFE",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 9.32,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: +1 (Energy breadth strong (100.0% above 200 EMA))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ULVR",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 17.53,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "MACRO: +1 (Copper RISING +2.1% \u2014 growth signal positive)",
+          "MACRO: +1 (GBP stable \u2014 no currency risk)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "PG",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 7.0,
+        "adj_score": 7.0,
+        "rsi": 18.77,
+        "adjustments": [
+          "MTF: -1 (Weekly BEAR \u2014 contrarian is catching falling knife, caution)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "LEN",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 29.19,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "NOVO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 48.75,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Healthcare is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "UNH",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 62.18,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Healthcare is lagging sector (2/10 rotation score))",
+          "Fundamentals5: +1 (NEUTRAL)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "REL",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 40.53,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "CRDO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 52.41,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Technology sector neutral)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "POOL",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 36.96,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "LLY",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 50.19,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 12.4,
+        "adj_score": 10.0,
+        "rsi": 36.32,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: -1 (Technology sector neutral)",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 34.3,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 4.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 3.6,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 52.1,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 3.6,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 4.3,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 3.6,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 334.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-08",
+    "timestamp": "2026-04-08T12:11:12.516583+00:00",
+    "regime": "CLEAR",
+    "vix": 20.3,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 12,
+    "qualified_count": 12,
+    "blocked_count": 0,
+    "best_signal": "NFE",
+    "best_type": "CONTRARIAN",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "NFE",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 11.0,
+        "adj_score": 10.0,
+        "rsi": 9.32,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: +1 (Energy breadth strong (100.0% above 200 EMA))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "ULVR",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 18.4,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "MACRO: +1 (Copper RISING +2.1% \u2014 growth signal positive)",
+          "MACRO: +1 (GBP stable \u2014 no currency risk)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Backtest: +1 (Backtest validated: top performer for CONTRARIAN)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "PG",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 7.0,
+        "adj_score": 7.0,
+        "rsi": 18.77,
+        "adjustments": [
+          "MTF: -1 (Weekly BEAR \u2014 contrarian is catching falling knife, caution)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "LEN",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 8.0,
+        "adj_score": 8.0,
+        "rsi": 29.19,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "NOVO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 48.75,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Healthcare is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "UNH",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 62.18,
+        "adjustments": [
+          "MTF: -2 (Weekly STRONG_BEAR \u2014 contrarian high risk, may keep falling)",
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Healthcare is lagging sector (2/10 rotation score))",
+          "Fundamentals5: +1 (NEUTRAL)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "REL",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 40.96,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "CRDO",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 52.41,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Technology sector neutral)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "POOL",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 4.0,
+        "adj_score": 4.0,
+        "rsi": 36.96,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Sector: -1 (Consumer is lagging sector (2/10 rotation score))",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "LLY",
+        "signal_type": "CONTRARIAN",
+        "raw_score": 5.0,
+        "adj_score": 5.0,
+        "rsi": 50.19,
+        "adjustments": [
+          "FRED: -1 (FRED EXPANSION - strong macro reduces contrarian edge)",
+          "Breadth: -1 (deterioration -16.5%)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 12.4,
+        "adj_score": 10.0,
+        "rsi": 36.32,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: -1 (Technology sector neutral)",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 34.3,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 0.7,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 4.7,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 4.3,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 52.8,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 4.3,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 4.9,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 4.3,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 335.5,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-08",
+    "timestamp": "2026-04-08T12:30:11.333389+00:00",
+    "regime": "CLEAR",
+    "vix": 20.29,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 2,
+    "qualified_count": 2,
+    "blocked_count": 0,
+    "best_signal": "META",
+    "best_type": "EARNINGS_DRIFT",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 12.4,
+        "adj_score": 10.0,
+        "rsi": 36.32,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: -1 (Technology sector neutral)",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 34.3,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.1,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 1.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.0,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 53.1,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.2,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 4.6,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 335.9,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-08",
+    "timestamp": "2026-04-08T13:00:38.770510+00:00",
+    "regime": "CLEAR",
+    "vix": 23.87,
+    "breadth": 30.0,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 2,
+    "qualified_count": 2,
+    "blocked_count": 0,
+    "best_signal": "META",
+    "best_type": "EARNINGS_DRIFT",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 12.4,
+        "adj_score": 10.0,
+        "rsi": 36.32,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: -1 (Technology sector neutral)",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 34.3,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 5.5,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 5.1,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 53.6,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 5.1,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 5.7,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 5.1,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 336.4,
+        "stale": true
+      }
+    }
+  },
+  {
+    "date": "2026-04-08",
+    "timestamp": "2026-04-08T14:00:30.952686+00:00",
+    "regime": "CLEAR",
+    "vix": 23.87,
+    "breadth": 46.7,
+    "geo": "ALERT",
+    "direction": "CLEAR",
+    "candidates_total": 2,
+    "qualified_count": 2,
+    "blocked_count": 0,
+    "best_signal": "META",
+    "best_type": "EARNINGS_DRIFT",
+    "best_score": 10.0,
+    "signals": [
+      {
+        "name": "META",
+        "signal_type": "EARNINGS_DRIFT",
+        "raw_score": 12.4,
+        "adj_score": 10.0,
+        "rsi": 36.32,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Backtest: -1 (Backtest warning: poor performer for EARNINGS_DRIFT)",
+          "Sector: -1 (Technology sector neutral)",
+          "Fundamentals: +2 (EXCEPTIONAL \u2014 EV/EBITDA 16.4 \u2014 reasonable)",
+          "Backtest prior [META/EARNINGS_DRIFT]: -0.63 (weight=0.63, fades at 30 trades)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      },
+      {
+        "name": "AbbVie",
+        "signal_type": "DIVIDEND_CAPTURE",
+        "raw_score": 3.0,
+        "adj_score": 3.0,
+        "rsi": 34.3,
+        "adjustments": [
+          "FRED: +1 (FRED EXPANSION - macro tailwind (Unemployment 4.3% - ti)",
+          "Learned [global]: +2.0 (baseline edge +1.348, 11T)"
+        ],
+        "blocked": false,
+        "block_reasons": []
+      }
+    ],
+    "data_provenance": {
+      "regime": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "market_direction": {
+        "age_hours": 0.0,
+        "stale": false
+      },
+      "geo": {
+        "age_hours": 6.5,
+        "stale": false
+      },
+      "sector_rotation": {
+        "age_hours": 6.1,
+        "stale": false
+      },
+      "breadth": {
+        "age_hours": 54.6,
+        "stale": true
+      },
+      "drawdown": {
+        "age_hours": 6.1,
+        "stale": false
+      },
+      "circuit_breaker": {
+        "age_hours": 0.5,
+        "stale": false
+      },
+      "macro_signals": {
+        "age_hours": 6.7,
+        "stale": false
+      },
+      "sentiment": {
+        "age_hours": 6.1,
+        "stale": false
+      },
+      "backtest_insights": {
+        "age_hours": 337.4,
+        "stale": true
+      }
+    }
   }
 ]

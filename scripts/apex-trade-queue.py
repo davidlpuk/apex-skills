@@ -23,6 +23,7 @@ except ImportError:
 QUEUE_FILE     = '/home/ubuntu/.picoclaw/logs/apex-trade-queue.json'
 SIGNAL_FILE    = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
+AUTOPILOT_FILE = '/home/ubuntu/.picoclaw/logs/apex-autopilot.json'
 
 def load_queue():
     try:
@@ -251,11 +252,60 @@ def execute_queue():
             trade['executed_at'] = now.isoformat()
             executed.append(trade)
             print(f"✅ Executed: {trade['name']}")
+            # Increment autopilot trade counters so dashboard reflects queue executions
+            try:
+                ap = safe_read(AUTOPILOT_FILE, {})
+                ap['trades_today']            = ap.get('trades_today', 0) + 1
+                ap['total_autonomous_trades'] = ap.get('total_autonomous_trades', 0) + 1
+                ap['last_trade_time']         = now.isoformat()
+                ap['last_action']             = f"QUEUE:{trade.get('signal_type','?')}:{trade['name']}"
+                ap['last_action_ts']          = now.isoformat()
+                atomic_write(AUTOPILOT_FILE, ap)
+            except Exception as _e:
+                print(f"Warning: could not update autopilot counters: {_e}")
         else:
-            trade['status'] = 'FAILED'
-            trade['error']  = result.stderr[:200]
-            failed.append(trade)
-            print(f"❌ Failed: {trade['name']}")
+            stderr = result.stderr or ''
+            # Detect T212 instrument-invisible — permanent block (MiFID II restriction or
+            # account type restriction). Do NOT retry — it will never succeed this session.
+            # Contrast with transient suspensions during extreme volatility which resolve
+            # within minutes; those would show a different error.
+            is_permanently_blocked = ('instrument-invisible' in stderr or
+                                      'instrument can not be traded' in stderr.lower() or
+                                      'Instrument can not be traded' in stderr)
+            # Detect T212 transient suspension (server overload, circuit breaker) — retry
+            # These show up as 5xx errors or TooManyRequests, NOT instrument-invisible
+            is_suspended = (not is_permanently_blocked and
+                            ('TooManyRequests' in stderr or
+                             'HTTP Error 5' in stderr or
+                             'temporarily' in stderr.lower()))
+            MAX_RETRIES = 3  # ~3 executor runs (90 min), enough for transient suspensions
+            retry_count = trade.get('retry_count', 0)
+            if is_permanently_blocked:
+                trade['status'] = 'FAILED'
+                trade['error']  = 'T212: Instrument can not be traded (MiFID II restriction or account type block)'
+                trade['notes']  = 'Permanent — remove ticker from scanning universe'
+                failed.append(trade)
+                print(f"🚫 Permanently blocked: {trade['name']} ({trade['t212_ticker']}) — not retrying")
+                log_warning(f"Queue: {trade['t212_ticker']} permanently blocked by T212 (instrument-invisible) — cancel, not retrying")
+                send_telegram(
+                    f"🚫 INSTRUMENT BLOCKED BY T212\n\n"
+                    f"{trade['name']} ({trade['t212_ticker']})\n"
+                    f"T212 says: Instrument can not be traded.\n"
+                    f"Likely MiFID II restriction on US-listed leveraged ETF.\n"
+                    f"Action: replace ticker with a UK/EU-listed equivalent."
+                )
+            elif is_suspended and retry_count < MAX_RETRIES:
+                trade['status']      = 'QUEUED'
+                trade['retry_count'] = retry_count + 1
+                trade['error']       = stderr[:300]
+                trade['notes']       = f"T212 transient suspension — auto-retry {retry_count+1}/{MAX_RETRIES}"
+                print(f"⏳ Suspended (retry {retry_count+1}/{MAX_RETRIES}): {trade['name']} — re-queued for next run")
+                log_warning(f"Queue: {trade['t212_ticker']} transient suspension, retry {retry_count+1}/{MAX_RETRIES}")
+            else:
+                trade['status'] = 'FAILED'
+                trade['error']  = stderr[:300]
+                failed.append(trade)
+                print(f"❌ Failed: {trade['name']}")
 
     save_queue(queue)
 

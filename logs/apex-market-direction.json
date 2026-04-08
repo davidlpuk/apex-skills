@@ -1,23 +1,23 @@
 {
   "markets": {
     "SP500": {
-      "open": 94.55,
-      "current": 94.18,
-      "change": -0.39
+      "open": 97.32,
+      "current": 97.13,
+      "change": -0.2
     },
     "FTSE100": {
-      "open": 968.4,
-      "current": 963.9,
-      "change": -0.46
+      "open": 1040.6,
+      "current": 1040.8,
+      "change": 0.02
     },
     "WORLD": {
-      "open": 123.94,
-      "current": 123.3,
-      "change": -0.52
+      "open": 129.18,
+      "current": 128.96,
+      "change": -0.17
     }
   },
   "blocks": [],
   "warnings": [],
   "overall": "CLEAR",
-  "timestamp": "2026-03-24 13:37 UTC"
+  "timestamp": "2026-04-08 14:00 UTC"
 }

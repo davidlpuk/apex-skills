@@ -18,14 +18,21 @@ except ImportError:
 SECTOR_FILE = '/home/ubuntu/.picoclaw/logs/apex-sector-rotation.json'
 
 SECTORS = {
-    "Technology":   "IITU.L",
-    "Financials":   "IUFS.L",
-    "Healthcare":   "IUHC.L",
-    "Energy":       "IUES.L",
-    "Consumer":     "IUCD.L",
-    "World":        "VWRP.L",
-    "UK FTSE":      "ISF.L",
-    "Gold":         "SGLN.L",
+    "Technology":     "IITU.L",
+    "Financials":     "IUFS.L",
+    "Healthcare":     "IUHC.L",
+    "Energy":         "IUES.L",
+    "Consumer":       "IUCD.L",
+    "World":          "VWRP.L",
+    "UK FTSE":        "ISF.L",
+    "Gold":           "SGLN.L",
+    # New sectors
+    "Oil":            "CRUD.L",
+    "Commodities":    "ICOM.L",
+    "Bonds":          "IBTS.L",
+    "India":          "NDIA.L",
+    "Defense":        "DFNG.L",
+    "Infrastructure": "INFR.L",
 }
 
 def get_sector_data(name, ticker):

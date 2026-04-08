@@ -13,8 +13,7 @@ send_email_fallback() {
   local subject="$1"
   local body="$2"
   if [ -z "$APEX_ALERT_EMAIL" ]; then
-    echo "$(date): Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212" >> "$LOG"
-    return
+    return  # Not configured — skip silently
   fi
   if ! command -v mail &>/dev/null; then
     echo "$(date): Email fallback skipped — mail command not found (install mailutils)" >> "$LOG"
@@ -190,13 +189,15 @@ RECENT_ERRORS=""
 ERROR_LOG="$LOGS_DIR/apex-errors.log"
 
 if [ -f "$ERROR_LOG" ]; then
-  YESTERDAY_DATE=$(date -d "24 hours ago" "+%Y-%m-%d")
-  ERROR_COUNT=$(awk -v cutoff="$YESTERDAY_DATE" '$1 >= cutoff && /\| ERROR \|/' "$ERROR_LOG" | wc -l)
-  RECENT_ERRORS=$(awk -v cutoff="$YESTERDAY_DATE" '$1 >= cutoff && /\| ERROR \|/' "$ERROR_LOG" | tail -3 | sed 's/^/    /' || echo "")
+  # Use datetime comparison (not date-only) to get a true 24h window.
+  # date-only comparison matched up to ~40h of errors, inflating the count.
+  CUTOFF_TS=$(date -d "24 hours ago" "+%Y-%m-%d %H:%M")
+  ERROR_COUNT=$(awk -v cutoff="$CUTOFF_TS" '($1 " " $2) >= cutoff && /\| ERROR \|/' "$ERROR_LOG" | wc -l)
+  RECENT_ERRORS=$(awk -v cutoff="$CUTOFF_TS" '($1 " " $2) >= cutoff && /\| ERROR \|/' "$ERROR_LOG" | tail -3 | sed 's/^/    /' || echo "")
 
-  if [ "$ERROR_COUNT" -gt 50 ]; then
+  if [ "$ERROR_COUNT" -gt 10 ]; then
     ISSUES+=("❌ $ERROR_COUNT errors in last 24h — check apex-errors.log")
-  elif [ "$ERROR_COUNT" -gt 10 ]; then
+  elif [ "$ERROR_COUNT" -gt 3 ]; then
     WARNINGS+=("⚠️ $ERROR_COUNT errors in last 24h — check apex-errors.log")
   fi
 fi

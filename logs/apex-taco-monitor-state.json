@@ -1,0 +1,9 @@
+{
+  "state": "NEUTRAL",
+  "armed_date": null,
+  "event_id": null,
+  "taco_status_at_arm": null,
+  "pending_injection": false,
+  "injection_retries": 0,
+  "last_updated": "2026-04-08T15:05:01.920015+00:00"
+}

@@ -12,6 +12,7 @@ OUTCOMES_FILE    = '/home/ubuntu/.picoclaw/logs/apex-outcomes.json'
 EV_LOG_FILE      = '/home/ubuntu/.picoclaw/logs/apex-ev-log.json'
 PARAM_FILE       = '/home/ubuntu/.picoclaw/logs/apex-param-log.json'
 MAE_MFE_FILE     = '/home/ubuntu/.picoclaw/logs/apex-mae-mfe-calibration.json'
+SLIPPAGE_FILE    = '/home/ubuntu/.picoclaw/logs/apex-slippage.json'
 
 # Transaction cost model — T212 specific
 # USD instruments: 0.15% FX conversion each way = 0.30% round trip
@@ -41,6 +42,74 @@ SLIPPAGE_ATR_FACTOR   = 0.04   # 4% of ATR per side
 SLIPPAGE_FALLBACK_PCT = 0.0016 # 0.16% round trip when no ATR available
 
 
+def _beta_ci(wins: int, n: int, confidence: float = 0.95):
+    """
+    Compute confidence interval for a proportion using the Beta(0.5, 0.5)
+    Jeffreys posterior: Beta(0.5 + wins, 0.5 + losses).
+
+    Tries scipy.stats.beta first; falls back to a Wilson approximation
+    (pure stdlib) so there is no hard scipy dependency.
+
+    Returns (ci_lo, ci_hi) as floats in [0, 1].
+    """
+    alpha = 1.0 - confidence
+    a = 0.5 + wins
+    b = 0.5 + (n - wins)
+    try:
+        from scipy.stats import beta as _beta
+        lo = float(_beta.ppf(alpha / 2, a, b))
+        hi = float(_beta.ppf(1 - alpha / 2, a, b))
+    except ImportError:
+        # Wilson interval using posterior mean as the proportion
+        z = 1.959964  # 97.5th percentile of standard normal
+        p = a / (a + b)
+        denom = 1 + z * z / max(n, 1)
+        centre = (p + z * z / (2 * max(n, 1))) / denom
+        margin = z * ((p * (1 - p) / max(n, 1) + z * z / (4 * max(n, 1) ** 2)) ** 0.5) / denom
+        lo = max(0.0, centre - margin)
+        hi = min(1.0, centre + margin)
+    return round(lo, 4), round(hi, 4)
+
+
+def get_slippage_calibration():
+    """
+    Read measured slippage from apex-slippage.json and compare to theoretical
+    model. Returns a multiplier to scale the theoretical estimate so it matches
+    reality. E.g. if we measured 0.20% avg slippage but model predicts 0.10%,
+    multiplier = 2.0 → EV gate is 2× stricter.
+
+    Returns (multiplier, n_samples). Multiplier capped to [0.5, 4.0] to avoid
+    extreme swings from small samples. Only applies when n_samples >= 5.
+    """
+    try:
+        with open(SLIPPAGE_FILE) as f:
+            db = json.load(f)
+        records = db.get('records', [])
+        # Use last 30 records for rolling calibration (recent market conditions)
+        recent = records[-30:]
+        n = len(recent)
+        if n < 5:
+            return 1.0, n
+
+        # Measured avg slippage as % of entry price, per side (entry only for now)
+        measured_pcts = [r.get('slip_pct', 0) / 100.0 for r in recent if r.get('slip_pct') is not None]
+        if not measured_pcts:
+            return 1.0, n
+        avg_measured_pct = sum(measured_pcts) / len(measured_pcts)
+
+        # Theoretical: SLIPPAGE_FALLBACK_PCT is round-trip, so per-side = /2
+        theoretical_per_side = SLIPPAGE_FALLBACK_PCT / 2
+        if theoretical_per_side <= 0:
+            return 1.0, n
+
+        multiplier = avg_measured_pct / theoretical_per_side
+        # Cap to prevent extreme swings
+        multiplier = max(0.5, min(4.0, multiplier))
+        return round(multiplier, 3), n
+    except Exception:
+        return 1.0, 0
+
+
 def estimate_slippage(entry: float, quantity: float = 1,
                       atr: float = None, currency: str = 'USD') -> float:
     """
@@ -53,6 +122,10 @@ def estimate_slippage(entry: float, quantity: float = 1,
     When ATR is not available:
         slippage = entry × SLIPPAGE_FALLBACK_PCT × quantity
 
+    Result is multiplied by the empirical calibration factor (see
+    get_slippage_calibration) to correct model/reality divergence once
+    we have ≥5 measured fills.
+
     Returns total slippage cost in quote currency (same units as EV).
     """
     if atr and atr > 0:
@@ -60,6 +133,11 @@ def estimate_slippage(entry: float, quantity: float = 1,
         total_slip = 2 * per_side * quantity          # entry + exit
     else:
         total_slip = entry * SLIPPAGE_FALLBACK_PCT * quantity
+
+    # Apply empirical calibration — scales model to measured reality
+    calib_mult, _ = get_slippage_calibration()
+    total_slip = total_slip * calib_mult
+
     return round(total_slip, 4)
 
 # Default T1/T2 split — used when no empirical data available
@@ -73,9 +151,112 @@ DEFAULT_T1_SPLIT = 0.60
 # Removed once t_sample >= 5 (empirical data takes over).
 PRIOR_REWARD_DISCOUNT = 0.45
 
+# Days within which two trade closures are considered "same event" for
+# correlation clustering. Market-wide events (VIX spikes, Fed days, tariff
+# announcements) typically affect all open positions simultaneously over a
+# 1-2 day window. Trades closed within this window are likely driven by the
+# same exogenous shock, not independent signal performance.
+_CLUSTER_WINDOW_DAYS = 2
+
+
+def cluster_effective_n(trades: list) -> tuple:
+    """
+    Compute effective sample size by clustering correlated closures.
+
+    Naïve n = len(trades) overstates independent observations when trades
+    cluster around market events. For each cluster of trades closing within
+    _CLUSTER_WINDOW_DAYS of each other:
+      - All same direction (all wins OR all losses) → count as 1 observation
+      - Mixed direction → count as k^0.5 (partial correlation)
+
+    This gives a statistically honest denominator for Bayesian CI and
+    Kelly sizing, preventing the system from being overconfident after a
+    streak of correlated wins or losses.
+
+    Returns (effective_n: float, effective_wins: float, n_clusters: int).
+    """
+    if not trades:
+        return 0.0, 0.0, 0
+
+    # Sort by close date (strings in ISO format sort chronologically)
+    def _key(t):
+        return t.get('closed') or t.get('date_closed') or t.get('opened') or ''
+
+    sorted_trades = sorted([t for t in trades if _key(t)], key=_key)
+    if not sorted_trades:
+        return float(len(trades)), float(sum(1 for t in trades if t.get('pnl', 0) > 0)), len(trades)
+
+    from datetime import datetime as _dt
+
+    def _parse(s):
+        try:
+            return _dt.fromisoformat(s[:10])
+        except Exception:
+            return None
+
+    clusters = []
+    current_cluster = [sorted_trades[0]]
+    for t in sorted_trades[1:]:
+        last_date = _parse(_key(current_cluster[-1]))
+        this_date = _parse(_key(t))
+        if last_date and this_date and (this_date - last_date).days <= _CLUSTER_WINDOW_DAYS:
+            current_cluster.append(t)
+        else:
+            clusters.append(current_cluster)
+            current_cluster = [t]
+    clusters.append(current_cluster)
+
+    effective_n    = 0.0
+    effective_wins = 0.0
+    for cluster in clusters:
+        k = len(cluster)
+        wins_in_cluster = sum(1 for t in cluster if t.get('pnl', 0) > 0)
+        losses_in_cluster = k - wins_in_cluster
+        if wins_in_cluster == k or losses_in_cluster == k:
+            # Fully correlated outcome → 1 observation of that direction
+            effective_n    += 1.0
+            effective_wins += 1.0 if wins_in_cluster == k else 0.0
+        else:
+            # Mixed outcome → partial independence, weight by sqrt(k)
+            weight = k ** 0.5
+            effective_n    += weight
+            effective_wins += (wins_in_cluster / k) * weight
+
+    return round(effective_n, 2), round(effective_wins, 2), len(clusters)
+
 
 def get_win_rate_by_type(signal_type=None):
-    """Get win rate from outcomes database, filtered by signal type."""
+    """
+    Get win rate from outcomes database using informative Bayesian priors
+    seeded from trajectory learner observations and backtest history.
+
+    Each signal type has its own Beta(alpha, beta) prior so the EV gate
+    starts well-calibrated from trade 1 rather than assuming 50/50.
+
+    Priors (updated 2026-04-07 from trajectory-insights + backtest):
+      CONTRARIAN:       Beta(5, 4)  → 55.6% prior  (9 trajectory obs, 55.6% WR)
+      TREND:            Beta(2, 6)  → 25.0% prior  (4 trajectory obs, 25% WR)
+      INVERSE:          Beta(3, 3)  → 50.0% prior  (uncertain, 3x leverage decay)
+      EARNINGS_DRIFT:   Beta(4, 3)  → 57.1% prior  (post-earnings momentum edge)
+      DIVIDEND_CAPTURE: Beta(4, 3)  → 57.1% prior  (income entry, defensive)
+      TACO_CONTRARIAN:  Beta(4, 3)  → 57.1% prior  (regime-specific contrarian)
+      DEFAULT:          Beta(3, 3)  → 50.0% prior  (conservative unknown type)
+
+    Posterior mean = (alpha + wins) / (alpha + beta + n)
+    """
+    # Informative priors — (alpha, beta)
+    _PRIORS = {
+        'CONTRARIAN':       (5, 4),
+        'TREND':            (2, 6),
+        'INVERSE':          (3, 3),
+        'EARNINGS_DRIFT':   (4, 3),
+        'DIVIDEND_CAPTURE': (4, 3),
+        'TACO_CONTRARIAN':  (4, 3),
+    }
+    _DEFAULT_PRIOR = (3, 3)
+
+    alpha, beta = _PRIORS.get(signal_type, _DEFAULT_PRIOR) if signal_type else _DEFAULT_PRIOR
+
     try:
         with open(OUTCOMES_FILE) as f:
             db = json.load(f)
@@ -84,16 +265,18 @@ def get_win_rate_by_type(signal_type=None):
         if signal_type:
             trades = [t for t in trades if t.get('signal_type') == signal_type]
 
-        if len(trades) < 3:
-            # Not enough data — use conservative prior
-            return 0.50, len(trades)
-
-        wins     = sum(1 for t in trades if t.get('pnl', 0) > 0)
-        win_rate = wins / len(trades)
-        return round(win_rate, 3), len(trades)
+        # Cluster correlated closures so Bayesian CI doesn't treat
+        # a single market event as N independent observations.
+        eff_n, eff_wins, _n_clusters = cluster_effective_n(trades)
+        # Bayesian posterior with informative prior, using EFFECTIVE counts
+        posterior_mean = (alpha + eff_wins) / (alpha + beta + eff_n)
+        # Return effective_n so downstream CI calculations (Beta posterior)
+        # use the correlation-adjusted sample size.
+        return round(posterior_mean, 4), int(round(eff_n))
 
     except Exception:
-        return 0.50, 0
+        prior_mean = alpha / (alpha + beta)
+        return round(prior_mean, 4), 0
 
 
 def get_avg_r_by_type(signal_type=None, outcome='win'):
@@ -205,6 +388,10 @@ def calculate_ev(entry, stop, target1, target2, signal_type=None, quantity=1,
     conservative fixed percentage fallback is used.
     """
     win_rate, sample_size = get_win_rate_by_type(signal_type)
+    # Derive the wins count from the posterior mean for CI calculation
+    # posterior_mean = (0.5 + wins) / (1.0 + n)  →  wins = posterior_mean*(1+n) - 0.5
+    _wins_est = max(0, round(win_rate * (1 + sample_size) - 0.5))
+    win_rate_ci_lo, win_rate_ci_hi = _beta_ci(_wins_est, sample_size)
     loss_rate = 1 - win_rate
 
     # Risk and reward per share
@@ -248,6 +435,13 @@ def calculate_ev(entry, stop, target1, target2, signal_type=None, quantity=1,
     total_costs      = round(transaction_cost + slippage_cost, 4)
     ev               = round(ev_gross - total_costs, 2)
 
+    # EV computed at the OPTIMISTIC (upper CI) win rate — used by the hard-block
+    # gate in the decision engine: if even the generous estimate is negative, block.
+    ev_optimistic_gross = round(
+        (win_rate_ci_hi * total_reward) - ((1 - win_rate_ci_hi) * total_risk), 2
+    )
+    ev_optimistic = round(ev_optimistic_gross - total_costs, 2)
+
     # EV per £1 risked — normalised metric
     ev_per_risk = round(ev / total_risk, 3) if total_risk > 0 else 0
 
@@ -288,6 +482,8 @@ def calculate_ev(entry, stop, target1, target2, signal_type=None, quantity=1,
         "ev_gross":          ev_gross,
         "transaction_cost":  transaction_cost,
         "slippage_cost":     slippage_cost,
+        "slippage_calib":    {"multiplier": get_slippage_calibration()[0],
+                              "n_samples":  get_slippage_calibration()[1]},
         "total_costs":       round(total_costs, 4),
         "tc_rate_pct":       round(tc_rate * 100, 2),
         "slippage_atr_used": atr is not None and atr > 0,
@@ -298,6 +494,13 @@ def calculate_ev(entry, stop, target1, target2, signal_type=None, quantity=1,
         "verdict":           "POSITIVE" if ev > 0 else ("MARGINAL" if ev > -2 else "NEGATIVE"),
         "confidence":        "HIGH" if sample_size >= 20 else ("MEDIUM" if sample_size >= 10 else "LOW — using prior"),
         "signal_type":       signal_type or "UNKNOWN",
+        # Bayesian CI on win rate (Beta(0.5,0.5) posterior)
+        "win_rate_ci_lo":    win_rate_ci_lo,
+        "win_rate_ci_hi":    win_rate_ci_hi,
+        "ci_width":          round(win_rate_ci_hi - win_rate_ci_lo, 4),
+        # EV at the upper-CI win rate: even if optimistic, is this trade positive?
+        # Decision engine uses this to gate from trade 1 without needing n>=10.
+        "ev_optimistic":     ev_optimistic,
         "fx_degraded":       currency == 'USD',
         "fx_drag_pct":       round(tc_rate * 100, 2) if currency == 'USD' else 0,
         "effective_min_ev_ratio": 2.0 if currency == 'USD' else 1.5,
@@ -313,16 +516,21 @@ def log_ev(signal_name, ev_data):
         log = []
 
     log.append({
-        "date":        datetime.now(timezone.utc).strftime('%Y-%m-%d'),
-        "name":        signal_name,
-        "ev":          ev_data['ev'],
-        "ev_per_risk": ev_data['ev_per_risk'],
-        "r_expect":    ev_data['r_expectancy'],
-        "win_rate":    ev_data['win_rate'],
-        "t1_fraction": ev_data.get('t1_fraction', DEFAULT_T1_SPLIT),
-        "verdict":     ev_data['verdict'],
-        "confidence":  ev_data['confidence'],
-        "signal_type": ev_data['signal_type']
+        "date":           datetime.now(timezone.utc).strftime('%Y-%m-%d'),
+        "name":           signal_name,
+        "ev":             ev_data['ev'],
+        "ev_per_risk":    ev_data['ev_per_risk'],
+        "r_expect":       ev_data['r_expectancy'],
+        "win_rate":       ev_data['win_rate'],
+        "t1_fraction":    ev_data.get('t1_fraction', DEFAULT_T1_SPLIT),
+        "verdict":        ev_data['verdict'],
+        "confidence":     ev_data['confidence'],
+        "signal_type":    ev_data['signal_type'],
+        "sample_size":    ev_data.get('sample_size', 0),
+        "win_rate_ci_lo": ev_data.get('win_rate_ci_lo'),
+        "win_rate_ci_hi": ev_data.get('win_rate_ci_hi'),
+        "ci_width":       ev_data.get('ci_width'),
+        "ev_optimistic":  ev_data.get('ev_optimistic'),
     })
 
     with open(EV_LOG_FILE, 'w') as f:

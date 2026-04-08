@@ -152,7 +152,7 @@ SECTOR_MAP = {
     "Technology": ["AAPL","MSFT","NVDA","GOOGL","AMZN","META","AMD","CRM","ORCL","QCOM","IITU","CRDO","IUIT"],
     "Financials": ["JPM","GS_EQ","MS_EQ","BAC","BLK","V_US","AXP","HSBA","BARC","NWG","IUFS","PGY"],
     "Healthcare": ["JNJ","PFE","MRK","UNH","ABBV","AZN","GSK","TMO","DHR","IUHC","NOVO"],
-    "Consumer":   ["KO","PEP","MCD","WMT","PG","DGE","ULVR","CPG","IMB","BATS","IUCD"],
+    "Consumer":   ["KO","PEP","MCD","WMT","PG","DGE","ULVR","CPG","IMB","BATS","IUCD","POOL","ALLE","LEN"],
 }
 
 def get_instrument_sector(name):
@@ -605,6 +605,36 @@ def score_signal_with_intelligence(signal, intel):
         log_error(f"Score adapter failed (non-fatal): {_e}")
     # ── end Layer 18 ───────────────────────────────────────────────────
 
+    # ── Layer 19: Edge proof feedback — closes the open loop ──────────
+    # apex-edge-proof.py generates statistical verdicts weekly but previously
+    # nothing read them. This layer applies score adjustments based on verdicts:
+    #   CONFIRMED  (p < 0.10, n >= 5): +0.5 — system has proven real edge
+    #   MARGINAL   (p < 0.25, n >= 5): +0.0 — no change, wait for more data
+    #   NOT_PROVEN (n >= 20 real):     -1.0 — signal type failing in live trading
+    #   NOT_PROVEN (n < 20 real):      +0.0 — too early to penalise
+    # Activates only once 20 real trades of that type exist, to avoid punishing
+    # a signal type on a cold-start losing streak.
+    try:
+        _ep_file = '/home/ubuntu/.picoclaw/logs/apex-edge-proof.json'
+        _ep_data = safe_read(_ep_file, {})
+        _ep_sig_type = signal.get('signal_type', 'TREND')
+        _ep_results  = _ep_data.get('by_signal_type', _ep_data.get('results', {}))
+        _ep_entry    = _ep_results.get(_ep_sig_type, {})
+        _ep_verdict  = _ep_entry.get('verdict', '')
+        _ep_n_real   = _ep_entry.get('n_real', 0)
+        _ep_adj      = 0.0
+        if _ep_verdict == 'CONFIRMED':
+            _ep_adj = 0.5
+            adjustments.append(f"Edge proof: +0.5 ({_ep_sig_type} CONFIRMED, n={_ep_n_real})")
+        elif _ep_verdict == 'NOT_PROVEN' and _ep_n_real >= 20:
+            _ep_adj = -1.0
+            adjustments.append(f"Edge proof: -1.0 ({_ep_sig_type} NOT PROVEN after {_ep_n_real} real trades)")
+        if _ep_adj != 0:
+            total_score += _ep_adj
+    except Exception:
+        pass  # Non-critical
+    # ── end Layer 19 ───────────────────────────────────────────────────
+
     # Cap total adjustment to prevent correlated alpha inflation
     total_adjustment = total_score - base_score
     capped_adjustment = max(-5, min(5, total_adjustment))
@@ -734,13 +764,33 @@ def calculate_final_position(signal, intel):
     except Exception:
         regime_scale = 0.5
 
+    # RSI-conviction boost for CONTRARIAN signals
+    # Deep oversold (RSI < 25) is HIGHER conviction, not lower.
+    # The regime scale penalises all signals equally — override for extreme readings.
+    # RSI < 25: +0.10  RSI < 20: +0.20  RSI < 15: +0.30  RSI < 10: force 1.0
+    _sig_rsi = float(signal.get('rsi', 50))
+    if signal.get('signal_type') == 'CONTRARIAN' and 0 < _sig_rsi < 25:
+        if _sig_rsi < 10:
+            _rsi_boost = 1.0 - regime_scale   # Force to 1.0
+            print(f"  RSI {_sig_rsi:.1f} < 10 — extreme oversold, CONTRARIAN scale forced to 1.0")
+        elif _sig_rsi < 15:
+            _rsi_boost = 0.30
+            print(f"  RSI {_sig_rsi:.1f} < 15 — severe oversold, CONTRARIAN scale +0.30")
+        elif _sig_rsi < 20:
+            _rsi_boost = 0.20
+            print(f"  RSI {_sig_rsi:.1f} < 20 — deep oversold, CONTRARIAN scale +0.20")
+        else:
+            _rsi_boost = 0.10
+            print(f"  RSI {_sig_rsi:.1f} < 25 — oversold, CONTRARIAN scale +0.10")
+        regime_scale = min(1.0, regime_scale + _rsi_boost)
+
     # Risk budget: 1% of live portfolio value, scaled by regime
     # Falls back to £50 if portfolio value unavailable
     portfolio_value = get_portfolio_value() or 5000
-    risk_pct        = 0.01   # 1% of portfolio per trade
+    risk_pct        = 0.0175 # 2026-04-07: 1% → 1.75% to fix cash drag (still well below 1/4-Kelly)
     base_risk       = round(portfolio_value * risk_pct * regime_scale, 2)
     # Floor: £5 (avoid sub-penny qty), ceiling: 1.5% of portfolio
-    base_risk       = max(5.0, min(portfolio_value * 0.015, base_risk))
+    base_risk       = max(5.0, min(portfolio_value * 0.025, base_risk))
 
     vix = intel['vix']  # Keep for reference
 
@@ -769,7 +819,7 @@ def calculate_final_position(signal, intel):
     # Drawdown adjustment (intel['size_multiplier'] is the drawdown multiplier)
     risk_amount = base_risk * conviction * _combined_feedback * intel['size_multiplier']
     # Floor £5, ceiling 1.5% of portfolio
-    risk_amount = max(5.0, min(portfolio_value * 0.015, round(risk_amount, 2)))
+    risk_amount = max(5.0, min(portfolio_value * 0.025, round(risk_amount, 2)))
 
     # ── Kelly Criterion overlay ────────────────────────────────────────
     # Load the Kelly recommendation from apex-thorp-test.py.
@@ -870,6 +920,7 @@ def save_and_notify(signal, intel, qty, notional):
 
     pending = {
         "name":         full_name,
+        "ticker":       name,
         "t212_ticker":  t212,
         "quantity":     qty,
         "entry":        entry,
@@ -988,6 +1039,48 @@ def log_decision_run(all_signals, blocked_map, qualified, best, intel):
             log = log[-200:]
 
         atomic_write(DECISION_LOG, log)
+
+        # ── Opportunity cost log — track blocked signals for retrospective review ──
+        # Each blocked signal is saved with its entry price so the EOD script
+        # can look up actual performance and feed back into gate calibration.
+        try:
+            _opp_file = '/home/ubuntu/.picoclaw/logs/apex-missed-signals.json'
+            _opp_log  = safe_read(_opp_file, [])
+            if not isinstance(_opp_log, list):
+                _opp_log = []
+            _today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+            for s in all_signals:
+                _sname = s.get('name', '?')
+                if not blocked_map.get(_sname):
+                    continue  # only log blocked signals
+                # Don't re-log the same signal on the same day
+                _already = any(
+                    e.get('name') == _sname and e.get('date') == _today
+                    for e in _opp_log[-50:]
+                )
+                if _already:
+                    continue
+                _opp_log.append({
+                    'date':         _today,
+                    'timestamp':    datetime.now(timezone.utc).isoformat(),
+                    'name':         _sname,
+                    'signal_type':  s.get('signal_type', '?'),
+                    'score':        s.get('adjusted_score', 0),
+                    'rsi':          s.get('rsi', 0),
+                    'entry_price':  s.get('entry', s.get('price', 0)),
+                    'stop':         s.get('stop', 0),
+                    'target1':      s.get('target1', 0),
+                    'block_reason': (blocked_map.get(_sname, ['?'])[0])[:80],
+                    'outcome_pct':  None,  # filled in by apex-opportunity-cost.py at EOD
+                    'would_have_won': None,
+                })
+            # Keep last 500 missed signals
+            if len(_opp_log) > 500:
+                _opp_log = _opp_log[-500:]
+            atomic_write(_opp_file, _opp_log)
+        except Exception as _opp_e:
+            pass  # Non-critical
+
     except Exception as _e:
         log_error(f"Decision log write failed (non-fatal): {_e}")
 
@@ -997,8 +1090,14 @@ def log_decision_run(all_signals, blocked_map, qualified, best, intel):
 # ============================================================
 
 def run():
-    # Session argument — 'am' (default, morning scan) or 'pm' (midday re-scan)
-    _session = 'pm' if '--session=midday' in sys.argv else 'am'
+    # Session argument — named sessions allow multiple scans per day without
+    # the idempotency guard blocking intraday re-runs.
+    # Supported: am (08:30), 10am (10:00), 11am (11:00), pm (12:30),
+    #            13pm (13:00), 14pm (14:00)
+    _session = next(
+        (a.split('=', 1)[1] for a in sys.argv if a.startswith('--session=')),
+        'am'
+    )
 
     # Idempotency guard — one run per session per day (AM / PM)
     LAST_RUN_FILE = '/home/ubuntu/.picoclaw/logs/apex-engine-last-run.json'
@@ -1120,7 +1219,19 @@ def run():
     for s in contrarian_signals:
         s['signal_type'] = 'CONTRARIAN'
         s['entry'] = s.get('price', 0)
-        s['stop']  = round(s.get('price', 0) * 0.94, 2)
+        # 2026-04-07: tightened stop 6% → 4%. ABBV's MAE was -0.29% with a 6% stop;
+        # contrarian bounces from oversold rarely retest, so a 4% stop allows ~50%
+        # more position size for the same dollar risk.
+        s['stop']  = round(s.get('price', 0) * 0.96, 2)
+
+        # Hard block: RSI > 70 means overbought — not a valid contrarian/mean-reversion entry.
+        # Contrarian strategy buys quality at deep discount (RSI < 30 is oversold).
+        # RSI > 70 signals overbought momentum — the opposite of what we want.
+        # CVX at RSI 86.85 is the lesson: buying "contrarian" into overbought = -£13.76.
+        _rsi_c = float(s.get('rsi', 0))
+        if _rsi_c > 70:
+            print(f"  ❌ {s.get('name','?')} BLOCKED: RSI {_rsi_c:.1f} > 70 — overbought, not a valid contrarian entry")
+            continue
 
         # Run contrarian quality gates
         try:
@@ -1283,21 +1394,66 @@ def run():
         if ev_data['ev_per_risk'] < _eff_ratio and ev_data['ev_per_risk'] > 0:
             print(f"  ⚠️  FX drag: USD instrument — EV ratio {ev_data['ev_per_risk']:.2f} < {_eff_ratio:.1f} required (0.30% round-trip FX)")
 
-    # Option A — EV hard gate (only activates with 10+ real trades)
-    if ev_data['ev'] < -5 and ev_data['sample_size'] >= 10:
+    # EV hard gate — active from trade 1 via Bayesian posterior.
+    # Blocks only when the verdict is NEGATIVE (ev < -2) AND even the optimistic
+    # estimate (EV at the upper 95% CI of the win rate) is also negative.
+    # At low sample sizes the Beta(0.5,0.5) prior keeps the CI wide, so
+    # ev_optimistic stays positive for marginal signals — the gate fires only
+    # when the trade is clearly negative-EV under any reasonable win-rate assumption.
+    _ev_optimistic = ev_data.get('ev_optimistic', ev_data['ev'])
+    if ev_data.get('verdict') == 'NEGATIVE' and _ev_optimistic < 0:
         name = best.get('name', '?')
-        blocked_map[name] = blocked_map.get(name, []) + [f"EV block: £{ev_data['ev']} negative EV ({ev_data['sample_size']} trades)"]
+        _ci_note = (f"CI: [{ev_data.get('win_rate_ci_lo',0):.2f}–{ev_data.get('win_rate_ci_hi',1):.2f}] win rate"
+                    if ev_data.get('ci_width') else "")
+        blocked_map[name] = blocked_map.get(name, []) + [
+            f"EV block: £{ev_data['ev']} (optimistic: £{_ev_optimistic}) — negative under all CI scenarios"
+        ]
         log_decision_run(all_signals, blocked_map, qualified, None, intel)
         send_telegram(
             f"❌ EV BLOCK — {name}\n\n"
-            f"Expected value: £{ev_data['ev']} (negative)\n"
-            f"Based on {ev_data['sample_size']} real trades\n"
+            f"Expected value: £{ev_data['ev']} (NEGATIVE)\n"
+            f"Optimistic EV (upper CI): £{_ev_optimistic}\n"
+            f"Sample size: {ev_data['sample_size']} trades {_ci_note}\n"
             f"R-expectancy: {ev_data['r_expectancy']}R\n\n"
-            f"Signal skipped — negative expected value.\n"
+            f"Signal skipped — negative expected value under all win-rate scenarios.\n"
             f"Capital preserved."
         )
-        print(f"  EV BLOCKED: £{ev_data['ev']} negative EV on {ev_data['sample_size']} trades")
+        print(f"  EV BLOCKED: £{ev_data['ev']} (optimistic £{_ev_optimistic}) — NEGATIVE under full CI range")
         return
+
+    # INVERSE ETF EV gate — 3x leveraged instruments compound decay cost daily.
+    # In a bearish regime the tailwind should deliver positive EV; if EV < -0.50,
+    # the setup is off (entry is late, or target is too tight vs. the spread cost).
+    # Lesson: QQQSl/SPXU/SQQQ trades queued with EV -0.86 to -1.29 — all marginal losers.
+    #
+    # Regime override: in a strong bear regime (VIX HIGH + breadth BEARISH), regime
+    # alignment supplies the edge that the cold-start 50/50 EV prior cannot see.
+    # apex-regime-scaling.py already up-sizes inverse trades in this regime; the EV
+    # gate must not contradict that.
+    _strong_bear = (intel.get('vix', 0) >= 22) and (intel.get('breadth', 50) <= 35)
+    if (best.get('signal_type') == 'INVERSE'
+            and ev_data.get('ev', 0) < -0.50
+            and not _strong_bear):
+        _inv_ev = ev_data.get('ev', 0)
+        blocked_map[name] = blocked_map.get(name, []) + [
+            f"INVERSE EV gate: £{_inv_ev} < -£0.50 — leveraged decay, tight R:R rejected"
+        ]
+        log_decision_run(all_signals, blocked_map, qualified, None, intel)
+        send_telegram(
+            f"📉 INVERSE EV GATE — {name}\n\n"
+            f"Expected value: £{_inv_ev} (threshold: -£0.50 for leveraged ETFs)\n"
+            f"R-expectancy: {ev_data['r_expectancy']}R | Breakeven WR: {round(ev_data['breakeven_wr']*100,1)}%\n\n"
+            f"3x leverage compounds decay — EV must clear -£0.50 floor.\n"
+            f"Wait for wider R:R or stronger breadth signal.\n"
+            f"Capital preserved."
+        )
+        print(f"  INVERSE EV GATE: £{_inv_ev} < -£0.50 — leveraged decay risk rejected")
+        return
+    elif (best.get('signal_type') == 'INVERSE'
+          and ev_data.get('ev', 0) < -0.50
+          and _strong_bear):
+        print(f"  INVERSE EV GATE BYPASSED: strong bear regime "
+              f"(VIX {intel.get('vix',0)} + breadth {intel.get('breadth',0)}%) supplies edge")
 
     # Log this decision run (all candidates, scores, blocks, winner)
     log_decision_run(all_signals, blocked_map, qualified, best, intel)
@@ -1335,22 +1491,29 @@ def run():
         print(f"  Rollout sim skipped: {_sim_e}")
 
     # Hard position limit check — prevent exceeding MAX_OPEN_POSITIONS
-    _open_count = len(intel.get('open_positions', []))
+    # Positions below MIN_COUNTED_NOTIONAL are dust (TACO injections, tiny fills) — exclude them
     try:
         import importlib.util as _ilu_cfg
         _cfg_spec = _ilu_cfg.spec_from_file_location("_cfg", "/home/ubuntu/.picoclaw/scripts/apex_config.py")
         _cfg_mod  = _ilu_cfg.module_from_spec(_cfg_spec)
         _cfg_spec.loader.exec_module(_cfg_mod)
-        _max_pos = getattr(_cfg_mod, 'MAX_OPEN_POSITIONS', 6)
+        _max_pos          = getattr(_cfg_mod, 'MAX_OPEN_POSITIONS', 6)
+        _min_notional     = getattr(_cfg_mod, 'MIN_COUNTED_NOTIONAL', 150)
     except Exception:
-        _max_pos = 6
+        _max_pos, _min_notional = 6, 150
+    _all_positions = intel.get('open_positions', [])
+    _counted = [p for p in _all_positions
+                if (p.get('entry', 0) or 0) * (p.get('quantity', 0) or 0) >= _min_notional]
+    _open_count = len(_counted)
     if _open_count >= _max_pos:
         log_decision_run(all_signals, blocked_map, qualified, None, intel)
+        _dust = len(_all_positions) - _open_count
+        _dust_note = f" (+{_dust} dust)" if _dust else ""
         send_telegram(
-            f"⚠️ POSITION LIMIT — {_open_count}/{_max_pos} positions open\n"
+            f"⚠️ POSITION LIMIT — {_open_count}/{_max_pos} positions open{_dust_note}\n"
             f"Skipping {best.get('name','?')} — reduce existing positions first."
         )
-        print(f"  Position limit reached ({_open_count}/{_max_pos}) — no new entry")
+        print(f"  Position limit reached ({_open_count}/{_max_pos}{_dust_note}) — no new entry")
         return
 
     # Save and notify
@@ -1405,7 +1568,20 @@ def run():
                 _runner_up['ev']       = _r_ev['ev']
                 _runner_up['ev_verdict'] = _r_ev['verdict']
             except Exception:
-                pass
+                _r_ev = {'ev': 0, 'verdict': 'UNKNOWN'}
+            # EV gate for multi-signal queue — same rules as primary:
+            # INVERSE signals with EV < -0.50 are blocked unless strong bear regime.
+            _r_ev_val = _runner_up.get('ev', 0)
+            _r_is_inverse = _runner_up.get('signal_type') == 'INVERSE'
+            _r_strong_bear = (intel.get('vix', 0) >= 22) and (intel.get('breadth', 50) <= 35)
+            if _r_is_inverse and _r_ev_val < -0.50 and not _r_strong_bear:
+                print(f"  ❌ Runner-up {_runner_up.get('name')} NOT queued: INVERSE EV £{_r_ev_val:.2f} < -0.50 (no strong bear override)")
+                continue
+            # General negative EV gate — block if both raw and optimistic EV negative
+            _r_ev_optimistic = _r_ev.get('ev_optimistic', _r_ev_val) if isinstance(_r_ev, dict) else _r_ev_val
+            if _r_ev.get('verdict') == 'NEGATIVE' and _r_ev_optimistic < 0:
+                print(f"  ❌ Runner-up {_runner_up.get('name')} NOT queued: EV NEGATIVE under all CI scenarios (£{_r_ev_val:.2f})")
+                continue
             _runner_up['quantity'] = _r_qty
             _runner_up['notional'] = _r_notional
             _runner_up['entry']    = _r_entry

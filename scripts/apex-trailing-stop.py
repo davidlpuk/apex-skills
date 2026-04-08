@@ -5,8 +5,9 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import (atomic_write, safe_read, log_error, send_telegram,
-                            locked_read_modify_write, t212_request)
+    from apex_utils import (atomic_write, safe_read, log_error, log_warning,
+                            send_telegram, locked_read_modify_write, t212_request,
+                            get_fx_rate)
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -16,6 +17,7 @@ except ImportError:
             with open(p) as f: return json.load(f)
         except Exception: return d if d is not None else {}
     def log_error(m): print(f'ERROR: {m}')
+    def log_warning(m): print(f'WARNING: {m}')
     def locked_read_modify_write(p, fn, default=None):
         import json as _j
         try:
@@ -87,7 +89,10 @@ def _sortino_partial_fraction(position=None):
                     r_current = (curr - entry) / (entry - stop)
                     velocity = r_current / days
                     if velocity >= vel_threshold:
-                        return float(t2['partial_fraction_override'])
+                        override_frac = float(t2['partial_fraction_override'])
+                        print(f"  📊 Trajectory override: partial fraction {int(base*100)}% → {int(override_frac*100)}% "
+                              f"(T2 runner profile, velocity={velocity:.2f} ≥ threshold={vel_threshold})")
+                        return override_frac
         except Exception:
             pass  # Non-critical — fall back to Sortino-based fraction
 
@@ -180,29 +185,50 @@ def _log_closed_trade(pos, exit_price, close_type):
         stop  = float(pos.get('stop', 0))
         qty   = float(pos.get('quantity', 0))
         risk  = entry - stop if entry > stop else 1
-        pnl   = round(qty * (exit_price - entry), 2)
+        pnl_native = round(qty * (exit_price - entry), 2)
         r     = round((exit_price - entry) / risk, 2) if risk else 0
+
+        # FX attribution — snapshot close rate and compute GBP impact
+        currency    = pos.get('currency', '')
+        fx_at_entry = float(pos.get('fx_at_entry', 1.0) or 1.0)
+        try:
+            fx_at_close = get_fx_rate(currency) if currency else 1.0
+        except Exception:
+            fx_at_close = fx_at_entry
+        pnl_gbp        = round(pnl_native * fx_at_close, 2)
+        fx_impact_gbp  = round(qty * (exit_price - entry) * (fx_at_close - fx_at_entry), 2)
+
         outcomes['trades'].append({
-            'name':        pos.get('name', ''),
-            'ticker':      pos.get('t212_ticker', ''),
-            'entry':       entry,
-            'exit':        exit_price,
-            'pnl':         pnl,
-            'r':           r,
-            'qty':         qty,
-            'type':        close_type,
-            'opened':      pos.get('opened', ''),
-            'closed':      datetime.now(timezone.utc).strftime('%Y-%m-%d'),
-            'signal_type': pos.get('signal_type', ''),
-            'sector':      pos.get('sector', ''),
-            'mae_pct':     pos.get('mae_pct', 0.0),
-            'mfe_pct':     pos.get('mfe_pct', 0.0),
+            'name':           pos.get('name', ''),
+            'ticker':         pos.get('t212_ticker', ''),
+            'entry':          entry,
+            'exit':           exit_price,
+            'pnl':            pnl_native,
+            'pnl_gbp':        pnl_gbp,
+            'fx_at_entry':    fx_at_entry,
+            'fx_at_close':    fx_at_close,
+            'fx_impact_gbp':  fx_impact_gbp,
+            'currency':       currency,
+            'r':              r,
+            'qty':            qty,
+            'type':           close_type,
+            'opened':         pos.get('opened', ''),
+            'closed':         datetime.now(timezone.utc).strftime('%Y-%m-%d'),
+            'signal_type':    pos.get('signal_type', ''),
+            'sector':         pos.get('sector', ''),
+            'mae_pct':        pos.get('mae_pct', 0.0),
+            'mfe_pct':        pos.get('mfe_pct', 0.0),
         })
         atomic_write(OUTCOMES_FILE, outcomes)
     except Exception as e:
         log_error(f"_log_closed_trade failed: {e}")
 
 def get_live_prices():
+    """
+    Fetch live prices from T212 portfolio.
+    Also syncs unrealised_pnl (from T212's ppl field) back into positions.json
+    so circuit-breaker auto-close and other consumers always have a current value.
+    """
     portfolio = t212_request('/equity/portfolio')
     if not isinstance(portfolio, list):
         return {}
@@ -211,7 +237,9 @@ def get_live_prices():
     # If currentPrice is 20x+ the stored entry, divide by 100 to convert to GBP.
     positions = load_positions()
     entry_map = {p.get('t212_ticker'): float(p.get('entry', 0)) for p in positions}
-    result = {}
+
+    result  = {}
+    pnl_map = {}   # ticker → unrealised_pnl from T212
     for p in portfolio:
         ticker = p['ticker']
         price  = float(p.get('currentPrice', 0))
@@ -219,6 +247,28 @@ def get_live_prices():
         if entry > 0 and price > entry * 20:
             price = round(price / 100, 4)
         result[ticker] = price
+        pnl_val = p.get('ppl')
+        if pnl_val is not None:
+            try:
+                pnl_map[ticker] = round(float(pnl_val), 2)
+            except (TypeError, ValueError):
+                pass
+
+    # Write unrealised_pnl back to positions.json under file lock.
+    # This ensures circuit-breaker, watchdog, and any other consumer that
+    # reads positions.json always has a current (not stale zero) P&L figure.
+    if pnl_map:
+        def _update_pnl(current_positions):
+            for pos in (current_positions or []):
+                t = pos.get('t212_ticker', '')
+                if t in pnl_map:
+                    pos['unrealised_pnl'] = pnl_map[t]
+            return current_positions
+        try:
+            locked_read_modify_write(POSITIONS_FILE, _update_pnl, default=[])
+        except Exception as _e:
+            log_warning(f"get_live_prices: unrealised_pnl sync failed (non-blocking): {_e}")
+
     return result
 
 def run():
@@ -271,8 +321,36 @@ def run():
 
         print(f"{name}: £{current} | Entry £{entry} | Stop £{stop} | T1 £{target1} | R:{r} | MAE:{pos.get('mae_pct',0)}% MFE:{pos.get('mfe_pct',0)}%")
 
+        # ── Day-1 direction warning ───────────────────────────────────────
+        # Trajectory data: 100% of positions showing negative R on end of day 1
+        # closed as losers. Alert when this pattern is detected.
+        # Only fires once (day1_warned flag), only during market hours.
+        try:
+            from datetime import date as _date
+            _opened = pos.get('opened', '')
+            _days_held = max(1, (_date.today() - _date.fromisoformat(_opened)).days) if _opened else 0
+            _warned = pos.get('day1_warned', False)
+            if _days_held == 1 and r < -0.25 and not _warned:
+                pos['day1_warned'] = True
+                updates.append(name)
+                send_telegram(
+                    f"⚠️ DAY-1 WARNING — {name}\n\n"
+                    f"Position showing {r:.2f}R on day 1.\n\n"
+                    f"📊 Historical insight: 100% of trades negative on day 1 "
+                    f"closed as losses (15 trades observed).\n\n"
+                    f"Current: £{current} | Entry: £{entry} | Stop: £{stop}\n"
+                    f"R: {r:.2f} | Stop distance: {round((current-stop)/(entry-stop)*100,1)}% of risk remaining\n\n"
+                    f"Consider: HOLD (stop still valid) or EARLY EXIT\n"
+                    f"Reply CLOSE {ticker} to exit at market."
+                )
+                print(f"  ⚠️ Day-1 warning sent for {name} (R={r:.2f})")
+        except Exception as _d1e:
+            pass  # Non-critical
+
         # Check Target 2 hit — auto-close remaining position
-        if not t2_hit and current >= target2:
+        # Guard target2 > 0: an unset or zero target2 would make every price
+        # satisfy current >= target2 and close the position immediately after entry.
+        if not t2_hit and target2 > 0 and current >= target2:
             print(f"  🎯 TARGET 2 HIT — AUTO-CLOSING {name}")
             order_id = close_position_at_market(ticker, quantity)
             if order_id:
@@ -337,6 +415,15 @@ def run():
             pos['t1_hit']              = True
             pos['breakeven_set']       = now
             pos['t1_partial_pnl']      = t1_pnl
+            # If ratchet stop placement failed, flag as unprotected so the
+            # broker watchdog auto-fix picks it up on its next cycle.
+            if not new_stop_id:
+                pos['unprotected']     = True
+                pos['status']          = 'unprotected'
+                log_error(f"T1 ratchet stop failed for {name} — flagged unprotected for watchdog")
+            else:
+                pos['unprotected']     = False
+                pos['status']          = 'protected'
             updates.append(name)
 
             _log_closed_trade(
@@ -380,7 +467,9 @@ def run():
                     print(f"  📈 RATCHET UP — {name}: stop £{trailing_level} → £{new_ratchet} (price £{current})")
 
         # Time-based exit — don't let capital sit in dead trades.
-        # Trend: 15 trading days max. Contrarian: 20 days. Inverse ETFs: 3 days (leveraged decay).
+        # Base hold limits (Trend: 15d, Contrarian: 20d, Inverse: 3d) are
+        # adjusted downward by trajectory learner when it detects slow-grind
+        # or stop-and-reverse patterns dominating a signal type.
         elif not t1_hit and not t2_hit:
             opened_str  = pos.get('opened', '')
             sig_type    = pos.get('signal_type', 'TREND')
@@ -391,10 +480,80 @@ def run():
 
                     if sig_type == 'INVERSE':
                         max_days = 3   # 3× leveraged ETFs decay daily — never hold long
+                        # P&L floor: leveraged short ETFs compound decay rapidly.
+                        # Close early if down > 8% regardless of days held —
+                        # a 3× ETF losing 8% means the underlying moved ~2.7%
+                        # against us; holding longer only compounds decay losses.
+                        if entry > 0:
+                            _inv_pnl_pct = (current - entry) / entry * 100
+                            if _inv_pnl_pct < -8.0 and not pos.get('inverse_floor_fired'):
+                                print(f"  📉 INVERSE P&L FLOOR — {name}: {_inv_pnl_pct:.1f}% loss exceeds -8% decay floor")
+                                pos['inverse_floor_fired'] = True
+                                updates.append(name)
+                                send_telegram(
+                                    f"📉 INVERSE ETF P&L FLOOR — {name}\n\n"
+                                    f"Loss {_inv_pnl_pct:.1f}% exceeds -8% decay floor.\n"
+                                    f"Leveraged ETF decay accelerates — closing early.\n"
+                                    f"Entry £{entry} | Current £{current} | Days held: {days_held}"
+                                )
+                                order_id = close_position_at_market(ticker, quantity)
+                                if order_id:
+                                    if stop_id:
+                                        cancel_stop_order(stop_id)
+                                    pnl = round(quantity * (current - entry), 2)
+                                    _log_closed_trade(pos, current, 'INVERSE_FLOOR')
+                                    positions = [p for p in positions if p.get('t212_ticker') != ticker]
+                                    updates.append(name)
+                                    continue
+                                else:
+                                    send_telegram(f"⚠️ Inverse floor close FAILED for {name} — Reply CLOSE {ticker}")
                     elif sig_type == 'CONTRARIAN':
                         max_days = 20  # Mean reversion needs time to play out
                     else:
                         max_days = 15  # Trend trades — if it hasn't moved in 15 days, exit
+
+                    # ── Trajectory learner override — close the open loop ────
+                    # If trajectory insights show avg_days for this signal type
+                    # is significantly shorter than the default max, cut earlier.
+                    # Also applies early-cut rule once confirmed (r < -0.3R by day 2).
+                    try:
+                        _ti = safe_read('/home/ubuntu/.picoclaw/logs/apex-trajectory-insights.json', {})
+                        if _ti.get('status') == 'OK':
+                            _by_type = _ti.get('by_signal_type', {}).get(sig_type, {})
+                            _avg_days = _by_type.get('avg_days', 0)
+                            # If avg holding time for this type is < 70% of max, tighten hold limit
+                            if _avg_days and _avg_days < max_days * 0.7:
+                                _new_max = max(3, int(_avg_days * 1.5))
+                                if _new_max < max_days:
+                                    print(f"  📊 Trajectory override: {sig_type} avg_days={_avg_days:.1f} → max_days {max_days}→{_new_max}")
+                                    max_days = _new_max
+
+                            # Early-cut rule — if confirmed and we're in a loss at day 2
+                            _ec = _ti.get('early_cut', {})
+                            if (_ec.get('recommended') and
+                                    days_held >= _ec.get('day', 2) and
+                                    r < _ec.get('threshold_r', -0.3) and
+                                    not pos.get('early_cut_fired')):
+                                print(f"  ✂️ EARLY CUT — {name}: r={r} below {_ec['threshold_r']} on day {days_held} (recovery rate {_ec.get('recovery_rate','?')})")
+                                pos['early_cut_fired'] = True
+                                updates.append(name)
+                                send_telegram(
+                                    f"✂️ EARLY CUT — {name}\n\n"
+                                    f"R={r:.2f} on day {days_held} (threshold: {_ec['threshold_r']}R)\n"
+                                    f"Trajectory data: recovery rate only {_ec.get('recovery_rate',0)*100:.0f}% from this point.\n\n"
+                                    f"Exiting at market to preserve capital."
+                                )
+                                order_id = close_position_at_market(ticker, quantity)
+                                if order_id:
+                                    if stop_id:
+                                        cancel_stop_order(stop_id)
+                                    _log_closed_trade(pos, current, 'EARLY_CUT')
+                                    positions = [p for p in positions if p.get('t212_ticker') != ticker]
+                                    updates.append(name)
+                                continue
+                    except Exception:
+                        pass  # Non-critical — fall back to static max_days
+                    # ── end trajectory override ─────────────────────────────
 
                     if days_held >= max_days:
                         print(f"  ⏰ TIME STOP — {name} held {days_held} days (max {max_days} for {sig_type})")
@@ -434,16 +593,75 @@ def run():
                     f"Consider: CLOSE {ticker}"
                 )
 
-        # Stop hit
+        # Stop hit — verify T212 stop order actually fired, force close if not.
+        # Gap protection: on overnight gaps, T212 stop may not trigger (instrument
+        # suspended, pre-market, order stale) leaving the position exposed to further
+        # downside. We verify and force a market sell if the stop did not execute.
         elif current <= stop:
-            print(f"  🚨 STOP HIT — {name}")
-            send_telegram(
-                f"🚨 STOP HIT — {name}\n\n"
-                f"Price £{current} hit stop £{stop}\n"
-                f"T212 stop order should have triggered.\n\n"
-                f"Check T212 and update positions:\n"
-                f"CLOSE {ticker}"
-            )
+            gap_pct = round((stop - current) / stop * 100, 2) if stop > 0 else 0
+            severity = "GAP" if gap_pct > 1.0 else "HIT"
+            print(f"  🚨 STOP {severity} — {name} @ £{current} (stop £{stop}, {gap_pct}% through)")
+
+            # Verify the T212 stop order status
+            stop_triggered = False
+            stop_status    = 'UNKNOWN'
+            if stop_id:
+                try:
+                    order_info = t212_request(f'/equity/orders/{stop_id}')
+                    if order_info:
+                        stop_status = order_info.get('status', 'UNKNOWN')
+                        filled_qty  = float(order_info.get('filledQuantity', 0))
+                        stop_triggered = filled_qty > 0 or stop_status in ('FILLED', 'EXECUTED')
+                    else:
+                        # 404 → order gone, which means either filled or cancelled
+                        stop_status = 'GONE'
+                        stop_triggered = True  # Assume filled — will be confirmed by reconcile
+                except Exception as _e:
+                    log_warning(f"Gap protection: could not verify stop {stop_id}: {_e}")
+                    stop_status = 'CHECK_FAILED'
+
+            if stop_triggered:
+                print(f"  ✅ T212 stop {stop_id} confirmed {stop_status}")
+                send_telegram(
+                    f"🚨 STOP HIT — {name}\n\n"
+                    f"Price £{current} hit stop £{stop} ({gap_pct}% through)\n"
+                    f"T212 stop order {stop_status}.\n"
+                    f"Reconciler will update positions next cycle."
+                )
+            else:
+                # Stop did NOT fire — force market sell immediately to cap loss
+                log_error(f"GAP PROTECTION: T212 stop {stop_id} status={stop_status} but price £{current} ≤ stop £{stop} — forcing market sell")
+                print(f"  ⛔ GAP PROTECTION ACTIVATED — T212 stop did not fire, market-selling {quantity} {ticker}")
+
+                # Cancel the stale stop first so it doesn't double-fill
+                if stop_id:
+                    try:
+                        cancel_stop_order(stop_id)
+                    except Exception as _e:
+                        log_warning(f"Gap protection: cancel_stop_order failed: {_e}")
+
+                order_id = close_position_at_market(ticker, quantity)
+                if order_id:
+                    pnl = round(quantity * (current - entry), 2)
+                    _log_closed_trade(pos, current, 'GAP_PROTECTION')
+                    positions = [p for p in positions if p.get('t212_ticker') != ticker]
+                    updates.append(name)
+                    send_telegram(
+                        f"⛔ GAP PROTECTION FIRED — {name}\n\n"
+                        f"Price £{current} gapped {gap_pct}% through stop £{stop}\n"
+                        f"T212 stop order status: {stop_status} (did not fire)\n\n"
+                        f"Forced market sell executed: order {order_id}\n"
+                        f"Entry £{entry} → Exit £{current}\n"
+                        f"P&L: £{pnl:+.2f} | R: {r}\n\n"
+                        f"Position closed to cap loss at current market."
+                    )
+                else:
+                    send_telegram(
+                        f"❌ GAP PROTECTION FAILED — {name}\n\n"
+                        f"Price £{current} below stop £{stop} ({gap_pct}% gap)\n"
+                        f"T212 stop did not fire AND market sell failed.\n\n"
+                        f"URGENT: Reply CLOSE {ticker} to exit manually."
+                    )
 
     # Save updated positions
     if updates:

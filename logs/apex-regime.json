@@ -1,11 +1,12 @@
 {
-  "vix": 27.42,
-  "vix_regime": "HIGH",
-  "breadth_pct": 30.0,
-  "breadth_regime": "BEARISH",
+  "vix": 21.63,
+  "vix_regime": "ELEVATED",
+  "breadth_pct": 46.7,
+  "breadth_regime": "NEUTRAL",
   "overall": "CLEAR",
   "block_reason": [
-    "Breadth 30.0% \u2014 neutral, be selective"
+    "Breadth 46.7% \u2014 neutral, be selective"
   ],
-  "timestamp": "2026-03-24 13:37 UTC"
+  "timestamp": "2026-04-08 15:04 UTC",
+  "source": "realtime"
 }

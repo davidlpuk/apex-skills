@@ -1,0 +1,22 @@
+{
+  "status": "NEUTRAL",
+  "confidence": 1.0,
+  "vix_today": 21.62,
+  "vix_spike_pct": -16.14,
+  "rhetoric_score": 2,
+  "action_score": 0,
+  "walkback_score": 0,
+  "keyword_score": 2,
+  "escalation_count": 0,
+  "threat_type": "GEO_ENERGY",
+  "trigger_headlines": [
+    "WHO suspends Gaza medical evacuations after contractor killed by Israeli troops",
+    "Australia's most-decorated living soldier charged over alleged war crimes",
+    "Oil prices plunge on US-Iran ceasefire deal to reopen Strait of Hormuz",
+    "The US refinery now processing Venezuelan oil",
+    "How the Iran war affects your money and bills"
+  ],
+  "classified_at": "2026-04-08T15:00:05.895379+00:00",
+  "expires_at": "2026-04-09T15:00:05.895379+00:00",
+  "exhausted": false
+}

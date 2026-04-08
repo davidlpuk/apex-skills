@@ -31,6 +31,20 @@ WATCHLIST = {
     "VAGS":  ("VAGS.L",    "GBP"),
     "SGLN":  ("SGLN.L",    "GBX"),
     "SSLN":  ("SSLN.L",    "GBX"),
+    # Oil & Commodities ETCs
+    "CRUD":  ("CRUD.L",    "USD"),
+    "AIGE":  ("AIGE.L",    "USD"),
+    "ICOM":  ("ICOM.L",    "USD"),
+    "AIGP":  ("AIGP.L",    "USD"),
+    "COPA":  ("COPA.L",    "USD"),
+    # Short-duration bonds (risk-off / capital preservation)
+    "IBTS":  ("IBTS.L",    "GBP"),
+    "IS15":  ("IS15.L",    "GBP"),
+    # Emerging markets
+    "NDIA":  ("NDIA.L",    "USD"),
+    # Defense & Infrastructure
+    "DFNG":  ("DFNG.L",    "GBP"),
+    "INFR":  ("INFR.L",    "GBX"),
     # UK FTSE 100 — Financials
     "HSBA":  ("HSBA.L",    "GBX"),
     "LLOY":  ("LLOY.L",    "GBX"),

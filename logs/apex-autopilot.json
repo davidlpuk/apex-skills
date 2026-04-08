@@ -1,18 +1,16 @@
 {
   "enabled": true,
-  "mode": "PRACTICE",
-  "activated_at": "2026-03-20T15:13:49.238488+00:00",
-  "trades_today": 0,
-  "max_trades_per_day": 3,
+  "mode": "LIVE",
+  "activated_at": "2026-03-26T14:44:07.877207+00:00",
+  "trades_today": 2,
+  "max_trades_per_day": 5,
   "max_positions": 6,
   "max_daily_loss": 150,
   "daily_loss_today": 0,
-  "daily_loss_date": "2026-03-25",
-  "total_autonomous_trades": 0,
-  "last_trade_time": null,
-  "safety_override": false,
+  "daily_loss_date": "2026-04-08",
+  "total_autonomous_trades": 2,
+  "last_trade_time": "2026-04-08T13:05:01.485199+00:00",
   "log": [],
-  "max_autonomous_trades_live": 1,
-  "require_telegram_confirm": true,
-  "daily_loss_limit_gbp": 50
+  "last_action": "QUEUE:CONTRARIAN:ULVR",
+  "last_action_ts": "2026-04-08T13:05:01.485199+00:00"
 }

@@ -1,0 +1,5 @@
+{"ts": "2026-04-07T19:30:58.687301+00:00", "type": "tool", "name": "sharpe", "status": "ok", "elapsed_s": 0.08, "steps_ok": null, "steps_run": null, "triggered_by": "dashboard"}
+{"ts": "2026-04-07T19:40:59.371648+00:00", "type": "chain", "name": "learning-cycle", "status": "ok", "elapsed_s": 0.45, "steps_ok": 4, "steps_run": 4, "triggered_by": "dashboard"}
+{"ts": "2026-04-07T19:46:08.377863+00:00", "type": "chain", "name": "performance-review", "status": "partial", "elapsed_s": 300.5, "steps_ok": 3, "steps_run": 5, "triggered_by": "dashboard"}
+{"ts": "2026-04-08T08:30:06.736132+00:00", "type": "shell", "name": "morning-scan-am", "status": "ok", "exit_code": 0, "elapsed_s": 0.0, "triggered_by": "cron"}
+{"ts": "2026-04-08T12:30:12.180396+00:00", "type": "shell", "name": "morning-scan-midday", "status": "error", "exit_code": 4, "elapsed_s": 0.0, "triggered_by": "cron"}

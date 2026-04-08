@@ -64,7 +64,7 @@ def _load_layer_weights() -> dict:
     # ── Primary: Bayesian learned weights ──────────────────────────
     try:
         learned = safe_read(_LEARNED_WEIGHTS_FILE, {})
-        if learned and learned.get('n_signals_matched', 0) >= 10:
+        if learned and learned.get('n_signals_matched', 0) >= 5:  # 2026-04-07: lowered 10→5 to activate with current data
             layers = learned.get('layers', {})
             weights = {k: v.get('weight', 1.0) for k, v in layers.items()}
             if weights:

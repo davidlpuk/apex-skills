@@ -1,11 +1,17 @@
 {
   "_meta": {
-    "total_trades": 1,
-    "baseline_expectancy": 0,
-    "baseline_win_rate": 0,
-    "status": "COLLECTING",
-    "needed_global": 4,
-    "needed_bucketed": 14,
-    "generated": "2026-03-24 16:35 UTC"
+    "total_trades": 11,
+    "baseline_expectancy": 1.3482,
+    "baseline_win_rate": 0.6364,
+    "generated": "2026-04-07 19:40 UTC",
+    "status": "GLOBAL_ACTIVE"
+  },
+  "global_adjustment": {
+    "adjustment": 2.0,
+    "expectancy": 1.3482,
+    "win_rate": 0.6364,
+    "trades": 11,
+    "tier": "global",
+    "active": true
   }
 }

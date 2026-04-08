@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "generated": "2026-04-07 19:40 UTC",
+  "n_trajectories": 0,
+  "status": "INSUFFICIENT_DATA",
+  "note": "Only 0 completed trajectories recorded; need at least 10 to generate reliable insights.",
+  "early_cut": null,
+  "t2_runner": null,
+  "shape_distribution": null,
+  "day1_direction_accuracy": null,
+  "by_signal_type": null
+}

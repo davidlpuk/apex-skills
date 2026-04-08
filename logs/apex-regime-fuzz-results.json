@@ -1,0 +1,150 @@
+{
+  "timestamp": "2026-03-25 17:04 UTC",
+  "portfolio_value": 3898.48,
+  "n_positions": 8,
+  "regime_at_run": {
+    "vix": 25.52,
+    "breadth": 40.0,
+    "combined_scale": 0.435,
+    "regime_label": "CAUTIOUS"
+  },
+  "cb_at_run": {
+    "status": "CLEAR",
+    "triggered": false,
+    "session_pnl_pct": 0.14
+  },
+  "scenarios": [
+    {
+      "scenario": "black_tuesday",
+      "description": "VIX spikes from 26 to 40 while holding 4 positions",
+      "days_simulated": 3,
+      "trigger_day": 1,
+      "regime_blocked_day": 2,
+      "max_portfolio_drawdown_pct": 20.0,
+      "positions_at_risk": 8,
+      "new_entries_stopped": true,
+      "sizing_reduction_pct": 100.0,
+      "verdict": "FAIL",
+      "detail": [
+        {
+          "day": 1,
+          "vix": 30.3,
+          "breadth": 33.3,
+          "combined_scale": 0.25,
+          "regime_label": "CAUTIOUS",
+          "positions_at_stop": 8,
+          "estimated_session_loss_pct": 15.2,
+          "circuit_breaker_triggered": true,
+          "geo_alert_active": false,
+          "cb_suspend_active": false
+        },
+        {
+          "day": 2,
+          "vix": 35.2,
+          "breadth": 26.7,
+          "combined_scale": 0.0,
+          "regime_label": "BLOCKED",
+          "positions_at_stop": 8,
+          "estimated_session_loss_pct": 17.6,
+          "circuit_breaker_triggered": true,
+          "geo_alert_active": false,
+          "cb_suspend_active": false
+        },
+        {
+          "day": 3,
+          "vix": 40.0,
+          "breadth": 20.0,
+          "combined_scale": 0.0,
+          "regime_label": "BLOCKED",
+          "positions_at_stop": 8,
+          "estimated_session_loss_pct": 20.0,
+          "circuit_breaker_triggered": true,
+          "geo_alert_active": false,
+          "cb_suspend_active": false
+        }
+      ]
+    },
+    {
+      "scenario": "breadth_collapse",
+      "description": "Market breadth collapses from 70% to 25% over 3 days",
+      "days_simulated": 3,
+      "trigger_day": 1,
+      "regime_blocked_day": null,
+      "max_portfolio_drawdown_pct": 15.2,
+      "positions_at_risk": 8,
+      "new_entries_stopped": true,
+      "sizing_reduction_pct": 85.0,
+      "verdict": "WARN",
+      "detail": [
+        {
+          "day": 1,
+          "vix": 27.2,
+          "breadth": 55.0,
+          "combined_scale": 0.52,
+          "regime_label": "NEUTRAL",
+          "positions_at_stop": 8,
+          "estimated_session_loss_pct": 13.6,
+          "circuit_breaker_triggered": true,
+          "geo_alert_active": false,
+          "cb_suspend_active": false
+        },
+        {
+          "day": 2,
+          "vix": 28.9,
+          "breadth": 40.0,
+          "combined_scale": 0.35,
+          "regime_label": "CAUTIOUS",
+          "positions_at_stop": 8,
+          "estimated_session_loss_pct": 14.4,
+          "circuit_breaker_triggered": true,
+          "geo_alert_active": false,
+          "cb_suspend_active": false
+        },
+        {
+          "day": 3,
+          "vix": 30.5,
+          "breadth": 25.0,
+          "combined_scale": 0.15,
+          "regime_label": "HOSTILE",
+          "positions_at_stop": 8,
+          "estimated_session_loss_pct": 15.3,
+          "circuit_breaker_triggered": true,
+          "geo_alert_active": false,
+          "cb_suspend_active": false
+        }
+      ]
+    },
+    {
+      "scenario": "geo_cb_storm",
+      "description": "Simultaneous geo alert + circuit breaker suspension, VIX=33",
+      "days_simulated": 1,
+      "trigger_day": 1,
+      "regime_blocked_day": 1,
+      "max_portfolio_drawdown_pct": 16.5,
+      "positions_at_risk": 8,
+      "new_entries_stopped": true,
+      "sizing_reduction_pct": 100.0,
+      "verdict": "FAIL",
+      "detail": [
+        {
+          "day": 1,
+          "vix": 33.0,
+          "breadth": 40.0,
+          "combined_scale": 0.0,
+          "regime_label": "BLOCKED",
+          "positions_at_stop": 8,
+          "estimated_session_loss_pct": 16.5,
+          "circuit_breaker_triggered": true,
+          "geo_alert_active": true,
+          "cb_suspend_active": true
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "scenarios_passed": 0,
+    "scenarios_warned": 1,
+    "scenarios_failed": 2,
+    "system_assessment": "CAUTION \u2014 2 failure scenarios found"
+  }
+}

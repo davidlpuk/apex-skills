@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-04-07",
+  "trades_analysed": 11,
+  "sharpe_ratio": 3.172,
+  "sortino_ratio": 26.068,
+  "calmar_ratio": 94.804,
+  "avg_return_per_trade": 6.508,
+  "std_dev": 20.516,
+  "max_drawdown_r": 6.865,
+  "win_rate": 63.6,
+  "avg_win_r": 11.366,
+  "avg_loss_r": -1.993,
+  "profit_factor": 9.982,
+  "annualised_return_r": 650.83,
+  "risk_free_rate": 0.05,
+  "rating": "EXCEPTIONAL"
+}

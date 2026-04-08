@@ -1,38 +1,38 @@
 {
-  "timestamp": "2026-03-23 17:26 UTC",
+  "timestamp": "2026-04-06 07:12 UTC",
   "status": "COLLECTING",
   "min_trades": 50,
-  "portfolio": 5015.53,
+  "portfolio": 5038.1,
   "kelly_table": {
     "TREND": {
       "win_rate": 0.517,
       "kelly_full": 0.2163,
       "kelly_half": 0.1081,
-      "risk_gbp": 401.24
+      "risk_gbp": 403.05
     },
     "CONTRARIAN": {
       "win_rate": 0.565,
       "kelly_full": 0.2569,
       "kelly_half": 0.1284,
-      "risk_gbp": 401.24
+      "risk_gbp": 403.05
     },
     "INVERSE": {
       "win_rate": 0.5,
       "kelly_full": 0.1667,
       "kelly_half": 0.0833,
-      "risk_gbp": 401.24
+      "risk_gbp": 403.05
     },
     "EARNINGS_DRIFT": {
       "win_rate": 0.55,
       "kelly_full": 0.2731,
       "kelly_half": 0.1365,
-      "risk_gbp": 401.24
+      "risk_gbp": 403.05
     },
     "DIVIDEND_CAPTURE": {
       "win_rate": 0.6,
       "kelly_full": 0.3,
       "kelly_half": 0.15,
-      "risk_gbp": 401.24
+      "risk_gbp": 403.05
     }
   },
   "current_risk": 50,
@@ -40,32 +40,67 @@
   "max_position_pct": 0.08,
   "signal_audits": [
     {
-      "timestamp": "2026-03-24T13:39:06.028885+00:00",
-      "signal": "Exxon Mobil",
+      "timestamp": "2026-04-08T08:03:43.192336+00:00",
+      "signal": "ProShares UltraPro Short QQQ",
       "verdict": "REDUCE",
-      "kelly_half_risk": 542.02,
-      "recommended_risk": 401.13
+      "kelly_half_risk": 419.36,
+      "recommended_risk": 402.75
     },
     {
-      "timestamp": "2026-03-24T13:39:33.556480+00:00",
-      "signal": "Exxon Mobil",
+      "timestamp": "2026-04-08T08:04:39.054242+00:00",
+      "signal": "ProShares UltraPro Short QQQ",
       "verdict": "REDUCE",
-      "kelly_half_risk": 542.02,
-      "recommended_risk": 401.13
+      "kelly_half_risk": 419.36,
+      "recommended_risk": 402.75
     },
     {
-      "timestamp": "2026-03-24T13:42:10.922458+00:00",
-      "signal": "Exxon Mobil",
+      "timestamp": "2026-04-08T08:05:04.062532+00:00",
+      "signal": "ProShares UltraPro Short QQQ",
       "verdict": "REDUCE",
-      "kelly_half_risk": 542.02,
-      "recommended_risk": 401.13
+      "kelly_half_risk": 419.36,
+      "recommended_risk": 402.75
     },
     {
-      "timestamp": "2026-03-24T13:42:25.811785+00:00",
-      "signal": "Exxon Mobil",
+      "timestamp": "2026-04-08T08:05:50.518413+00:00",
+      "signal": "ProShares UltraPro Short QQQ",
       "verdict": "REDUCE",
-      "kelly_half_risk": 542.02,
-      "recommended_risk": 401.13
+      "kelly_half_risk": 419.36,
+      "recommended_risk": 402.75
+    },
+    {
+      "timestamp": "2026-04-08T08:07:00.025607+00:00",
+      "signal": "ProShares UltraPro Short QQQ",
+      "verdict": "REDUCE",
+      "kelly_half_risk": 419.4,
+      "recommended_risk": 402.78
+    },
+    {
+      "timestamp": "2026-04-08T08:07:17.173749+00:00",
+      "signal": "ProShares UltraPro Short QQQ",
+      "verdict": "REDUCE",
+      "kelly_half_risk": 419.4,
+      "recommended_risk": 402.78
+    },
+    {
+      "timestamp": "2026-04-08T12:05:51.796016+00:00",
+      "signal": "New Fortress Energy",
+      "verdict": "REDUCE",
+      "kelly_half_risk": 646.26,
+      "recommended_risk": 402.66
+    },
+    {
+      "timestamp": "2026-04-08T12:11:15.419103+00:00",
+      "signal": "New Fortress Energy",
+      "verdict": "REDUCE",
+      "kelly_half_risk": 646.33,
+      "recommended_risk": 402.7
+    },
+    {
+      "timestamp": "2026-04-08T12:11:48.013349+00:00",
+      "signal": "New Fortress Energy",
+      "verdict": "REDUCE",
+      "kelly_half_risk": 646.33,
+      "recommended_risk": 402.7
     }
   ]
 }

@@ -5,6 +5,7 @@ import sys
 from datetime import datetime, timezone
 
 SIGNAL_FILE    = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
+SCALING_FILE   = '/home/ubuntu/.picoclaw/logs/apex-regime-scaling.json'
 WATCHLIST_YAHOO = {
     "VWRP": "VWRP.L", "VUAG": "VUAG.L", "VFEA": "VFEA.L",
     "IGWD": "IGWD.L", "HMWO": "HMWO.L", "IITU": "IITU.L",
@@ -37,6 +38,32 @@ WATCHLIST_YAHOO = {
     "WMT":  "WMT",    "PG":   "PG",     "XOM":  "XOM",
     "CVX":  "CVX",    "NOVO": "NVO",
 }
+
+def _get_regime_max_age():
+    """
+    Return (block_hours, warn_hours) based on current market regime.
+
+    In hostile markets, signals go stale faster — a 3-hour-old signal in
+    VIX-38 conditions is far more dangerous than the same signal in a calm
+    uptrend. Scale the staleness window accordingly.
+
+    Falls back to NEUTRAL thresholds if the scaling file is unavailable.
+    """
+    try:
+        with open(SCALING_FILE) as f:
+            scaling = json.load(f)
+        scale = float(scaling.get('combined_scale', 0.5))
+    except Exception:
+        scale = 0.5  # NEUTRAL fallback
+    if scale >= 0.8:
+        return 6.0, 4.0   # FAVOURABLE  — block @6h, warn @4h
+    elif scale >= 0.5:
+        return 4.0, 2.0   # NEUTRAL     — block @4h, warn @2h  (original defaults)
+    elif scale >= 0.2:
+        return 3.0, 1.5   # CAUTIOUS    — block @3h, warn @1.5h
+    else:
+        return 2.0, 1.0   # HOSTILE/BLOCKED — block @2h, warn @1h
+
 
 def fix_pence(price, currency):
     if currency == "GBX" and price > 100:
@@ -78,15 +105,20 @@ def check_staleness():
     warnings = []
     now = datetime.now(timezone.utc)
 
-    # Check 1 — signal age
+    # Check 1 — signal age (regime-aware thresholds)
+    max_age_hours, warn_age_hours = _get_regime_max_age()
     if generated_at:
         try:
             gen_dt  = datetime.fromisoformat(generated_at)
             age_hrs = (now - gen_dt).total_seconds() / 3600
-            if age_hrs > 4:
-                blocks.append(f"Signal is {round(age_hrs,1)}h old — stale, regenerate")
-            elif age_hrs > 2:
-                warnings.append(f"Signal is {round(age_hrs,1)}h old — verify still valid")
+            if age_hrs > max_age_hours:
+                blocks.append(
+                    f"Signal is {round(age_hrs,1)}h old — stale (max {max_age_hours:.0f}h in current regime)"
+                )
+            elif age_hrs > warn_age_hours:
+                warnings.append(
+                    f"Signal is {round(age_hrs,1)}h old — verify still valid (warn >{warn_age_hours:.1f}h)"
+                )
         except:
             pass
 
@@ -102,7 +134,6 @@ def check_staleness():
     if instrument_name:
         # Try Alpaca first for US stocks, fall back to yfinance
         try:
-            import sys
             sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
             import apex_price_feed as pf
             live_price, _, source = pf.get_live_price(instrument_name)

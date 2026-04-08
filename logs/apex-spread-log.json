@@ -1,0 +1,104 @@
+{
+  "entries": [
+    {
+      "timestamp": "2026-04-08T08:03:43.195479+00:00",
+      "name": "ProShares UltraPro Short QQQ",
+      "ticker": "SQQQ_EQ",
+      "bid": 75.81,
+      "ask": 75.85,
+      "mid": 75.83,
+      "spread_pct": 0.0527,
+      "source": "yfinance",
+      "verdict": "TIGHT"
+    },
+    {
+      "timestamp": "2026-04-08T08:04:39.056635+00:00",
+      "name": "ProShares UltraPro Short QQQ",
+      "ticker": "SQQQ_EQ",
+      "bid": 75.81,
+      "ask": 75.85,
+      "mid": 75.83,
+      "spread_pct": 0.0527,
+      "source": "yfinance",
+      "verdict": "TIGHT"
+    },
+    {
+      "timestamp": "2026-04-08T08:05:04.064648+00:00",
+      "name": "ProShares UltraPro Short QQQ",
+      "ticker": "SQQQ_EQ",
+      "bid": 75.81,
+      "ask": 75.85,
+      "mid": 75.83,
+      "spread_pct": 0.0527,
+      "source": "yfinance",
+      "verdict": "TIGHT"
+    },
+    {
+      "timestamp": "2026-04-08T08:05:50.520395+00:00",
+      "name": "ProShares UltraPro Short QQQ",
+      "ticker": "SQQQ_EQ",
+      "bid": 75.81,
+      "ask": 75.85,
+      "mid": 75.83,
+      "spread_pct": 0.0527,
+      "source": "yfinance",
+      "verdict": "TIGHT"
+    },
+    {
+      "timestamp": "2026-04-08T08:07:00.029744+00:00",
+      "name": "ProShares UltraPro Short QQQ",
+      "ticker": "SQQQ_EQ",
+      "bid": 75.81,
+      "ask": 75.85,
+      "mid": 75.83,
+      "spread_pct": 0.0527,
+      "source": "yfinance",
+      "verdict": "TIGHT"
+    },
+    {
+      "timestamp": "2026-04-08T08:07:17.175849+00:00",
+      "name": "ProShares UltraPro Short QQQ",
+      "ticker": "SQQQ_EQ",
+      "bid": 75.81,
+      "ask": 75.85,
+      "mid": 75.83,
+      "spread_pct": 0.0527,
+      "source": "yfinance",
+      "verdict": "TIGHT"
+    },
+    {
+      "timestamp": "2026-04-08T12:05:51.798279+00:00",
+      "name": "New Fortress Energy",
+      "ticker": "NFE_US_EQ",
+      "bid": 0.5725,
+      "ask": 0.6243,
+      "mid": 0.5984,
+      "spread_pct": 8.6564,
+      "source": "yfinance",
+      "verdict": "BLOCK"
+    },
+    {
+      "timestamp": "2026-04-08T12:11:15.420850+00:00",
+      "name": "New Fortress Energy",
+      "ticker": "NFE_US_EQ",
+      "bid": 0.5725,
+      "ask": 0.6243,
+      "mid": 0.5984,
+      "spread_pct": 8.6564,
+      "source": "yfinance",
+      "verdict": "BLOCK"
+    },
+    {
+      "timestamp": "2026-04-08T12:11:48.015080+00:00",
+      "name": "New Fortress Energy",
+      "ticker": "NFE_US_EQ",
+      "bid": 0.5725,
+      "ask": 0.6243,
+      "mid": 0.5984,
+      "spread_pct": 8.6564,
+      "source": "yfinance",
+      "verdict": "BLOCK"
+    }
+  ],
+  "last_updated": "2026-04-08T12:11:48.015080+00:00"
+}

@@ -1,0 +1,1859 @@
+2026-03-25 08:44 UTC: === Apex Real-Time Regime Monitor starting ===
+2026-03-25 08:44 UTC: Poll: every 5 min (VIX) / 30 min (breadth)
+2026-03-25 08:44 UTC: Last known VIX from file: 26.95
+2026-03-25 08:44 UTC: Running full breadth recalc...
+2026-03-25 08:44 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-25 08:45 UTC: VIX=25.01 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-25 08:50 UTC: VIX=25.03 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 08:55 UTC: VIX=25.22 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 09:00 UTC: VIX=25.31 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 09:05 UTC: VIX=25.4 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 09:10 UTC: VIX=25.8 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 09:15 UTC: Running full breadth recalc...
+2026-03-25 09:15 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-25 09:15 UTC: VIX=25.79 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-25 09:20 UTC: VIX=25.67 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 09:25 UTC: VIX=25.54 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 09:30 UTC: VIX=25.51 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 09:35 UTC: VIX=25.53 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 09:40 UTC: VIX=25.75 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 09:45 UTC: Running full breadth recalc...
+2026-03-25 09:45 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-25 09:45 UTC: VIX=25.79 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-25 09:50 UTC: VIX=25.7 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 09:55 UTC: VIX=25.73 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 10:00 UTC: VIX=25.85 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 10:05 UTC: VIX=26.01 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 10:10 UTC: VIX=26.03 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 10:15 UTC: Running full breadth recalc...
+2026-03-25 10:15 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-25 10:15 UTC: VIX=25.53 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-25 10:21 UTC: VIX=25.65 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 10:26 UTC: VIX=25.71 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 10:31 UTC: VIX=25.74 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 10:36 UTC: VIX=25.71 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 10:41 UTC: VIX=25.83 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 10:46 UTC: Running full breadth recalc...
+2026-03-25 10:46 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-25 10:46 UTC: VIX=25.84 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-25 10:51 UTC: VIX=25.74 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 10:56 UTC: VIX=25.73 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 11:01 UTC: VIX=25.86 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 11:06 UTC: VIX=25.7 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 11:11 UTC: VIX=25.68 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 11:16 UTC: Running full breadth recalc...
+2026-03-25 11:16 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-25 11:16 UTC: VIX=25.6 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-25 11:21 UTC: VIX=25.49 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 11:26 UTC: VIX=25.5 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 11:32 UTC: VIX=25.35 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 11:37 UTC: VIX=25.31 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 11:42 UTC: VIX=25.26 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 11:47 UTC: Running full breadth recalc...
+2026-03-25 11:47 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-25 11:47 UTC: VIX=25.19 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-25 11:52 UTC: VIX=25.08 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 11:57 UTC: VIX=25.16 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 12:02 UTC: VIX=25.17 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 12:07 UTC: VIX=25.48 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 12:12 UTC: VIX=25.42 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 12:17 UTC: Running full breadth recalc...
+2026-03-25 12:17 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-25 12:17 UTC: VIX=25.25 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-25 12:22 UTC: VIX=25.0 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 12:27 UTC: VIX=25.06 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 12:32 UTC: VIX=25.6 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 12:38 UTC: VIX=25.57 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 12:43 UTC: VIX=25.86 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 12:48 UTC: Running full breadth recalc...
+2026-03-25 12:48 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-25 12:48 UTC: VIX=26.25 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-25 12:53 UTC: VIX=25.85 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 12:58 UTC: VIX=25.89 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 13:03 UTC: VIX=25.93 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 13:08 UTC: VIX=25.86 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 13:13 UTC: VIX=25.68 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 13:18 UTC: Running full breadth recalc...
+2026-03-25 13:18 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-25 13:18 UTC: VIX=25.59 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-25 13:23 UTC: VIX=25.5 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 13:28 UTC: VIX=25.66 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 13:33 UTC: VIX=25.69 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 13:38 UTC: VIX=25.75 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 13:43 UTC: VIX=25.65 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-25 13:48 UTC: Running full breadth recalc...
+2026-03-25 13:48 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-03-25 13:48 UTC: VIX=25.12 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-03-25 13:53 UTC: VIX=25.01 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-25 13:58 UTC: VIX=25.21 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-25 14:03 UTC: VIX=25.54 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-25 14:08 UTC: VIX=26.01 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-25 14:13 UTC: VIX=25.88 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-25 14:18 UTC: Running full breadth recalc...
+2026-03-25 14:18 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-03-25 14:18 UTC: VIX=26.06 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-03-25 14:23 UTC: VIX=25.81 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-25 14:28 UTC: VIX=25.41 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-25 14:33 UTC: VIX=25.18 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-25 14:38 UTC: VIX=25.19 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-25 14:44 UTC: VIX=25.36 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-25 14:49 UTC: Running full breadth recalc...
+2026-03-25 14:49 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-25 14:49 UTC: VIX=25.22 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-25 14:54 UTC: VIX=25.26 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-25 14:59 UTC: VIX=25.08 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-25 15:04 UTC: VIX=25.0 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-25 15:09 UTC: VIX=25.03 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-25 15:14 UTC: VIX=24.98 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-03-25 15:19 UTC: Running full breadth recalc...
+2026-03-25 15:19 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-25 15:19 UTC: VIX=25.02 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-25 15:24 UTC: VIX=25.46 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-25 15:29 UTC: VIX=25.72 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-25 15:34 UTC: VIX=26.44 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-25 15:39 UTC: VIX=25.76 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-25 15:44 UTC: VIX=25.48 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-25 15:49 UTC: Running full breadth recalc...
+2026-03-25 15:49 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-03-25 15:49 UTC: VIX=25.36 (HIGH) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-03-25 15:54 UTC: VIX=25.75 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 15:59 UTC: VIX=25.91 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 16:04 UTC: VIX=25.93 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 16:09 UTC: VIX=25.92 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 16:14 UTC: VIX=25.77 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 16:19 UTC: Running full breadth recalc...
+2026-03-25 16:19 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-03-25 16:19 UTC: VIX=25.92 (HIGH) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-03-25 16:24 UTC: VIX=25.92 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 16:29 UTC: VIX=25.97 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 16:34 UTC: VIX=26.03 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 16:40 UTC: VIX=25.87 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 16:45 UTC: VIX=25.7 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 16:50 UTC: Running full breadth recalc...
+2026-03-25 16:50 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-03-25 16:50 UTC: VIX=25.5 (HIGH) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-03-25 16:55 UTC: VIX=25.5 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 17:00 UTC: VIX=25.52 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 17:05 UTC: VIX=25.61 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 17:10 UTC: VIX=25.45 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 17:15 UTC: VIX=25.46 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 17:20 UTC: Running full breadth recalc...
+2026-03-25 17:20 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-03-25 17:20 UTC: VIX=25.45 (HIGH) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-03-25 17:25 UTC: VIX=25.53 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 17:30 UTC: VIX=25.42 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 17:35 UTC: VIX=25.47 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 17:40 UTC: VIX=25.36 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 17:45 UTC: VIX=25.37 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-25 17:50 UTC: Running full breadth recalc...
+2026-03-25 17:50 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-03-25 17:50 UTC: VIX=25.22 (HIGH) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-03-25 17:55 UTC: VIX=25.17 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-03-26 07:00 UTC: Running full breadth recalc...
+2026-03-26 07:00 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 07:00 UTC: VIX=25.33 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 07:05 UTC: VIX=25.33 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 07:10 UTC: VIX=25.33 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 07:15 UTC: VIX=25.33 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 07:20 UTC: VIX=25.33 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 07:25 UTC: VIX=25.33 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 07:30 UTC: Running full breadth recalc...
+2026-03-26 07:31 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 07:31 UTC: VIX=26.5 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 07:36 UTC: VIX=26.7 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 07:41 UTC: VIX=26.42 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 07:46 UTC: VIX=26.51 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 07:51 UTC: VIX=26.52 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 07:56 UTC: VIX=26.42 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 08:01 UTC: Running full breadth recalc...
+2026-03-26 08:01 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 08:01 UTC: VIX=26.4 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 08:06 UTC: VIX=26.43 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 08:11 UTC: VIX=26.51 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 08:16 UTC: VIX=26.42 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 08:21 UTC: VIX=26.47 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 08:26 UTC: VIX=26.51 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 08:31 UTC: Running full breadth recalc...
+2026-03-26 08:31 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 08:31 UTC: VIX=26.81 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 08:36 UTC: VIX=26.84 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 08:41 UTC: VIX=26.89 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 08:46 UTC: VIX=27.05 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 08:51 UTC: VIX=26.97 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 08:56 UTC: VIX=27.06 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 09:01 UTC: Running full breadth recalc...
+2026-03-26 09:01 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 09:01 UTC: VIX=27.28 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 09:06 UTC: VIX=27.23 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 09:11 UTC: VIX=27.04 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 09:16 UTC: VIX=27.31 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 09:21 UTC: VIX=27.1 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 09:26 UTC: VIX=26.96 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 09:31 UTC: Running full breadth recalc...
+2026-03-26 09:31 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 09:31 UTC: VIX=27.18 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 09:36 UTC: VIX=27.16 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 09:41 UTC: VIX=27.28 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 09:46 UTC: VIX=27.59 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 09:51 UTC: VIX=27.56 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 09:56 UTC: VIX=27.51 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 10:02 UTC: Running full breadth recalc...
+2026-03-26 10:02 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 10:02 UTC: VIX=27.54 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 10:07 UTC: VIX=27.4 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 10:12 UTC: VIX=27.32 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 10:17 UTC: VIX=27.43 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 10:22 UTC: VIX=27.13 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 10:27 UTC: VIX=27.1 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 10:32 UTC: Running full breadth recalc...
+2026-03-26 10:32 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 10:32 UTC: VIX=26.99 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 10:37 UTC: VIX=27.07 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 10:42 UTC: VIX=27.11 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 10:47 UTC: VIX=27.05 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 10:52 UTC: VIX=27.07 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 10:57 UTC: VIX=27.28 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 11:02 UTC: Running full breadth recalc...
+2026-03-26 11:02 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 11:02 UTC: VIX=27.31 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 11:07 UTC: VIX=27.31 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 11:12 UTC: VIX=27.24 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 11:17 UTC: VIX=27.27 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 11:22 UTC: VIX=27.19 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 11:27 UTC: VIX=27.22 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 11:32 UTC: Running full breadth recalc...
+2026-03-26 11:32 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 11:33 UTC: VIX=27.28 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 11:38 UTC: VIX=27.31 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 11:43 UTC: VIX=27.46 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 11:48 UTC: VIX=27.51 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 11:53 UTC: VIX=27.56 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 11:58 UTC: VIX=27.53 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 12:03 UTC: Running full breadth recalc...
+2026-03-26 12:03 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 12:03 UTC: VIX=27.48 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 12:08 UTC: VIX=27.52 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 12:13 UTC: VIX=27.53 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 12:18 UTC: VIX=27.84 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 12:23 UTC: VIX=27.49 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 12:28 UTC: VIX=27.28 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 12:33 UTC: Running full breadth recalc...
+2026-03-26 12:33 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 12:33 UTC: VIX=27.21 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 12:38 UTC: VIX=27.24 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 12:43 UTC: VIX=27.31 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 12:48 UTC: VIX=27.46 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 12:53 UTC: VIX=27.62 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 12:58 UTC: VIX=27.54 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 13:03 UTC: Running full breadth recalc...
+2026-03-26 13:03 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 13:03 UTC: VIX=27.4 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 13:08 UTC: VIX=27.35 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 13:13 UTC: VIX=27.3 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 13:18 UTC: VIX=27.27 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 13:23 UTC: VIX=27.17 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 13:28 UTC: VIX=27.03 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 13:33 UTC: Running full breadth recalc...
+2026-03-26 13:33 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-03-26 13:33 UTC: VIX=26.91 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-03-26 13:38 UTC: VIX=27.0 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 13:44 UTC: VIX=27.04 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 13:49 UTC: VIX=27.16 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 13:54 UTC: VIX=27.23 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 13:59 UTC: VIX=26.95 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 14:04 UTC: Running full breadth recalc...
+2026-03-26 14:04 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 14:04 UTC: VIX=26.56 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 14:09 UTC: VIX=26.32 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 14:14 UTC: VIX=26.74 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 14:19 UTC: VIX=26.41 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 14:24 UTC: VIX=26.71 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 14:29 UTC: VIX=26.41 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 14:34 UTC: Running full breadth recalc...
+2026-03-26 14:34 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 14:34 UTC: VIX=26.33 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 14:39 UTC: VIX=26.19 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 14:44 UTC: VIX=26.31 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 14:49 UTC: VIX=26.23 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 14:54 UTC: VIX=26.4 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 14:59 UTC: VIX=26.65 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 15:04 UTC: Running full breadth recalc...
+2026-03-26 15:04 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 15:04 UTC: VIX=26.83 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 15:09 UTC: VIX=26.97 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 15:14 UTC: VIX=26.9 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 15:19 UTC: VIX=26.73 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 15:24 UTC: VIX=26.68 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 15:29 UTC: VIX=26.57 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 15:34 UTC: Running full breadth recalc...
+2026-03-26 15:34 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-26 15:34 UTC: VIX=26.73 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-26 15:39 UTC: VIX=26.7 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 15:44 UTC: VIX=26.85 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 15:49 UTC: VIX=27.02 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 15:54 UTC: VIX=26.96 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 15:59 UTC: VIX=27.08 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-26 16:05 UTC: Running full breadth recalc...
+2026-03-26 16:05 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-03-26 16:05 UTC: VIX=26.8 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-03-26 16:10 UTC: VIX=26.73 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 16:15 UTC: VIX=26.83 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 16:20 UTC: VIX=26.93 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 16:25 UTC: VIX=26.85 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 16:30 UTC: VIX=26.83 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 16:35 UTC: Running full breadth recalc...
+2026-03-26 16:35 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-03-26 16:35 UTC: VIX=27.01 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-03-26 16:40 UTC: VIX=27.15 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 16:45 UTC: VIX=27.48 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 16:50 UTC: VIX=27.47 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 16:55 UTC: VIX=27.55 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 17:00 UTC: VIX=27.4 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 17:05 UTC: Running full breadth recalc...
+2026-03-26 17:05 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-03-26 17:05 UTC: VIX=27.54 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-03-26 17:10 UTC: VIX=27.41 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 17:15 UTC: VIX=27.3 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 17:20 UTC: VIX=27.28 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 17:25 UTC: VIX=27.38 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 17:30 UTC: VIX=27.51 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 17:35 UTC: Running full breadth recalc...
+2026-03-26 17:35 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-03-26 17:35 UTC: VIX=27.53 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-03-26 17:40 UTC: VIX=27.87 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 17:45 UTC: VIX=27.68 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 17:50 UTC: VIX=27.64 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-26 17:55 UTC: VIX=27.75 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-27 07:00 UTC: Running full breadth recalc...
+2026-03-27 07:01 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 07:01 UTC: VIX=27.44 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 07:06 UTC: VIX=27.44 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 07:11 UTC: VIX=27.44 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 07:16 UTC: VIX=27.44 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 07:21 UTC: VIX=27.44 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 07:26 UTC: VIX=27.44 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 07:31 UTC: Running full breadth recalc...
+2026-03-27 07:31 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 07:31 UTC: VIX=27.57 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 07:36 UTC: VIX=27.57 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 07:41 UTC: VIX=27.63 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 07:46 UTC: VIX=27.7 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 07:51 UTC: VIX=27.66 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 07:56 UTC: VIX=27.68 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 08:01 UTC: Running full breadth recalc...
+2026-03-27 08:01 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 08:01 UTC: VIX=27.67 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 08:06 UTC: VIX=27.64 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 08:11 UTC: VIX=27.64 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 08:16 UTC: VIX=27.63 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 08:21 UTC: VIX=27.82 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 08:26 UTC: VIX=27.96 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 08:31 UTC: Running full breadth recalc...
+2026-03-27 08:31 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 08:31 UTC: VIX=27.98 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 08:36 UTC: VIX=28.11 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 08:41 UTC: VIX=28.15 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 08:46 UTC: VIX=28.17 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 08:51 UTC: VIX=28.34 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 08:56 UTC: VIX=28.36 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 09:01 UTC: Running full breadth recalc...
+2026-03-27 09:01 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 09:01 UTC: VIX=28.34 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 09:06 UTC: VIX=28.29 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 09:11 UTC: VIX=28.44 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 09:16 UTC: VIX=28.39 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 09:22 UTC: VIX=28.77 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 09:27 UTC: VIX=28.97 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 09:32 UTC: Running full breadth recalc...
+2026-03-27 09:32 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 09:32 UTC: VIX=28.68 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 09:37 UTC: VIX=28.58 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 09:42 UTC: VIX=28.46 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 09:47 UTC: VIX=28.57 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 09:52 UTC: VIX=28.51 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 09:57 UTC: VIX=28.48 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 10:02 UTC: Running full breadth recalc...
+2026-03-27 10:02 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 10:02 UTC: VIX=28.59 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 10:07 UTC: VIX=28.68 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 10:12 UTC: VIX=28.68 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 10:17 UTC: VIX=28.9 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 10:22 UTC: VIX=28.7 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 10:27 UTC: VIX=28.77 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 10:32 UTC: Running full breadth recalc...
+2026-03-27 10:32 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 10:32 UTC: VIX=28.72 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 10:37 UTC: VIX=28.81 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 10:42 UTC: VIX=28.73 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 10:47 UTC: VIX=28.8 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 10:52 UTC: VIX=29.02 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 10:57 UTC: VIX=29.02 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 11:02 UTC: Running full breadth recalc...
+2026-03-27 11:02 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 11:02 UTC: VIX=29.14 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 11:07 UTC: VIX=29.27 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 11:12 UTC: VIX=29.51 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 11:17 UTC: VIX=29.63 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 11:22 UTC: VIX=29.81 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 11:27 UTC: VIX=29.79 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 11:32 UTC: Running full breadth recalc...
+2026-03-27 11:33 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 11:33 UTC: VIX=29.71 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 11:38 UTC: VIX=29.62 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 11:43 UTC: VIX=29.59 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 11:48 UTC: VIX=29.55 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 11:53 UTC: VIX=29.54 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 11:58 UTC: VIX=29.58 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 12:03 UTC: Running full breadth recalc...
+2026-03-27 12:03 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 12:03 UTC: VIX=29.39 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 12:08 UTC: VIX=29.33 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 12:13 UTC: VIX=29.35 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 12:18 UTC: VIX=29.52 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 12:23 UTC: VIX=29.73 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 12:28 UTC: VIX=29.73 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 12:33 UTC: Running full breadth recalc...
+2026-03-27 12:33 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 12:33 UTC: VIX=29.57 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 12:38 UTC: VIX=29.61 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 12:43 UTC: VIX=29.56 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 12:48 UTC: VIX=29.56 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 12:53 UTC: VIX=29.69 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 12:58 UTC: VIX=29.66 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 13:03 UTC: Running full breadth recalc...
+2026-03-27 13:03 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-03-27 13:03 UTC: VIX=29.73 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-03-27 13:08 UTC: VIX=29.69 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 13:13 UTC: VIX=29.77 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 13:18 UTC: VIX=30.03 (EXTREME) Breadth=30.0% Regime=CLEAR 
+2026-03-27 13:23 UTC: VIX=29.98 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-03-27 13:28 UTC: VIX=30.01 (EXTREME) Breadth=30.0% Regime=CLEAR 
+2026-03-27 13:33 UTC: Running full breadth recalc...
+2026-03-27 13:33 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-27 13:33 UTC: VIX=29.93 (HIGH) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-27 13:38 UTC: VIX=29.75 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 13:43 UTC: VIX=29.69 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 13:49 UTC: VIX=29.97 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 13:54 UTC: VIX=29.97 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 13:59 UTC: VIX=29.83 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 14:04 UTC: Running full breadth recalc...
+2026-03-27 14:04 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-27 14:04 UTC: VIX=29.19 (HIGH) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-27 14:09 UTC: VIX=29.83 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 14:14 UTC: VIX=30.33 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 14:19 UTC: VIX=29.99 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 14:24 UTC: VIX=30.1 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 14:29 UTC: VIX=29.91 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 14:34 UTC: Running full breadth recalc...
+2026-03-27 14:34 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-27 14:34 UTC: VIX=29.63 (HIGH) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-27 14:39 UTC: VIX=29.87 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 14:44 UTC: VIX=30.06 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 14:49 UTC: VIX=29.88 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 14:54 UTC: VIX=29.95 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 14:59 UTC: VIX=29.89 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 15:04 UTC: Running full breadth recalc...
+2026-03-27 15:04 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-27 15:04 UTC: VIX=29.68 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-27 15:09 UTC: VIX=29.5 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-27 15:14 UTC: VIX=29.38 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-27 15:19 UTC: VIX=29.18 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-27 15:24 UTC: VIX=29.33 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-27 15:29 UTC: VIX=29.35 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-27 15:34 UTC: Running full breadth recalc...
+2026-03-27 15:34 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-27 15:34 UTC: VIX=29.46 (HIGH) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-27 15:39 UTC: VIX=29.32 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 15:44 UTC: VIX=29.06 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 15:49 UTC: VIX=28.78 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 15:54 UTC: VIX=28.9 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 15:59 UTC: VIX=29.02 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 16:04 UTC: Running full breadth recalc...
+2026-03-27 16:05 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-27 16:05 UTC: VIX=28.94 (HIGH) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-27 16:10 UTC: VIX=28.94 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 16:15 UTC: VIX=29.16 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 16:20 UTC: VIX=29.29 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 16:25 UTC: VIX=29.49 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 16:30 UTC: VIX=29.44 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 16:35 UTC: Running full breadth recalc...
+2026-03-27 16:35 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-27 16:35 UTC: VIX=29.54 (HIGH) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-27 16:40 UTC: VIX=29.61 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 16:45 UTC: VIX=29.65 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 16:50 UTC: VIX=29.64 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 16:55 UTC: VIX=29.82 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 17:00 UTC: VIX=29.74 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 17:05 UTC: Running full breadth recalc...
+2026-03-27 17:05 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-27 17:05 UTC: VIX=29.45 (HIGH) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-27 17:10 UTC: VIX=29.56 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 17:15 UTC: VIX=29.61 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 17:20 UTC: VIX=29.65 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 17:25 UTC: VIX=29.52 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 17:30 UTC: VIX=29.65 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 17:35 UTC: Running full breadth recalc...
+2026-03-27 17:35 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-27 17:35 UTC: VIX=29.93 (HIGH) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-27 17:40 UTC: VIX=29.92 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 17:45 UTC: VIX=30.18 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 17:50 UTC: VIX=30.1 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-27 17:55 UTC: VIX=30.15 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 07:00 UTC: Running full breadth recalc...
+2026-03-30 07:00 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 07:00 UTC: VIX=31.05 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 07:05 UTC: VIX=31.05 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 07:10 UTC: VIX=31.05 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 07:15 UTC: VIX=31.05 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 07:21 UTC: VIX=31.05 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 07:26 UTC: VIX=31.05 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 07:31 UTC: Running full breadth recalc...
+2026-03-30 07:31 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 07:31 UTC: VIX=30.81 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 07:36 UTC: VIX=30.82 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 07:41 UTC: VIX=30.88 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 07:46 UTC: VIX=30.84 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 07:51 UTC: VIX=30.85 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 07:56 UTC: VIX=30.95 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 08:01 UTC: Running full breadth recalc...
+2026-03-30 08:01 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 08:01 UTC: VIX=30.87 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 08:06 UTC: VIX=30.73 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 08:11 UTC: VIX=30.74 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 08:16 UTC: VIX=30.81 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 08:21 UTC: VIX=30.65 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 08:26 UTC: VIX=30.67 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 08:31 UTC: Running full breadth recalc...
+2026-03-30 08:31 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 08:31 UTC: VIX=30.59 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 08:36 UTC: VIX=30.62 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 08:41 UTC: VIX=30.62 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 08:46 UTC: VIX=30.55 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 08:51 UTC: VIX=30.74 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 08:56 UTC: VIX=30.71 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 09:01 UTC: Running full breadth recalc...
+2026-03-30 09:01 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 09:01 UTC: VIX=30.67 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 09:06 UTC: VIX=30.62 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 09:11 UTC: VIX=30.68 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 09:16 UTC: VIX=30.62 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 09:21 UTC: VIX=30.68 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 09:26 UTC: VIX=30.71 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 09:31 UTC: Running full breadth recalc...
+2026-03-30 09:31 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 09:32 UTC: VIX=30.88 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 09:37 UTC: VIX=30.8 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 09:42 UTC: VIX=30.83 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 09:47 UTC: VIX=30.78 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 09:52 UTC: VIX=30.87 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 09:57 UTC: VIX=30.84 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 10:02 UTC: Running full breadth recalc...
+2026-03-30 10:02 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 10:02 UTC: VIX=30.84 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 10:07 UTC: VIX=30.98 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 10:12 UTC: VIX=31.02 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 10:17 UTC: VIX=31.02 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 10:22 UTC: VIX=30.98 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 10:27 UTC: VIX=31.05 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 10:32 UTC: Running full breadth recalc...
+2026-03-30 10:32 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 10:32 UTC: VIX=31.11 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 10:37 UTC: VIX=31.1 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 10:42 UTC: VIX=31.06 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 10:47 UTC: VIX=31.18 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 10:52 UTC: VIX=31.14 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 10:57 UTC: VIX=31.22 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 11:02 UTC: Running full breadth recalc...
+2026-03-30 11:02 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 11:02 UTC: VIX=31.17 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 11:07 UTC: VIX=31.16 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 11:12 UTC: VIX=31.16 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 11:17 UTC: VIX=30.98 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 11:22 UTC: VIX=31.01 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 11:27 UTC: VIX=30.96 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 11:32 UTC: Running full breadth recalc...
+2026-03-30 11:32 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 11:32 UTC: VIX=30.83 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 11:37 UTC: VIX=30.68 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 11:42 UTC: VIX=30.62 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 11:47 UTC: VIX=30.46 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 11:53 UTC: VIX=30.52 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 11:58 UTC: VIX=30.58 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 12:03 UTC: Running full breadth recalc...
+2026-03-30 12:03 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 12:03 UTC: VIX=30.56 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 12:08 UTC: VIX=30.5 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 12:13 UTC: VIX=30.63 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 12:18 UTC: VIX=30.6 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 12:23 UTC: VIX=30.48 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 12:28 UTC: VIX=30.44 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 12:33 UTC: Running full breadth recalc...
+2026-03-30 12:33 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 12:33 UTC: VIX=30.33 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 12:38 UTC: VIX=30.29 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 12:43 UTC: VIX=30.11 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 12:48 UTC: VIX=29.94 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 12:53 UTC: VIX=29.94 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 12:58 UTC: VIX=29.95 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 13:03 UTC: Running full breadth recalc...
+2026-03-30 13:03 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 13:03 UTC: VIX=29.96 (HIGH) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 13:08 UTC: VIX=29.96 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 13:13 UTC: VIX=29.95 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 13:18 UTC: VIX=29.88 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 13:23 UTC: VIX=30.03 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 13:28 UTC: VIX=29.92 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 13:33 UTC: Running full breadth recalc...
+2026-03-30 13:33 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 13:33 UTC: VIX=29.86 (HIGH) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 13:38 UTC: VIX=29.76 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 13:43 UTC: VIX=29.74 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 13:48 UTC: VIX=29.37 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 13:53 UTC: VIX=30.14 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 13:58 UTC: VIX=30.27 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 14:03 UTC: Running full breadth recalc...
+2026-03-30 14:04 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 14:04 UTC: VIX=30.45 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 14:09 UTC: VIX=30.48 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 14:14 UTC: VIX=30.76 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 14:19 UTC: VIX=30.18 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 14:24 UTC: VIX=30.21 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 14:29 UTC: VIX=29.91 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 14:34 UTC: Running full breadth recalc...
+2026-03-30 14:34 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 14:34 UTC: VIX=30.08 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 14:39 UTC: VIX=29.96 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 14:44 UTC: VIX=29.99 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 14:49 UTC: VIX=29.99 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 14:54 UTC: VIX=29.94 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 14:59 UTC: VIX=30.19 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 15:04 UTC: Running full breadth recalc...
+2026-03-30 15:04 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 15:04 UTC: VIX=30.06 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 15:09 UTC: VIX=30.1 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 15:14 UTC: VIX=29.76 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 15:19 UTC: VIX=29.56 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 15:24 UTC: VIX=29.89 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 15:29 UTC: VIX=29.95 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 15:34 UTC: Running full breadth recalc...
+2026-03-30 15:34 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 15:34 UTC: VIX=30.03 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 15:39 UTC: VIX=29.91 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 15:44 UTC: VIX=30.05 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 15:49 UTC: VIX=29.8 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 15:54 UTC: VIX=29.77 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 15:59 UTC: VIX=29.63 (HIGH) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 16:04 UTC: Running full breadth recalc...
+2026-03-30 16:04 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-30 16:04 UTC: VIX=29.72 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-30 16:09 UTC: VIX=29.61 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 16:15 UTC: VIX=29.83 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 16:20 UTC: VIX=30.07 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 16:25 UTC: VIX=30.06 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 16:30 UTC: VIX=30.01 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 16:35 UTC: Running full breadth recalc...
+2026-03-30 16:35 UTC: Breadth recalc: 23.3% above 200 EMA
+2026-03-30 16:35 UTC: VIX=30.15 (EXTREME) Breadth=23.3% Regime=BLOCKED [breadth updated]
+2026-03-30 16:40 UTC: VIX=30.28 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 16:45 UTC: VIX=30.45 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 16:50 UTC: VIX=30.34 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 16:55 UTC: VIX=30.27 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 17:00 UTC: VIX=30.3 (EXTREME) Breadth=23.3% Regime=BLOCKED 
+2026-03-30 17:05 UTC: Running full breadth recalc...
+2026-03-30 17:05 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-30 17:05 UTC: VIX=30.28 (EXTREME) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-30 17:10 UTC: VIX=30.32 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 17:15 UTC: VIX=30.24 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 17:20 UTC: VIX=30.36 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 17:25 UTC: VIX=30.22 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 17:30 UTC: VIX=30.45 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 17:35 UTC: Running full breadth recalc...
+2026-03-30 17:35 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-30 17:35 UTC: VIX=30.62 (EXTREME) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-30 17:40 UTC: VIX=30.75 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 17:45 UTC: VIX=30.84 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 17:50 UTC: VIX=30.98 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-30 17:55 UTC: VIX=30.72 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 07:00 UTC: Running full breadth recalc...
+2026-03-31 07:00 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 07:00 UTC: VIX=30.61 (EXTREME) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 07:05 UTC: VIX=30.61 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 07:10 UTC: VIX=30.61 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 07:15 UTC: VIX=30.61 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 07:20 UTC: VIX=30.61 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 07:26 UTC: VIX=30.61 (EXTREME) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 07:31 UTC: Running full breadth recalc...
+2026-03-31 07:31 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 07:31 UTC: VIX=29.49 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 07:36 UTC: VIX=29.53 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 07:41 UTC: VIX=29.5 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 07:46 UTC: VIX=29.39 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 07:51 UTC: VIX=29.3 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 07:56 UTC: VIX=29.18 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 08:01 UTC: Running full breadth recalc...
+2026-03-31 08:01 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 08:01 UTC: VIX=29.17 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 08:06 UTC: VIX=29.08 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 08:11 UTC: VIX=28.92 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 08:16 UTC: VIX=28.84 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 08:21 UTC: VIX=28.75 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 08:26 UTC: VIX=28.8 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 08:31 UTC: Running full breadth recalc...
+2026-03-31 08:31 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 08:31 UTC: VIX=28.81 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 08:36 UTC: VIX=28.79 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 08:41 UTC: VIX=28.88 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 08:46 UTC: VIX=28.89 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 08:51 UTC: VIX=28.95 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 08:56 UTC: VIX=28.98 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 09:01 UTC: Running full breadth recalc...
+2026-03-31 09:01 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 09:01 UTC: VIX=29.0 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 09:06 UTC: VIX=28.87 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 09:11 UTC: VIX=29.03 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 09:16 UTC: VIX=28.92 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 09:21 UTC: VIX=28.8 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 09:26 UTC: VIX=28.86 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 09:31 UTC: Running full breadth recalc...
+2026-03-31 09:31 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 09:31 UTC: VIX=28.85 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 09:37 UTC: VIX=28.88 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 09:42 UTC: VIX=28.8 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 09:47 UTC: VIX=28.99 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 09:52 UTC: VIX=28.88 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 09:57 UTC: VIX=28.9 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 10:02 UTC: Running full breadth recalc...
+2026-03-31 10:02 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 10:02 UTC: VIX=28.91 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 10:07 UTC: VIX=28.88 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 10:12 UTC: VIX=29.02 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 10:17 UTC: VIX=28.89 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 10:22 UTC: VIX=28.86 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 10:27 UTC: VIX=28.92 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 10:32 UTC: Running full breadth recalc...
+2026-03-31 10:32 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 10:32 UTC: VIX=28.92 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 10:37 UTC: VIX=29.01 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 10:42 UTC: VIX=28.95 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 10:47 UTC: VIX=28.97 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 10:52 UTC: VIX=29.12 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 10:57 UTC: VIX=29.23 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 11:02 UTC: Running full breadth recalc...
+2026-03-31 11:02 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 11:02 UTC: VIX=29.3 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 11:07 UTC: VIX=29.21 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 11:12 UTC: VIX=29.12 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 11:17 UTC: VIX=28.98 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 11:22 UTC: VIX=28.95 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 11:27 UTC: VIX=28.7 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 11:32 UTC: Running full breadth recalc...
+2026-03-31 11:32 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 11:32 UTC: VIX=28.45 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 11:37 UTC: VIX=28.62 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 11:42 UTC: VIX=28.59 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 11:48 UTC: VIX=28.73 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 11:53 UTC: VIX=28.7 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 11:58 UTC: VIX=28.6 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 12:03 UTC: Running full breadth recalc...
+2026-03-31 12:03 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 12:03 UTC: VIX=28.64 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 12:08 UTC: VIX=28.67 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 12:13 UTC: VIX=28.65 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 12:18 UTC: VIX=28.54 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 12:23 UTC: VIX=28.48 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 12:28 UTC: VIX=28.67 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 12:33 UTC: Running full breadth recalc...
+2026-03-31 12:33 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 12:33 UTC: VIX=28.68 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 12:38 UTC: VIX=28.59 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 12:43 UTC: VIX=28.63 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 12:48 UTC: VIX=28.29 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 12:53 UTC: VIX=28.16 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 12:58 UTC: VIX=28.18 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 13:03 UTC: Running full breadth recalc...
+2026-03-31 13:03 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 13:03 UTC: VIX=28.11 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 13:08 UTC: VIX=28.09 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 13:13 UTC: VIX=28.27 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 13:18 UTC: VIX=28.21 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 13:23 UTC: VIX=28.21 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 13:28 UTC: VIX=28.14 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 13:33 UTC: Running full breadth recalc...
+2026-03-31 13:33 UTC: Breadth recalc: 20.0% above 200 EMA
+2026-03-31 13:33 UTC: VIX=28.1 (HIGH) Breadth=20.0% Regime=BLOCKED [breadth updated]
+2026-03-31 13:38 UTC: VIX=28.07 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 13:43 UTC: VIX=28.07 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 13:48 UTC: VIX=28.11 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 13:53 UTC: VIX=28.15 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 13:58 UTC: VIX=27.84 (HIGH) Breadth=20.0% Regime=BLOCKED 
+2026-03-31 14:03 UTC: Running full breadth recalc...
+2026-03-31 14:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-03-31 14:04 UTC: VIX=27.77 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-03-31 14:09 UTC: VIX=27.46 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 14:14 UTC: VIX=27.37 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 14:19 UTC: VIX=27.41 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 14:24 UTC: VIX=27.57 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 14:29 UTC: VIX=27.54 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 14:34 UTC: Running full breadth recalc...
+2026-03-31 14:34 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-03-31 14:34 UTC: VIX=27.32 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-03-31 14:39 UTC: VIX=27.31 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 14:44 UTC: VIX=27.23 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 14:49 UTC: VIX=27.33 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 14:54 UTC: VIX=27.5 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 14:59 UTC: VIX=27.77 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 15:04 UTC: Running full breadth recalc...
+2026-03-31 15:04 UTC: Breadth recalc: 26.7% above 200 EMA
+2026-03-31 15:04 UTC: VIX=27.97 (HIGH) Breadth=26.7% Regime=BLOCKED [breadth updated]
+2026-03-31 15:09 UTC: VIX=28.13 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 15:14 UTC: VIX=28.19 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 15:19 UTC: VIX=27.76 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 15:24 UTC: VIX=27.53 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 15:29 UTC: VIX=27.39 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 15:34 UTC: Running full breadth recalc...
+2026-03-31 15:34 UTC: Breadth recalc: 26.7% above 200 EMA
+2026-03-31 15:34 UTC: VIX=27.5 (HIGH) Breadth=26.7% Regime=BLOCKED [breadth updated]
+2026-03-31 15:39 UTC: VIX=27.57 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 15:44 UTC: VIX=27.66 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 15:49 UTC: VIX=27.72 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 15:54 UTC: VIX=27.63 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 15:59 UTC: VIX=27.64 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 16:04 UTC: Running full breadth recalc...
+2026-03-31 16:04 UTC: Breadth recalc: 26.7% above 200 EMA
+2026-03-31 16:04 UTC: VIX=27.71 (HIGH) Breadth=26.7% Regime=BLOCKED [breadth updated]
+2026-03-31 16:10 UTC: VIX=27.69 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 16:15 UTC: VIX=27.8 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 16:20 UTC: VIX=27.62 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 16:25 UTC: VIX=27.4 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 16:30 UTC: VIX=27.4 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 16:35 UTC: Running full breadth recalc...
+2026-03-31 16:35 UTC: Breadth recalc: 26.7% above 200 EMA
+2026-03-31 16:35 UTC: VIX=27.38 (HIGH) Breadth=26.7% Regime=BLOCKED [breadth updated]
+2026-03-31 16:40 UTC: VIX=27.18 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 16:45 UTC: VIX=27.21 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 16:50 UTC: VIX=27.28 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 16:55 UTC: VIX=26.86 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 17:00 UTC: VIX=26.6 (HIGH) Breadth=26.7% Regime=BLOCKED 
+2026-03-31 17:05 UTC: Running full breadth recalc...
+2026-03-31 17:05 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-03-31 17:05 UTC: VIX=26.32 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-03-31 17:10 UTC: VIX=26.21 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 17:15 UTC: VIX=26.3 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 17:20 UTC: VIX=26.09 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 17:25 UTC: VIX=26.34 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 17:30 UTC: VIX=26.1 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-03-31 17:35 UTC: Running full breadth recalc...
+2026-03-31 17:35 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-03-31 17:35 UTC: VIX=26.0 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-03-31 17:40 UTC: VIX=26.2 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-31 17:45 UTC: VIX=26.21 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-31 17:50 UTC: VIX=25.94 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-03-31 17:55 UTC: VIX=26.11 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-04-01 07:00 UTC: Running full breadth recalc...
+2026-04-01 07:00 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 07:00 UTC: VIX=25.25 (HIGH) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 07:05 UTC: VIX=25.25 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 07:10 UTC: VIX=25.25 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 07:15 UTC: VIX=25.25 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 07:20 UTC: VIX=25.25 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 07:26 UTC: VIX=25.25 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 07:31 UTC: Running full breadth recalc...
+2026-04-01 07:31 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 07:31 UTC: VIX=24.33 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 07:36 UTC: VIX=24.32 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 07:41 UTC: VIX=24.31 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 07:46 UTC: VIX=24.21 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 07:51 UTC: VIX=24.21 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 07:56 UTC: VIX=24.27 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 08:01 UTC: Running full breadth recalc...
+2026-04-01 08:01 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 08:01 UTC: VIX=24.28 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 08:06 UTC: VIX=24.48 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 08:11 UTC: VIX=24.57 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 08:16 UTC: VIX=24.74 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 08:21 UTC: VIX=24.68 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 08:26 UTC: VIX=24.87 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 08:31 UTC: Running full breadth recalc...
+2026-04-01 08:31 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 08:31 UTC: VIX=24.87 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 08:36 UTC: VIX=24.77 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 08:41 UTC: VIX=24.66 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 08:46 UTC: VIX=24.74 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 08:51 UTC: VIX=24.82 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 08:56 UTC: VIX=24.74 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 09:01 UTC: Running full breadth recalc...
+2026-04-01 09:01 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 09:01 UTC: VIX=24.77 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 09:06 UTC: VIX=24.75 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 09:11 UTC: VIX=24.63 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 09:16 UTC: VIX=24.81 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 09:21 UTC: VIX=24.75 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 09:26 UTC: VIX=24.77 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 09:31 UTC: Running full breadth recalc...
+2026-04-01 09:31 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 09:32 UTC: VIX=24.89 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 09:37 UTC: VIX=25.06 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 09:42 UTC: VIX=25.06 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 09:47 UTC: VIX=24.96 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 09:52 UTC: VIX=24.88 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 09:57 UTC: VIX=24.89 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 10:02 UTC: Running full breadth recalc...
+2026-04-01 10:02 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 10:02 UTC: VIX=24.8 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 10:07 UTC: VIX=24.68 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 10:12 UTC: VIX=24.79 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 10:17 UTC: VIX=24.77 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 10:22 UTC: VIX=24.82 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 10:27 UTC: VIX=24.84 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 10:32 UTC: Running full breadth recalc...
+2026-04-01 10:32 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 10:32 UTC: VIX=24.76 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 10:37 UTC: VIX=24.74 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 10:42 UTC: VIX=24.81 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 10:47 UTC: VIX=24.75 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 10:52 UTC: VIX=24.85 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 10:57 UTC: VIX=24.71 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 11:02 UTC: Running full breadth recalc...
+2026-04-01 11:02 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 11:02 UTC: VIX=24.61 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 11:07 UTC: VIX=24.56 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 11:12 UTC: VIX=24.6 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 11:17 UTC: VIX=24.56 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 11:22 UTC: VIX=24.53 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 11:27 UTC: VIX=24.49 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 11:32 UTC: Running full breadth recalc...
+2026-04-01 11:32 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 11:32 UTC: VIX=24.53 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 11:37 UTC: VIX=24.49 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 11:42 UTC: VIX=24.39 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 11:48 UTC: VIX=24.32 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 11:53 UTC: VIX=24.26 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 11:58 UTC: VIX=24.29 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 12:03 UTC: Running full breadth recalc...
+2026-04-01 12:03 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 12:03 UTC: VIX=24.32 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 12:08 UTC: VIX=24.2 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 12:13 UTC: VIX=24.12 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 12:18 UTC: VIX=24.21 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 12:23 UTC: VIX=24.22 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 12:28 UTC: VIX=24.35 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 12:33 UTC: Running full breadth recalc...
+2026-04-01 12:33 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 12:33 UTC: VIX=24.39 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 12:38 UTC: VIX=24.49 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 12:43 UTC: VIX=24.63 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 12:48 UTC: VIX=24.55 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 12:53 UTC: VIX=24.79 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 12:58 UTC: VIX=24.72 (ELEVATED) Breadth=40.0% Regime=CLEAR 
+2026-04-01 13:03 UTC: Running full breadth recalc...
+2026-04-01 13:03 UTC: Breadth recalc: 40.0% above 200 EMA
+2026-04-01 13:03 UTC: VIX=24.77 (ELEVATED) Breadth=40.0% Regime=CLEAR [breadth updated]
+2026-04-01 13:08 UTC: VIX=25.15 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 13:13 UTC: VIX=25.16 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 13:18 UTC: VIX=25.15 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 13:23 UTC: VIX=25.26 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 13:28 UTC: VIX=25.06 (HIGH) Breadth=40.0% Regime=CLEAR 
+2026-04-01 13:33 UTC: Running full breadth recalc...
+2026-04-01 13:33 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-04-01 13:33 UTC: VIX=24.95 (ELEVATED) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-04-01 13:38 UTC: VIX=25.02 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-04-01 13:43 UTC: VIX=25.01 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-04-01 13:48 UTC: VIX=24.69 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 13:53 UTC: VIX=24.61 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 13:58 UTC: VIX=25.12 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-04-01 14:03 UTC: Running full breadth recalc...
+2026-04-01 14:04 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-04-01 14:04 UTC: VIX=25.22 (HIGH) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-04-01 14:09 UTC: VIX=24.92 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 14:14 UTC: VIX=25.05 (HIGH) Breadth=36.7% Regime=CLEAR 
+2026-04-01 14:19 UTC: VIX=24.79 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 14:24 UTC: VIX=24.62 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 14:29 UTC: VIX=24.76 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 14:34 UTC: Running full breadth recalc...
+2026-04-01 14:34 UTC: Breadth recalc: 36.7% above 200 EMA
+2026-04-01 14:34 UTC: VIX=24.62 (ELEVATED) Breadth=36.7% Regime=CLEAR [breadth updated]
+2026-04-01 14:39 UTC: VIX=24.47 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 14:44 UTC: VIX=24.44 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 14:49 UTC: VIX=24.5 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 14:54 UTC: VIX=24.36 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 14:59 UTC: VIX=24.27 (ELEVATED) Breadth=36.7% Regime=CLEAR 
+2026-04-01 15:04 UTC: Running full breadth recalc...
+2026-04-01 15:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-01 15:04 UTC: VIX=24.14 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-01 15:09 UTC: VIX=23.93 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 15:14 UTC: VIX=23.93 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 15:19 UTC: VIX=23.85 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 15:24 UTC: VIX=23.76 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 15:29 UTC: VIX=23.85 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 15:34 UTC: Running full breadth recalc...
+2026-04-01 15:34 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-01 15:34 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-01 15:39 UTC: VIX=23.88 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 15:44 UTC: VIX=23.93 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 15:49 UTC: VIX=24.05 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 15:54 UTC: VIX=23.94 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 15:59 UTC: VIX=23.84 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 16:04 UTC: Running full breadth recalc...
+2026-04-01 16:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-01 16:04 UTC: VIX=23.8 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-01 16:10 UTC: VIX=23.72 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 16:15 UTC: VIX=23.54 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 16:20 UTC: VIX=23.54 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 16:25 UTC: VIX=23.52 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 16:30 UTC: VIX=23.62 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 16:35 UTC: Running full breadth recalc...
+2026-04-01 16:35 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-01 16:35 UTC: VIX=23.68 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-01 16:40 UTC: VIX=23.82 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 16:45 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 16:50 UTC: VIX=23.8 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 16:55 UTC: VIX=23.71 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 17:00 UTC: VIX=23.63 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 17:05 UTC: Running full breadth recalc...
+2026-04-01 17:05 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-01 17:05 UTC: VIX=23.62 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-01 17:10 UTC: VIX=23.67 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 17:15 UTC: VIX=23.68 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 17:20 UTC: VIX=23.6 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 17:25 UTC: VIX=23.58 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 17:30 UTC: VIX=23.58 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 17:35 UTC: Running full breadth recalc...
+2026-04-01 17:35 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-01 17:35 UTC: VIX=23.56 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-01 17:40 UTC: VIX=23.56 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 17:45 UTC: VIX=23.55 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 17:50 UTC: VIX=23.66 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-01 17:55 UTC: VIX=23.58 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-02 07:00 UTC: Running full breadth recalc...
+2026-04-02 07:00 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 07:00 UTC: VIX=24.54 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 07:05 UTC: VIX=24.54 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-02 07:10 UTC: VIX=24.54 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-02 07:15 UTC: VIX=24.54 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-02 07:20 UTC: VIX=24.54 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-02 07:26 UTC: VIX=24.54 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-02 07:31 UTC: Running full breadth recalc...
+2026-04-02 07:31 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 07:31 UTC: VIX=26.68 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 07:31 UTC: VIX alert: 24.54 → 26.68 (+2.1)
+2026-04-02 07:36 UTC: VIX=26.68 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 07:41 UTC: VIX=26.72 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 07:46 UTC: VIX=26.62 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 07:51 UTC: VIX=26.61 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 07:56 UTC: VIX=26.53 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 08:01 UTC: Running full breadth recalc...
+2026-04-02 08:01 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 08:01 UTC: VIX=26.49 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 08:06 UTC: VIX=26.43 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 08:11 UTC: VIX=26.39 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 08:16 UTC: VIX=26.3 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 08:21 UTC: VIX=26.44 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 08:26 UTC: VIX=26.42 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 08:31 UTC: Running full breadth recalc...
+2026-04-02 08:31 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 08:31 UTC: VIX=26.41 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 08:36 UTC: VIX=26.49 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 08:41 UTC: VIX=26.47 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 08:46 UTC: VIX=26.34 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 08:51 UTC: VIX=26.45 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 08:56 UTC: VIX=26.37 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 09:01 UTC: Running full breadth recalc...
+2026-04-02 09:01 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 09:01 UTC: VIX=26.36 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 09:06 UTC: VIX=26.39 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 09:11 UTC: VIX=26.42 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 09:16 UTC: VIX=26.43 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 09:21 UTC: VIX=26.49 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 09:26 UTC: VIX=26.51 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 09:31 UTC: Running full breadth recalc...
+2026-04-02 09:31 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 09:31 UTC: VIX=26.54 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 09:36 UTC: VIX=26.47 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 09:41 UTC: VIX=26.41 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 09:47 UTC: VIX=26.48 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 09:52 UTC: VIX=26.62 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 09:57 UTC: VIX=26.6 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 10:02 UTC: Running full breadth recalc...
+2026-04-02 10:02 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 10:02 UTC: VIX=26.61 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 10:07 UTC: VIX=26.57 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 10:12 UTC: VIX=26.56 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 10:17 UTC: VIX=26.6 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 10:22 UTC: VIX=26.65 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 10:27 UTC: VIX=26.7 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 10:32 UTC: Running full breadth recalc...
+2026-04-02 10:32 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 10:32 UTC: VIX=26.85 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 10:37 UTC: VIX=26.87 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 10:42 UTC: VIX=26.86 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 10:47 UTC: VIX=26.84 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 10:52 UTC: VIX=26.7 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 10:57 UTC: VIX=26.66 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 11:02 UTC: Running full breadth recalc...
+2026-04-02 11:02 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 11:02 UTC: VIX=26.64 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 11:07 UTC: VIX=26.7 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 11:12 UTC: VIX=26.7 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 11:17 UTC: VIX=26.75 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 11:22 UTC: VIX=26.94 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 11:27 UTC: VIX=27.01 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 11:32 UTC: Running full breadth recalc...
+2026-04-02 11:32 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 11:32 UTC: VIX=27.21 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 11:37 UTC: VIX=27.27 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 11:42 UTC: VIX=27.32 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 11:47 UTC: VIX=27.39 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 11:52 UTC: VIX=27.52 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 11:57 UTC: VIX=27.67 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 12:02 UTC: Running full breadth recalc...
+2026-04-02 12:02 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 12:02 UTC: VIX=27.67 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 12:08 UTC: VIX=27.51 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 12:13 UTC: VIX=27.57 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 12:18 UTC: VIX=27.82 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 12:23 UTC: VIX=27.69 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 12:28 UTC: VIX=27.84 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 12:33 UTC: Running full breadth recalc...
+2026-04-02 12:33 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 12:33 UTC: VIX=27.86 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 12:38 UTC: VIX=27.7 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 12:43 UTC: VIX=27.64 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 12:48 UTC: VIX=27.6 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 12:53 UTC: VIX=27.59 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 12:58 UTC: VIX=27.57 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 13:03 UTC: Running full breadth recalc...
+2026-04-02 13:03 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 13:03 UTC: VIX=27.57 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 13:08 UTC: VIX=27.49 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 13:13 UTC: VIX=27.6 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 13:18 UTC: VIX=27.73 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 13:23 UTC: VIX=27.66 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 13:28 UTC: VIX=27.75 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 13:33 UTC: Running full breadth recalc...
+2026-04-02 13:33 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-02 13:33 UTC: VIX=27.72 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-02 13:38 UTC: VIX=27.64 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 13:43 UTC: VIX=27.64 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 13:48 UTC: VIX=27.23 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 13:53 UTC: VIX=27.23 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 13:58 UTC: VIX=27.29 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 14:03 UTC: Running full breadth recalc...
+2026-04-02 14:03 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-02 14:03 UTC: VIX=27.0 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-02 14:08 UTC: VIX=26.55 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 14:13 UTC: VIX=26.24 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 14:18 UTC: VIX=26.35 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 14:24 UTC: VIX=26.28 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 14:29 UTC: VIX=26.28 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 14:34 UTC: Running full breadth recalc...
+2026-04-02 14:34 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-02 14:34 UTC: VIX=26.03 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-02 14:39 UTC: VIX=25.94 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 14:44 UTC: VIX=25.94 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 14:49 UTC: VIX=25.46 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 14:54 UTC: VIX=26.44 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-02 14:59 UTC: VIX=24.88 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-02 15:04 UTC: Running full breadth recalc...
+2026-04-02 15:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 15:04 UTC: VIX=24.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 15:09 UTC: VIX=25.1 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 15:14 UTC: VIX=24.86 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-02 15:19 UTC: VIX=25.29 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 15:24 UTC: VIX=25.36 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 15:29 UTC: VIX=25.19 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 15:34 UTC: Running full breadth recalc...
+2026-04-02 15:34 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 15:34 UTC: VIX=25.14 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 15:39 UTC: VIX=25.38 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 15:44 UTC: VIX=25.2 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 15:49 UTC: VIX=25.36 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 15:54 UTC: VIX=25.19 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 15:59 UTC: VIX=25.24 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 16:04 UTC: Running full breadth recalc...
+2026-04-02 16:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 16:04 UTC: VIX=25.48 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 16:09 UTC: VIX=25.63 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 16:14 UTC: VIX=25.66 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 16:19 UTC: VIX=25.67 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 16:24 UTC: VIX=25.68 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 16:29 UTC: VIX=25.78 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 16:34 UTC: Running full breadth recalc...
+2026-04-02 16:34 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 16:34 UTC: VIX=25.95 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 16:39 UTC: VIX=25.89 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 16:45 UTC: VIX=25.91 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 16:50 UTC: VIX=25.71 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 16:55 UTC: VIX=25.76 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 17:00 UTC: VIX=25.5 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 17:05 UTC: Running full breadth recalc...
+2026-04-02 17:05 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 17:05 UTC: VIX=25.44 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 17:10 UTC: VIX=25.49 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 17:15 UTC: VIX=25.64 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 17:20 UTC: VIX=25.54 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 17:25 UTC: VIX=25.45 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 17:30 UTC: VIX=25.53 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 17:35 UTC: Running full breadth recalc...
+2026-04-02 17:35 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-02 17:35 UTC: VIX=25.45 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-02 17:40 UTC: VIX=25.33 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 17:45 UTC: VIX=25.41 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 17:50 UTC: VIX=25.45 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-02 17:55 UTC: VIX=25.44 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-03 07:00 UTC: Running full breadth recalc...
+2026-04-03 07:00 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 07:00 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 07:05 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 07:10 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 07:15 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 07:20 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 07:25 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 07:30 UTC: Running full breadth recalc...
+2026-04-03 07:30 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 07:30 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 07:35 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 07:40 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 07:45 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 07:50 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 07:55 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 08:00 UTC: Running full breadth recalc...
+2026-04-03 08:00 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 08:01 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 08:06 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 08:11 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 08:16 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 08:21 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 08:26 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 08:31 UTC: Running full breadth recalc...
+2026-04-03 08:31 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 08:31 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 08:36 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 08:41 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 08:46 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 08:51 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 08:56 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 09:01 UTC: Running full breadth recalc...
+2026-04-03 09:01 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 09:01 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 09:06 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 09:11 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 09:16 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 09:21 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 09:26 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 09:31 UTC: Running full breadth recalc...
+2026-04-03 09:31 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 09:31 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 09:36 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 09:41 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 09:46 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 09:51 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 09:56 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 10:01 UTC: Running full breadth recalc...
+2026-04-03 10:01 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 10:01 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 10:06 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 10:11 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 10:16 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 10:22 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 10:27 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 10:32 UTC: Running full breadth recalc...
+2026-04-03 10:32 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 10:32 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 10:37 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 10:42 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 10:47 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 10:52 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 10:57 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 11:02 UTC: Running full breadth recalc...
+2026-04-03 11:02 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 11:02 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 11:07 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 11:12 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 11:17 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 11:22 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 11:27 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 11:32 UTC: Running full breadth recalc...
+2026-04-03 11:32 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 11:32 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 11:37 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 11:42 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 11:47 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 11:52 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 11:57 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 12:02 UTC: Running full breadth recalc...
+2026-04-03 12:02 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 12:02 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 12:07 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 12:12 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 12:17 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 12:22 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 12:27 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 12:32 UTC: Running full breadth recalc...
+2026-04-03 12:33 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 12:33 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 12:38 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 12:43 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 12:48 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 12:53 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 12:58 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 13:03 UTC: Running full breadth recalc...
+2026-04-03 13:03 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 13:03 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 13:08 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 13:13 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 13:18 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 13:23 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 13:28 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 13:33 UTC: Running full breadth recalc...
+2026-04-03 13:33 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 13:33 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 13:38 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 13:43 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 13:48 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 13:53 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 13:58 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 14:03 UTC: Running full breadth recalc...
+2026-04-03 14:03 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 14:03 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 14:08 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 14:13 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 14:18 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 14:23 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 14:28 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 14:33 UTC: Running full breadth recalc...
+2026-04-03 14:33 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 14:33 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 14:38 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 14:44 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 14:49 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 14:54 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 14:59 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 15:04 UTC: Running full breadth recalc...
+2026-04-03 15:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 15:04 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 15:09 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 15:14 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 15:19 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 15:24 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 15:29 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 15:34 UTC: Running full breadth recalc...
+2026-04-03 15:34 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 15:34 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 15:39 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 15:44 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 15:49 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 15:54 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 15:59 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 16:04 UTC: Running full breadth recalc...
+2026-04-03 16:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 16:04 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 16:09 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 16:14 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 16:19 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 16:24 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 16:29 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 16:34 UTC: Running full breadth recalc...
+2026-04-03 16:34 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 16:34 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 16:39 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 16:44 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 16:49 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 16:54 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 16:59 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 17:04 UTC: Running full breadth recalc...
+2026-04-03 17:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 17:05 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 17:10 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 17:15 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 17:20 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 17:25 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 17:30 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 17:35 UTC: Running full breadth recalc...
+2026-04-03 17:35 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-03 17:35 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-03 17:40 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 17:45 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 17:50 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-03 17:55 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 07:00 UTC: Running full breadth recalc...
+2026-04-06 07:00 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 07:00 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 07:05 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 07:10 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 07:15 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 07:20 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 07:25 UTC: VIX=23.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 07:30 UTC: Running full breadth recalc...
+2026-04-06 07:30 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 07:30 UTC: VIX=24.83 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 07:35 UTC: VIX=24.84 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 07:40 UTC: VIX=24.88 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 07:45 UTC: VIX=24.96 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 07:50 UTC: VIX=24.94 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 07:55 UTC: VIX=24.92 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 08:00 UTC: Running full breadth recalc...
+2026-04-06 08:00 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 08:00 UTC: VIX=24.87 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 08:05 UTC: VIX=24.79 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 08:10 UTC: VIX=24.69 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 08:15 UTC: VIX=24.67 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 08:20 UTC: VIX=24.64 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 08:25 UTC: VIX=24.67 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 08:30 UTC: Running full breadth recalc...
+2026-04-06 08:31 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 08:31 UTC: VIX=24.66 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 08:36 UTC: VIX=24.67 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 08:41 UTC: VIX=24.54 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 08:46 UTC: VIX=24.58 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 08:51 UTC: VIX=24.45 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 08:56 UTC: VIX=24.43 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 09:01 UTC: Running full breadth recalc...
+2026-04-06 09:01 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 09:01 UTC: VIX=24.42 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 09:06 UTC: VIX=24.45 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 09:11 UTC: VIX=24.53 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 09:16 UTC: VIX=24.5 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 09:21 UTC: VIX=24.45 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 09:26 UTC: VIX=24.5 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 09:31 UTC: Running full breadth recalc...
+2026-04-06 09:31 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 09:31 UTC: VIX=24.55 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 09:36 UTC: VIX=24.47 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 09:41 UTC: VIX=24.54 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 09:46 UTC: VIX=24.5 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 09:51 UTC: VIX=24.55 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 09:56 UTC: VIX=24.6 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 10:01 UTC: Running full breadth recalc...
+2026-04-06 10:01 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 10:01 UTC: VIX=24.6 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 10:06 UTC: VIX=24.64 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 10:11 UTC: VIX=24.72 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 10:16 UTC: VIX=24.82 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 10:21 UTC: VIX=24.76 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 10:26 UTC: VIX=24.75 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 10:31 UTC: Running full breadth recalc...
+2026-04-06 10:31 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 10:31 UTC: VIX=24.83 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 10:36 UTC: VIX=24.82 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 10:41 UTC: VIX=24.87 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 10:46 UTC: VIX=24.8 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 10:51 UTC: VIX=24.78 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 10:57 UTC: VIX=24.77 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 11:02 UTC: Running full breadth recalc...
+2026-04-06 11:02 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 11:02 UTC: VIX=25.08 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 11:07 UTC: VIX=24.96 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 11:12 UTC: VIX=24.96 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 11:17 UTC: VIX=24.98 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 11:22 UTC: VIX=25.05 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 11:27 UTC: VIX=25.02 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 11:32 UTC: Running full breadth recalc...
+2026-04-06 11:32 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 11:32 UTC: VIX=25.0 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 11:37 UTC: VIX=25.03 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 11:42 UTC: VIX=25.04 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 11:47 UTC: VIX=25.03 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 11:52 UTC: VIX=24.97 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 11:57 UTC: VIX=25.05 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 12:02 UTC: Running full breadth recalc...
+2026-04-06 12:02 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 12:02 UTC: VIX=25.09 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 12:07 UTC: VIX=25.01 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 12:12 UTC: VIX=25.07 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 12:17 UTC: VIX=25.06 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 12:22 UTC: VIX=25.04 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 12:27 UTC: VIX=25.07 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 12:32 UTC: Running full breadth recalc...
+2026-04-06 12:32 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 12:32 UTC: VIX=25.07 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 12:37 UTC: VIX=25.12 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 12:42 UTC: VIX=25.06 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 12:47 UTC: VIX=25.08 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 12:52 UTC: VIX=24.93 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 12:58 UTC: VIX=25.0 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 13:03 UTC: Running full breadth recalc...
+2026-04-06 13:03 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 13:03 UTC: VIX=24.9 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 13:08 UTC: VIX=24.99 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 13:13 UTC: VIX=25.02 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 13:18 UTC: VIX=25.14 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 13:23 UTC: VIX=25.18 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 13:28 UTC: VIX=24.98 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 13:33 UTC: Running full breadth recalc...
+2026-04-06 13:33 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 13:33 UTC: VIX=24.99 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 13:38 UTC: VIX=25.15 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 13:43 UTC: VIX=25.13 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 13:48 UTC: VIX=24.95 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 13:53 UTC: VIX=25.16 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-06 13:58 UTC: VIX=24.78 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 14:03 UTC: Running full breadth recalc...
+2026-04-06 14:03 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 14:03 UTC: VIX=24.73 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 14:08 UTC: VIX=24.45 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 14:13 UTC: VIX=24.32 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 14:18 UTC: VIX=24.45 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 14:23 UTC: VIX=24.7 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 14:28 UTC: VIX=24.36 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 14:33 UTC: Running full breadth recalc...
+2026-04-06 14:33 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 14:33 UTC: VIX=24.22 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 14:38 UTC: VIX=23.94 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 14:43 UTC: VIX=23.89 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 14:48 UTC: VIX=23.89 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 14:53 UTC: VIX=24.4 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 14:58 UTC: VIX=24.22 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 15:03 UTC: Running full breadth recalc...
+2026-04-06 15:03 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 15:03 UTC: VIX=24.37 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 15:09 UTC: VIX=24.23 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 15:14 UTC: VIX=24.14 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 15:19 UTC: VIX=24.22 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 15:24 UTC: VIX=24.1 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 15:29 UTC: VIX=24.18 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 15:34 UTC: Running full breadth recalc...
+2026-04-06 15:34 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 15:34 UTC: VIX=24.07 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 15:39 UTC: VIX=24.17 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 15:44 UTC: VIX=24.27 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 15:49 UTC: VIX=24.35 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 15:54 UTC: VIX=24.34 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 15:59 UTC: VIX=24.27 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 16:04 UTC: Running full breadth recalc...
+2026-04-06 16:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 16:04 UTC: VIX=24.1 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 16:09 UTC: VIX=23.98 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 16:14 UTC: VIX=24.04 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 16:19 UTC: VIX=24.04 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 16:24 UTC: VIX=24.15 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 16:29 UTC: VIX=24.13 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 16:34 UTC: Running full breadth recalc...
+2026-04-06 16:34 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 16:34 UTC: VIX=24.11 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 16:39 UTC: VIX=24.1 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 16:44 UTC: VIX=24.07 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 16:49 UTC: VIX=24.09 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 16:54 UTC: VIX=24.11 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 16:59 UTC: VIX=24.13 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 17:04 UTC: Running full breadth recalc...
+2026-04-06 17:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 17:04 UTC: VIX=24.15 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 17:09 UTC: VIX=24.19 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 17:14 UTC: VIX=24.24 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 17:19 UTC: VIX=24.32 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 17:25 UTC: VIX=24.31 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 17:30 UTC: VIX=24.63 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 17:35 UTC: Running full breadth recalc...
+2026-04-06 17:35 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-06 17:35 UTC: VIX=24.6 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-06 17:40 UTC: VIX=24.32 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 17:45 UTC: VIX=24.29 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 17:50 UTC: VIX=24.22 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-06 17:55 UTC: VIX=24.28 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 07:00 UTC: Running full breadth recalc...
+2026-04-07 07:00 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 07:00 UTC: VIX=24.17 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 07:05 UTC: VIX=24.17 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 07:10 UTC: VIX=24.17 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 07:15 UTC: VIX=24.17 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 07:20 UTC: VIX=24.17 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 07:25 UTC: VIX=24.17 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 07:30 UTC: Running full breadth recalc...
+2026-04-07 07:30 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 07:30 UTC: VIX=25.13 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 07:35 UTC: VIX=25.06 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 07:40 UTC: VIX=25.09 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 07:45 UTC: VIX=25.15 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 07:50 UTC: VIX=25.14 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 07:55 UTC: VIX=25.14 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 08:00 UTC: Running full breadth recalc...
+2026-04-07 08:00 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 08:00 UTC: VIX=25.06 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 08:05 UTC: VIX=25.11 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 08:10 UTC: VIX=25.18 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 08:15 UTC: VIX=24.97 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 08:20 UTC: VIX=24.92 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 08:25 UTC: VIX=24.77 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 08:30 UTC: Running full breadth recalc...
+2026-04-07 08:30 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 08:30 UTC: VIX=24.6 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 08:35 UTC: VIX=24.46 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 08:41 UTC: VIX=24.45 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 08:46 UTC: VIX=24.53 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 08:51 UTC: VIX=24.37 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 08:56 UTC: VIX=24.5 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 09:01 UTC: Running full breadth recalc...
+2026-04-07 09:01 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 09:01 UTC: VIX=24.45 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 09:06 UTC: VIX=24.55 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 09:11 UTC: VIX=24.58 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 09:16 UTC: VIX=24.55 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 09:21 UTC: VIX=24.56 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 09:26 UTC: VIX=24.5 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 09:31 UTC: Running full breadth recalc...
+2026-04-07 09:31 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 09:31 UTC: VIX=24.58 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 09:36 UTC: VIX=24.54 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 09:41 UTC: VIX=24.48 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 09:46 UTC: VIX=24.38 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 09:51 UTC: VIX=24.41 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 09:56 UTC: VIX=24.49 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 10:01 UTC: Running full breadth recalc...
+2026-04-07 10:01 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 10:01 UTC: VIX=24.63 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 10:06 UTC: VIX=24.49 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 10:11 UTC: VIX=24.46 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 10:16 UTC: VIX=24.41 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 10:21 UTC: VIX=24.47 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 10:26 UTC: VIX=24.59 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 10:31 UTC: Running full breadth recalc...
+2026-04-07 10:31 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 10:31 UTC: VIX=24.45 (ELEVATED) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 10:36 UTC: VIX=24.52 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 10:41 UTC: VIX=24.9 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 10:46 UTC: VIX=24.74 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 10:52 UTC: VIX=24.84 (ELEVATED) Breadth=33.3% Regime=CLEAR 
+2026-04-07 10:57 UTC: VIX=25.08 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 11:02 UTC: Running full breadth recalc...
+2026-04-07 11:02 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 11:02 UTC: VIX=25.24 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 11:07 UTC: VIX=25.44 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 11:12 UTC: VIX=25.76 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 11:17 UTC: VIX=25.64 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 11:22 UTC: VIX=25.5 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 11:27 UTC: VIX=25.47 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 11:32 UTC: Running full breadth recalc...
+2026-04-07 11:32 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 11:32 UTC: VIX=25.41 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 11:37 UTC: VIX=25.37 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 11:42 UTC: VIX=25.35 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 11:47 UTC: VIX=25.52 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 11:52 UTC: VIX=25.85 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 11:57 UTC: VIX=25.56 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 12:02 UTC: Running full breadth recalc...
+2026-04-07 12:02 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 12:02 UTC: VIX=25.53 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 12:07 UTC: VIX=25.53 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 12:12 UTC: VIX=25.44 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 12:17 UTC: VIX=25.59 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 12:22 UTC: VIX=25.97 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 12:27 UTC: VIX=25.84 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 12:32 UTC: Running full breadth recalc...
+2026-04-07 12:32 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 12:32 UTC: VIX=25.8 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 12:37 UTC: VIX=25.38 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 12:42 UTC: VIX=25.37 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 12:47 UTC: VIX=25.45 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 12:52 UTC: VIX=25.41 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 12:58 UTC: VIX=25.48 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 13:03 UTC: Running full breadth recalc...
+2026-04-07 13:03 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 13:03 UTC: VIX=25.5 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 13:08 UTC: VIX=25.48 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 13:13 UTC: VIX=25.38 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 13:18 UTC: VIX=25.29 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 13:23 UTC: VIX=25.23 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 13:28 UTC: VIX=25.32 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 13:33 UTC: Running full breadth recalc...
+2026-04-07 13:33 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-07 13:33 UTC: VIX=25.53 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-07 13:38 UTC: VIX=25.45 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 13:43 UTC: VIX=25.45 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 13:48 UTC: VIX=25.58 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 13:53 UTC: VIX=25.52 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 13:58 UTC: VIX=25.81 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 14:03 UTC: Running full breadth recalc...
+2026-04-07 14:03 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-07 14:03 UTC: VIX=26.21 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-07 14:08 UTC: VIX=26.19 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 14:13 UTC: VIX=26.32 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 14:18 UTC: VIX=26.61 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 14:23 UTC: VIX=27.2 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 14:28 UTC: VIX=27.04 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 14:33 UTC: Running full breadth recalc...
+2026-04-07 14:33 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-07 14:33 UTC: VIX=26.69 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-07 14:38 UTC: VIX=26.18 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 14:43 UTC: VIX=26.4 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 14:48 UTC: VIX=26.31 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 14:53 UTC: VIX=26.3 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 14:58 UTC: VIX=26.42 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 15:03 UTC: Running full breadth recalc...
+2026-04-07 15:04 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-07 15:04 UTC: VIX=26.38 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-07 15:09 UTC: VIX=26.44 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 15:14 UTC: VIX=26.55 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 15:19 UTC: VIX=26.94 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 15:24 UTC: VIX=27.25 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 15:29 UTC: VIX=27.06 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 15:34 UTC: Running full breadth recalc...
+2026-04-07 15:34 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-07 15:34 UTC: VIX=26.93 (HIGH) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-07 15:39 UTC: VIX=26.89 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 15:44 UTC: VIX=26.72 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 15:49 UTC: VIX=26.52 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 15:54 UTC: VIX=27.11 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 15:59 UTC: VIX=26.61 (HIGH) Breadth=30.0% Regime=CLEAR 
+2026-04-07 16:04 UTC: Running full breadth recalc...
+2026-04-07 16:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 16:04 UTC: VIX=26.66 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 16:09 UTC: VIX=26.61 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 16:14 UTC: VIX=26.44 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 16:19 UTC: VIX=25.74 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 16:24 UTC: VIX=26.3 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 16:29 UTC: VIX=26.24 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 16:34 UTC: Running full breadth recalc...
+2026-04-07 16:34 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 16:34 UTC: VIX=26.38 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 16:39 UTC: VIX=26.36 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 16:44 UTC: VIX=26.31 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 16:49 UTC: VIX=26.28 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 16:54 UTC: VIX=26.44 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 16:59 UTC: VIX=26.38 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 17:04 UTC: Running full breadth recalc...
+2026-04-07 17:04 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 17:04 UTC: VIX=26.24 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 17:09 UTC: VIX=26.18 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 17:14 UTC: VIX=26.3 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 17:20 UTC: VIX=26.34 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 17:25 UTC: VIX=26.46 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 17:30 UTC: VIX=26.51 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 17:35 UTC: Running full breadth recalc...
+2026-04-07 17:35 UTC: Breadth recalc: 33.3% above 200 EMA
+2026-04-07 17:35 UTC: VIX=26.6 (HIGH) Breadth=33.3% Regime=CLEAR [breadth updated]
+2026-04-07 17:40 UTC: VIX=26.68 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 17:45 UTC: VIX=26.67 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 17:50 UTC: VIX=26.38 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-07 17:55 UTC: VIX=26.29 (HIGH) Breadth=33.3% Regime=CLEAR 
+2026-04-08 07:00 UTC: Running full breadth recalc...
+2026-04-08 07:00 UTC: Breadth recalc: 0.0% above 200 EMA
+2026-04-08 07:00 UTC: VIX=25.78 (HIGH) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:05 UTC: VIX=25.78 (HIGH) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:10 UTC: VIX=25.78 (HIGH) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:15 UTC: VIX=25.78 (HIGH) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:20 UTC: VIX=25.78 (HIGH) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:25 UTC: VIX=25.78 (HIGH) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:30 UTC: Running full breadth recalc...
+2026-04-08 07:30 UTC: Breadth recalc: 0.0% above 200 EMA
+2026-04-08 07:30 UTC: VIX=20.95 (ELEVATED) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:30 UTC: VIX alert: 25.78 → 20.95 (-4.8)
+2026-04-08 07:35 UTC: VIX=20.88 (ELEVATED) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:40 UTC: VIX=20.69 (ELEVATED) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:45 UTC: VIX=20.9 (ELEVATED) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:50 UTC: VIX=20.87 (ELEVATED) Breadth=0.0% Regime=BLOCKED 
+2026-04-08 07:55 UTC: VIX=20.88 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 08:00 UTC: Running full breadth recalc...
+2026-04-08 08:00 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 08:00 UTC: VIX=20.86 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 08:05 UTC: VIX=20.87 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 08:10 UTC: VIX=20.81 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 08:15 UTC: VIX=20.91 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 08:21 UTC: VIX=20.83 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 08:26 UTC: VIX=20.68 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 08:31 UTC: Running full breadth recalc...
+2026-04-08 08:31 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 08:31 UTC: VIX=20.6 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 08:36 UTC: VIX=20.53 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 08:41 UTC: VIX=20.51 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 08:46 UTC: VIX=20.54 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 08:51 UTC: VIX=20.44 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 08:56 UTC: VIX=20.6 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 09:01 UTC: Running full breadth recalc...
+2026-04-08 09:01 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 09:01 UTC: VIX=20.67 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 09:06 UTC: VIX=20.46 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 09:11 UTC: VIX=20.54 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 09:16 UTC: VIX=20.32 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 09:21 UTC: VIX=20.33 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 09:26 UTC: VIX=20.29 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 09:31 UTC: Running full breadth recalc...
+2026-04-08 09:31 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 09:31 UTC: VIX=20.28 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 09:36 UTC: VIX=20.26 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 09:41 UTC: VIX=20.24 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 09:46 UTC: VIX=20.28 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 09:51 UTC: VIX=20.31 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 09:56 UTC: VIX=20.37 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 10:01 UTC: Running full breadth recalc...
+2026-04-08 10:01 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 10:01 UTC: VIX=20.42 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 10:06 UTC: VIX=20.36 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 10:11 UTC: VIX=20.4 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 10:16 UTC: VIX=20.41 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 10:21 UTC: VIX=20.48 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 10:26 UTC: VIX=20.5 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 10:31 UTC: Running full breadth recalc...
+2026-04-08 10:32 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 10:32 UTC: VIX=20.59 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 10:37 UTC: VIX=20.58 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 10:42 UTC: VIX=20.53 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 10:47 UTC: VIX=20.42 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 10:52 UTC: VIX=20.45 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 10:57 UTC: VIX=20.48 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 11:02 UTC: Running full breadth recalc...
+2026-04-08 11:02 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 11:02 UTC: VIX=20.47 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 11:07 UTC: VIX=20.46 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 11:12 UTC: VIX=20.49 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 11:17 UTC: VIX=20.59 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 11:22 UTC: VIX=20.59 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 11:27 UTC: VIX=20.5 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 11:32 UTC: Running full breadth recalc...
+2026-04-08 11:32 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 11:32 UTC: VIX=20.47 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 11:37 UTC: VIX=20.42 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 11:42 UTC: VIX=20.17 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 11:47 UTC: VIX=20.21 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 11:52 UTC: VIX=20.33 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 11:57 UTC: VIX=20.32 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 12:02 UTC: Running full breadth recalc...
+2026-04-08 12:02 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 12:02 UTC: VIX=20.33 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 12:07 UTC: VIX=20.3 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 12:12 UTC: VIX=20.37 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 12:17 UTC: VIX=20.29 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 12:22 UTC: VIX=20.24 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 12:27 UTC: VIX=20.29 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 12:32 UTC: Running full breadth recalc...
+2026-04-08 12:33 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 12:33 UTC: VIX=20.28 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 12:38 UTC: VIX=20.99 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 12:43 UTC: VIX=20.79 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 12:48 UTC: VIX=20.58 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 12:53 UTC: VIX=20.4 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 12:58 UTC: VIX=20.45 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 13:03 UTC: Running full breadth recalc...
+2026-04-08 13:03 UTC: Breadth recalc: 30.0% above 200 EMA
+2026-04-08 13:03 UTC: VIX=20.33 (ELEVATED) Breadth=30.0% Regime=CLEAR [breadth updated]
+2026-04-08 13:08 UTC: VIX=20.2 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 13:13 UTC: VIX=20.23 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 13:18 UTC: VIX=20.21 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 13:23 UTC: VIX=20.2 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 13:28 UTC: VIX=20.13 (ELEVATED) Breadth=30.0% Regime=CLEAR 
+2026-04-08 13:33 UTC: Running full breadth recalc...
+2026-04-08 13:33 UTC: Breadth recalc: 50.0% above 200 EMA
+2026-04-08 13:33 UTC: VIX=20.18 (ELEVATED) Breadth=50.0% Regime=CLEAR [breadth updated]
+2026-04-08 13:38 UTC: VIX=20.22 (ELEVATED) Breadth=50.0% Regime=CLEAR 
+2026-04-08 13:43 UTC: VIX=20.13 (ELEVATED) Breadth=50.0% Regime=CLEAR 
+2026-04-08 13:48 UTC: VIX=20.25 (ELEVATED) Breadth=50.0% Regime=CLEAR 
+2026-04-08 13:53 UTC: VIX=20.09 (ELEVATED) Breadth=50.0% Regime=CLEAR 
+2026-04-08 13:58 UTC: VIX=20.43 (ELEVATED) Breadth=50.0% Regime=CLEAR 
+2026-04-08 14:03 UTC: Running full breadth recalc...
+2026-04-08 14:03 UTC: Breadth recalc: 46.7% above 200 EMA
+2026-04-08 14:03 UTC: VIX=20.44 (ELEVATED) Breadth=46.7% Regime=CLEAR [breadth updated]
+2026-04-08 14:08 UTC: VIX=20.72 (ELEVATED) Breadth=46.7% Regime=CLEAR 
+2026-04-08 14:13 UTC: VIX=20.88 (ELEVATED) Breadth=46.7% Regime=CLEAR 
+2026-04-08 14:18 UTC: VIX=20.84 (ELEVATED) Breadth=46.7% Regime=CLEAR 
+2026-04-08 14:23 UTC: VIX=21.15 (ELEVATED) Breadth=46.7% Regime=CLEAR 
+2026-04-08 14:28 UTC: VIX=20.97 (ELEVATED) Breadth=46.7% Regime=CLEAR 
+2026-04-08 14:33 UTC: Running full breadth recalc...
+2026-04-08 14:33 UTC: Breadth recalc: 46.7% above 200 EMA
+2026-04-08 14:33 UTC: VIX=20.89 (ELEVATED) Breadth=46.7% Regime=CLEAR [breadth updated]
+2026-04-08 14:39 UTC: VIX=20.93 (ELEVATED) Breadth=46.7% Regime=CLEAR 
+2026-04-08 14:44 UTC: VIX=21.15 (ELEVATED) Breadth=46.7% Regime=CLEAR 
+2026-04-08 14:49 UTC: VIX=21.53 (ELEVATED) Breadth=46.7% Regime=CLEAR 
+2026-04-08 14:54 UTC: VIX=21.61 (ELEVATED) Breadth=46.7% Regime=CLEAR 
+2026-04-08 14:59 UTC: VIX=21.59 (ELEVATED) Breadth=46.7% Regime=CLEAR 
+2026-04-08 15:04 UTC: Running full breadth recalc...
+2026-04-08 15:04 UTC: Breadth recalc: 46.7% above 200 EMA
+2026-04-08 15:04 UTC: VIX=21.63 (ELEVATED) Breadth=46.7% Regime=CLEAR [breadth updated]

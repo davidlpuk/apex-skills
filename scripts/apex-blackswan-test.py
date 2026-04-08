@@ -104,7 +104,8 @@ def detect_gaps(universe_tickers):
                     'note':         f"Gapped {gap_pct:+.1f}% overnight — verify catalyst",
                 })
         except Exception as e:
-            log_error(f"Gap detection failed for {ticker}: {e}")
+            # yfinance data gaps are transient — not actionable
+            log_warning(f"Gap detection skipped for {ticker}: {type(e).__name__}")
 
     return gaps
 
@@ -160,7 +161,8 @@ def scan_regulatory_risk():
                         })
                         break
         except Exception as e:
-            log_error(f"Regulatory scan failed for {feed_url}: {e}")
+            # RSS feeds are optional intelligence — any fetch failure is non-blocking
+            log_warning(f"Regulatory scan: could not fetch {feed_url} — skipping ({type(e).__name__})")
 
     return regulatory_alerts
 
@@ -288,7 +290,9 @@ def detect_volume_collapse(positions):
             if hist.empty or len(hist) < 5:
                 continue
 
-            volumes    = [float(v) for v in hist['Volume']]
+            volumes    = [float(v) for v in hist['Volume'] if v is not None and str(v) != 'nan']
+            if not volumes:
+                continue
             avg_vol_20 = sum(volumes[-20:]) / min(20, len(volumes))
             today_vol  = volumes[-1]
 
@@ -317,7 +321,8 @@ def detect_volume_collapse(positions):
                     ),
                 })
         except Exception as e:
-            log_error(f"Volume collapse detection failed for {name}: {e}")
+            # yfinance data gaps are transient — not actionable
+            log_warning(f"Volume collapse check skipped for {name}: {type(e).__name__}")
 
     return collapses
 

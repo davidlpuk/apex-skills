@@ -1,0 +1,542 @@
+{
+  "timestamp": "2026-03-25 15:54 UTC",
+  "n_signals": 13,
+  "n_layers": 11,
+  "layers": [
+    "BACKTEST",
+    "BREADTH",
+    "FRED",
+    "FUND",
+    "GEO",
+    "MACRO",
+    "MTF",
+    "OPTIONS",
+    "RS",
+    "SECTOR",
+    "SENT"
+  ],
+  "low_data_warning": false,
+  "activation": {
+    "BACKTEST": {
+      "active_pct": 38.5,
+      "mean": 0.385,
+      "pos": 5,
+      "neg": 0
+    },
+    "BREADTH": {
+      "active_pct": 61.5,
+      "mean": -0.615,
+      "pos": 0,
+      "neg": 8
+    },
+    "FRED": {
+      "active_pct": 100.0,
+      "mean": -0.231,
+      "pos": 5,
+      "neg": 8
+    },
+    "FUND": {
+      "active_pct": 23.1,
+      "mean": 0.231,
+      "pos": 3,
+      "neg": 0
+    },
+    "GEO": {
+      "active_pct": 15.4,
+      "mean": 0.308,
+      "pos": 2,
+      "neg": 0
+    },
+    "MACRO": {
+      "active_pct": 30.8,
+      "mean": 0.0,
+      "pos": 2,
+      "neg": 2
+    },
+    "MTF": {
+      "active_pct": 53.8,
+      "mean": 0.538,
+      "pos": 5,
+      "neg": 2
+    },
+    "OPTIONS": {
+      "active_pct": 7.7,
+      "mean": 0.077,
+      "pos": 1,
+      "neg": 0
+    },
+    "RS": {
+      "active_pct": 23.1,
+      "mean": 0.077,
+      "pos": 2,
+      "neg": 1
+    },
+    "SECTOR": {
+      "active_pct": 61.5,
+      "mean": 0.0,
+      "pos": 2,
+      "neg": 6
+    },
+    "SENT": {
+      "active_pct": 15.4,
+      "mean": -0.154,
+      "pos": 0,
+      "neg": 2
+    }
+  },
+  "effective_dims": {
+    "n_layers": 11,
+    "effective_n": 5.3,
+    "mean_abs_corr": 0.5205,
+    "redundancy_pct": 52.0,
+    "per_layer_avg_abs_corr": {
+      "BACKTEST": 0.5044,
+      "BREADTH": 0.3992,
+      "FRED": 0.3992,
+      "FUND": 0.5896,
+      "GEO": 0.6697,
+      "MACRO": 0.6058,
+      "MTF": 0.4149,
+      "OPTIONS": 0.4752,
+      "RS": 0.4586,
+      "SECTOR": 0.5388,
+      "SENT": 0.6697
+    }
+  },
+  "high_corr_pairs": [
+    {
+      "la": "BREADTH",
+      "lb": "FRED",
+      "r": 1.0
+    },
+    {
+      "la": "GEO",
+      "lb": "SENT",
+      "r": -1.0
+    },
+    {
+      "la": "GEO",
+      "lb": "SECTOR",
+      "r": 0.9415
+    },
+    {
+      "la": "SECTOR",
+      "lb": "SENT",
+      "r": -0.9415
+    },
+    {
+      "la": "RS",
+      "lb": "SECTOR",
+      "r": 0.8357
+    },
+    {
+      "la": "GEO",
+      "lb": "RS",
+      "r": 0.8301
+    },
+    {
+      "la": "RS",
+      "lb": "SENT",
+      "r": -0.8301
+    },
+    {
+      "la": "FUND",
+      "lb": "GEO",
+      "r": 0.7785
+    },
+    {
+      "la": "FUND",
+      "lb": "SENT",
+      "r": -0.7785
+    },
+    {
+      "la": "MACRO",
+      "lb": "SENT",
+      "r": 0.7687
+    },
+    {
+      "la": "GEO",
+      "lb": "MACRO",
+      "r": -0.7687
+    }
+  ],
+  "medium_corr_pairs": [
+    {
+      "la": "BACKTEST",
+      "lb": "FUND",
+      "r": 0.6928
+    },
+    {
+      "la": "GEO",
+      "lb": "OPTIONS",
+      "r": 0.677
+    },
+    {
+      "la": "OPTIONS",
+      "lb": "SENT",
+      "r": -0.677
+    },
+    {
+      "la": "FUND",
+      "lb": "SECTOR",
+      "r": 0.6719
+    },
+    {
+      "la": "FUND",
+      "lb": "MACRO",
+      "r": -0.6583
+    },
+    {
+      "la": "OPTIONS",
+      "lb": "SECTOR",
+      "r": 0.6374
+    },
+    {
+      "la": "FUND",
+      "lb": "MTF",
+      "r": 0.6264
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "FRED",
+      "r": -0.625
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "BREADTH",
+      "r": -0.625
+    },
+    {
+      "la": "MACRO",
+      "lb": "SECTOR",
+      "r": -0.6124
+    },
+    {
+      "la": "MACRO",
+      "lb": "RS",
+      "r": -0.5849
+    },
+    {
+      "la": "FRED",
+      "lb": "MACRO",
+      "r": 0.5701
+    },
+    {
+      "la": "BREADTH",
+      "lb": "MACRO",
+      "r": 0.5701
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "MACRO",
+      "r": -0.5701
+    },
+    {
+      "la": "OPTIONS",
+      "lb": "RS",
+      "r": 0.562
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "GEO",
+      "r": 0.5394
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "SENT",
+      "r": -0.5394
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "MTF",
+      "r": 0.533
+    },
+    {
+      "la": "FUND",
+      "lb": "OPTIONS",
+      "r": 0.527
+    },
+    {
+      "la": "MACRO",
+      "lb": "OPTIONS",
+      "r": -0.5204
+    }
+  ],
+  "all_pairs": [
+    {
+      "la": "BREADTH",
+      "lb": "FRED",
+      "r": 1.0
+    },
+    {
+      "la": "GEO",
+      "lb": "SENT",
+      "r": -1.0
+    },
+    {
+      "la": "GEO",
+      "lb": "SECTOR",
+      "r": 0.9415
+    },
+    {
+      "la": "SECTOR",
+      "lb": "SENT",
+      "r": -0.9415
+    },
+    {
+      "la": "RS",
+      "lb": "SECTOR",
+      "r": 0.8357
+    },
+    {
+      "la": "GEO",
+      "lb": "RS",
+      "r": 0.8301
+    },
+    {
+      "la": "RS",
+      "lb": "SENT",
+      "r": -0.8301
+    },
+    {
+      "la": "FUND",
+      "lb": "GEO",
+      "r": 0.7785
+    },
+    {
+      "la": "FUND",
+      "lb": "SENT",
+      "r": -0.7785
+    },
+    {
+      "la": "MACRO",
+      "lb": "SENT",
+      "r": 0.7687
+    },
+    {
+      "la": "GEO",
+      "lb": "MACRO",
+      "r": -0.7687
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "FUND",
+      "r": 0.6928
+    },
+    {
+      "la": "GEO",
+      "lb": "OPTIONS",
+      "r": 0.677
+    },
+    {
+      "la": "OPTIONS",
+      "lb": "SENT",
+      "r": -0.677
+    },
+    {
+      "la": "FUND",
+      "lb": "SECTOR",
+      "r": 0.6719
+    },
+    {
+      "la": "FUND",
+      "lb": "MACRO",
+      "r": -0.6583
+    },
+    {
+      "la": "OPTIONS",
+      "lb": "SECTOR",
+      "r": 0.6374
+    },
+    {
+      "la": "FUND",
+      "lb": "MTF",
+      "r": 0.6264
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "FRED",
+      "r": -0.625
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "BREADTH",
+      "r": -0.625
+    },
+    {
+      "la": "MACRO",
+      "lb": "SECTOR",
+      "r": -0.6124
+    },
+    {
+      "la": "MACRO",
+      "lb": "RS",
+      "r": -0.5849
+    },
+    {
+      "la": "FRED",
+      "lb": "MACRO",
+      "r": 0.5701
+    },
+    {
+      "la": "BREADTH",
+      "lb": "MACRO",
+      "r": 0.5701
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "MACRO",
+      "r": -0.5701
+    },
+    {
+      "la": "OPTIONS",
+      "lb": "RS",
+      "r": 0.562
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "GEO",
+      "r": 0.5394
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "SENT",
+      "r": -0.5394
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "MTF",
+      "r": 0.533
+    },
+    {
+      "la": "FUND",
+      "lb": "OPTIONS",
+      "r": 0.527
+    },
+    {
+      "la": "MACRO",
+      "lb": "OPTIONS",
+      "r": -0.5204
+    },
+    {
+      "la": "GEO",
+      "lb": "MTF",
+      "r": 0.4877
+    },
+    {
+      "la": "MTF",
+      "lb": "SENT",
+      "r": -0.4877
+    },
+    {
+      "la": "MACRO",
+      "lb": "MTF",
+      "r": -0.4341
+    },
+    {
+      "la": "FRED",
+      "lb": "FUND",
+      "r": -0.433
+    },
+    {
+      "la": "BREADTH",
+      "lb": "FUND",
+      "r": -0.433
+    },
+    {
+      "la": "MTF",
+      "lb": "SECTOR",
+      "r": 0.3987
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "OPTIONS",
+      "r": 0.3651
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "SECTOR",
+      "r": 0.3491
+    },
+    {
+      "la": "FRED",
+      "lb": "SENT",
+      "r": 0.3371
+    },
+    {
+      "la": "BREADTH",
+      "lb": "SENT",
+      "r": 0.3371
+    },
+    {
+      "la": "FRED",
+      "lb": "GEO",
+      "r": -0.3371
+    },
+    {
+      "la": "BREADTH",
+      "lb": "GEO",
+      "r": -0.3371
+    },
+    {
+      "la": "FRED",
+      "lb": "MTF",
+      "r": -0.3331
+    },
+    {
+      "la": "BREADTH",
+      "lb": "MTF",
+      "r": -0.3331
+    },
+    {
+      "la": "MTF",
+      "lb": "OPTIONS",
+      "r": 0.3301
+    },
+    {
+      "la": "FUND",
+      "lb": "RS",
+      "r": 0.2962
+    },
+    {
+      "la": "FRED",
+      "lb": "OPTIONS",
+      "r": -0.2282
+    },
+    {
+      "la": "BREADTH",
+      "lb": "OPTIONS",
+      "r": -0.2282
+    },
+    {
+      "la": "BACKTEST",
+      "lb": "RS",
+      "r": 0.2052
+    },
+    {
+      "la": "MTF",
+      "lb": "RS",
+      "r": 0.1855
+    },
+    {
+      "la": "FRED",
+      "lb": "RS",
+      "r": -0.1282
+    },
+    {
+      "la": "BREADTH",
+      "lb": "RS",
+      "r": -0.1282
+    },
+    {
+      "la": "FRED",
+      "lb": "SECTOR",
+      "r": 0.0
+    },
+    {
+      "la": "BREADTH",
+      "lb": "SECTOR",
+      "r": 0.0
+    }
+  ]
+}

@@ -10,6 +10,7 @@ Detects and resolves:
 3. Quantity mismatches between Apex and T212
 """
 import json
+import os
 import sys
 from datetime import datetime, timezone
 
@@ -261,6 +262,15 @@ def reconcile(silent=False):
 
         changes.append(f"REMOVED: {name} — closed in T212")
         alerts.append(f"⚠️ {name} closed externally\n{alert_detail}")
+
+        # Clean up any STOP_MISSING flag file left by a failed stop placement
+        flag_path = f"/home/ubuntu/.picoclaw/logs/STOP_MISSING_{ticker}"
+        try:
+            if os.path.exists(flag_path):
+                os.remove(flag_path)
+                log_info(f"Cleared STOP_MISSING flag for {ticker} (position closed)")
+        except Exception:
+            pass
 
     # Remove ghost positions from Apex tracking
     apex_positions = [p for p in apex_positions

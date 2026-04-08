@@ -1,30 +1,30 @@
 {
-  "timestamp": "2026-03-22 07:29 UTC",
+  "timestamp": "2026-04-06 07:09 UTC",
   "count": 21,
   "data": {
     "AAPL": {
-      "composite_score": 0,
+      "composite_score": 1,
       "composite": "NEUTRAL",
       "reasons": [
+        "Dividend: SAFE (Payout ratio 13.9% \u2014 well covered)",
         "Short interest: LOW (0.9% short \u2014 low short interest, not a crowded short)"
       ],
       "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 65.3,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 65.3%",
-        "source": "yfinance fallback"
-      },
+      "insider": null,
       "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
+        "has_dividend": true,
+        "annual_div": 1.04,
+        "div_yield_pct": 37.87,
+        "eps": 7.49,
+        "payout_ratio": 13.9,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 13.9% \u2014 well covered"
       },
       "short_interest": {
-        "short_pct_float": 0.88,
-        "days_to_cover": 2.4,
+        "short_pct_float": 0.85,
+        "days_to_cover": 3.2,
         "shares_short": 129553812,
         "level": "LOW",
         "squeeze_potential": false,
@@ -32,583 +32,817 @@
         "trend_signal": 0,
         "note": "0.9% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": {
+        "net_income": 112.01,
+        "operating_cf": 111.48,
+        "fcf": 98.77,
+        "accruals_ratio": 0.15,
+        "fcf_to_ni": 0.88,
+        "quality": "MODERATE",
+        "signal": 0,
+        "note": "Accruals 0.15% \u2014 acceptable earnings quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "MSFT": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
+      "composite_score": 3,
+      "composite": "BUY_SIGNAL",
       "reasons": [
-        "Short interest: LOW (1.0% short \u2014 low short interest, not a crowded short)"
+        "Dividend: SAFE (Payout ratio 26.0% \u2014 well covered)",
+        "Short interest: LOW (1.1% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: EXCEPTIONAL (Accruals -5.55% \u2014 cash earnings exceed reported earnings, ex)"
       ],
       "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 76.0,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 76.0%",
-        "source": "yfinance fallback"
-      },
+      "insider": null,
       "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
+        "has_dividend": true,
+        "annual_div": 3.56,
+        "div_yield_pct": 95.32,
+        "eps": 13.7,
+        "payout_ratio": 26.0,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 26.0% \u2014 well covered"
       },
       "short_interest": {
-        "short_pct_float": 1.0,
-        "days_to_cover": 1.6,
-        "shares_short": 74347979,
+        "short_pct_float": 1.08,
+        "days_to_cover": 2.5,
+        "shares_short": 79835909,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.1% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": {
+        "net_income": 101.83,
+        "operating_cf": 136.16,
+        "fcf": 71.61,
+        "accruals_ratio": -5.55,
+        "fcf_to_ni": 0.7,
+        "quality": "EXCEPTIONAL",
+        "signal": 2,
+        "note": "Accruals -5.55% \u2014 cash earnings exceed reported earnings, exceptional quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
+    },
+    "NVDA": {
+      "composite_score": 1,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Revisions: STRONG_UP (Targets up 19.4% YoY \u2014 analysts revising up aggressively)",
+        "Dividend: SAFE (Payout ratio 0.8% \u2014 well covered)",
+        "Short interest: LOW (1.0% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: POOR (Accruals 8.39% \u2014 significant gap between earnings and cash, )"
+      ],
+      "revisions": {
+        "last_month_target": 300.0,
+        "last_qtr_target": 282.2,
+        "last_year_target": 251.17,
+        "analyst_count_month": 1,
+        "month_vs_year_pct": 19.4,
+        "month_vs_qtr_pct": 6.3,
+        "trend": "STRONG_UP",
+        "signal": 2,
+        "note": "Targets up 19.4% YoY \u2014 analysts revising up aggressively"
+      },
+      "insider": null,
+      "dividend": {
+        "has_dividend": true,
+        "annual_div": 0.04,
+        "div_yield_pct": 2.15,
+        "eps": 4.93,
+        "payout_ratio": 0.8,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 0.8% \u2014 well covered"
+      },
+      "short_interest": {
+        "short_pct_float": 0.98,
+        "days_to_cover": 1.3,
+        "shares_short": 229241850,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
         "note": "1.0% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
-    },
-    "NVDA": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
-      "reasons": [
-        "Short interest: LOW (1.1% short \u2014 low short interest, not a crowded short)"
-      ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 69.8,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 69.8%",
-        "source": "yfinance fallback"
+      "accruals": {
+        "net_income": 120.07,
+        "operating_cf": 102.72,
+        "fcf": 96.68,
+        "accruals_ratio": 8.39,
+        "fcf_to_ni": 0.81,
+        "quality": "POOR",
+        "signal": -2,
+        "note": "Accruals 8.39% \u2014 significant gap between earnings and cash, red flag"
       },
-      "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
-      },
-      "short_interest": {
-        "short_pct_float": 1.07,
-        "days_to_cover": 1.3,
-        "shares_short": 248340872,
-        "level": "LOW",
-        "squeeze_potential": false,
-        "contrarian_signal": 0,
-        "trend_signal": 0,
-        "note": "1.1% short \u2014 low short interest, not a crowded short"
-      },
-      "accruals": null
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "GOOGL": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
+      "composite_score": 3,
+      "composite": "BUY_SIGNAL",
       "reasons": [
-        "Short interest: LOW (1.3% short \u2014 low short interest, not a crowded short)"
+        "Dividend: SAFE (Payout ratio 7.7% \u2014 well covered)",
+        "Short interest: LOW (1.4% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: EXCEPTIONAL (Accruals -5.47% \u2014 cash earnings exceed reported earnings, ex)"
       ],
       "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 80.8,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 80.8%",
-        "source": "yfinance fallback"
-      },
+      "insider": null,
       "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
+        "has_dividend": true,
+        "annual_div": 0.84,
+        "div_yield_pct": 27.42,
+        "eps": 10.91,
+        "payout_ratio": 7.7,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 7.7% \u2014 well covered"
       },
       "short_interest": {
-        "short_pct_float": 1.31,
-        "days_to_cover": 1.9,
+        "short_pct_float": 1.37,
+        "days_to_cover": 2.6,
         "shares_short": 76336607,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
-        "note": "1.3% short \u2014 low short interest, not a crowded short"
+        "note": "1.4% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": {
+        "net_income": 132.17,
+        "operating_cf": 164.71,
+        "fcf": 73.27,
+        "accruals_ratio": -5.47,
+        "fcf_to_ni": 0.55,
+        "quality": "EXCEPTIONAL",
+        "signal": 2,
+        "note": "Accruals -5.47% \u2014 cash earnings exceed reported earnings, exceptional quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "AMZN": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
+      "composite_score": 2,
+      "composite": "BUY_SIGNAL",
       "reasons": [
-        "Short interest: LOW (0.8% short \u2014 low short interest, not a crowded short)"
+        "Short interest: LOW (0.9% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: EXCEPTIONAL (Accruals -7.56% \u2014 cash earnings exceed reported earnings, ex)"
       ],
       "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 67.3,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 67.3%",
-        "source": "yfinance fallback"
-      },
+      "insider": null,
       "dividend": {
         "has_dividend": false,
         "signal": 0,
         "note": "No dividend"
       },
       "short_interest": {
-        "short_pct_float": 0.84,
-        "days_to_cover": 1.3,
-        "shares_short": 81891881,
-        "level": "LOW",
-        "squeeze_potential": false,
-        "contrarian_signal": 0,
-        "trend_signal": 0,
-        "note": "0.8% short \u2014 low short interest, not a crowded short"
-      },
-      "accruals": null
-    },
-    "META": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
-      "reasons": [
-        "Short interest: LOW (1.1% short \u2014 low short interest, not a crowded short)"
-      ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 78.7,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 78.7%",
-        "source": "yfinance fallback"
-      },
-      "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
-      },
-      "short_interest": {
-        "short_pct_float": 1.12,
-        "days_to_cover": 1.5,
-        "shares_short": 24393384,
-        "level": "LOW",
-        "squeeze_potential": false,
-        "contrarian_signal": 0,
-        "trend_signal": 0,
-        "note": "1.1% short \u2014 low short interest, not a crowded short"
-      },
-      "accruals": null
-    },
-    "JPM": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
-      "reasons": [
-        "Short interest: LOW (0.9% short \u2014 low short interest, not a crowded short)"
-      ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 75.0,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 75.0%",
-        "source": "yfinance fallback"
-      },
-      "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
-      },
-      "short_interest": {
-        "short_pct_float": 0.85,
-        "days_to_cover": 2.1,
-        "shares_short": 22965132,
+        "short_pct_float": 0.87,
+        "days_to_cover": 1.8,
+        "shares_short": 84784941,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
         "note": "0.9% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": {
+        "net_income": 77.67,
+        "operating_cf": 139.51,
+        "fcf": 7.7,
+        "accruals_ratio": -7.56,
+        "fcf_to_ni": 0.1,
+        "quality": "EXCEPTIONAL",
+        "signal": 2,
+        "note": "Accruals -7.56% \u2014 cash earnings exceed reported earnings, exceptional quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
+    },
+    "META": {
+      "composite_score": 3,
+      "composite": "BUY_SIGNAL",
+      "reasons": [
+        "Dividend: SAFE (Payout ratio 8.8% \u2014 well covered)",
+        "Short interest: LOW (1.1% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: EXCEPTIONAL (Accruals -15.12% \u2014 cash earnings exceed reported earnings, e)"
+      ],
+      "revisions": null,
+      "insider": null,
+      "dividend": {
+        "has_dividend": true,
+        "annual_div": 2.1,
+        "div_yield_pct": 33.47,
+        "eps": 23.98,
+        "payout_ratio": 8.8,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 8.8% \u2014 well covered"
+      },
+      "short_interest": {
+        "short_pct_float": 1.11,
+        "days_to_cover": 2.0,
+        "shares_short": 24310664,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.1% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": {
+        "net_income": 60.46,
+        "operating_cf": 115.8,
+        "fcf": 46.11,
+        "accruals_ratio": -15.12,
+        "fcf_to_ni": 0.76,
+        "quality": "EXCEPTIONAL",
+        "signal": 2,
+        "note": "Accruals -15.12% \u2014 cash earnings exceed reported earnings, exceptional quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
+    },
+    "JPM": {
+      "composite_score": 2,
+      "composite": "BUY_SIGNAL",
+      "reasons": [
+        "Dividend: SAFE (Payout ratio 29.4% \u2014 well covered)",
+        "Short interest: LOW (0.9% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: HIGH (Accruals -1.0% \u2014 earnings well backed by cash flow)"
+      ],
+      "revisions": null,
+      "insider": null,
+      "dividend": {
+        "has_dividend": true,
+        "annual_div": 5.9,
+        "div_yield_pct": 2.0,
+        "eps": 20.09,
+        "payout_ratio": 29.4,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 29.4% \u2014 well covered"
+      },
+      "short_interest": {
+        "short_pct_float": 0.89,
+        "days_to_cover": 2.4,
+        "shares_short": 23969779,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "0.9% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": {
+        "net_income": 56.78,
+        "operating_cf": 100.87,
+        "fcf": 100.87,
+        "accruals_ratio": -1.0,
+        "fcf_to_ni": 1.78,
+        "quality": "HIGH",
+        "signal": 1,
+        "note": "Accruals -1.0% \u2014 earnings well backed by cash flow"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "GS": {
       "composite_score": 0,
       "composite": "NEUTRAL",
       "reasons": [
-        "Short interest: LOW (2.1% short \u2014 low short interest, not a crowded short)"
+        "Dividend: SAFE (Payout ratio 29.8% \u2014 well covered)",
+        "Short interest: LOW (2.1% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: LOW (Accruals 3.44% \u2014 earnings not fully backed by cash, caution)"
       ],
       "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 75.7,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 75.7%",
-        "source": "yfinance fallback"
-      },
+      "insider": null,
       "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
+        "has_dividend": true,
+        "annual_div": 15.5,
+        "div_yield_pct": 1.8,
+        "eps": 51.95,
+        "payout_ratio": 29.8,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 29.8% \u2014 well covered"
       },
       "short_interest": {
-        "short_pct_float": 2.07,
-        "days_to_cover": 2.5,
-        "shares_short": 6116629,
+        "short_pct_float": 2.11,
+        "days_to_cover": 2.4,
+        "shares_short": 6179041,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
         "note": "2.1% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": {
+        "net_income": 17.18,
+        "operating_cf": -45.15,
+        "fcf": -47.22,
+        "accruals_ratio": 3.44,
+        "fcf_to_ni": -2.75,
+        "quality": "LOW",
+        "signal": -1,
+        "note": "Accruals 3.44% \u2014 earnings not fully backed by cash, caution"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "V": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
+      "composite_score": 2,
+      "composite": "BUY_SIGNAL",
       "reasons": [
-        "Short interest: LOW (1.6% short \u2014 low short interest, not a crowded short)"
+        "Dividend: SAFE (Payout ratio 24.7% \u2014 well covered)",
+        "Short interest: LOW (1.6% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: HIGH (Accruals -3.01% \u2014 earnings well backed by cash flow)"
       ],
       "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 90.8,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 90.8%",
-        "source": "yfinance fallback"
-      },
+      "insider": null,
       "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
+        "has_dividend": true,
+        "annual_div": 2.52,
+        "div_yield_pct": 76.8,
+        "eps": 10.22,
+        "payout_ratio": 24.7,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 24.7% \u2014 well covered"
       },
       "short_interest": {
-        "short_pct_float": 1.62,
-        "days_to_cover": 3.1,
-        "shares_short": 27231314,
+        "short_pct_float": 1.59,
+        "days_to_cover": 3.4,
+        "shares_short": 26634362,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
         "note": "1.6% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": {
+        "net_income": 20.06,
+        "operating_cf": 23.06,
+        "fcf": 21.58,
+        "accruals_ratio": -3.01,
+        "fcf_to_ni": 1.08,
+        "quality": "HIGH",
+        "signal": 1,
+        "note": "Accruals -3.01% \u2014 earnings well backed by cash flow"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "BAC": {
-      "composite_score": 0,
+      "composite_score": 1,
       "composite": "NEUTRAL",
       "reasons": [
-        "Short interest: LOW (1.3% short \u2014 low short interest, not a crowded short)"
+        "Dividend: SAFE (Payout ratio 28.4% \u2014 well covered)",
+        "Short interest: UNKNOWN (Short interest data unavailable)"
       ],
       "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 71.2,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 71.2%",
-        "source": "yfinance fallback"
-      },
+      "insider": null,
       "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
+        "has_dividend": true,
+        "annual_div": 1.1,
+        "div_yield_pct": 2.26,
+        "eps": 3.88,
+        "payout_ratio": 28.4,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 28.4% \u2014 well covered"
       },
       "short_interest": {
-        "short_pct_float": 1.28,
-        "days_to_cover": 2.2,
-        "shares_short": 91784810,
-        "level": "LOW",
+        "short_pct_float": 0.0,
+        "days_to_cover": 0.0,
+        "shares_short": 3039,
+        "level": "UNKNOWN",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
-        "note": "1.3% short \u2014 low short interest, not a crowded short"
+        "note": "Short interest data unavailable"
       },
-      "accruals": null
+      "accruals": {
+        "net_income": 30.51,
+        "operating_cf": 12.61,
+        "fcf": 12.61,
+        "accruals_ratio": 0.52,
+        "fcf_to_ni": 0.41,
+        "quality": "MODERATE",
+        "signal": 0,
+        "note": "Accruals 0.52% \u2014 acceptable earnings quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "BLK": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
-      "reasons": [
-        "Short interest: LOW (0.9% short \u2014 low short interest, not a crowded short)"
-      ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 82.6,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 82.6%",
-        "source": "yfinance fallback"
-      },
-      "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
-      },
-      "short_interest": {
-        "short_pct_float": 0.95,
-        "days_to_cover": 1.8,
-        "shares_short": 1446441,
-        "level": "LOW",
-        "squeeze_potential": false,
-        "contrarian_signal": 0,
-        "trend_signal": 0,
-        "note": "0.9% short \u2014 low short interest, not a crowded short"
-      },
-      "accruals": null
-    },
-    "JNJ": {
       "composite_score": 0,
       "composite": "NEUTRAL",
       "reasons": [
         "Short interest: LOW (1.0% short \u2014 low short interest, not a crowded short)"
       ],
       "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 75.8,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 75.8%",
-        "source": "yfinance fallback"
-      },
+      "insider": null,
       "dividend": {
         "has_dividend": false,
         "signal": 0,
         "note": "No dividend"
       },
       "short_interest": {
-        "short_pct_float": 1.04,
-        "days_to_cover": 2.6,
-        "shares_short": 25086679,
+        "short_pct_float": 1.01,
+        "days_to_cover": 1.6,
+        "shares_short": 1546747,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
         "note": "1.0% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": null,
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
-    "PFE": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
+    "JNJ": {
+      "composite_score": 3,
+      "composite": "BUY_SIGNAL",
       "reasons": [
-        "Short interest: LOW (2.5% short \u2014 low short interest, not a crowded short)"
-      ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 67.7,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 67.7%",
-        "source": "yfinance fallback"
-      },
-      "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
-      },
-      "short_interest": {
-        "short_pct_float": 2.51,
-        "days_to_cover": 3.0,
-        "shares_short": 142846663,
-        "level": "LOW",
-        "squeeze_potential": false,
-        "contrarian_signal": 0,
-        "trend_signal": 0,
-        "note": "2.5% short \u2014 low short interest, not a crowded short"
-      },
-      "accruals": null
-    },
-    "UNH": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
-      "reasons": [
-        "Short interest: LOW (1.6% short \u2014 low short interest, not a crowded short)"
-      ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 84.2,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 84.2%",
-        "source": "yfinance fallback"
-      },
-      "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
-      },
-      "short_interest": {
-        "short_pct_float": 1.63,
-        "days_to_cover": 1.2,
-        "shares_short": 14788018,
-        "level": "LOW",
-        "squeeze_potential": false,
-        "contrarian_signal": 0,
-        "trend_signal": 0,
-        "note": "1.6% short \u2014 low short interest, not a crowded short"
-      },
-      "accruals": null
-    },
-    "ABBV": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
-      "reasons": [
-        "Short interest: LOW (1.2% short \u2014 low short interest, not a crowded short)"
-      ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 76.4,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 76.4%",
-        "source": "yfinance fallback"
-      },
-      "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
-      },
-      "short_interest": {
-        "short_pct_float": 1.23,
-        "days_to_cover": 3.1,
-        "shares_short": 21748668,
-        "level": "LOW",
-        "squeeze_potential": false,
-        "contrarian_signal": 0,
-        "trend_signal": 0,
-        "note": "1.2% short \u2014 low short interest, not a crowded short"
-      },
-      "accruals": null
-    },
-    "XOM": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
-      "reasons": [
-        "Short interest: LOW (1.3% short \u2014 low short interest, not a crowded short)"
-      ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 67.5,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 67.5%",
-        "source": "yfinance fallback"
-      },
-      "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
-      },
-      "short_interest": {
-        "short_pct_float": 1.3,
-        "days_to_cover": 2.2,
-        "shares_short": 48374573,
-        "level": "LOW",
-        "squeeze_potential": false,
-        "contrarian_signal": 0,
-        "trend_signal": 0,
-        "note": "1.3% short \u2014 low short interest, not a crowded short"
-      },
-      "accruals": null
-    },
-    "CVX": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
-      "reasons": [
+        "Revisions: STRONG_UP (Targets up 15.9% YoY \u2014 analysts revising up aggressively)",
+        "Dividend: SAFE (Payout ratio 47.1% \u2014 well covered)",
         "Short interest: LOW (1.1% short \u2014 low short interest, not a crowded short)"
       ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 67.9,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 67.9%",
-        "source": "yfinance fallback"
+      "revisions": {
+        "last_month_target": 253.0,
+        "last_qtr_target": 237.55,
+        "last_year_target": 218.32,
+        "analyst_count_month": 1,
+        "month_vs_year_pct": 15.9,
+        "month_vs_qtr_pct": 6.5,
+        "trend": "STRONG_UP",
+        "signal": 2,
+        "note": "Targets up 15.9% YoY \u2014 analysts revising up aggressively"
       },
+      "insider": null,
       "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
+        "has_dividend": true,
+        "annual_div": 5.2,
+        "div_yield_pct": 2.11,
+        "eps": 11.03,
+        "payout_ratio": 47.1,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 47.1% \u2014 well covered"
       },
       "short_interest": {
-        "short_pct_float": 1.09,
-        "days_to_cover": 1.9,
-        "shares_short": 21592025,
+        "short_pct_float": 1.08,
+        "days_to_cover": 2.7,
+        "shares_short": 23327094,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
         "note": "1.1% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": {
+        "net_income": 26.8,
+        "operating_cf": 24.53,
+        "fcf": 19.7,
+        "accruals_ratio": 1.14,
+        "fcf_to_ni": 0.73,
+        "quality": "MODERATE",
+        "signal": 0,
+        "note": "Accruals 1.14% \u2014 acceptable earnings quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
+    },
+    "PFE": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Revisions: UP (Targets up 3.1% YoY \u2014 positive revision trend)",
+        "Dividend: DANGER (Payout ratio 126.5% \u2014 dividend cut likely)",
+        "Short interest: LOW (2.3% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: HIGH (Accruals -1.9% \u2014 earnings well backed by cash flow)"
+      ],
+      "revisions": {
+        "last_month_target": 28.5,
+        "last_qtr_target": 26.57,
+        "last_year_target": 27.63,
+        "analyst_count_month": 2,
+        "month_vs_year_pct": 3.1,
+        "month_vs_qtr_pct": 7.3,
+        "trend": "UP",
+        "signal": 1,
+        "note": "Targets up 3.1% YoY \u2014 positive revision trend"
+      },
+      "insider": null,
+      "dividend": {
+        "has_dividend": true,
+        "annual_div": 1.72,
+        "div_yield_pct": 6.71,
+        "eps": 1.36,
+        "payout_ratio": 126.5,
+        "fcf_payout": 999,
+        "safety": "DANGER",
+        "signal": -2,
+        "note": "Payout ratio 126.5% \u2014 dividend cut likely"
+      },
+      "short_interest": {
+        "short_pct_float": 2.31,
+        "days_to_cover": 3.5,
+        "shares_short": 131409882,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "2.3% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": {
+        "net_income": 7.75,
+        "operating_cf": 11.71,
+        "fcf": 9.08,
+        "accruals_ratio": -1.9,
+        "fcf_to_ni": 1.17,
+        "quality": "HIGH",
+        "signal": 1,
+        "note": "Accruals -1.9% \u2014 earnings well backed by cash flow"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
+    },
+    "UNH": {
+      "composite_score": 1,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Short interest: LOW (2.0% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: HIGH (Accruals -2.23% \u2014 earnings well backed by cash flow)"
+      ],
+      "revisions": null,
+      "insider": null,
+      "dividend": {
+        "has_dividend": true,
+        "annual_div": 8.84,
+        "div_yield_pct": 3.1,
+        "eps": 13.23,
+        "payout_ratio": 66.8,
+        "fcf_payout": 999,
+        "safety": "MODERATE",
+        "signal": 0,
+        "note": "Payout ratio 66.8% \u2014 sustainable"
+      },
+      "short_interest": {
+        "short_pct_float": 1.97,
+        "days_to_cover": 2.3,
+        "shares_short": 17838552,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "2.0% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": {
+        "net_income": 12.81,
+        "operating_cf": 19.7,
+        "fcf": 16.07,
+        "accruals_ratio": -2.23,
+        "fcf_to_ni": 1.26,
+        "quality": "HIGH",
+        "signal": 1,
+        "note": "Accruals -2.23% \u2014 earnings well backed by cash flow"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
+    },
+    "ABBV": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Dividend: DANGER (Payout ratio 283.2% \u2014 dividend cut likely)",
+        "Short interest: LOW (1.6% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: EXCEPTIONAL (Accruals -11.05% \u2014 cash earnings exceed reported earnings, e)"
+      ],
+      "revisions": null,
+      "insider": null,
+      "dividend": {
+        "has_dividend": true,
+        "annual_div": 6.74,
+        "div_yield_pct": 3.23,
+        "eps": 2.38,
+        "payout_ratio": 283.2,
+        "fcf_payout": 999,
+        "safety": "DANGER",
+        "signal": -2,
+        "note": "Payout ratio 283.2% \u2014 dividend cut likely"
+      },
+      "short_interest": {
+        "short_pct_float": 1.58,
+        "days_to_cover": 3.9,
+        "shares_short": 25110220,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.6% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": {
+        "net_income": 4.23,
+        "operating_cf": 19.03,
+        "fcf": 17.82,
+        "accruals_ratio": -11.05,
+        "fcf_to_ni": 4.22,
+        "quality": "EXCEPTIONAL",
+        "signal": 2,
+        "note": "Accruals -11.05% \u2014 cash earnings exceed reported earnings, exceptional quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
+    },
+    "XOM": {
+      "composite_score": 2,
+      "composite": "BUY_SIGNAL",
+      "reasons": [
+        "Short interest: LOW (1.3% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: EXCEPTIONAL (Accruals -5.15% \u2014 cash earnings exceed reported earnings, ex)"
+      ],
+      "revisions": null,
+      "insider": null,
+      "dividend": {
+        "has_dividend": true,
+        "annual_div": 4.04,
+        "div_yield_pct": 2.69,
+        "eps": 6.66,
+        "payout_ratio": 60.7,
+        "fcf_payout": 999,
+        "safety": "MODERATE",
+        "signal": 0,
+        "note": "Payout ratio 60.7% \u2014 sustainable"
+      },
+      "short_interest": {
+        "short_pct_float": 1.3,
+        "days_to_cover": 2.3,
+        "shares_short": 48537195,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.3% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": {
+        "net_income": 28.84,
+        "operating_cf": 51.97,
+        "fcf": 23.61,
+        "accruals_ratio": -5.15,
+        "fcf_to_ni": 0.82,
+        "quality": "EXCEPTIONAL",
+        "signal": 2,
+        "note": "Accruals -5.15% \u2014 cash earnings exceed reported earnings, exceptional quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
+    },
+    "CVX": {
+      "composite_score": 0,
+      "composite": "NEUTRAL",
+      "reasons": [
+        "Dividend: DANGER (Payout ratio 103.9% \u2014 dividend cut likely)",
+        "Short interest: LOW (1.2% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: EXCEPTIONAL (Accruals -6.62% \u2014 cash earnings exceed reported earnings, ex)"
+      ],
+      "revisions": null,
+      "insider": null,
+      "dividend": {
+        "has_dividend": true,
+        "annual_div": 6.91,
+        "div_yield_pct": 3.83,
+        "eps": 6.65,
+        "payout_ratio": 103.9,
+        "fcf_payout": 999,
+        "safety": "DANGER",
+        "signal": -2,
+        "note": "Payout ratio 103.9% \u2014 dividend cut likely"
+      },
+      "short_interest": {
+        "short_pct_float": 1.24,
+        "days_to_cover": 2.1,
+        "shares_short": 24588806,
+        "level": "LOW",
+        "squeeze_potential": false,
+        "contrarian_signal": 0,
+        "trend_signal": 0,
+        "note": "1.2% short \u2014 low short interest, not a crowded short"
+      },
+      "accruals": {
+        "net_income": 12.48,
+        "operating_cf": 33.94,
+        "fcf": 16.59,
+        "accruals_ratio": -6.62,
+        "fcf_to_ni": 1.33,
+        "quality": "EXCEPTIONAL",
+        "signal": 2,
+        "note": "Accruals -6.62% \u2014 cash earnings exceed reported earnings, exceptional quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "KO": {
       "composite_score": 0,
       "composite": "NEUTRAL",
       "reasons": [
-        "Short interest: LOW (1.0% short \u2014 low short interest, not a crowded short)"
+        "Revisions: UP (Targets up 6.1% YoY \u2014 positive revision trend)",
+        "Short interest: LOW (1.3% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: LOW (Accruals 5.44% \u2014 earnings not fully backed by cash, caution)"
       ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 66.7,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 66.7%",
-        "source": "yfinance fallback"
+      "revisions": {
+        "last_month_target": 88.0,
+        "last_qtr_target": 84.5,
+        "last_year_target": 82.93,
+        "analyst_count_month": 1,
+        "month_vs_year_pct": 6.1,
+        "month_vs_qtr_pct": 4.1,
+        "trend": "UP",
+        "signal": 1,
+        "note": "Targets up 6.1% YoY \u2014 positive revision trend"
       },
+      "insider": null,
       "dividend": {
-        "has_dividend": false,
+        "has_dividend": true,
+        "annual_div": 2.06,
+        "div_yield_pct": 2.66,
+        "eps": 3.05,
+        "payout_ratio": 67.5,
+        "fcf_payout": 999,
+        "safety": "MODERATE",
         "signal": 0,
-        "note": "No dividend"
+        "note": "Payout ratio 67.5% \u2014 sustainable"
       },
       "short_interest": {
-        "short_pct_float": 1.02,
-        "days_to_cover": 2.1,
-        "shares_short": 43415996,
+        "short_pct_float": 1.26,
+        "days_to_cover": 3.2,
+        "shares_short": 53713859,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
-        "note": "1.0% short \u2014 low short interest, not a crowded short"
+        "note": "1.3% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": {
+        "net_income": 13.11,
+        "operating_cf": 7.41,
+        "fcf": 5.3,
+        "accruals_ratio": 5.44,
+        "fcf_to_ni": 0.4,
+        "quality": "LOW",
+        "signal": -1,
+        "note": "Accruals 5.44% \u2014 earnings not fully backed by cash, caution"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "PEP": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
+      "composite_score": 2,
+      "composite": "BUY_SIGNAL",
       "reasons": [
-        "Short interest: LOW (1.5% short \u2014 low short interest, not a crowded short)"
+        "Revisions: STRONG_UP (Targets up 11.5% YoY \u2014 analysts revising up aggressively)",
+        "Dividend: STRETCHED (Payout ratio 94.4% \u2014 stretched, monitor closely)",
+        "Short interest: LOW (1.8% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: HIGH (Accruals -3.53% \u2014 earnings well backed by cash flow)"
       ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 79.9,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 79.9%",
-        "source": "yfinance fallback"
+      "revisions": {
+        "last_month_target": 181.0,
+        "last_qtr_target": 171.11,
+        "last_year_target": 162.32,
+        "analyst_count_month": 1,
+        "month_vs_year_pct": 11.5,
+        "month_vs_qtr_pct": 5.8,
+        "trend": "STRONG_UP",
+        "signal": 2,
+        "note": "Targets up 11.5% YoY \u2014 analysts revising up aggressively"
       },
+      "insider": null,
       "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
+        "has_dividend": true,
+        "annual_div": 5.69,
+        "div_yield_pct": 3.57,
+        "eps": 6.03,
+        "payout_ratio": 94.4,
+        "fcf_payout": 999,
+        "safety": "STRETCHED",
+        "signal": -1,
+        "note": "Payout ratio 94.4% \u2014 stretched, monitor closely"
       },
       "short_interest": {
-        "short_pct_float": 1.53,
-        "days_to_cover": 2.2,
-        "shares_short": 20841738,
+        "short_pct_float": 1.75,
+        "days_to_cover": 3.4,
+        "shares_short": 21536067,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
-        "note": "1.5% short \u2014 low short interest, not a crowded short"
+        "note": "1.8% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": {
+        "net_income": 8.29,
+        "operating_cf": 12.09,
+        "fcf": 7.67,
+        "accruals_ratio": -3.53,
+        "fcf_to_ni": 0.92,
+        "quality": "HIGH",
+        "signal": 1,
+        "note": "Accruals -3.53% \u2014 earnings well backed by cash flow"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "PG": {
       "composite_score": 0,
@@ -617,62 +851,78 @@
         "Short interest: LOW (1.0% short \u2014 low short interest, not a crowded short)"
       ],
       "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 70.4,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 70.4%",
-        "source": "yfinance fallback"
-      },
+      "insider": null,
       "dividend": {
         "has_dividend": false,
         "signal": 0,
         "note": "No dividend"
       },
       "short_interest": {
-        "short_pct_float": 0.96,
-        "days_to_cover": 2.0,
-        "shares_short": 22387940,
+        "short_pct_float": 0.99,
+        "days_to_cover": 2.2,
+        "shares_short": 22994288,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
         "note": "1.0% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": null,
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     },
     "WMT": {
-      "composite_score": 0,
-      "composite": "NEUTRAL",
+      "composite_score": 5,
+      "composite": "STRONG_BUY_SIGNAL",
       "reasons": [
-        "Short interest: LOW (1.1% short \u2014 low short interest, not a crowded short)"
+        "Revisions: STRONG_UP (Targets up 10.7% YoY \u2014 analysts revising up aggressively)",
+        "Dividend: SAFE (Payout ratio 36.1% \u2014 well covered)",
+        "Short interest: LOW (0.9% short \u2014 low short interest, not a crowded short)",
+        "Earnings quality: EXCEPTIONAL (Accruals -6.78% \u2014 cash earnings exceed reported earnings, ex)"
       ],
-      "revisions": null,
-      "insider": {
-        "form4_count_90d": 0,
-        "inst_ownership": 38.9,
-        "trend": "UNKNOWN",
-        "signal": 0,
-        "note": "Institutional ownership: 38.9%",
-        "source": "yfinance fallback"
+      "revisions": {
+        "last_month_target": 142.5,
+        "last_qtr_target": 136.18,
+        "last_year_target": 128.75,
+        "analyst_count_month": 2,
+        "month_vs_year_pct": 10.7,
+        "month_vs_qtr_pct": 4.6,
+        "trend": "STRONG_UP",
+        "signal": 2,
+        "note": "Targets up 10.7% YoY \u2014 analysts revising up aggressively"
       },
+      "insider": null,
       "dividend": {
-        "has_dividend": false,
-        "signal": 0,
-        "note": "No dividend"
+        "has_dividend": true,
+        "annual_div": 0.99,
+        "div_yield_pct": 78.7,
+        "eps": 2.74,
+        "payout_ratio": 36.1,
+        "fcf_payout": 999,
+        "safety": "SAFE",
+        "signal": 1,
+        "note": "Payout ratio 36.1% \u2014 well covered"
       },
       "short_interest": {
-        "short_pct_float": 1.09,
+        "short_pct_float": 0.95,
         "days_to_cover": 3.2,
-        "shares_short": 87112768,
+        "shares_short": 75577034,
         "level": "LOW",
         "squeeze_potential": false,
         "contrarian_signal": 0,
         "trend_signal": 0,
-        "note": "1.1% short \u2014 low short interest, not a crowded short"
+        "note": "0.9% short \u2014 low short interest, not a crowded short"
       },
-      "accruals": null
+      "accruals": {
+        "net_income": 22.27,
+        "operating_cf": 41.56,
+        "fcf": 14.92,
+        "accruals_ratio": -6.78,
+        "fcf_to_ni": 0.67,
+        "quality": "EXCEPTIONAL",
+        "signal": 2,
+        "note": "Accruals -6.78% \u2014 cash earnings exceed reported earnings, exceptional quality"
+      },
+      "fetched_at": "2026-04-06T07:09:02.823890+00:00"
     }
   }
 }

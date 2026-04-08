@@ -45,7 +45,9 @@ BASE_RISK_PCT          = 0.01   # 1% of portfolio per trade
 MAX_RISK_PCT           = 0.025  # 2.5% hard cap
 MIN_POSITION_VALUE     = 50     # £50 minimum position
 MAX_OPEN_POSITIONS     = 6      # Maximum concurrent positions
-MAX_SECTOR_POSITIONS   = 2      # Max positions in one sector
+MIN_COUNTED_NOTIONAL   = 150    # Positions below this notional (£) are dust — not counted toward limit
+MAX_SECTOR_POSITIONS   = 2      # Max positions (count) in one sector
+MAX_SECTOR_NOTIONAL_PCT = 0.10  # Max 10% of portfolio notional in any one sector
 
 # ── Signal Quality Gates ──────────────────────────────────────────────────────
 MIN_EV_RATIO           = 1.5    # Minimum expected value ratio (GBP instruments)
@@ -74,6 +76,17 @@ ATR_STOP_CONTRARIAN    = 2.5    # Wider — buying into weakness needs room
 ATR_STOP_INVERSE       = 1.5    # Tighter — short-term mean-reversion only
 ATR_TARGET_T1          = 2.0    # T1 = entry + 2× ATR
 ATR_TARGET_T2          = 3.5    # T2 = entry + 3.5× ATR
+
+# ── Signal Lifecycle ─────────────────────────────────────────────────────────
+SIGNAL_MAX_AGE_HOURS = 6   # Signals older than this are expired and deleted
+
+# ── Circuit Breaker Recovery & Rolling Drawdown ───────────────────────────────
+CB_RECOVERY_RAMP_TRADES = 5      # trades at 50% sizing after SUSPEND auto-resume
+CB_ROLLING_THRESHOLDS   = {
+    3:  -8.0,    # 3-day cumulative loss > 8%  → CAUTION
+    5:  -10.0,   # 5-day cumulative loss > 10% → SUSPEND
+    10: -15.0,   # 10-day cumulative loss > 15% → CRITICAL
+}
 
 # ── Environment / Credentials ────────────────────────────────────────────────
 def get_env(key: str, default: str = '') -> str:

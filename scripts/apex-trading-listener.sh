@@ -105,6 +105,24 @@ process_message() {
     return
   fi
 
+  # Natural language sell flow — handles:
+  #   "Sell Apple / AAPL"          → prompts for confirmation
+  #   "Confirm Apple sell"          → executes immediately
+  #   "Confirm sell of AAPL"        → executes immediately
+  #   "CONFIRM SELL AAPL_US_EQ"     → executes immediately
+  if echo "$text_lower" | grep -qE \
+    "^(confirm[[:space:]]+)?(sell|exit)[[:space:]]|^confirm[[:space:]]+.+[[:space:]]+(sell|close|exit)[[:space:]]*$"; then
+    IS_CONFIRMED=0
+    echo "$text_lower" | grep -qiE "^confirm" && IS_CONFIRMED=1
+    SELL_RESULT=$(python3 /home/ubuntu/.picoclaw/scripts/apex-sell-command.py \
+      --text "$text" --confirmed "$IS_CONFIRMED" 2>/dev/null)
+    SELL_RC=$?
+    SELL_MSG=$(echo "$SELL_RESULT" | python3 -c \
+      "import sys,json; print(json.load(sys.stdin).get('message','Sell command error'))" 2>/dev/null)
+    send_message "${SELL_MSG:-Sell command error}"
+    return
+  fi
+
   # Conversation flow replies
   if [ -f "/home/ubuntu/.picoclaw/logs/apex-manual-trade-state.json" ]; then
     if echo "$text_lower" | grep -qE "^yes$|^yeah$|^ok$|^sure$|^correct$|^yep$|^confirm$|^no$|^cancel$|^abort$" || \
@@ -123,8 +141,24 @@ process_message() {
     PNL|PROFIT|LOSS)
       get_pnl
       ;;
+    SELL|EXIT)
+      # SELL <ticker-or-name> or EXIT <ticker-or-name>
+      # Passes the full text; the script handles both prompting and execution.
+      SELL_RESULT=$(python3 /home/ubuntu/.picoclaw/scripts/apex-sell-command.py \
+        --text "$text" --confirmed 0 2>/dev/null)
+      SELL_MSG=$(echo "$SELL_RESULT" | python3 -c \
+        "import sys,json; print(json.load(sys.stdin).get('message','Sell command error'))" 2>/dev/null)
+      send_message "${SELL_MSG:-Sell command error}"
+      ;;
     CONFIRM)
-      if [ "$arg1" = "TACO" ]; then
+      if [ "$arg1" = "SELL" ]; then
+        # CONFIRM SELL <ticker> — rest of text after "CONFIRM SELL" is the stock identifier
+        SELL_RESULT=$(python3 /home/ubuntu/.picoclaw/scripts/apex-sell-command.py \
+          --text "$text" --confirmed 1 2>/dev/null)
+        SELL_MSG=$(echo "$SELL_RESULT" | python3 -c \
+          "import sys,json; print(json.load(sys.stdin).get('message','Sell command error'))" 2>/dev/null)
+        send_message "${SELL_MSG:-Sell command error}"
+      elif [ "$arg1" = "TACO" ]; then
         # TACO confirmation gate — set confirmed=true in apex-taco-pending.json
         TACO_PENDING="/home/ubuntu/.picoclaw/logs/apex-taco-pending.json"
         if [ -f "$TACO_PENDING" ]; then
@@ -294,15 +328,18 @@ To close a position: send CLOSE [ticker]"
       send_message "▶️ APEX RESUMED — trading restored."
       ;;
     STATUS)
+      # Sync positions with T212 first so STATUS reflects manual trades/closes
+      python3 /home/ubuntu/.picoclaw/scripts/apex-reconcile.py >/dev/null 2>&1 &
+      RECON_PID=$!
       PENDING=$([ -f "$SIGNAL_FILE" ] && \
         python3 -c "import json; d=json.load(open('$SIGNAL_FILE')); print(f\"{d['name']} | entry:£{d['entry']} | stop:£{d['stop']}\")" \
         2>/dev/null || echo "none")
       AP=$(python3 /home/ubuntu/.picoclaw/scripts/apex-autopilot.py status 2>/dev/null | head -1)
-      CASH_VAL=$(curl -s -H "Authorization: Basic $T212_AUTH" \
-        $T212_ENDPOINT/equity/account/cash | \
+      wait $RECON_PID 2>/dev/null || true
+      CASH_VAL=$(curl -s --max-time 8 -H "Authorization: Basic $T212_AUTH" \
+        "$T212_ENDPOINT/equity/account/cash" | \
         python3 -c "
 import sys, json
-CACHE='/home/ubuntu/.picoclaw/logs/apex-portfolio-cache.json'
 result = None
 try:
     d = json.load(sys.stdin)
@@ -313,17 +350,37 @@ except Exception:
     pass
 if not result:
     try:
-        c = json.load(open(CACHE))
-        v = c.get('value')
-        result = f'£{v} (cached)' if v else '£? (unavailable)'
+        pos = json.load(open('/home/ubuntu/.picoclaw/logs/apex-positions.json'))
+        invested = sum((p.get('current', p.get('entry',0)) or 0) * (p.get('quantity',0) or 0) for p in pos)
+        if invested > 0:
+            result = f'£{round(invested,2)} (est.)'
     except Exception:
-        result = '£? (unavailable)'
-print(result)
+        pass
+print(result or '£? (unavailable)')
+" 2>/dev/null)
+      POS_SUMMARY=$(python3 -c "
+import json
+try:
+    pos = json.load(open('/home/ubuntu/.picoclaw/logs/apex-positions.json'))
+    lines = []
+    total_pnl = 0
+    for p in pos:
+        ppl = p.get('ppl', 0) or 0
+        total_pnl += ppl
+        icon = '✅' if ppl >= 0 else '🔴'
+        lines.append(f\"  {icon} {p.get('name','?')[:18]:18s} | PnL: £{round(ppl,2)}\")
+    lines.append(f\"Net P&L: £{round(total_pnl,2)}\")
+    print('\n'.join(lines))
+except Exception as e:
+    print('  Positions unavailable')
 " 2>/dev/null)
       send_message "📊 APEX STATUS
 Portfolio: $CASH_VAL
 $AP
 Pending: $PENDING
+
+$POS_SUMMARY
+
 Uptime: $(uptime -p)"
       ;;
     SCAN)
@@ -398,8 +455,142 @@ PYEOF
   CONFIRM TACO      — authorise TACO signal
   CANCEL TACO       — abort TACO signal
 
+🤖 AGENT / GEMINI
+  QUERY regime      — regime + VIX snapshot
+  QUERY positions   — open positions + P&L
+  QUERY signals     — queue + last EV
+  QUERY performance — Sharpe, win rate
+  QUERY all         — full system snapshot
+  CHAIN risk-snapshot — run risk chain
+  TOOLS             — list all agent commands
+
 Just type naturally — 'what is my profit' works too."
       ;;
+    QUERY)
+      # Agent query interface — QUERY <source>
+      # Sources: regime, positions, signals, health, performance, autopilot, learning, schedule, all
+      SRC="${arg1:-all}"
+      VALID_SOURCES="regime positions signals health performance autopilot learning schedule queue all"
+      if ! echo "$VALID_SOURCES" | grep -qw "$SRC"; then
+        send_message "❓ Unknown query source: $SRC\n\nValid: regime positions signals health performance autopilot learning schedule queue all\n\nExample: QUERY regime"
+      else
+        RAW=$(python3 /home/ubuntu/.picoclaw/scripts/apex-query.py "$SRC" 2>&1)
+        if echo "$RAW" | python3 -c "import sys,json; json.load(sys.stdin)" >/dev/null 2>&1; then
+          SUMMARY=$(echo "$RAW" | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+src = d.get('source', '$SRC')
+lines = ['📊 APEX QUERY: ${SRC^^}', '']
+
+if '$SRC' == 'regime' or 'overall' in d:
+    lines += [
+        f'Regime: {d.get(\"overall\",\"?\")}',
+        f'VIX: {d.get(\"vix\",\"?\")}',
+        f'Multiplier: {d.get(\"size_multiplier\",\"?\")}x',
+        f'Circuit breaker: {d.get(\"circuit_breaker\",{}).get(\"status\",\"?\") if isinstance(d.get(\"circuit_breaker\"),dict) else d.get(\"circuit_breaker\",\"?\")}',
+        f'Block: {d.get(\"block_reason\",\"none\")}',
+    ]
+elif '$SRC' == 'positions' or 'count' in d:
+    lines += [
+        f'Open positions: {d.get(\"count\",0)}',
+        f'Total P&L: £{d.get(\"ppl\",0)}',
+        f'Cash: £{d.get(\"cash\",\"?\")}',
+        f'Data age: {d.get(\"age_mins\",\"?\")}m',
+    ]
+    for p in d.get('positions', [])[:5]:
+        lines.append(f'  {p.get(\"name\",\"?\")} | £{p.get(\"ppl\",0)} | {p.get(\"signal_type\",\"?\")}')
+elif '$SRC' == 'performance' or 'sharpe_ratio' in d:
+    lines += [
+        f'Sharpe: {d.get(\"sharpe_ratio\",\"?\")}',
+        f'Win rate: {round(float(d.get(\"win_rate\",0))*100,1)}%',
+        f'Closed trades: {d.get(\"closed_trades\",0)}',
+        f'Total P&L: £{round(d.get(\"total_pnl\",0),2)}',
+        f'Drawdown: {d.get(\"drawdown_pct\",\"?\")}%',
+    ]
+elif '$SRC' == 'signals' or 'queue_count' in d:
+    ev = d.get('ev_summary') or {}
+    lines += [
+        f'Queue: {d.get(\"queue_count\",0)} items',
+        f'Last EV: {ev.get(\"last_ev\",\"?\")} ({ev.get(\"verdict\",\"?\")})',
+        f'Signal type: {ev.get(\"signal_type\",\"?\")}',
+    ]
+elif '$SRC' == 'health' or 'circuit_breaker' in d:
+    cb = d.get('circuit_breaker',{})
+    dd = d.get('drawdown',{})
+    lines += [
+        f'Circuit breaker: {cb.get(\"status\",\"?\") if isinstance(cb,dict) else cb}',
+        f'Drawdown: {dd.get(\"status\",\"?\") if isinstance(dd,dict) else dd} {dd.get(\"drawdown_pct\",\"\") if isinstance(dd,dict) else \"\"}%',
+    ]
+elif '$SRC' == 'autopilot' or 'enabled' in d:
+    lines += [
+        f'Enabled: {d.get(\"enabled\",False)}',
+        f'Paused: {d.get(\"paused\",False)}',
+        f'Total trades: {d.get(\"total_autonomous_trades\",0)}',
+        f'Last action: {d.get(\"last_action\",\"none\")}',
+    ]
+elif '$SRC' == 'all':
+    for key in ['regime','positions','signals','health','performance','autopilot']:
+        sub = d.get(key, {})
+        if isinstance(sub, dict):
+            lines.append(f'{key.upper()}: ' + ' | '.join(f'{k}={v}' for k,v in list(sub.items())[:3]))
+else:
+    lines.append(json.dumps(d, indent=2)[:800])
+
+print('\n'.join(str(l) for l in lines))
+" 2>/dev/null || echo "$RAW" | head -c 1000)
+          send_message "$SUMMARY"
+        else
+          send_message "❌ Query failed:\n$RAW"
+        fi
+      fi
+      ;;
+
+    CHAIN)
+      # Run a named chain — CHAIN <name>
+      CHAIN_NAME="$arg1"
+      if [ -z "$CHAIN_NAME" ]; then
+        CHAINS=$(python3 -c "
+import json
+c = json.load(open('/home/ubuntu/.picoclaw/scripts/apex-tool-chains.json'))
+for name, chain in c['chains'].items():
+    print(f'  {name} — {chain[\"description\"]}')
+" 2>/dev/null)
+        send_message "🔗 Available chains:\n\n$CHAINS\n\nUsage: CHAIN <name>"
+      else
+        send_message "🔗 Running chain: $CHAIN_NAME..."
+        RESULT=$(python3 /home/ubuntu/.picoclaw/scripts/apex-cron-runner.py "$CHAIN_NAME" 2>&1)
+        send_message "🔗 CHAIN $CHAIN_NAME\n\n$RESULT"
+      fi
+      ;;
+
+    TOOLS)
+      # List available query sources and chains
+      send_message "🛠 APEX AGENT TOOLS
+
+📊 QUERY <source>
+  regime       — VIX, breadth, circuit breaker
+  positions    — open positions, P&L
+  signals      — queue, last EV signal
+  health       — data integrity, drawdown
+  performance  — Sharpe, win rate, trades
+  autopilot    — enabled status, trade count
+  learning     — weights, edge proof
+  schedule     — upcoming cron jobs
+  all          — full system snapshot
+
+🔗 CHAIN <name>
+  morning-health    — data integrity checks
+  morning-regime    — regime + risk gates
+  signal-pipeline   — macro + signals
+  risk-snapshot     — full risk assessment
+  learning-cycle    — update weights + edge
+  performance-review — EOD analysis
+  full-morning      — complete morning prep
+
+Example: QUERY regime
+Example: CHAIN risk-snapshot"
+      ;;
+
     *)
       # Unknown command — show help hint
       send_message "🤖 Type HELP for commands or just ask naturally:

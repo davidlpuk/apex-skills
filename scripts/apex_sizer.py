@@ -39,9 +39,11 @@ def calculate_final_position(signal, intel):
         regime_scale = 0.5
 
     portfolio_value = get_portfolio_value() or 5000
-    risk_pct        = 0.01
+    # 2026-04-07: lifted base risk 1% → 1.75% and cap 1.5% → 2.5% to fix cash drag.
+    # Historical Kelly (64% WR, 1.35 R) suggests ~12% per trade as 1/4-Kelly; 1% was 1/50-Kelly.
+    risk_pct        = 0.0175
     base_risk       = round(portfolio_value * risk_pct * regime_scale, 2)
-    base_risk       = max(5.0, min(portfolio_value * 0.015, base_risk))
+    base_risk       = max(5.0, min(portfolio_value * 0.025, base_risk))
 
     score      = signal.get('adjusted_score', signal.get('total_score', 7))
     max_score  = 12
@@ -55,7 +57,7 @@ def calculate_final_position(signal, intel):
         conviction *= 0.9
 
     risk_amount = base_risk * conviction * intel['size_multiplier']
-    risk_amount = max(5.0, min(portfolio_value * 0.015, round(risk_amount, 2)))
+    risk_amount = max(5.0, min(portfolio_value * 0.025, round(risk_amount, 2)))
 
     # Kelly Criterion overlay — try v2 (continuous Kelly) first, fall back to thorp
     _kelly = None
@@ -135,5 +137,17 @@ def calculate_final_position(signal, intel):
         qty      = round(qty * layer_conf, 2)
         notional = round(qty * entry, 2)
         log_info(f"Layer confidence {layer_conf:.0%} — size reduced proportionally")
+
+    # Minimum viable notional — below this floor slippage/spread consumes the edge entirely.
+    # This catches compounded haircuts (drawdown × circuit_breaker × regime × Kelly)
+    # that reduce a position to <£100 where a 0.1% spread = 10bps cost on <£1 profit.
+    # Returning (0, 0) signals BLOCK to the caller — better to skip than waste a trade.
+    MIN_VIABLE_NOTIONAL = 100.0
+    if 0 < notional < MIN_VIABLE_NOTIONAL:
+        log_warning(
+            f"Position below minimum viable notional: £{notional:.2f} < £{MIN_VIABLE_NOTIONAL} "
+            f"— returning (0, 0) to block (slippage destroys edge at this size)"
+        )
+        return 0, 0
 
     return qty, notional

@@ -1,31 +1,59 @@
 {
-  "timestamp": "2026-03-24 13:37 UTC",
+  "timestamp": "2026-04-08 07:30 UTC",
   "geo_flags": [
     {
-      "source": "BBC Business",
-      "title": "China dials back on fuel price hikes to 'reduce burden' on drivers"
+      "source": "BBC World",
+      "title": "WHO suspends Gaza medical evacuations after contractor killed by Israeli troops"
     },
     {
       "source": "BBC World",
-      "title": "At least five killed in massive wave of Russian strikes across Ukraine, officials say"
-    },
-    {
-      "source": "BBC World",
-      "title": "China dials back on fuel price hikes to 'reduce burden' on drivers"
-    },
-    {
-      "source": "BBC World",
-      "title": "Inside the alleged Russian operation to trigger anti-government protests in Angola"
+      "title": "Australia's most-decorated living soldier charged over alleged war crimes"
     }
   ],
   "energy_flags": [
     {
       "source": "BBC Business",
-      "title": "Oil traders bet millions minutes before Trump's Iran talks post"
+      "title": "Oil prices plunge on US-Iran ceasefire deal to reopen Strait of Hormuz"
     },
     {
       "source": "BBC Business",
-      "title": "Oil back above $100 a barrel as conflicting claims emerge on US-Iran talks"
+      "title": "The US refinery now processing Venezuelan oil"
+    },
+    {
+      "source": "BBC Business",
+      "title": "How the Iran war affects your money and bills"
+    },
+    {
+      "source": "BBC Business",
+      "title": "Oil price fluctuates ahead of Trump's Iran deal deadline"
+    },
+    {
+      "source": "BBC Business",
+      "title": "Trump's deadline looms but Asian nations already have deals with Iran"
+    },
+    {
+      "source": "BBC Business",
+      "title": "India's high-growth economy gets a Middle East oil shock"
+    },
+    {
+      "source": "BBC World",
+      "title": "Iran ceasefire deal gives Trump a way out of war - but at a high cost"
+    },
+    {
+      "source": "BBC World",
+      "title": "What we know about the two-week ceasefire between the US and Iran"
+    },
+    {
+      "source": "BBC World",
+      "title": "Oil prices plunge on US-Iran ceasefire deal to reopen Strait of Hormuz"
+    },
+    {
+      "source": "BBC World",
+      "title": "French couple leave Iran after more than three years in jail"
+    },
+    {
+      "source": "BBC World",
+      "title": "Chilean woman accused of Pinochet-era kidnaps loses Australia extradition battle"
     }
   ],
   "total_scanned": 30,

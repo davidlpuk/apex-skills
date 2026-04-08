@@ -1,4 +1,22 @@
 {
-  "timestamp": "2026-03-20 16:49 UTC",
-  "signals": []
+  "timestamp": "2026-04-08 07:27 UTC",
+  "signals": [
+    {
+      "code": "ABBV",
+      "name": "AbbVie",
+      "yahoo": "ABBV",
+      "price": NaN,
+      "rsi": 34.3,
+      "last_div": 1.73,
+      "next_ex_date": "2026-04-16",
+      "days_to_ex": 7,
+      "yield_pct": NaN,
+      "est_yield": 3.8,
+      "stop": NaN,
+      "target": NaN,
+      "quantity": NaN,
+      "signal_type": "DIVIDEND_CAPTURE",
+      "rationale": "Ex-div in 7 days | yield nan% | buy now, collect dividend"
+    }
+  ]
 }

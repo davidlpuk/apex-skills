@@ -1,0 +1,109 @@
+{
+  "timestamp": "2026-04-07T19:40:59.229697Z",
+  "n_real_trades": 10,
+  "best_confirmed_type": null,
+  "by_signal_type": {
+    "CONTRARIAN": {
+      "signal_type": "CONTRARIAN",
+      "n_real": 4,
+      "wins_real": 2,
+      "win_rate_pct": 50.0,
+      "ci_95": [
+        15.0,
+        85.0
+      ],
+      "backtest_used": true,
+      "combined_n": 61,
+      "combined_wins": 29,
+      "p_value": 1.0,
+      "expectancy_r": -0.035,
+      "avg_win_r": 0.595,
+      "avg_loss_r": 0.665,
+      "verdict": "NOT_PROVEN"
+    },
+    "DIVIDEND_CAPTURE": {
+      "signal_type": "DIVIDEND_CAPTURE",
+      "n_real": 0,
+      "wins_real": 0,
+      "win_rate_pct": null,
+      "ci_95": [
+        0.0,
+        100.0
+      ],
+      "backtest_used": true,
+      "combined_n": 57,
+      "combined_wins": 27,
+      "p_value": 1.0,
+      "expectancy_r": 0.0,
+      "avg_win_r": 0.0,
+      "avg_loss_r": 0.0,
+      "verdict": "NOT_PROVEN"
+    },
+    "EARNINGS_DRIFT": {
+      "signal_type": "EARNINGS_DRIFT",
+      "n_real": 0,
+      "wins_real": 0,
+      "win_rate_pct": null,
+      "ci_95": [
+        0.0,
+        100.0
+      ],
+      "backtest_used": true,
+      "combined_n": 57,
+      "combined_wins": 27,
+      "p_value": 1.0,
+      "expectancy_r": 0.0,
+      "avg_win_r": 0.0,
+      "avg_loss_r": 0.0,
+      "verdict": "NOT_PROVEN"
+    },
+    "INVERSE": {
+      "signal_type": "INVERSE",
+      "n_real": 3,
+      "wins_real": 1,
+      "win_rate_pct": 33.3,
+      "ci_95": [
+        6.2,
+        79.2
+      ],
+      "backtest_used": true,
+      "combined_n": 60,
+      "combined_wins": 28,
+      "p_value": 1.0,
+      "expectancy_r": 0.133,
+      "avg_win_r": 0.4,
+      "avg_loss_r": 0.0,
+      "verdict": "NOT_PROVEN"
+    },
+    "TREND": {
+      "signal_type": "TREND",
+      "n_real": 3,
+      "wins_real": 1,
+      "win_rate_pct": 33.3,
+      "ci_95": [
+        6.2,
+        79.2
+      ],
+      "backtest_used": true,
+      "combined_n": 60,
+      "combined_wins": 28,
+      "p_value": 1.0,
+      "expectancy_r": 4.783,
+      "avg_win_r": 14.81,
+      "avg_loss_r": 0.23,
+      "verdict": "NOT_PROVEN"
+    }
+  },
+  "summary": {
+    "confirmed": [],
+    "marginal": [],
+    "not_proven": [
+      "CONTRARIAN",
+      "DIVIDEND_CAPTURE",
+      "EARNINGS_DRIFT",
+      "INVERSE",
+      "TREND"
+    ],
+    "insufficient": []
+  }
+}

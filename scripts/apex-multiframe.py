@@ -32,7 +32,7 @@ YAHOO_MAP = {
     "KO":"KO","PEP":"PEP","PG":"PG","WMT":"WMT",
     "TSLA":"TSLA","HSBA":"HSBA.L","AZN":"AZN.L","GSK":"GSK.L",
     "ULVR":"ULVR.L","SHEL":"SHEL.L","VUAG":"VUAG.L",
-    "SQQQ":"SQQQ","QQQS":"QQQS.L","3USS":"3USS.L","SPXU":"SPXU",
+    "QQQS":"QQQS.L","3ULS":"3ULS.L",
 }
 
 def fix_pence(price, yahoo):

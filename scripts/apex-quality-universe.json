@@ -205,6 +205,97 @@
       "user_added": true,
       "added_at": "2026-03-25T10:55:15.942288+00:00",
       "contrarian_note": "RSI 38 at add time \u2014 monitor for genuine oversold"
+    },
+    "POOL": {
+      "name": "POOL",
+      "market_cap": "unknown",
+      "fcf_yield": 0.0,
+      "quality_score": 8,
+      "user_added": true,
+      "added_at": "2026-03-26T13:53:46.937437+00:00",
+      "contrarian_note": "RSI 37 at add time \u2014 monitor for genuine oversold"
+    },
+    "BP": {
+      "name": "BP",
+      "market_cap": "80B",
+      "fcf_yield": 8.2,
+      "quality_score": 7,
+      "contrarian_preferred": true,
+      "contrarian_note": "Integrated oil, high FCF, reliable mean reversion in energy selloffs \u2014 70% WR"
+    },
+    "COP": {
+      "name": "ConocoPhillips",
+      "market_cap": "130B",
+      "fcf_yield": 7.1,
+      "quality_score": 8,
+      "contrarian_preferred": true,
+      "contrarian_note": "Best-in-class E&P, low cost, oil shock mean reversion \u2014 68% WR"
+    },
+    "LLY": {
+      "name": "Eli Lilly",
+      "market_cap": "700B",
+      "fcf_yield": 1.8,
+      "quality_score": 9,
+      "contrarian_preferred": true,
+      "contrarian_note": "GLP-1 secular grower, dips bought hard \u2014 72% WR"
+    },
+    "RTX": {
+      "name": "RTX Corp",
+      "market_cap": "180B",
+      "fcf_yield": 4.9,
+      "quality_score": 8,
+      "contrarian_preferred": true,
+      "contrarian_note": "Defence, GEO-conflict beneficiary, steady earnings \u2014 71% WR"
+    },
+    "PEP": {
+      "name": "PepsiCo",
+      "market_cap": "200B",
+      "fcf_yield": 4.1,
+      "quality_score": 8,
+      "contrarian_preferred": true,
+      "contrarian_note": "Consumer staple, defensive, dips reliably recovered \u2014 75% WR"
+    },
+    "KO": {
+      "name": "Coca-Cola",
+      "market_cap": "260B",
+      "fcf_yield": 3.9,
+      "quality_score": 8,
+      "contrarian_preferred": true,
+      "contrarian_note": "Fortress staple, Buffett-owned, mean reverts consistently \u2014 78% WR"
+    },
+    "LMT": {
+      "name": "Lockheed Martin",
+      "market_cap": "110B",
+      "fcf_yield": 6.2,
+      "quality_score": 8,
+      "contrarian_preferred": true,
+      "contrarian_note": "Defence prime, GEO escalation tailwind, reliable recovery \u2014 69% WR"
+    },
+    "PG": {
+      "name": "Procter & Gamble",
+      "market_cap": "380B",
+      "fcf_yield": 3.6,
+      "quality_score": 9,
+      "contrarian_preferred": true,
+      "contrarian_note": "Ultimate defensive staple \u2014 dividends since 1890, mean reverts every cycle \u2014 80% WR"
+    },
+    "ALLE": {
+      "name": "ALLE",
+      "market_cap": "unknown",
+      "fcf_yield": 0.0,
+      "quality_score": 9,
+      "user_added": true,
+      "added_at": "2026-04-08T08:17:31.967837+00:00",
+      "contrarian_note": "RSI 30 at add time \u2014 monitor for genuine oversold"
+    },
+    "LEN": {
+      "name": "LEN",
+      "market_cap": "unknown",
+      "fcf_yield": 0.0,
+      "quality_score": 9,
+      "user_added": true,
+      "added_at": "2026-04-08T08:59:42.091024+00:00",
+      "contrarian_note": "RSI 32 at add time \u2014 monitor for genuine oversold"
     }
   },
   "energy_beneficiaries": [
@@ -215,7 +306,10 @@
     "TTE",
     "IUES",
     "NG",
-    "SSE"
+    "SSE",
+    "CRUD",
+    "AIGE",
+    "COPA"
   ],
   "energy_victims": [
     "airlines",
@@ -233,7 +327,11 @@
         "TTE",
         "IUES",
         "SSLN",
-        "SGLN"
+        "SGLN",
+        "CRUD",
+        "AIGE",
+        "COPA",
+        "DFNG"
       ],
       "avoid": [
         "VOD",
@@ -246,7 +344,9 @@
     "trade_war": {
       "favour": [
         "HSBA",
-        "domestic_uk"
+        "domestic_uk",
+        "NDIA",
+        "DFNG"
       ],
       "avoid": [
         "AAPL",
@@ -276,7 +376,10 @@
         "SSLN",
         "VGOV",
         "JNJ",
-        "UNH"
+        "UNH",
+        "IBTS",
+        "IS15",
+        "INFR"
       ],
       "avoid": [
         "TSLA",

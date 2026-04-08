@@ -3,6 +3,7 @@ import json
 import subprocess
 import sys
 import os
+import signal as _sig
 from datetime import datetime, timezone, timedelta
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
@@ -34,6 +35,72 @@ QUALITY_FILE     = '/home/ubuntu/.picoclaw/scripts/apex-quality-universe.json'
 BREAKER_FILE     = '/home/ubuntu/.picoclaw/logs/apex-circuit-breaker.json'
 BT_V2_INSIGHTS   = '/home/ubuntu/.picoclaw/logs/apex-backtest-v2-insights.json'
 
+# Max notional exposure in any single sector as a fraction of portfolio value.
+# Complements MAX_SECTOR_POSITIONS (count limit) — prevents e.g. two large tech
+# positions each at 4% creating an 8% sector concentration.
+# ETF and UNKNOWN sectors are excluded (diversified / uncategorised).
+MAX_SECTOR_NOTIONAL_PCT = 0.10
+
+# Positions with notional below this are "dust" (TACO micro-lots, partial close
+# residuals) and should not count against the position limit.
+# Matches MIN_COUNTED_NOTIONAL in apex-decision-engine.py.
+MIN_COUNTED_NOTIONAL = 150
+
+# Maximum log entries stored in apex-autopilot.json['log'].
+# Older entries are pruned to keep the file small and load/save fast.
+MAX_AUTOPILOT_LOG_ENTRIES = 100
+
+
+def _clear_signal(reason=''):
+    """Remove the pending signal file after a terminal block or execution.
+
+    Every gate that permanently rejects a signal must call this so the
+    system doesn't re-evaluate the same dead signal on every autopilot
+    cycle.  Time/capacity blocks (market hours, daily limit) are the
+    exception — they don't call this because the signal is still valid
+    and the next cycle may allow it.
+    """
+    try:
+        os.remove(SIGNAL_FILE)
+        msg = f"Signal cleared ({reason})" if reason else "Signal cleared"
+        print(f"  {msg}")
+    except FileNotFoundError:
+        pass
+    except Exception as _e:
+        log_error(f"Failed to clear signal file: {_e}")
+
+
+class _GateTimeout(Exception):
+    """Raised internally when a gate check exceeds its wall-clock budget."""
+
+
+def _gate_with_timeout(fn, seconds=30, default=None, gate_name='unknown'):
+    """
+    Run gate function *fn* with a hard SIGALRM timeout.
+
+    If the gate hangs (e.g. yfinance DNS timeout, T212 API stall), it returns
+    *default* rather than blocking indefinitely.  The timeout is logged as a
+    WARNING — not an error — because the system proceeds conservatively rather
+    than failing closed.
+
+    SIGALRM is Unix/Linux only and must be called from the main thread.
+    Both conditions are true here: Linux server, cron-invoked main thread.
+    """
+    def _handler(signum, frame):
+        raise _GateTimeout()
+
+    old_handler = _sig.signal(_sig.SIGALRM, _handler)
+    _sig.alarm(seconds)
+    try:
+        return fn()
+    except _GateTimeout:
+        log_warning(f"Gate '{gate_name}' timed out after {seconds}s — returning default ({default!r})")
+        return default
+    finally:
+        _sig.alarm(0)
+        _sig.signal(_sig.SIGALRM, old_handler)
+
+
 def load_backtest_calibration(signal_type: str) -> dict:
     """
     Load optimal parameters from backtest v2 walk-forward insights.
@@ -63,13 +130,9 @@ def load_backtest_calibration(signal_type: str) -> dict:
             return default
         optimal = bt.get('optimal_params', {}).get(signal_type, {})
         if not optimal:
-            # Try aggregate across both modes
-            for mode_key in ('TREND', 'CONTRARIAN'):
-                candidate = bt.get('optimal_params', {}).get(mode_key, {})
-                if candidate:
-                    optimal = candidate
-                    break
-        if not optimal:
+            # No backtest data for this signal type — use its own default.
+            # Do NOT borrow another type's threshold (e.g. CONTRARIAN=8 wrongly
+            # applied to INVERSE=7 would block every valid score-7 INVERSE signal).
             return default
 
         result = {
@@ -142,25 +205,25 @@ def safety_check(config, signal):
     if daily_loss >= config.get('max_daily_loss', 100):
         blocks.append(f"Daily loss limit £{config['max_daily_loss']} reached")
 
-    # Market hours
-    if now.hour > 15 or (now.hour == 15 and now.minute >= 30):
-        blocks.append("No trades after 15:30 GMT")
-
-    # Last 30 min of LSE session: institutional rebalancing widens spreads
-    if now.hour == 15 and now.minute < 30:
-        blocks.append("No entries in last 30 min of session (15:00–15:30 UTC — institutional close)")
+    # Market hours — hard close at 16:00 UTC
+    # UK (LSE) closes at 16:30 UTC; US (NYSE/NASDAQ) closes at 21:00 UTC.
+    # 16:00 gives a 30-min buffer before LSE close and captures US morning in full.
+    if now.hour >= 16:
+        blocks.append("No trades after 16:00 UTC")
 
     # Friday afternoon
     if now.weekday() == 4 and now.hour >= 12:
         blocks.append("No trades Friday afternoon")
 
     # Min time between trades
+    # Contrarian trades enforce a 24h gap — mean reversion setups don't repeat
+    # the same day. Other signal types enforce a 2h gap to prevent overtrading.
     last_trade = config.get('last_trade_time')
     if last_trade:
         try:
             last_dt = datetime.fromisoformat(last_trade)
             elapsed = (now - last_dt).total_seconds() / 3600
-            min_hours = 4 if signal_type == 'CONTRARIAN' else 2
+            min_hours = 24 if signal_type == 'CONTRARIAN' else 2
             if elapsed < min_hours:
                 blocks.append(f"Min {min_hours}h between {'contrarian ' if signal_type == 'CONTRARIAN' else ''}trades — last was {round(elapsed,1)}h ago")
         except Exception as _e:
@@ -182,13 +245,39 @@ def safety_check(config, signal):
             if config.get('trades_today', 0) >= 1:
                 blocks.append(f"Losing streak (last 3 trades negative) — max 1 trade/day in defensive mode")
 
-    # Max open positions — contrarians allowed one extra slot on top of the configured limit
+    # Max open positions — contrarians allowed one extra slot on top of the configured limit.
+    # Dust positions (notional < MIN_COUNTED_NOTIONAL) are excluded so micro-lots from
+    # TACO injections or partial-close residuals don't consume real position slots.
     positions = load_positions()
-    has_contrarian = any(p.get('signal_type') == 'CONTRARIAN' for p in positions)
-    base_max     = config.get('max_positions', 6)
+    real_positions = [
+        p for p in positions
+        if (p.get('entry', 0) or 0) * (p.get('quantity', 0) or 0) >= MIN_COUNTED_NOTIONAL
+    ]
+    dust_count = len(positions) - len(real_positions)
+    has_contrarian = any(p.get('signal_type') == 'CONTRARIAN' for p in real_positions)
+    base_max      = config.get('max_positions', 6)
     max_positions = base_max + 1 if (signal_type == 'CONTRARIAN' and not has_contrarian) else base_max
-    if len(positions) >= max_positions:
-        blocks.append(f"Max {max_positions} positions — have {len(positions)}")
+    dust_note = f" (+{dust_count} dust excluded)" if dust_count else ""
+    if len(real_positions) >= max_positions:
+        blocks.append(f"Max {max_positions} positions — have {len(real_positions)}{dust_note}")
+
+    # Free cash pre-flight — block if available cash < 90% of trade notional.
+    # Prevents the order executor receiving a trade it can't fund, which causes
+    # a silent partial-fill or outright rejection after the "executing" Telegram.
+    notional = (signal.get('quantity', 0) or 0) * (signal.get('entry', 0) or 0)
+    if notional > 50:
+        try:
+            from apex_utils import t212_request as _t212
+            _cash = _t212('/equity/account/cash')
+            if _cash and isinstance(_cash, dict):
+                _free = float(_cash.get('free', 0) or 0)
+                if _free > 0 and _free < notional * 0.90:
+                    blocks.append(
+                        f"Insufficient free cash: £{_free:.0f} available, "
+                        f"trade needs £{notional:.0f} (need 90% = £{notional*0.9:.0f})"
+                    )
+        except Exception:
+            pass  # Non-blocking — skip if T212 API unavailable
 
     # Sector concentration limit — max 2 positions in the same sector.
     # Ticker-level correlation can pass at 0.65 while the portfolio is 100% sector-exposed
@@ -204,6 +293,26 @@ def safety_check(config, signal):
         )
         if same_sector_count >= 2:
             blocks.append(f"Sector concentration: already {same_sector_count} positions in {new_sector} (max 2)")
+
+    # Sector notional limit — max 10% of portfolio in any single sector.
+    # Prevents two large positions in the same sector breaching the heat gate
+    # individually while combining to unacceptable concentration (e.g. AAPL 4% + MSFT 4% = 8% tech).
+    if new_sector and new_sector.lower() not in ('unknown', 'etf', ''):
+        portfolio_val = get_portfolio_value() or config.get('portfolio_value', 5000)
+        if portfolio_val and portfolio_val > 0:
+            sector_notional = sum(
+                p.get('quantity', 0) * p.get('current', p.get('entry', 0))
+                for p in positions
+                if p.get('sector', '').lower() == new_sector.lower()
+                and p.get('sector', '').lower() not in ('etf', 'unknown', '')
+            )
+            signal_notional = signal.get('quantity', 0) * signal.get('entry', 0)
+            combined_pct = (sector_notional + signal_notional) / portfolio_val
+            if combined_pct > MAX_SECTOR_NOTIONAL_PCT:
+                blocks.append(
+                    f"Sector notional limit: {new_sector} would reach "
+                    f"{combined_pct:.1%} of portfolio (max {MAX_SECTOR_NOTIONAL_PCT:.0%})"
+                )
 
     # Portfolio heat gate — block if total at-risk capital > 8% of portfolio
     try:
@@ -292,18 +401,22 @@ def geo_news_check(signal):
     name   = signal.get('name', '')
     sector = signal.get('sector', '')
 
-    # Contrarian and TACO trades allowed during geo alert — buying the panic dip
-    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL', 'TACO_CONTRARIAN']:
+    # Contrarian, TACO, and INVERSE trades allowed during geo alert.
+    # Contrarian/TACO = buying the panic dip.
+    # INVERSE = explicitly bearish — geo events strengthen the bear case, not weaken it.
+    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL', 'TACO_CONTRARIAN', 'INVERSE']:
         return "CLEAR", []
 
     # All TREND/momentum entries blocked during geo ALERT — uncertainty too high
-    return "BLOCK", ["Geo alert active — all trend entries halted (contrarian still allowed)"]
+    return "BLOCK", ["Geo alert active — all trend entries halted (contrarian/inverse still allowed)"]
 
 def market_direction_check(signal):
     signal_type = signal.get('signal_type', 'TREND')
 
-    # Contrarian and TACO trades ignore market direction — that's the whole point
-    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL', 'TACO_CONTRARIAN']:
+    # Contrarian, TACO and INVERSE trades ignore market direction blocks.
+    # Contrarian/TACO = buy the dip regardless of direction.
+    # INVERSE = bearish direction is a tailwind, not a block.
+    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL', 'TACO_CONTRARIAN', 'INVERSE']:
         return "CLEAR", []
 
     try:
@@ -343,17 +456,21 @@ def contrarian_quality_check(signal):
     if signal_type not in ('CONTRARIAN',):
         return "CLEAR", []
 
-    name = signal.get('name', '')
-    rsi  = float(signal.get('rsi', 50))
+    name   = signal.get('name', '')
+    ticker = signal.get('ticker', name)  # original short symbol preserved by save_and_notify
+    rsi    = float(signal.get('rsi', 50))
 
     # Hard rule — contrarian trades only on quality names
     try:
         with open(QUALITY_FILE) as f:
             quality_db = json.load(f)
         quality = quality_db.get('quality_stocks', {})
-        if name not in quality:
+        # Quality universe is keyed by short ticker (e.g. "NFE"), but the pending
+        # signal uses the display name (e.g. "New Fortress Energy"). Try both.
+        quality_key = name if name in quality else (ticker if ticker in quality else None)
+        if quality_key is None:
             return "BLOCK", [f"{name} not in quality universe — contrarian trades quality only"]
-        qs = quality[name].get('quality_score', 0)
+        qs = quality[quality_key].get('quality_score', 0)
         if qs < 7:
             return "BLOCK", [f"{name} quality score {qs}/10 too low for contrarian trade"]
     except Exception as _e:
@@ -409,7 +526,7 @@ def check_intraday_signal_decay(signal):
         "GOOGL_US_EQ": "GOOGL", "JPM_US_EQ": "JPM", "CVX_US_EQ": "CVX",
         "ABBV_US_EQ": "ABBV", "JNJ_US_EQ": "JNJ", "GS_US_EQ": "GS",
         "SHEL_EQ": "SHEL.L", "HSBA_EQ": "HSBA.L", "AZN_EQ": "AZN.L",
-        "QQQSl_EQ": "QQQS.L", "3USSl_EQ": "3USS.L", "SQQQ_EQ": "SQQQ",
+        "QQQSl_EQ": "QQQS.L", "3ULSl_EQ": "3ULS.L",
     }
     yahoo = YAHOO_MAP.get(t212_ticker, '')
     if not yahoo:
@@ -471,7 +588,13 @@ def get_dynamic_position_size(signal):
     try:
         with open(QUALITY_FILE) as f:
             quality_db = json.load(f)
-        qs = quality_db.get('quality_stocks', {}).get(signal.get('name', ''), {}).get('quality_score', 5)
+        quality = quality_db.get('quality_stocks', {})
+        # Same display-name-vs-short-symbol mismatch as contrarian_quality_check:
+        # pending signal stores the display name ("New Fortress Energy") but the
+        # quality universe is keyed by short ticker ("NFE"). Try both.
+        _qname = signal.get('name', '')
+        _qtick = signal.get('ticker', _qname)
+        qs = (quality.get(_qname) or quality.get(_qtick) or {}).get('quality_score', 5)
     except Exception:
         qs = 5
 
@@ -591,6 +714,7 @@ def run(mode='check', dry_run=False):
         )
         send_telegram(f"🤖 SCORE GATE\n\n{type_icon} {name} ({type_label})\n{reason}")
         print(f"SCORE GATE: {reason}")
+        _clear_signal(f"score gate ({score} < {cal_threshold})")
         return
     if bt_cal['source'] == 'v2_insights':
         print(f"  Backtest gate: score {score} >= {cal_threshold} (v2 calibrated)")
@@ -603,9 +727,10 @@ def run(mode='check', dry_run=False):
     if not decay_ok:
         send_telegram(
             f"📉 SIGNAL DECAY BLOCK\n\n{type_icon} {name} ({type_label})\n{decay_msg}\n\n"
-            f"Signal will be re-evaluated at next morning scan."
+            f"Signal cleared — will be re-evaluated at next morning scan."
         )
         print(f"DECAY BLOCKED: {decay_msg}")
+        _clear_signal("decay")
         return
     if effective_score != score:
         signal['score_at_execution'] = effective_score
@@ -647,6 +772,7 @@ def run(mode='check', dry_run=False):
             reason = " | ".join(q_blocks)
             send_telegram(f"🤖 QUALITY BLOCK\n\n{name}\n{reason}")
             print(f"QUALITY BLOCKED: {reason}")
+            _clear_signal("quality block")
             return
 
     # EDGAR insider hard-block — if cluster selling, require score >= 8
@@ -662,6 +788,7 @@ def run(mode='check', dry_run=False):
                 _reason = ' | '.join(_insider_reasons)
                 send_telegram(f"🔴 INSIDER BLOCK\n\n{type_icon} {name}\nCluster insider selling detected\n{_reason}\nScore {score}/10 below 8.0 threshold required to override\n\nTrade blocked.")
                 print(f"INSIDER BLOCKED: score={score} < 8 required | {_reason}")
+                _clear_signal("insider block")
                 return
             elif _insider_score <= -2:
                 print(f"  Insider warning: {_insider_score} ({_reason}) — score {score} clears threshold")
@@ -669,11 +796,15 @@ def run(mode='check', dry_run=False):
         log_error(f"EDGAR insider block check failed: {_e}")
 
     # Regime check — skipped for contrarian
-    reg_status, reg_blocks = regime_check(signal)
+    reg_status, reg_blocks = _gate_with_timeout(
+        lambda: regime_check(signal), seconds=25,
+        default=('PASS', []), gate_name='regime'
+    )
     if reg_status == "BLOCKED":
         reason = " | ".join(reg_blocks)
         send_telegram(f"🤖 REGIME BLOCK\n\n{name} ({type_label})\n{reason}")
         print(f"REGIME BLOCKED: {reason}")
+        _clear_signal("regime block")
         return
 
     # ── Four Pillars Audit ─────────────────────────────────────
@@ -687,6 +818,7 @@ def run(mode='check', dry_run=False):
         if not bs_ok:
             send_telegram(f"🦢 BLACK SWAN BLOCK\n\n{name}\n{bs_msg}")
             print(f"BLACK SWAN BLOCKED: {bs_msg}")
+            _clear_signal("black swan block")
             return
         elif 'CAUTION' in bs_msg:
             print(f"Black Swan caution: {bs_msg}")
@@ -777,6 +909,7 @@ def run(mode='check', dry_run=False):
                 f"Flight-to-safety detected — halting new entries"
             )
             print(f"SAFE HAVEN BLOCKED: score={_shv_score} level={_shv_level}")
+            _clear_signal("safe haven crisis")
             return
         elif _shv_score >= 6:  # WARNING — log but allow CONTRARIAN and TACO (both are volatility-spike trades)
             if signal.get('signal_type', 'TREND') not in ('CONTRARIAN', 'TACO_CONTRARIAN'):
@@ -786,39 +919,60 @@ def run(mode='check', dry_run=False):
                     f"Significant flight-to-safety — halting trend entries"
                 )
                 print(f"SAFE HAVEN WARNING BLOCK: score={_shv_score}")
+                _clear_signal("safe haven warning")
                 return
     except Exception as _e:
         log_error(f"Safe haven check failed: {_e}")
 
     # Real-time correlation check
-    corr_status, corr_blocks = realtime_correlation_check(signal)
+    corr_status, corr_blocks = _gate_with_timeout(
+        lambda: realtime_correlation_check(signal), seconds=25,
+        default=('PASS', []), gate_name='correlation'
+    )
     if corr_status == "BLOCK":
         reason = " | ".join(corr_blocks)
         send_telegram(f"🔗 CORRELATION BLOCK\n\n{name}\n{reason}\n\nToo correlated with existing position.")
         print(f"CORRELATION BLOCKED: {reason}")
+        _clear_signal("correlation block")
         return
 
     # Staleness check
-    stale_status, stale_reason = staleness_check()
+    stale_status, stale_reason = _gate_with_timeout(
+        staleness_check, seconds=20,
+        default=('PASS', 'timeout — price check skipped'), gate_name='staleness'
+    )
     if stale_status == 'ABORT':
         send_telegram(f"🤖 SIGNAL STALE\n\n{name}\n{stale_reason}")
         print(f"STALE: {stale_reason}")
+        try:
+            os.remove(SIGNAL_FILE)
+            print(f"  Cleared stale signal file — will regenerate on next scan")
+        except FileNotFoundError:
+            pass
         return
 
     # Geo check — energy favoured during conflict
-    geo_status, geo_blocks = geo_news_check(signal)
+    geo_status, geo_blocks = _gate_with_timeout(
+        lambda: geo_news_check(signal), seconds=20,
+        default=('CLEAR', []), gate_name='geo'
+    )
     if geo_status == "BLOCK":
         reason = " | ".join(geo_blocks)
         send_telegram(f"🌍 GEO BLOCK\n\n{name}\n{reason}")
         print(f"GEO BLOCKED: {reason}")
+        _clear_signal("geo block")
         return
 
     # Market direction — skipped for contrarian
-    dir_status, dir_blocks = market_direction_check(signal)
+    dir_status, dir_blocks = _gate_with_timeout(
+        lambda: market_direction_check(signal), seconds=20,
+        default=('PASS', []), gate_name='market_direction'
+    )
     if dir_status == "BLOCKED":
         reason = " | ".join(dir_blocks)
         send_telegram(f"📉 DIRECTION BLOCK\n\n{name}\n{reason}")
         print(f"DIRECTION BLOCKED: {reason}")
+        _clear_signal("direction block")
         return
 
     # All checks passed — execute
@@ -866,6 +1020,9 @@ def run(mode='check', dry_run=False):
             "stop":        stop,
             "score":       score
         })
+        # Prune log to prevent unbounded growth of apex-autopilot.json
+        if len(config['log']) > MAX_AUTOPILOT_LOG_ENTRIES:
+            config['log'] = config['log'][-MAX_AUTOPILOT_LOG_ENTRIES:]
         save_autopilot(config)
 
         if dry_run:

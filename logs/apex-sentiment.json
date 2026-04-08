@@ -1,201 +1,185 @@
 {
-  "timestamp": "2026-03-24 13:34 UTC",
+  "timestamp": "2026-04-08 07:55 UTC",
   "total_headlines": 30,
-  "market_sentiment": -0.144,
+  "market_sentiment": -0.24,
   "market_class": "NEGATIVE",
   "market_note": "-1 signal penalty",
   "crisis_detected": false,
   "crisis_headlines": [],
   "instrument_scores": {
-    "AAPL": {
-      "sentiment": -0.859,
-      "label": "VERY_NEGATIVE",
-      "note": "block signal",
-      "headlines": [
-        {
-          "title": "'Like the plane got cut in half': LaGuardia crash that killed two pilots now und",
-          "compound": -0.859
-        }
-      ],
-      "count": 1
-    },
-    "GOOGL": {
-      "sentiment": -0.813,
-      "label": "VERY_NEGATIVE",
-      "note": "block signal",
-      "headlines": [
-        {
-          "title": "Search for four missing soldiers after Colombia plane crash kills 66",
-          "compound": -0.813
-        }
-      ],
-      "count": 1
-    },
     "XOM": {
-      "sentiment": -0.282,
-      "label": "NEGATIVE",
-      "note": "-1 signal penalty",
+      "sentiment": -0.494,
+      "label": "VERY_NEGATIVE",
+      "note": "block signal",
       "headlines": [
         {
-          "title": "Oil traders bet millions minutes before Trump's Iran talks post",
-          "compound": -0.586
+          "title": "Oil prices plunge on US-Iran ceasefire deal to reopen Strait of Hormuz",
+          "compound": -0.827
         },
         {
-          "title": "Oil back above $100 a barrel as conflicting claims emerge on US-Iran talks",
-          "compound": -0.599
+          "title": "The US refinery now processing Venezuelan oil",
+          "compound": -0.572
         }
       ],
-      "count": 3
+      "count": 7
     },
     "CVX": {
-      "sentiment": -0.282,
-      "label": "NEGATIVE",
-      "note": "-1 signal penalty",
-      "headlines": [
-        {
-          "title": "Oil traders bet millions minutes before Trump's Iran talks post",
-          "compound": -0.586
-        },
-        {
-          "title": "Oil back above $100 a barrel as conflicting claims emerge on US-Iran talks",
-          "compound": -0.599
-        }
-      ],
-      "count": 3
-    },
-    "SHEL": {
-      "sentiment": -0.282,
-      "label": "NEGATIVE",
-      "note": "-1 signal penalty",
-      "headlines": [
-        {
-          "title": "Oil traders bet millions minutes before Trump's Iran talks post",
-          "compound": -0.586
-        },
-        {
-          "title": "Oil back above $100 a barrel as conflicting claims emerge on US-Iran talks",
-          "compound": -0.599
-        }
-      ],
-      "count": 3
-    },
-    "BP": {
-      "sentiment": -0.282,
-      "label": "NEGATIVE",
-      "note": "-1 signal penalty",
-      "headlines": [
-        {
-          "title": "Oil traders bet millions minutes before Trump's Iran talks post",
-          "compound": -0.586
-        },
-        {
-          "title": "Oil back above $100 a barrel as conflicting claims emerge on US-Iran talks",
-          "compound": -0.599
-        }
-      ],
-      "count": 3
-    },
-    "HSBA": {
-      "sentiment": -0.44,
+      "sentiment": -0.494,
       "label": "VERY_NEGATIVE",
       "note": "block signal",
       "headlines": [
         {
-          "title": "China dials back on fuel price hikes to 'reduce burden' on drivers",
-          "compound": -0.44
+          "title": "Oil prices plunge on US-Iran ceasefire deal to reopen Strait of Hormuz",
+          "compound": -0.827
         },
         {
-          "title": "China dials back on fuel price hikes to 'reduce burden' on drivers",
-          "compound": -0.44
+          "title": "The US refinery now processing Venezuelan oil",
+          "compound": -0.572
         }
       ],
-      "count": 2
+      "count": 7
+    },
+    "SHEL": {
+      "sentiment": -0.347,
+      "label": "VERY_NEGATIVE",
+      "note": "block signal",
+      "headlines": [
+        {
+          "title": "Oil prices plunge on US-Iran ceasefire deal to reopen Strait of Hormuz",
+          "compound": -0.827
+        },
+        {
+          "title": "The US refinery now processing Venezuelan oil",
+          "compound": -0.572
+        }
+      ],
+      "count": 8
+    },
+    "BP": {
+      "sentiment": -0.494,
+      "label": "VERY_NEGATIVE",
+      "note": "block signal",
+      "headlines": [
+        {
+          "title": "Oil prices plunge on US-Iran ceasefire deal to reopen Strait of Hormuz",
+          "compound": -0.827
+        },
+        {
+          "title": "The US refinery now processing Venezuelan oil",
+          "compound": -0.572
+        }
+      ],
+      "count": 7
+    },
+    "JPM": {
+      "sentiment": 0.599,
+      "label": "VERY_POSITIVE",
+      "note": "+2 signal boost",
+      "headlines": [
+        {
+          "title": "Plan 2 student loan interest rates capped at 6% in England",
+          "compound": 0.599
+        }
+      ],
+      "count": 1
+    },
+    "LGEN": {
+      "sentiment": 0.637,
+      "label": "VERY_POSITIVE",
+      "note": "+2 signal boost",
+      "headlines": [
+        {
+          "title": "Benefits and pensions rise as two-child cap ends",
+          "compound": 0.637
+        }
+      ],
+      "count": 1
     }
   },
-  "most_positive": "XOM",
-  "most_negative": "AAPL",
+  "most_positive": "LGEN",
+  "most_negative": "XOM",
   "top_headlines": [
     {
+      "source": "BBC Business",
+      "title": "Trump's deadline looms but Asian nations already have deals with Iran",
+      "compound": 0.846,
+      "pos": 0.303,
+      "neg": 0.034,
+      "neu": 0.662
+    },
+    {
+      "source": "BBC Business",
+      "title": "OpenAI encourages firms to trial four-day weeks to adapt to AI era",
+      "compound": 0.7,
+      "pos": 0.162,
+      "neg": 0.0,
+      "neu": 0.838
+    },
+    {
       "source": "BBC World",
-      "title": "Married at First Sight star Mel Schilling dies at 54",
-      "compound": 0.823,
-      "pos": 0.257,
+      "title": "Has Artemis II shown we can land on the Moon again?",
+      "compound": 0.697,
+      "pos": 0.141,
       "neg": 0.0,
-      "neu": 0.743
+      "neu": 0.859
     },
     {
       "source": "BBC World",
-      "title": "Danes vote as Mette Frederiksen seeks third term as PM",
-      "compound": 0.775,
-      "pos": 0.217,
+      "title": "US journalist Shelly Kittleson released after kidnap in Iraq, officials say",
+      "compound": 0.681,
+      "pos": 0.196,
       "neg": 0.0,
-      "neu": 0.783
+      "neu": 0.804
     },
     {
       "source": "BBC Business",
-      "title": "Cosmetics giant Est\u00e9e Lauder in merger talks with owner of Jean Paul Gaultier and Rabanne",
-      "compound": 0.71,
-      "pos": 0.16,
+      "title": "Benefits and pensions rise as two-child cap ends",
+      "compound": 0.637,
+      "pos": 0.178,
       "neg": 0.0,
-      "neu": 0.84
-    },
-    {
-      "source": "BBC Business",
-      "title": "Would you build your own apps?",
-      "compound": 0.586,
-      "pos": 0.211,
-      "neg": 0.0,
-      "neu": 0.789
-    },
-    {
-      "source": "BBC Business",
-      "title": "HS2 trains could run slower than planned to save money",
-      "compound": 0.494,
-      "pos": 0.11,
-      "neg": 0.0,
-      "neu": 0.89
+      "neu": 0.822
     }
   ],
   "worst_headlines": [
     {
       "source": "BBC World",
-      "title": "At least five killed in massive wave of Russian strikes across Ukraine, officials say",
-      "compound": -0.953,
-      "pos": 0.0,
-      "neg": 0.372,
-      "neu": 0.628
+      "title": "Australia's most-decorated living soldier charged over alleged war crimes",
+      "compound": -0.926,
+      "pos": 0.037,
+      "neg": 0.422,
+      "neu": 0.541
     },
     {
       "source": "BBC World",
-      "title": "'Like the plane got cut in half': LaGuardia crash that killed two pilots now under investigation",
-      "compound": -0.859,
-      "pos": 0.055,
-      "neg": 0.264,
-      "neu": 0.681
+      "title": "WHO suspends Gaza medical evacuations after contractor killed by Israeli troops",
+      "compound": -0.91,
+      "pos": 0.0,
+      "neg": 0.291,
+      "neu": 0.709
     },
     {
       "source": "BBC World",
-      "title": "Search for four missing soldiers after Colombia plane crash kills 66",
-      "compound": -0.813,
+      "title": "One dead as train travelling 99mph collides with lorry in France",
+      "compound": -0.91,
       "pos": 0.0,
-      "neg": 0.268,
-      "neu": 0.732
+      "neg": 0.342,
+      "neu": 0.658
     },
     {
       "source": "BBC World",
-      "title": "Referendum defeat leaves Italy's Meloni looking more vulnerable",
-      "compound": -0.778,
+      "title": "One gunman killed and two injured in shooting at Israeli consulate in Istanbul",
+      "compound": -0.881,
       "pos": 0.0,
-      "neg": 0.238,
-      "neu": 0.762
+      "neg": 0.286,
+      "neu": 0.714
     },
     {
-      "source": "BBC World",
-      "title": "Jury orders Cosby to pay $19m to ex-waitress after finding he abused her in 1972",
-      "compound": -0.765,
+      "source": "BBC Business",
+      "title": "Oil prices plunge on US-Iran ceasefire deal to reopen Strait of Hormuz",
+      "compound": -0.827,
       "pos": 0.0,
-      "neg": 0.178,
-      "neu": 0.822
+      "neg": 0.21,
+      "neu": 0.79
     }
   ]
 }

@@ -11,20 +11,40 @@ import sys
 import re
 from datetime import datetime, timezone
 
-LOGS       = '/home/ubuntu/.picoclaw/logs'
-SCRIPTS    = '/home/ubuntu/.picoclaw/scripts'
-STATE_FILE = '/home/ubuntu/.picoclaw/workspace/skills/apex-trading/TRADING_STATE.md'
-OUTPUT     = f'{LOGS}/apex-watchlist-analysis.json'
+LOGS        = '/home/ubuntu/.picoclaw/logs'
+SCRIPTS     = '/home/ubuntu/.picoclaw/scripts'
+STATE_FILE  = '/home/ubuntu/.picoclaw/workspace/skills/apex-trading/TRADING_STATE.md'
+OUTPUT      = f'{LOGS}/apex-watchlist-analysis.json'
+TICKER_CACHE= f'{LOGS}/apex-watchlist-ticker-cache.json'
+
+# Exchange suffixes to probe when a bare ticker fails, in priority order.
+# Dot-class tickers (HEI.A) are converted to dash form (HEI-A) before probing.
+EXCHANGE_SUFFIXES = ['', '.L', '.TO', '.V', '.AX', '.NS', '.DE', '.PA']
 
 # ------------------------------------------------------------------
 # Ticker → (yahoo_ticker, display_name, sector, currency)
 # ------------------------------------------------------------------
 TICKER_META = {
     # ETFs (London)
-    "VWRP":  ("VWRP.L",  "Vanguard FTSE All-World (Acc)",  "ETF/World",       "GBP"),
-    "VUAG":  ("VUAG.L",  "Vanguard S&P 500 (Acc)",         "ETF/US",          "GBP"),
-    "VFEG":  ("VFEG.L",  "Vanguard FTSE Em. Mkt ETF",      "ETF/EM",          "GBP"),
-    "IUIT":  ("IUIT.L",  "iShares US IT ETF",              "ETF/Tech",        "GBP"),
+    "VWRP":  ("VWRP.L",  "Vanguard FTSE All-World (Acc)",        "ETF/World",       "GBP"),
+    "VUAG":  ("VUAG.L",  "Vanguard S&P 500 (Acc)",               "ETF/US",          "GBP"),
+    "VFEG":  ("VFEG.L",  "Vanguard FTSE Em. Mkt ETF",            "ETF/EM",          "GBP"),
+    "IUIT":  ("IUIT.L",  "iShares US IT ETF",                    "ETF/Tech",        "GBP"),
+    "NUCG":  ("NUCG.L",  "VanEck Uranium & Nuclear Tech ETF",    "ETF/Nuclear",     "GBP"),
+    "DFNG":  ("DFNG.L",  "VanEck Defense ETF",                   "ETF/Defense",     "GBP"),
+    "GLDE":  ("GLDE.L",  "UBS CMCI Gold ETC",                    "ETC/Gold",        "GBP"),
+    "FRCH":  ("FRCH.L",  "Franklin FTSE China ETF",              "ETF/China",       "GBP"),
+    "SLVI":  ("SLVI.L",  "WisdomTree Physical Silver ETC",       "ETC/Silver",      "GBP"),
+    "JEDG":  ("JEDG.L",  "VanEck S&P 500 Equal Weight ETF",      "ETF/US",          "GBP"),
+    "GOOO":  ("GOOO.L",  "Leverage Shares 3x Alphabet ETP",      "ETP/Leveraged",   "GBP"),
+    # TSX Venture
+    "NZ":    ("NZ.V",    "New Zealand Energy Corp",              "Energy",          "CAD"),
+    # London small-caps / ETFs
+    "AVG":   ("AVG.L",   "Avingtrans PLC",                       "Industrials",     "GBP"),
+    "SMGB":  ("SMGB.L",  "VanEck Semiconductor ETF",             "ETF/Tech",        "GBP"),
+    # Share-class tickers (Yahoo uses dash, not dot)
+    "HEI.A": ("HEI-A",   "Heico Corp Class A",                   "Industrials",     "USD"),
+    "LEN.B": ("LEN-B",   "Lennar Corp Class B",                  "Consumer Cyclical","USD"),
     # Small/mid caps
     "NBIS":  ("NBIS",    "Neurobiosys",                    "Biotech",         "USD"),
     "RLKB":  ("RLKB",    "Rock Lake Biotech",              "Biotech",         "USD"),
@@ -63,7 +83,92 @@ TICKER_META = {
     # Crypto mining
     "CLSK":  ("CLSK",    "Cleanspark",                     "Crypto Mining",   "USD"),
     "RIOT":  ("RIOT",    "Riot Platforms",                 "Crypto Mining",   "USD"),
+    # Oil & Commodities ETCs (London)
+    "CRUD":  ("CRUD.L",  "WisdomTree Crude Oil ETC",       "ETC/Oil",         "USD"),
+    "AIGE":  ("AIGE.L",  "WisdomTree Oil & Gas E&P ETF",   "ETF/Oil&Gas",     "USD"),
+    "ICOM":  ("ICOM.L",  "iShares Diversified Commodity",  "ETF/Commodities", "USD"),
+    "AIGP":  ("AIGP.L",  "WisdomTree Enhanced Commodity",  "ETF/Commodities", "USD"),
+    "COPA":  ("COPA.L",  "WisdomTree Copper ETC",          "ETC/Copper",      "USD"),
+    # Short-duration bonds
+    "IBTS":  ("IBTS.L",  "iShares USD Treasury 1-3yr",     "ETF/Bonds",       "GBP"),
+    "IS15":  ("IS15.L",  "iShares Core 1-5yr Treasury",    "ETF/Bonds",       "GBP"),
+    # Emerging markets
+    "NDIA":  ("NDIA.L",  "iShares MSCI India ETF",         "ETF/India",       "USD"),
+    # Infrastructure
+    "INFR":  ("INFR.L",  "iShares Global Infrastructure",  "ETF/Infra",       "GBP"),
 }
+
+# ------------------------------------------------------------------
+# Auto-discovery: find the correct Yahoo symbol for unknown tickers.
+# Results are cached in apex-watchlist-ticker-cache.json so we only
+# probe once per ticker, not on every run.
+# ------------------------------------------------------------------
+def _load_ticker_cache():
+    try:
+        with open(TICKER_CACHE) as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+def _save_ticker_cache(cache):
+    try:
+        with open(TICKER_CACHE, 'w') as f:
+            json.dump(cache, f, indent=2)
+    except Exception:
+        pass
+
+def _resolve_yahoo_ticker(ticker):
+    """Return (yahoo_symbol, name, sector, currency) for any ticker.
+
+    Resolution order:
+      1. TICKER_META (hardcoded, highest trust)
+      2. Persistent cache from previous runs
+      3. Auto-probe: dot→dash conversion + exchange suffix sweep
+      4. Fallback: bare ticker, Unknown sector
+    """
+    if ticker in TICKER_META:
+        return TICKER_META[ticker]
+
+    cache = _load_ticker_cache()
+    if ticker in cache:
+        c = cache[ticker]
+        return (c['yahoo'], c['name'], c['sector'], c['currency'])
+
+    # Build candidate symbols to try
+    candidates = []
+    # If ticker has a dot (e.g. HEI.A), try dash form first (HEI-A) — Yahoo convention
+    if '.' in ticker:
+        dash_form = ticker.replace('.', '-')
+        candidates.append(dash_form)
+    # Then try bare ticker + all exchange suffixes
+    base = ticker.split('.')[0] if '.' in ticker else ticker
+    for sfx in EXCHANGE_SUFFIXES:
+        sym = base + sfx
+        if sym not in candidates:
+            candidates.append(sym)
+
+    print(f"    [auto-discover] probing {len(candidates)} variants for {ticker}...", end=' ', flush=True)
+    for sym in candidates:
+        try:
+            tk = yf.Ticker(sym)
+            hist = tk.history(period='5d', interval='1d')
+            if hist.empty or len(hist) < 2:
+                continue
+            info = tk.info or {}
+            name     = info.get('shortName') or info.get('longName') or ticker
+            sector   = info.get('sector') or info.get('industry') or 'Unknown'
+            currency = info.get('currency') or 'USD'
+            print(f"found {sym} ({currency})")
+            # Cache so we don't probe again next run
+            cache[ticker] = {'yahoo': sym, 'name': name, 'sector': sector, 'currency': currency}
+            _save_ticker_cache(cache)
+            return (sym, name, sector, currency)
+        except Exception:
+            continue
+
+    print("not found, using bare ticker")
+    return (ticker, ticker, 'Unknown', 'USD')
+
 
 # Tickers currently in the Apex decision engine scanner
 def _load_scanner_universe():
@@ -195,6 +300,20 @@ def analyze_ticker(short_name, meta):
     }
     try:
         tk = yf.Ticker(yahoo_ticker)
+
+        # Enrich name/sector from yfinance info when not in TICKER_META
+        if result['sector'] == 'Unknown' or result['name'] == short_name:
+            try:
+                info = tk.info or {}
+                yf_sector = info.get('sector') or info.get('industry') or ''
+                yf_name   = info.get('shortName') or info.get('longName') or ''
+                if yf_sector:
+                    result['sector'] = yf_sector
+                if yf_name and result['name'] == short_name:
+                    result['name'] = yf_name
+            except Exception:
+                pass
+
         # 6 months of daily data — enough for all indicators
         hist = tk.history(period='6mo', interval='1d', auto_adjust=True)
         if hist.empty or len(hist) < 30:
@@ -281,24 +400,39 @@ def parse_watchlist_from_state():
         pass
     return list(dict.fromkeys(tickers))  # deduplicate, preserve order
 
+def _load_custom_tickers():
+    """Read user-added tickers from dashboard custom list."""
+    custom_path = f'{LOGS}/apex-watchlist-custom.json'
+    try:
+        with open(custom_path) as f:
+            d = json.load(f)
+        return d.get('custom_tickers', [])
+    except Exception:
+        return []
+
+
 def run():
     print(f"=== APEX WATCHLIST ANALYZER ===")
     print(f"Time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
 
-    scanner_universe = _load_scanner_universe()
+    scanner_universe  = _load_scanner_universe()
     watchlist_tickers = parse_watchlist_from_state()
-    print(f"Watchlist: {len(watchlist_tickers)} tickers")
+    # Merge user-added custom tickers (from dashboard)
+    custom_tickers = _load_custom_tickers()
+    for t in custom_tickers:
+        if t not in watchlist_tickers:
+            watchlist_tickers.append(t)
+    print(f"Watchlist: {len(watchlist_tickers)} tickers ({len(custom_tickers)} custom)")
 
     results = []
+    custom_set = set(_load_custom_tickers())
     for ticker in watchlist_tickers:
-        meta = TICKER_META.get(ticker)
-        if not meta:
-            # Unknown ticker — try as-is on Yahoo
-            meta = (ticker, ticker, "Unknown", "USD")
+        meta = _resolve_yahoo_ticker(ticker)
 
         print(f"  Analyzing {ticker}...", end=' ', flush=True)
         analysis = analyze_ticker(ticker, meta)
         analysis['in_apex_scanner'] = ticker in scanner_universe
+        analysis['user_added'] = ticker in custom_set
 
         if analysis.get('error'):
             print(f"⚠ {analysis['error']}")

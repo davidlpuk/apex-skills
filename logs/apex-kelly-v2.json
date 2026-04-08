@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-03-25 09:10 UTC",
+  "portfolio": 5027.11,
+  "current_vix": 20.0,
+  "vol_factor": 1.0,
+  "baseline_vix": 20.0,
+  "half_kelly": 0.5,
+  "max_pct": 0.08,
+  "kelly_table": {
+    "TREND": {
+      "mu": 0.22,
+      "sigma": 1.15,
+      "skewness": -0.3,
+      "excess_kurtosis": 0.8,
+      "kelly_continuous": 0.1664,
+      "kelly_adjusted_pct": 6.8,
+      "risk_gbp": 342.01
+    },
+    "CONTRARIAN": {
+      "mu": 0.34,
+      "sigma": 1.2,
+      "skewness": -0.2,
+      "excess_kurtosis": 0.6,
+      "kelly_continuous": 0.2361,
+      "kelly_adjusted_pct": 8.0,
+      "risk_gbp": 402.17
+    },
+    "INVERSE": {
+      "mu": 0.1,
+      "sigma": 1.4,
+      "skewness": -0.5,
+      "excess_kurtosis": 1.2,
+      "kelly_continuous": 0.051,
+      "kelly_adjusted_pct": 1.81,
+      "risk_gbp": 90.88
+    },
+    "EARNINGS_DRIFT": {
+      "mu": 0.28,
+      "sigma": 1.25,
+      "skewness": -0.15,
+      "excess_kurtosis": 0.7,
+      "kelly_continuous": 0.1792,
+      "kelly_adjusted_pct": 8.0,
+      "risk_gbp": 402.17
+    },
+    "DIVIDEND_CAPTURE": {
+      "mu": 0.25,
+      "sigma": 0.9,
+      "skewness": 0.1,
+      "excess_kurtosis": 0.4,
+      "kelly_continuous": 0.3086,
+      "kelly_adjusted_pct": 8.0,
+      "risk_gbp": 402.17
+    }
+  }
+}

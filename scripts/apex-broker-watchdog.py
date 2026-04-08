@@ -32,6 +32,19 @@ except ImportError:
 WATCHDOG_FILE  = '/home/ubuntu/.picoclaw/logs/apex-broker-watchdog.json'
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 
+
+def _log_drift_to_sqlite(ticker, stop_local, stop_t212, delta):
+    """Write a stop drift event to the SQLite audit log (non-blocking)."""
+    try:
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location(
+            'apex_state_db', '/home/ubuntu/.picoclaw/scripts/apex-state-db.py')
+        _sdb = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_sdb)
+        _sdb.log_stop_drift(ticker, stop_local, stop_t212, delta)
+    except Exception as _e:
+        log_warning(f"SQLite drift log failed (non-blocking): {_e}")
+
 def load_positions():
     """Load local positions file to get stop prices."""
     try:
@@ -60,14 +73,35 @@ def place_stop_order(ticker, quantity, stop_price):
         log_error(f"place_stop_order unexpected response for {ticker}: {data}")
     return order_id
 
+STOP_FAILURES_FILE = '/home/ubuntu/.picoclaw/logs/apex-stop-fix-failures.json'
+STOP_FIX_COOLDOWN_HRS = 6   # back off for 6h after 3 consecutive failures
+STOP_FIX_MAX_TRIES    = 3   # attempts before entering cooldown
+
+def _load_stop_failures():
+    try:
+        with open(STOP_FAILURES_FILE) as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+def _save_stop_failures(data):
+    try:
+        with open(STOP_FAILURES_FILE, 'w') as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        pass
+
 def auto_fix_unprotected(unprotected):
     """
     For each unprotected position, look up the stop price from
     apex-positions.json and place a stop order automatically.
     Returns lists of fixed and failed tickers.
+    Backs off after 3 consecutive failures to avoid log spam.
     """
-    positions = load_positions()
-    stop_map  = {p['t212_ticker']: p['stop'] for p in positions if 'stop' in p}
+    positions  = load_positions()
+    stop_map   = {p['t212_ticker']: p['stop'] for p in positions if 'stop' in p}
+    failures   = _load_stop_failures()
+    now        = datetime.now(timezone.utc)
 
     fixed  = []
     failed = []
@@ -82,6 +116,24 @@ def auto_fix_unprotected(unprotected):
             failed.append({'ticker': ticker, 'reason': 'no stop price in positions file'})
             continue
 
+        # Check cooldown — skip if we've failed too many times recently
+        rec = failures.get(ticker, {})
+        cooldown_until = rec.get('cooldown_until')
+        if cooldown_until:
+            try:
+                cd_dt = datetime.fromisoformat(cooldown_until)
+                if now < cd_dt:
+                    remaining = round((cd_dt - now).total_seconds() / 3600, 1)
+                    log_warning(f"auto_fix: {ticker} in cooldown for {remaining}h more (T212 keeps rejecting stop)")
+                    failed.append({'ticker': ticker, 'reason': f'in cooldown ({remaining}h remaining)'})
+                    continue
+                else:
+                    # Cooldown expired — reset and try again
+                    rec = {}
+                    failures[ticker] = rec
+            except Exception:
+                pass
+
         print(f"  🔧 Auto-fixing {ticker}: placing stop @ £{stop} qty={quantity}")
         order_id = None
         for attempt in range(1, 4):
@@ -94,11 +146,25 @@ def auto_fix_unprotected(unprotected):
 
         if order_id:
             fixed.append({'ticker': ticker, 'stop': stop, 'order_id': order_id})
+            failures.pop(ticker, None)  # clear failure record on success
             print(f"  ✅ Stop placed for {ticker} — order {order_id}")
         else:
-            failed.append({'ticker': ticker, 'reason': 'T212 API error'})
-            print(f"  ❌ Failed to place stop for {ticker} after 3 attempts")
+            consec = rec.get('consecutive_failures', 0) + 1
+            rec['consecutive_failures'] = consec
+            rec['last_attempt'] = now.isoformat()
+            if consec >= STOP_FIX_MAX_TRIES:
+                cooldown_dt = now + timedelta(hours=STOP_FIX_COOLDOWN_HRS)
+                rec['cooldown_until'] = cooldown_dt.isoformat()
+                failures[ticker] = rec
+                reason = f'T212 API error ({consec} consecutive failures — entering {STOP_FIX_COOLDOWN_HRS}h cooldown)'
+                log_warning(f"auto_fix: {ticker} entering {STOP_FIX_COOLDOWN_HRS}h cooldown after {consec} failures — T212 may not support GTC stops for this instrument")
+            else:
+                failures[ticker] = rec
+                reason = 'T212 API error'
+            failed.append({'ticker': ticker, 'reason': reason})
+            print(f"  ❌ Failed to place stop for {ticker} after 3 attempts (total failures: {consec})")
 
+    _save_stop_failures(failures)
     return fixed, failed
 
 def get_open_orders():
@@ -493,6 +559,100 @@ def check_and_place_deferred_stops():
     return actions
 
 
+def check_stop_price_drift(orders=None, portfolio=None):
+    """
+    Cross-check stop prices in positions.json against live T212 stop orders.
+
+    The AAPL incident (2026-03-26) showed that local and broker stop prices
+    can silently diverge. This check runs every watchdog cycle so any drift
+    is caught intraday rather than waiting for the morning data-integrity run.
+
+    portfolio: pre-fetched list from get_portfolio() — used to skip positions
+    that have been manually closed in T212 (apex-reconcile.py will clean them
+    up; we should not alert on stops for positions that no longer exist).
+
+    Returns a list of drift dicts: {ticker, local_stop, t212_stop, delta}.
+    Sends Telegram alert for each drifted or missing stop.
+    """
+    drifts = []
+    try:
+        live_orders = orders if orders is not None else (t212_request('/equity/orders', timeout=10) or [])
+        t212_stops = {
+            str(o['id']): float(o.get('stopPrice', 0))
+            for o in live_orders if o.get('type') == 'STOP'
+        }
+        # Build set of live T212 tickers so we can skip ghost positions.
+        # If portfolio wasn't passed, we accept a small false-positive risk
+        # rather than making an extra API call here.
+        live_tickers = {p.get('ticker', '') for p in (portfolio or [])} if portfolio is not None else None
+
+        positions = safe_read(POSITIONS_FILE, [])
+        for p in (positions or []):
+            ticker    = p.get('t212_ticker', '')
+            sid       = str(p.get('stop_order_id', ''))
+            pos_stop  = float(p.get('stop', 0))
+            if not sid or not pos_stop:
+                continue
+            # Skip positions not in T212 live portfolio — they were manually
+            # closed and apex-reconcile.py will remove them on the next run.
+            if live_tickers is not None and ticker not in live_tickers:
+                log_warning(f"check_stop_price_drift: skipping {ticker} — not in T212 live portfolio (manually closed?)")
+                continue
+            t212_stop = t212_stops.get(sid)
+            if t212_stop is None:
+                msg = f"STOP MISSING: {ticker} order {sid} not in T212 live orders (local stop=£{pos_stop})"
+                log_error(msg)
+                send_telegram(
+                    f"⚠️ STOP MISSING IN T212\n\n"
+                    f"Ticker: {ticker}\nOrder ID: {sid}\n"
+                    f"Local stop price: £{pos_stop}\n\n"
+                    f"Run apex-data-integrity.py to reconcile."
+                )
+                drifts.append({'ticker': ticker, 'local_stop': pos_stop, 't212_stop': None, 'delta': None})
+                _log_drift_to_sqlite(ticker, pos_stop, None, None)
+            elif abs(pos_stop - t212_stop) > 0.02:
+                delta = round(pos_stop - t212_stop, 4)
+                msg = f"STOP DRIFT: {ticker} local=£{pos_stop} T212=£{t212_stop} Δ={delta:+.4f}"
+                log_error(msg)
+                # Auto-correct: T212 is the source of truth for what price the
+                # stop order will actually trigger at.  Update positions.json so
+                # R-multiple, Kelly sizing, and drawdown estimates stay accurate.
+                # (AAPL incident 2026-03-26: local=239.74, T212=233.11, diverged silently.)
+                try:
+                    from apex_utils import locked_read_modify_write
+                    def _correct_stop(positions, _t=ticker, _new=t212_stop):
+                        for p in (positions or []):
+                            if p.get('t212_ticker') == _t:
+                                p['stop'] = _new
+                        return positions
+                    locked_read_modify_write(POSITIONS_FILE, _correct_stop, default=[])
+                    log_warning(f"Auto-corrected {ticker} local stop £{pos_stop} → £{t212_stop} (T212 authoritative)")
+                    send_telegram(
+                        f"⚠️ STOP PRICE DRIFT — AUTO-CORRECTED\n\n"
+                        f"Ticker: {ticker}\n"
+                        f"Local (was): £{pos_stop}\n"
+                        f"T212 live:   £{t212_stop}\n"
+                        f"Delta: {delta:+.4f}\n\n"
+                        f"positions.json updated to match T212 (T212 is authoritative)."
+                    )
+                except Exception as _fix_e:
+                    log_error(f"Auto-correct stop drift failed for {ticker}: {_fix_e}")
+                    send_telegram(
+                        f"⚠️ STOP PRICE DRIFT — MANUAL FIX NEEDED\n\n"
+                        f"Ticker: {ticker}\n"
+                        f"Local (positions.json): £{pos_stop}\n"
+                        f"T212 live order:        £{t212_stop}\n"
+                        f"Delta: {delta:+.4f}\n\n"
+                        f"Auto-correct failed: {_fix_e}\n"
+                        f"Run apex-data-integrity.py to reconcile."
+                    )
+                drifts.append({'ticker': ticker, 'local_stop': pos_stop, 't212_stop': t212_stop, 'delta': delta})
+                _log_drift_to_sqlite(ticker, pos_stop, t212_stop, delta)
+    except Exception as e:
+        log_warning(f"check_stop_price_drift failed: {e}")
+    return drifts
+
+
 def run():
     """Run full broker watchdog check."""
     now = datetime.now(timezone.utc)
@@ -574,6 +734,20 @@ def run():
 
     if not issues and not unprotected:
         print(f"  ✅ Order consistency OK")
+
+    # Stop price drift — compare positions.json stop prices against T212 live orders.
+    # Reuses the pre-fetched orders list (no extra API call).
+    # Alerts immediately via Telegram; AAPL-style silent drift caught intraday.
+    drift_issues = check_stop_price_drift(orders=orders, portfolio=portfolio)
+    for d in drift_issues:
+        if d.get('delta') is not None:
+            alerts.append(f"STOP DRIFT: {d['ticker']} Δ={d['delta']:+.4f}")
+            print(f"  ⚠️  Stop drift: {d['ticker']} local=£{d['local_stop']} T212=£{d['t212_stop']}")
+        else:
+            alerts.append(f"STOP MISSING: {d['ticker']} not in T212 live orders")
+            print(f"  🚨 Stop missing in T212: {d['ticker']}")
+    if not drift_issues:
+        print(f"  ✅ Stop prices in sync with T212")
 
     # Addon orders — extra shares from pre-market limits that have since filled
     addon_actions = check_addon_orders()

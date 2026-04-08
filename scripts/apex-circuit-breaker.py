@@ -34,7 +34,8 @@ except ImportError:
 try:
     from apex_config import (CB_WARNING, CB_CAUTION, CB_SUSPEND, CB_CRITICAL, CB_RESUME,
                               CB_MULT_WARNING, CB_MULT_CAUTION, CB_MULT_SUSPEND,
-                              CB_MULT_CRITICAL, CB_MULT_UNKNOWN)
+                              CB_MULT_CRITICAL, CB_MULT_UNKNOWN,
+                              CB_RECOVERY_RAMP_TRADES, CB_ROLLING_THRESHOLDS)
 except ImportError:
     CB_WARNING      = -3.0
     CB_CAUTION      = -5.0
@@ -46,6 +47,8 @@ except ImportError:
     CB_MULT_SUSPEND  = 0.0
     CB_MULT_CRITICAL = 0.0
     CB_MULT_UNKNOWN  = 0.5
+    CB_RECOVERY_RAMP_TRADES = 5
+    CB_ROLLING_THRESHOLDS   = {3: -8.0, 5: -10.0, 10: -15.0}
 
 BREAKER_FILE   = '/home/ubuntu/.picoclaw/logs/apex-circuit-breaker.json'
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
@@ -61,15 +64,13 @@ THRESHOLDS = {
 }
 
 # After SUSPEND auto-resume: trade at 50% sizing for this many trades
-RECOVERY_RAMP_TRADES = 5
+# Sourced from apex_config — edit thresholds there, not here
+RECOVERY_RAMP_TRADES = CB_RECOVERY_RAMP_TRADES
 
 # Rolling N-day thresholds — catches death-by-a-thousand-cuts
 # e.g. three consecutive -3% days = -9% cumulative, but daily CB never triggers
-ROLLING_THRESHOLDS = {
-    3:  -8.0,    # 3-day cumulative loss > 8% → CAUTION
-    5:  -10.0,   # 5-day cumulative loss > 10% → SUSPEND
-    10: -15.0,   # 10-day cumulative loss > 15% → HALT (same as drawdown)
-}
+# Sourced from apex_config — edit thresholds there, not here
+ROLLING_THRESHOLDS = CB_ROLLING_THRESHOLDS
 
 def get_portfolio_value():
     """Get current portfolio value from T212 via centralised rate-limited caller."""
@@ -327,9 +328,11 @@ def check_circuit_breaker():
             if _cfg.get('auto_partial_close_on_critical', False):
                 _positions = safe_read('/home/ubuntu/.picoclaw/logs/apex-positions.json', [])
                 if _positions:
-                    # Find largest losing position by unrealised P&L (or fallback: largest by value)
+                    # Find largest losing position by unrealised P&L.
+                    # Field priority: unrealised_pnl (set by executor/trailing-stop)
+                    # → pnl (legacy alias) → ppl (T212's raw profit/loss field).
                     def _get_loss(p):
-                        pnl = p.get('unrealised_pnl', p.get('pnl', 0))
+                        pnl = p.get('unrealised_pnl', p.get('pnl', p.get('ppl', 0)))
                         try:
                             return float(pnl)
                         except Exception:

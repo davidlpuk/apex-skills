@@ -420,6 +420,31 @@ def run(signal=None, verbose=True):
             for w in consist_warnings:
                 print(f"  ⚠️  Consistency: {w}")
 
+    # Check 6: Stop price sync — positions.json stop vs T212 live stop order
+    try:
+        orders = t212_request('/equity/orders', timeout=10) or []
+        t212_stops = {str(o['id']): float(o.get('stopPrice', 0))
+                      for o in orders if o.get('type') == 'STOP'}
+        pos_data = safe_read('/home/ubuntu/.picoclaw/logs/apex-positions.json', [])
+        for p in (pos_data or []):
+            ticker  = p.get('t212_ticker', '')
+            sid     = str(p.get('stop_order_id', ''))
+            pos_stp = float(p.get('stop', 0))
+            if not sid or not pos_stp:
+                continue
+            t212_stp = t212_stops.get(sid)
+            if t212_stp is None:
+                warnings.append(f"Stop order {sid} for {ticker} not found in T212 live orders")
+                if verbose:
+                    print(f"  ⚠️  Stop sync: {ticker} order {sid} missing from T212")
+            elif abs(pos_stp - t212_stp) > 0.02:
+                delta = round(pos_stp - t212_stp, 4)
+                warnings.append(f"Stop price drift for {ticker}: positions.json={pos_stp} T212={t212_stp} (delta={delta:+.4f})")
+                if verbose:
+                    print(f"  ⚠️  Stop sync: {ticker} positions.json={pos_stp} T212={t212_stp} delta={delta:+.4f}")
+    except Exception as _e:
+        log_warning(f"Stop price sync check failed: {_e}")
+
     # Check 3: Price cross-verification (if signal provided)
     if signal:
         price_ok, price_msg = verify_price(

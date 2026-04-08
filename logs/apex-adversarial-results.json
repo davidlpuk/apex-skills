@@ -1,0 +1,86 @@
+{
+  "timestamp": "2026-03-25 16:56 UTC",
+  "n_data_points": 195,
+  "data_sources": [
+    "decision_log",
+    "outcomes",
+    "backtest_instrument_detail"
+  ],
+  "n_cross_tabs_analysed": 176,
+  "sources_breakdown": {
+    "decision_log": 2,
+    "backtest_synthetic": 193
+  },
+  "failure_modes": [
+    {
+      "condition": "score=8-9 AND sector=ETF",
+      "dimensions": {
+        "score_bucket": "8-9",
+        "sector": "ETF"
+      },
+      "n_trades": 6,
+      "win_rate": 0.0,
+      "win_rate_ci": [
+        0.0,
+        0.3903
+      ],
+      "expected_r": -0.6222,
+      "severity": "MEDIUM",
+      "severity_score": 3.0,
+      "recommendation": "PENALISE: score 8-9 with sector ETF"
+    },
+    {
+      "condition": "VIX=22-28 AND sector=ETF",
+      "dimensions": {
+        "vix_bucket": "22-28",
+        "sector": "ETF"
+      },
+      "n_trades": 9,
+      "win_rate": 0.1111,
+      "win_rate_ci": [
+        0.0199,
+        0.435
+      ],
+      "expected_r": -0.2808,
+      "severity": "MEDIUM",
+      "severity_score": 3.5,
+      "recommendation": "PENALISE: vix 22-28 with sector ETF"
+    }
+  ],
+  "exploitation_opportunities": [],
+  "anti_rules": [
+    {
+      "condition_key": "score_8-9_and_sector_etf",
+      "dimensions": {
+        "score_bucket": "8-9",
+        "sector": "ETF"
+      },
+      "active": true,
+      "action": "penalise",
+      "win_rate": 0.0,
+      "n_trades": 6,
+      "confidence": 0.219,
+      "type": "failure"
+    },
+    {
+      "condition_key": "sector_etf_and_vix_22-28",
+      "dimensions": {
+        "vix_bucket": "22-28",
+        "sector": "ETF"
+      },
+      "active": true,
+      "action": "penalise",
+      "win_rate": 0.1111,
+      "n_trades": 9,
+      "confidence": 0.13,
+      "type": "failure"
+    }
+  ],
+  "status": "OK",
+  "config": {
+    "min_trades_per_cell": 5,
+    "failure_upper_ci_threshold": 0.45,
+    "exploit_lower_ci_threshold": 0.6,
+    "high_severity_threshold": 3.0
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-04-08 15:00 UTC",
+  "status": "CLEAR",
+  "reason": "CLEAR",
+  "current_event": null,
+  "blackout_hours": 2,
+  "upcoming_14d": [
+    {
+      "name": "PPI",
+      "severity": "MEDIUM",
+      "date": "2026-04-09",
+      "time": "12:30",
+      "datetime_utc": "2026-04-09T12:30:00+00:00",
+      "hours_until": 21.5
+    },
+    {
+      "name": "RETAIL_SALES",
+      "severity": "MEDIUM",
+      "date": "2026-04-21",
+      "time": "12:30",
+      "datetime_utc": "2026-04-21T12:30:00+00:00",
+      "hours_until": 309.5
+    }
+  ]
+}

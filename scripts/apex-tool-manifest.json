@@ -1,0 +1,931 @@
+{
+  "_comment": "Agent-Native tool manifest. Every capability Apex exposes, with safety classification.",
+  "version": "1.0",
+  "updated": "2026-04-08",
+  "safety_levels": {
+    "read": "No writes. Reads log files or APIs and returns analysis only.",
+    "write-log": "Writes JSON to logs/ only. No external API calls that cause side effects.",
+    "external-fetch": "Fetches from external APIs (Yahoo, FRED, T212 read-only). Writes to logs/.",
+    "execute-signal": "May write to apex-trade-queue.json or apex-pending-signal.json. No orders placed.",
+    "execute-trade": "Calls Trading 212 API to place, modify, or cancel orders. Requires explicit approval."
+  },
+  "tools": [
+    {
+      "name": "query-positions",
+      "script": "apex-query.py positions",
+      "description": "Current open positions: ticker, qty, entry, current price, P&L, stop, signal type. Also portfolio cash and total value.",
+      "safety": "read",
+      "outputs": [],
+      "inputs": [
+        "apex-positions.json",
+        "apex-portfolio-cache.json"
+      ],
+      "tags": [
+        "query",
+        "positions"
+      ]
+    },
+    {
+      "name": "query-regime",
+      "script": "apex-query.py regime",
+      "description": "Current market regime: CLEAR/CAUTION/RISK_OFF, VIX, breadth, circuit breaker, size multiplier, market direction.",
+      "safety": "read",
+      "outputs": [],
+      "inputs": [
+        "apex-regime.json",
+        "apex-regime-scaling.json",
+        "apex-circuit-breaker.json"
+      ],
+      "tags": [
+        "query",
+        "regime"
+      ]
+    },
+    {
+      "name": "query-signals",
+      "script": "apex-query.py signals",
+      "description": "Pending signal (if any), EV verdict, and trade queue contents.",
+      "safety": "read",
+      "outputs": [],
+      "inputs": [
+        "apex-pending-signal.json",
+        "apex-ev-log.json",
+        "apex-trade-queue.json"
+      ],
+      "tags": [
+        "query",
+        "signals"
+      ]
+    },
+    {
+      "name": "query-health",
+      "script": "apex-query.py health",
+      "description": "System health: circuit breaker blocks, drawdown status, data integrity check results, recent health log.",
+      "safety": "read",
+      "outputs": [],
+      "inputs": [
+        "apex-circuit-breaker.json",
+        "apex-drawdown.json",
+        "apex-data-integrity.json",
+        "apex-health.log"
+      ],
+      "tags": [
+        "query",
+        "health"
+      ]
+    },
+    {
+      "name": "query-autopilot",
+      "script": "apex-query.py autopilot",
+      "description": "Autopilot state: enabled/paused, trades today vs limit, daily loss, total autonomous trades, recent log.",
+      "safety": "read",
+      "outputs": [],
+      "inputs": [
+        "apex-autopilot.json"
+      ],
+      "tags": [
+        "query",
+        "autopilot"
+      ]
+    },
+    {
+      "name": "query-performance",
+      "script": "apex-query.py performance",
+      "description": "Performance metrics: Sharpe, Sortino, win rate, closed trades, total P&L, drawdown, benchmark vs SPY.",
+      "safety": "read",
+      "outputs": [],
+      "inputs": [
+        "apex-sharpe.json",
+        "apex-drawdown.json",
+        "apex-outcomes.json",
+        "apex-benchmark.json"
+      ],
+      "tags": [
+        "query",
+        "performance"
+      ]
+    },
+    {
+      "name": "query-learning",
+      "script": "apex-query.py learning",
+      "description": "Current learned state: Bayesian layer weights, edge proof verdicts per signal type, trajectory insights, Kelly fraction.",
+      "safety": "read",
+      "outputs": [],
+      "inputs": [
+        "apex-learned-weights.json",
+        "apex-edge-proof.json",
+        "apex-trajectory-insights.json",
+        "apex-kelly-v2.json"
+      ],
+      "tags": [
+        "query",
+        "learning"
+      ]
+    },
+    {
+      "name": "query-schedule",
+      "script": "apex-query.py schedule",
+      "description": "Upcoming scheduled jobs in the next 2 hours, with chain associations and categories.",
+      "safety": "read",
+      "outputs": [],
+      "inputs": [
+        "apex-schedule.json"
+      ],
+      "tags": [
+        "query",
+        "schedule"
+      ]
+    },
+    {
+      "name": "regime-check",
+      "script": "apex-regime-check.py",
+      "description": "Checks VIX level and market breadth to classify the current market regime (RISK_ON / RISK_OFF / CAUTION).",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-regime.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "regime",
+        "core"
+      ]
+    },
+    {
+      "name": "regime-scaling",
+      "script": "apex-regime-scaling.py",
+      "description": "Calculates position size scaling factors based on current regime, VIX, and drawdown state.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-regime-scaling.json"
+      ],
+      "inputs": [
+        "apex-regime.json",
+        "apex-drawdown.json"
+      ],
+      "tags": [
+        "regime",
+        "sizing",
+        "core"
+      ]
+    },
+    {
+      "name": "drawdown-check",
+      "script": "apex-drawdown-check.py",
+      "description": "Computes peak-to-trough drawdown from portfolio history. Updates apex-portfolio-peak.json.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-drawdown.json",
+        "apex-portfolio-peak.json"
+      ],
+      "inputs": [
+        "apex-positions.json"
+      ],
+      "tags": [
+        "risk",
+        "core"
+      ]
+    },
+    {
+      "name": "circuit-breaker",
+      "script": "apex-circuit-breaker.py",
+      "description": "Checks whether any circuit breaker conditions are triggered (max drawdown, daily loss limit, error rate).",
+      "safety": "write-log",
+      "outputs": [
+        "apex-circuit-breaker.json"
+      ],
+      "inputs": [
+        "apex-drawdown.json",
+        "apex-positions.json",
+        "apex-health.log"
+      ],
+      "tags": [
+        "risk",
+        "core"
+      ]
+    },
+    {
+      "name": "market-direction",
+      "script": "apex-market-direction.py",
+      "description": "Determines overall market direction (bull/bear/neutral) using SPY/QQQ trend analysis.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-market-direction.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "market-data",
+        "regime"
+      ]
+    },
+    {
+      "name": "breadth-thrust",
+      "script": "apex-breadth-thrust.py",
+      "description": "Calculates advance/decline breadth thrust indicator for market health assessment.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-breadth-thrust.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "market-data",
+        "regime"
+      ]
+    },
+    {
+      "name": "breadth-drilldown",
+      "script": "apex-breadth-drilldown.py",
+      "description": "Sector-level breadth breakdown \u2014 which sectors are leading/lagging.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-breadth-drilldown.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "market-data",
+        "regime"
+      ]
+    },
+    {
+      "name": "vix-correlation",
+      "script": "apex-vix-correlation.py",
+      "description": "Computes VIX-to-portfolio correlation to gauge systemic risk exposure.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-vix-correlation.json"
+      ],
+      "inputs": [
+        "apex-positions.json"
+      ],
+      "tags": [
+        "risk",
+        "market-data"
+      ]
+    },
+    {
+      "name": "sector-rotation",
+      "script": "apex-sector-rotation.py",
+      "description": "Identifies leading and lagging sectors using relative strength momentum.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-sector-rotation.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "market-data",
+        "signals"
+      ]
+    },
+    {
+      "name": "geo-news",
+      "script": "apex-geo-news.py",
+      "description": "Fetches and scores geopolitical news events for macro risk flags.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-geo-news.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "macro",
+        "regime"
+      ]
+    },
+    {
+      "name": "macro-signals",
+      "script": "apex-macro-signals.py",
+      "description": "Fetches FRED macro indicators (yield curve, unemployment, CPI) and scores macro environment.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-macro-signals.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "macro",
+        "regime"
+      ]
+    },
+    {
+      "name": "sentiment",
+      "script": "apex-sentiment.py",
+      "description": "Runs VADER NLP sentiment scoring on financial news headlines for portfolio holdings.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-sentiment.json"
+      ],
+      "inputs": [
+        "apex-positions.json"
+      ],
+      "tags": [
+        "signals",
+        "nlp"
+      ]
+    },
+    {
+      "name": "fundamentals",
+      "script": "apex-fundamentals.py",
+      "description": "Fetches and scores fundamental data (PE, EPS growth, quality metrics) for universe.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-fundamentals.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "signals",
+        "fundamentals"
+      ]
+    },
+    {
+      "name": "fundamental-signals",
+      "script": "apex-fundamental-signals.py",
+      "description": "Converts raw fundamental data into scored trading signals.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-fundamental-signals.json"
+      ],
+      "inputs": [
+        "apex-fundamentals.json"
+      ],
+      "tags": [
+        "signals",
+        "scoring"
+      ]
+    },
+    {
+      "name": "insider-data",
+      "script": "apex-insider-data.py",
+      "description": "Fetches EDGAR insider trading filings and scores for bullish/bearish clusters.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-insider-data.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "signals",
+        "fundamentals"
+      ]
+    },
+    {
+      "name": "options-flow",
+      "script": "apex-options-flow.py",
+      "description": "Analyses options flow for unusual call/put activity as a leading indicator.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-options-flow.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "signals",
+        "options"
+      ]
+    },
+    {
+      "name": "multiframe",
+      "script": "apex-multiframe.py",
+      "description": "Multi-timeframe confirmation: checks daily/weekly/monthly trend alignment per ticker.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-multiframe.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "signals",
+        "confirmation"
+      ]
+    },
+    {
+      "name": "relative-strength",
+      "script": "apex-relative-strength.py",
+      "description": "Ranks portfolio holdings and watchlist by relative strength vs SPY.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-relative-strength.json"
+      ],
+      "inputs": [
+        "apex-positions.json"
+      ],
+      "tags": [
+        "signals",
+        "scoring"
+      ]
+    },
+    {
+      "name": "watchlist-analyzer",
+      "script": "apex-watchlist-analyzer.py",
+      "description": "Scores all tickers in the watchlist universe using the 18-layer scoring system.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-watchlist-analysis.json"
+      ],
+      "inputs": [
+        "apex-regime.json",
+        "apex-regime-scaling.json"
+      ],
+      "tags": [
+        "signals",
+        "universe"
+      ]
+    },
+    {
+      "name": "contrarian-scan",
+      "script": "apex-contrarian-scan.py",
+      "description": "Scans for oversold tickers meeting contrarian entry criteria (RSI, volume, regime).",
+      "safety": "execute-signal",
+      "outputs": [
+        "apex-contrarian-signals.json"
+      ],
+      "inputs": [
+        "apex-regime.json",
+        "apex-circuit-breaker.json"
+      ],
+      "tags": [
+        "signals",
+        "scan"
+      ]
+    },
+    {
+      "name": "inverse-scanner",
+      "script": "apex-inverse-scanner.py",
+      "description": "Scans inverse ETF universe for signals during RISK_OFF regime.",
+      "safety": "execute-signal",
+      "outputs": [
+        "apex-inverse-signals.json"
+      ],
+      "inputs": [
+        "apex-regime.json"
+      ],
+      "tags": [
+        "signals",
+        "scan",
+        "inverse"
+      ]
+    },
+    {
+      "name": "earnings-drift",
+      "script": "apex-earnings-drift.py",
+      "description": "Identifies post-earnings drift setups using earnings surprise + momentum.",
+      "safety": "execute-signal",
+      "outputs": [
+        "apex-earnings-drift.json"
+      ],
+      "inputs": [
+        "apex-regime.json"
+      ],
+      "tags": [
+        "signals",
+        "earnings"
+      ]
+    },
+    {
+      "name": "dividend-capture",
+      "script": "apex-dividend-capture.py",
+      "description": "Finds dividend capture opportunities (ex-date within window, quality filter).",
+      "safety": "execute-signal",
+      "outputs": [
+        "apex-dividend-capture.json"
+      ],
+      "inputs": [
+        "apex-regime.json"
+      ],
+      "tags": [
+        "signals",
+        "income"
+      ]
+    },
+    {
+      "name": "expected-value",
+      "script": "apex-expected-value.py",
+      "description": "Calculates Bayesian EV for a pending signal. Requires apex-pending-signal.json to exist.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-ev-log.json"
+      ],
+      "inputs": [
+        "apex-pending-signal.json",
+        "apex-regime-scaling.json"
+      ],
+      "tags": [
+        "scoring",
+        "ev"
+      ]
+    },
+    {
+      "name": "staleness-check",
+      "script": "apex-staleness-check.py",
+      "description": "Checks age of all log files and prices to detect stale data before acting on signals.",
+      "safety": "read",
+      "outputs": [],
+      "inputs": [
+        "all logs"
+      ],
+      "tags": [
+        "health",
+        "data-quality"
+      ]
+    },
+    {
+      "name": "data-integrity",
+      "script": "apex-data-integrity.py",
+      "description": "Runs 6 cross-validation checks: positions vs T212, stop prices, FX consistency, etc.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-data-integrity.json"
+      ],
+      "inputs": [
+        "apex-positions.json",
+        "apex-reconciliation.json"
+      ],
+      "tags": [
+        "health",
+        "data-quality"
+      ]
+    },
+    {
+      "name": "layer-audit",
+      "script": "apex-layer-audit.py",
+      "description": "Audits the 18 scoring layers for multicollinearity and redundancy discounts.",
+      "safety": "read",
+      "outputs": [
+        "apex-layer-audit.json"
+      ],
+      "inputs": [
+        "apex-ev-log.json",
+        "apex-learned-weights.json"
+      ],
+      "tags": [
+        "scoring",
+        "audit"
+      ]
+    },
+    {
+      "name": "weight-optimizer",
+      "script": "apex-weight-optimizer.py",
+      "description": "Updates Bayesian Beta posteriors for each scoring layer based on closed trade outcomes.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-learned-weights.json"
+      ],
+      "inputs": [
+        "apex-outcomes.json",
+        "apex-scoring-weights.json"
+      ],
+      "tags": [
+        "learning",
+        "scoring"
+      ]
+    },
+    {
+      "name": "trajectory-learner",
+      "script": "apex-trajectory-learner.py",
+      "description": "Mines completed trade trajectories for hold-time and R patterns. Updates early-cut thresholds.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-trajectory-insights.json",
+        "apex-trajectory-state.json"
+      ],
+      "inputs": [
+        "apex-outcomes.json",
+        "apex-positions.json"
+      ],
+      "tags": [
+        "learning",
+        "exits"
+      ]
+    },
+    {
+      "name": "edge-proof",
+      "script": "apex-edge-proof.py",
+      "description": "Runs significance tests (p-value, WR, n) per signal type. Activates scoring bonuses/penalties.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-edge-proof.json"
+      ],
+      "inputs": [
+        "apex-outcomes.json"
+      ],
+      "tags": [
+        "learning",
+        "scoring"
+      ]
+    },
+    {
+      "name": "score-adapter",
+      "script": "apex-score-adapter.py",
+      "description": "Recalculates global and per-bucket score adjustment factors from recent performance.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-scoring-weights.json"
+      ],
+      "inputs": [
+        "apex-outcomes.json",
+        "apex-learned-weights.json"
+      ],
+      "tags": [
+        "learning",
+        "scoring"
+      ]
+    },
+    {
+      "name": "taco-classifier",
+      "script": "apex-taco-classifier.py",
+      "description": "TACO: classifies VIX spike events as genuine fear vs policy walkback pattern.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-taco-state.json"
+      ],
+      "inputs": [
+        "apex-regime.json"
+      ],
+      "tags": [
+        "taco",
+        "regime"
+      ]
+    },
+    {
+      "name": "taco-monitor",
+      "script": "apex-taco-monitor.py",
+      "description": "TACO state machine: monitors for walkback signal and updates phase (FEAR/WATCHING/WALKBACK).",
+      "safety": "write-log",
+      "outputs": [
+        "apex-taco-monitor-state.json"
+      ],
+      "inputs": [
+        "apex-taco-state.json"
+      ],
+      "tags": [
+        "taco"
+      ]
+    },
+    {
+      "name": "taco-signal-injector",
+      "script": "apex-taco-signal-injector.py",
+      "description": "TACO: injects buy signals when walkback is confirmed. Writes to trade queue.",
+      "safety": "execute-signal",
+      "outputs": [
+        "apex-trade-queue.json"
+      ],
+      "inputs": [
+        "apex-taco-monitor-state.json",
+        "apex-circuit-breaker.json"
+      ],
+      "tags": [
+        "taco",
+        "signals"
+      ]
+    },
+    {
+      "name": "safe-haven",
+      "script": "apex-safe-haven.py",
+      "description": "Scans for safe-haven instruments (gold, bonds, VIX ETFs) during RISK_OFF regime.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-safe-haven.json"
+      ],
+      "inputs": [
+        "apex-regime.json"
+      ],
+      "tags": [
+        "signals",
+        "risk"
+      ]
+    },
+    {
+      "name": "kelly-v2",
+      "script": "apex-kelly-v2.py",
+      "description": "Uncertainty-aware Kelly criterion sizing with regime scaling and slippage adjustment.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-kelly-v2.json"
+      ],
+      "inputs": [
+        "apex-regime-scaling.json",
+        "apex-ev-log.json",
+        "apex-outcomes.json"
+      ],
+      "tags": [
+        "sizing",
+        "risk"
+      ]
+    },
+    {
+      "name": "vwap-gate",
+      "script": "apex-vwap-gate.py",
+      "description": "Checks whether current price is above/below VWAP for intraday entry quality gate.",
+      "safety": "external-fetch",
+      "outputs": [],
+      "inputs": [],
+      "tags": [
+        "signals",
+        "intraday"
+      ]
+    },
+    {
+      "name": "blackswan-test",
+      "script": "apex-blackswan-test.py",
+      "description": "Stress-tests portfolio against black swan scenarios (2008, 2020, flash crash).",
+      "safety": "read",
+      "outputs": [
+        "apex-blackswan-test.json"
+      ],
+      "inputs": [
+        "apex-positions.json",
+        "apex-regime.json"
+      ],
+      "tags": [
+        "risk",
+        "stress-test"
+      ]
+    },
+    {
+      "name": "shaw-test",
+      "script": "apex-shaw-test.py",
+      "description": "D.E. Shaw-style stat arb check: mean-reversion z-score across portfolio pairs.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-shaw-test.json"
+      ],
+      "inputs": [
+        "apex-positions.json"
+      ],
+      "tags": [
+        "risk",
+        "quant"
+      ]
+    },
+    {
+      "name": "simons-test",
+      "script": "apex-simons-test.py",
+      "description": "Renaissance-style factor test: checks for pattern significance across recent signals.",
+      "safety": "read",
+      "outputs": [
+        "apex-simons-test.json"
+      ],
+      "inputs": [
+        "apex-outcomes.json"
+      ],
+      "tags": [
+        "risk",
+        "quant"
+      ]
+    },
+    {
+      "name": "backtest-v2",
+      "script": "apex-backtest-v2.py",
+      "description": "Walk-forward backtest with transaction costs. Produces Sharpe, max DD, win rate.",
+      "safety": "external-fetch",
+      "timeout_s": 900,
+      "outputs": [
+        "apex-backtest-v2-results.json",
+        "apex-backtest-v2-insights.json"
+      ],
+      "inputs": [
+        "apex-regime.json"
+      ],
+      "tags": [
+        "backtest",
+        "learning"
+      ]
+    },
+    {
+      "name": "mae-mfe",
+      "script": "apex-mae-mfe.py",
+      "description": "Maximum Adverse/Favourable Excursion analysis to calibrate stop and target placement.",
+      "safety": "read",
+      "outputs": [
+        "apex-mae-mfe-calibration.json"
+      ],
+      "inputs": [
+        "apex-outcomes.json"
+      ],
+      "tags": [
+        "risk",
+        "learning"
+      ]
+    },
+    {
+      "name": "sharpe",
+      "script": "apex-sharpe.py",
+      "description": "Computes rolling Sharpe ratio and Sortino ratio from closed trade history.",
+      "safety": "read",
+      "outputs": [
+        "apex-sharpe.json"
+      ],
+      "inputs": [
+        "apex-outcomes.json"
+      ],
+      "tags": [
+        "performance",
+        "risk"
+      ]
+    },
+    {
+      "name": "reconcile",
+      "script": "apex-reconcile.py",
+      "description": "Reconciles local apex-positions.json against live T212 portfolio. Flags any divergence.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-reconciliation.json"
+      ],
+      "inputs": [
+        "apex-positions.json"
+      ],
+      "tags": [
+        "health",
+        "data-quality"
+      ]
+    },
+    {
+      "name": "broker-watchdog",
+      "script": "apex-broker-watchdog.py",
+      "description": "Checks all open positions have valid stop orders in T212. Replaces missing stops.",
+      "safety": "execute-trade",
+      "outputs": [
+        "apex-broker-watchdog.json"
+      ],
+      "inputs": [
+        "apex-positions.json"
+      ],
+      "tags": [
+        "risk",
+        "stops"
+      ]
+    },
+    {
+      "name": "trailing-stop",
+      "script": "apex-trailing-stop.py",
+      "description": "Updates trailing stops for all open positions based on ATR and trajectory rules.",
+      "safety": "execute-trade",
+      "outputs": [
+        "apex-positions.json"
+      ],
+      "inputs": [
+        "apex-positions.json",
+        "apex-trajectory-insights.json"
+      ],
+      "tags": [
+        "risk",
+        "stops"
+      ]
+    },
+    {
+      "name": "universe-validator",
+      "script": "apex-universe-validator.py",
+      "description": "Validates all tickers in the universe against Yahoo Finance. Flags delisted/renamed.",
+      "safety": "external-fetch",
+      "outputs": [],
+      "inputs": [],
+      "tags": [
+        "health",
+        "data-quality"
+      ]
+    },
+    {
+      "name": "learning-digest",
+      "script": "apex-learning-digest.py",
+      "description": "Produces a human-readable digest of what the system has learned from recent trades.",
+      "safety": "read",
+      "outputs": [],
+      "inputs": [
+        "apex-learned-weights.json",
+        "apex-trajectory-insights.json",
+        "apex-edge-proof.json"
+      ],
+      "tags": [
+        "learning",
+        "reporting"
+      ]
+    },
+    {
+      "name": "rolling-pnl",
+      "script": "apex-opportunity-cost.py",
+      "description": "Computes opportunity cost of held positions vs SPY benchmark over the same period.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-rolling-pnl.json"
+      ],
+      "inputs": [
+        "apex-positions.json",
+        "apex-outcomes.json"
+      ],
+      "tags": [
+        "performance",
+        "reporting"
+      ]
+    },
+    {
+      "name": "opportunity-cost",
+      "script": "apex-opportunity-cost.py",
+      "description": "EOD review of blocked signals: evaluates what price did vs entry, computes per-gate false positive rate, alerts if a gate is blocking >50% winners (n>=5, 30-day window).",
+      "safety": "read",
+      "outputs": [
+        "apex-missed-signals.json",
+        "apex-gate-stats.json"
+      ],
+      "inputs": [
+        "apex-missed-signals.json"
+      ],
+      "tags": [
+        "learning",
+        "performance"
+      ]
+    }
+  ]
+}

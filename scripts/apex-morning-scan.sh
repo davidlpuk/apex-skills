@@ -88,5 +88,11 @@ fi
 # Reconcile positions before scanning
 $PYTHON /home/ubuntu/.picoclaw/scripts/apex-reconcile.py > /dev/null 2>&1 || true
 echo "$(date): Starting decision engine (session=${SESSION})" >> "$LOG"
+_SCAN_START=$(date +%s)
 $PYTHON /home/ubuntu/.picoclaw/scripts/apex-decision-engine.py $SESSION_FLAG >> "$LOG" 2>&1
+_SCAN_RC=$?
+_SCAN_ELAPSED=$(( $(date +%s) - _SCAN_START ))
 echo "$(date): Decision engine complete (session=${SESSION})" >> "$LOG"
+
+# Log completion to agent-native run log so dashboard shows real activity
+$PYTHON /home/ubuntu/.picoclaw/scripts/apex-cron-runner.py --log-only "morning-scan-${SESSION}" $_SCAN_RC $_SCAN_ELAPSED 2>/dev/null || true

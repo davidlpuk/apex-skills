@@ -20,3 +20,115 @@ Tue Mar 24 13:00:01 UTC 2026: Running health check
 Tue Mar 24 13:00:05 UTC 2026: CRITICAL — 1 issues, 0 warnings
 Tue Mar 24 16:00:01 UTC 2026: Running health check
 Tue Mar 24 16:00:08 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Wed Mar 25 07:00:01 UTC 2026: Running health check
+Wed Mar 25 07:00:01 UTC 2026: Attempting restart of apex-trading-bot (was: inactive)
+Wed Mar 25 07:00:04 UTC 2026: Attempting restart of apex-dashboard (was: activating)
+Wed Mar 25 07:00:12 UTC 2026: CRITICAL — 2 issues, 1 warnings
+Wed Mar 25 10:00:02 UTC 2026: Running health check
+Wed Mar 25 10:00:02 UTC 2026: Attempting restart of apex-listener (was: inactive)
+Wed Mar 25 10:00:23 UTC 2026: CRITICAL — 2 issues, 0 warnings
+Wed Mar 25 10:07:16 UTC 2026: Running health check
+Wed Mar 25 10:07:22 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Wed Mar 25 13:00:01 UTC 2026: Running health check
+Wed Mar 25 13:00:09 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Wed Mar 25 13:00:09 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Wed Mar 25 16:00:01 UTC 2026: Running health check
+Wed Mar 25 16:00:12 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Wed Mar 25 16:00:12 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Thu Mar 26 07:00:01 UTC 2026: Running health check
+Thu Mar 26 07:00:04 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Thu Mar 26 07:00:04 UTC 2026: CRITICAL — 1 issues, 1 warnings
+Thu Mar 26 08:39:08 UTC 2026: Running health check
+Thu Mar 26 08:39:10 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Thu Mar 26 08:39:10 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Thu Mar 26 10:00:01 UTC 2026: Running health check
+Thu Mar 26 10:00:11 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Thu Mar 26 10:00:11 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Thu Mar 26 11:27:23 UTC 2026: Running health check
+Thu Mar 26 11:27:26 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Thu Mar 26 11:27:26 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Thu Mar 26 13:00:01 UTC 2026: Running health check
+Thu Mar 26 13:00:02 UTC 2026: Attempting restart of apex-listener (was: inactive)
+Thu Mar 26 13:00:09 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Thu Mar 26 13:00:09 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Thu Mar 26 16:00:02 UTC 2026: Running health check
+Thu Mar 26 16:00:12 UTC 2026: WARNING — 1 warnings
+Fri Mar 27 07:00:01 UTC 2026: Running health check
+Fri Mar 27 07:00:04 UTC 2026: OK — all systems healthy
+Fri Mar 27 10:00:01 UTC 2026: Running health check
+Fri Mar 27 10:00:10 UTC 2026: WARNING — 1 warnings
+Fri Mar 27 13:00:01 UTC 2026: Running health check
+Fri Mar 27 13:00:08 UTC 2026: WARNING — 1 warnings
+Fri Mar 27 16:00:02 UTC 2026: Running health check
+Fri Mar 27 16:00:11 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Fri Mar 27 16:00:11 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Mon Mar 30 07:00:01 UTC 2026: Running health check
+Mon Mar 30 07:00:04 UTC 2026: WARNING — 5 warnings
+Mon Mar 30 10:00:01 UTC 2026: Running health check
+Mon Mar 30 10:00:10 UTC 2026: WARNING — 1 warnings
+Mon Mar 30 13:00:01 UTC 2026: Running health check
+Mon Mar 30 13:00:09 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Mon Mar 30 13:00:09 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Mon Mar 30 16:00:01 UTC 2026: Running health check
+Mon Mar 30 16:00:11 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Mon Mar 30 16:00:11 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Tue Mar 31 07:00:01 UTC 2026: Running health check
+Tue Mar 31 07:00:04 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Tue Mar 31 07:00:04 UTC 2026: CRITICAL — 1 issues, 1 warnings
+Tue Mar 31 10:00:01 UTC 2026: Running health check
+Tue Mar 31 10:00:10 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Tue Mar 31 10:00:10 UTC 2026: CRITICAL — 1 issues, 1 warnings
+Tue Mar 31 13:00:02 UTC 2026: Running health check
+Tue Mar 31 13:00:09 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Tue Mar 31 13:00:09 UTC 2026: CRITICAL — 1 issues, 1 warnings
+Tue Mar 31 16:00:01 UTC 2026: Running health check
+Tue Mar 31 16:00:11 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Tue Mar 31 16:00:11 UTC 2026: CRITICAL — 1 issues, 1 warnings
+Wed Apr  1 07:00:01 UTC 2026: Running health check
+Wed Apr  1 07:00:04 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Wed Apr  1 07:00:04 UTC 2026: CRITICAL — 1 issues, 2 warnings
+Wed Apr  1 10:00:01 UTC 2026: Running health check
+Wed Apr  1 10:00:11 UTC 2026: Email fallback skipped — APEX_ALERT_EMAIL not set in .env.trading212
+Wed Apr  1 10:00:11 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Wed Apr  1 13:00:01 UTC 2026: Running health check
+Wed Apr  1 13:00:09 UTC 2026: WARNING — 1 warnings
+Wed Apr  1 16:00:01 UTC 2026: Running health check
+Wed Apr  1 16:00:11 UTC 2026: WARNING — 2 warnings
+Thu Apr  2 07:00:01 UTC 2026: Running health check
+Thu Apr  2 07:00:04 UTC 2026: WARNING — 1 warnings
+Thu Apr  2 10:00:01 UTC 2026: Running health check
+Thu Apr  2 10:00:10 UTC 2026: OK — all systems healthy
+Thu Apr  2 13:00:01 UTC 2026: Running health check
+Thu Apr  2 13:00:09 UTC 2026: OK — all systems healthy
+Thu Apr  2 16:00:01 UTC 2026: Running health check
+Thu Apr  2 16:00:12 UTC 2026: OK — all systems healthy
+Fri Apr  3 07:00:01 UTC 2026: Running health check
+Fri Apr  3 07:00:05 UTC 2026: WARNING — 1 warnings
+Fri Apr  3 10:00:01 UTC 2026: Running health check
+Fri Apr  3 10:00:09 UTC 2026: OK — all systems healthy
+Fri Apr  3 13:00:01 UTC 2026: Running health check
+Fri Apr  3 13:00:08 UTC 2026: OK — all systems healthy
+Fri Apr  3 16:00:01 UTC 2026: Running health check
+Fri Apr  3 16:00:11 UTC 2026: WARNING — 2 warnings
+Mon Apr  6 07:00:01 UTC 2026: Running health check
+Mon Apr  6 07:00:05 UTC 2026: WARNING — 5 warnings
+Mon Apr  6 10:00:01 UTC 2026: Running health check
+Mon Apr  6 10:00:09 UTC 2026: OK — all systems healthy
+Mon Apr  6 13:00:01 UTC 2026: Running health check
+Mon Apr  6 13:00:08 UTC 2026: OK — all systems healthy
+Mon Apr  6 16:00:01 UTC 2026: Running health check
+Mon Apr  6 16:00:11 UTC 2026: OK — all systems healthy
+Tue Apr  7 07:00:01 UTC 2026: Running health check
+Tue Apr  7 07:00:04 UTC 2026: WARNING — 3 warnings
+Tue Apr  7 10:00:01 UTC 2026: Running health check
+Tue Apr  7 10:00:12 UTC 2026: OK — all systems healthy
+Tue Apr  7 13:00:01 UTC 2026: Running health check
+Tue Apr  7 13:00:10 UTC 2026: OK — all systems healthy
+Tue Apr  7 16:00:02 UTC 2026: Running health check
+Tue Apr  7 16:00:10 UTC 2026: OK — all systems healthy
+Wed Apr  8 07:00:01 UTC 2026: Running health check
+Wed Apr  8 07:00:04 UTC 2026: OK — all systems healthy
+Wed Apr  8 10:00:01 UTC 2026: Running health check
+Wed Apr  8 10:00:13 UTC 2026: CRITICAL — 1 issues, 0 warnings
+Wed Apr  8 13:00:01 UTC 2026: Running health check
+Wed Apr  8 13:00:10 UTC 2026: CRITICAL — 1 issues, 1 warnings

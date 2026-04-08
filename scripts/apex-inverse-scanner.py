@@ -3,7 +3,9 @@
 Inverse ETF Scanner
 Scans for short opportunities when market regime is CAUTIOUS or HOSTILE.
 Uses the same scoring framework as trend scanner but triggered by bearish conditions.
-Instruments: SQQQ (3x short NASDAQ), 3USS (3x short S&P500), 3UKS (3x short FTSE), SPXU (3x short S&P500)
+Instruments: QQQS (3x short NASDAQ GBP, QQQSl_EQ), SPXU→3ULS (3x short S&P500 GBP, 3ULSl_EQ), 3UKS (3x short FTSE, 3UKSl_EQ)
+# Note: SQQQ_EQ (US-listed) and SPXU_EQ (US-listed) are blocked by T212 for UK retail (MiFID II).
+# Use London-listed equivalents: QQQSl_EQ / 3ULSl_EQ instead.
 """
 import json
 import yfinance as yf
@@ -29,31 +31,13 @@ SECTOR_FILE    = '/home/ubuntu/.picoclaw/logs/apex-sector-rotation.json'
 
 # Inverse ETF universe
 INVERSE_UNIVERSE = {
-    "SQQQ": {
-        "t212_ticker": "SQQQ_EQ",
-        "yahoo":       "SQQQ",
-        "name":        "ProShares UltraPro Short QQQ",
-        "tracks":      "NASDAQ 3x inverse",
-        "leverage":    3,
-        "currency":    "USD",
-        "trigger":     "NASDAQ",  # Which index weakness triggers this
-    },
-    "3USS": {
-        "t212_ticker": "3USSl_EQ",
-        "yahoo":       "3USS.L",
-        "name":        "WisdomTree S&P 500 3x Short",
+    "SPXU": {
+        "t212_ticker": "3ULSl_EQ",
+        "yahoo":       "3ULS.L",
+        "name":        "WisdomTree S&P 500 3x Daily Short",
         "tracks":      "S&P 500 3x inverse",
         "leverage":    3,
         "currency":    "GBP",
-        "trigger":     "SP500",
-    },
-    "SPXU": {
-        "t212_ticker": "SPXU_EQ",
-        "yahoo":       "SPXU",
-        "name":        "ProShares UltraPro Short S&P500",
-        "tracks":      "S&P 500 3x inverse",
-        "leverage":    3,
-        "currency":    "USD",
         "trigger":     "SP500",
     },
     "3UKS": {

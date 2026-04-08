@@ -103,7 +103,8 @@ def _fetch_target_summary(symbol, fmp_key):
             if isinstance(data, list) and data:
                 return data[0]
     except Exception as e:
-        log_error(f"FMP target summary fetch failed for {symbol}: {e}")
+        # FMP is optional — 403 = free tier doesn't cover endpoint, network issues etc.
+        log_warning(f"FMP target summary unavailable for {symbol}: {type(e).__name__} — skipping")
     return None
 
 

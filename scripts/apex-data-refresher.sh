@@ -51,7 +51,7 @@ for filename in "${!REFRESH_MAP[@]}"; do
     if [ "$stale" -eq 1 ]; then
         if [ -f "$script" ]; then
             log "Refreshing $filename via $script..."
-            timeout 60 python3 "$script" >> "$CRON_LOG" 2>&1
+            timeout 60 /home/ubuntu/bin/python3 "$script" >> "$CRON_LOG" 2>&1
             exit_code=$?
             if [ $exit_code -eq 0 ]; then
                 log "  ✅ Refreshed: $filename"

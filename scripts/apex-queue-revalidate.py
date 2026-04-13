@@ -148,6 +148,8 @@ def check_earnings_risk(trade):
     name = trade.get('name', '?')
     try:
         earnings = safe_read(EARNINGS_FILE, {})
+        if not isinstance(earnings, dict):
+            earnings = {}
         flags    = earnings.get('flags', {})
         if name in flags:
             flag = flags[name]

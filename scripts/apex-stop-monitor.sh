@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH=/home/ubuntu/bin:$PATH
 # Reconcile positions before monitoring
 python3 /home/ubuntu/.picoclaw/scripts/apex-reconcile.py > /dev/null 2>&1
 

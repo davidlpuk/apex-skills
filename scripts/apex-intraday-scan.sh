@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH=/home/ubuntu/bin:$PATH
 # apex-intraday-scan.sh — Lightweight intraday signal re-scan
 #
 # Refreshes the fast intraday intelligence sources (regime, direction,

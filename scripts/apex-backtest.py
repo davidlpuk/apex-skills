@@ -181,7 +181,10 @@ BACKTEST_UNIVERSE = {
 }
 
 def fix_pence(price, ticker):
-    if ticker.endswith('.L') and price > 100:
+    # yfinance ALWAYS returns .L tickers in GBX (pence). Always divide by 100.
+    # The old `price > 100` guard broke for stocks below 100p — corrupting
+    # the close series and making RSI, MACD, and EMA calculations inconsistent.
+    if ticker.endswith('.L'):
         return price / 100
     return price
 

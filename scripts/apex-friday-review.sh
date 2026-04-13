@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH=/home/ubuntu/bin:$PATH
 
 source /home/ubuntu/.picoclaw/scripts/apex-telegram.sh
 LOG="/home/ubuntu/.picoclaw/logs/apex-cron.log"

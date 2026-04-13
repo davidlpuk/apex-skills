@@ -66,7 +66,7 @@ def _get_regime_max_age():
 
 
 def fix_pence(price, currency):
-    if currency == "GBX" and price > 100:
+    if currency == "GBX":
         return round(price / 100, 2)
     return price
 

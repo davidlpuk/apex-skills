@@ -151,6 +151,21 @@
       ]
     },
     {
+      "name": "regime-hmm",
+      "script": "apex-regime-hmm.py",
+      "description": "HMM 3-state regime detection. Identifies TRENDING/MEAN_REVERTING/CRISIS latent state from SPY returns + VIX changes. Supplements rule-based regime scaling.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-regime-hmm.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "regime",
+        "ml",
+        "morning"
+      ]
+    },
+    {
       "name": "regime-scaling",
       "script": "apex-regime-scaling.py",
       "description": "Calculates position size scaling factors based on current regime, VIX, and drawdown state.",
@@ -361,6 +376,22 @@
       "tags": [
         "signals",
         "fundamentals"
+      ]
+    },
+    {
+      "name": "sec-filing-risk",
+      "script": "apex-sec-filing-risk.py",
+      "description": "Layer 20: Fetches recent SEC EDGAR filings (8-K, 10-K, 10-Q) per ticker. Flags going concern, bankruptcy, restatement, auditor departure, late filings, mass officer departures. Score penalties -1 to -3. 24h TTL cache.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-sec-filing-risk.json"
+      ],
+      "inputs": [],
+      "tags": [
+        "signals",
+        "fundamentals",
+        "risk",
+        "sec"
       ]
     },
     {

@@ -425,6 +425,44 @@ lines = [
 print("\n".join(lines))
 PYEOF
       ;;
+    LLM)
+      case "$arg1" in
+        STATUS|"")
+          LLM_MSG=$(python3 /home/ubuntu/.picoclaw/scripts/apex_llm_flags.py status 2>/dev/null || echo "❌ LLM flags unavailable")
+          send_message "$LLM_MSG"
+          ;;
+        ON)
+          FLAG=$(echo "${arg2:-all}" | tr '[:upper:]' '[:lower:]')
+          LLM_MSG=$(python3 /home/ubuntu/.picoclaw/scripts/apex_llm_flags.py set "$FLAG" true 2>/dev/null || echo "❌ Failed")
+          send_message "$LLM_MSG"
+          ;;
+        OFF)
+          FLAG=$(echo "${arg2:-all}" | tr '[:upper:]' '[:lower:]')
+          LLM_MSG=$(python3 /home/ubuntu/.picoclaw/scripts/apex_llm_flags.py set "$FLAG" false 2>/dev/null || echo "❌ Failed")
+          send_message "$LLM_MSG"
+          ;;
+        RESET)
+          LLM_MSG=$(python3 /home/ubuntu/.picoclaw/scripts/apex_llm_flags.py reset 2>/dev/null || echo "❌ Failed")
+          send_message "$LLM_MSG"
+          ;;
+        *)
+          send_message "🤖 LLM Commands:
+
+  LLM STATUS            — show all flag states + call counts
+  LLM ON <flag>         — enable a Gemini module
+  LLM OFF <flag>        — disable (fall back to rule-based)
+  LLM RESET             — clear call counters
+
+Flags:
+  sentiment_llm         — news headline scoring
+  taco_llm              — geopolitical classifier
+  preflight_llm         — pre-entry filter (experimental)
+  exit_timing_llm       — exit timing (experimental)
+  signal_tiebreaker_llm — signal ranking (experimental)"
+          ;;
+      esac
+      ;;
+
     HELP)
       send_message "🤖 APEX TRADING BOT
 
@@ -455,7 +493,12 @@ PYEOF
   CONFIRM TACO      — authorise TACO signal
   CANCEL TACO       — abort TACO signal
 
-🤖 AGENT / GEMINI
+🤖 GEMINI / LLM
+  LLM STATUS        — Gemini module on/off + usage
+  LLM ON sentiment_llm  — enable module
+  LLM OFF taco_llm      — disable module
+
+🤖 AGENT / QUERY
   QUERY regime      — regime + VIX snapshot
   QUERY positions   — open positions + P&L
   QUERY signals     — queue + last EV

@@ -305,7 +305,7 @@
     "currency": "USD"
   },
   "META": {
-    "t212": "FB_US_EQ",
+    "t212": "META_US_EQ",
     "name": "Meta Platforms",
     "currency": "USD"
   },
@@ -451,7 +451,7 @@
   },
   "QQQS": "QQQSl_EQ",
   "3USS": "3USSl_EQ",
-  "SQQQ": "SQQQ_EQ",
+  "SQQQ": "QQQSl_EQ",
   "SPXU": "SPXU_EQ",
   "3UKS": "3UKSl_EQ",
   "PGY": {

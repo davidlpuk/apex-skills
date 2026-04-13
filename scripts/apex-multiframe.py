@@ -36,7 +36,7 @@ YAHOO_MAP = {
 }
 
 def fix_pence(price, yahoo):
-    if yahoo.endswith('.L') and price > 100:
+    if yahoo.endswith('.L'):
         return price / 100
     return price
 

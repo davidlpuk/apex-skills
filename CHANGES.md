@@ -5,6 +5,393 @@
 
 ---
 
+## 2026-04-13 (session 4) — System hardening: queue lock, Alpaca watchdog, rollout block, scan dedup
+
+### Queue Concurrent Execution Lock (`apex-trade-queue.py`)
+Added PID-file lock around `execute_queue()` to prevent overlapping invocations when execution
+takes longer than the 5-min cron interval. Lock file: `apex-queue-execute.lock`. Stale locks
+auto-clear via `os.kill(pid, 0)` check. Fail-open on write error.
+
+### Alpaca Fill Watchdog (`apex-alpaca-watchdog.py` — new file)
+New script polls positions with `venue=ALPACA` + `status=awaiting_fill`. On fill: places GTC stop
+via `alpaca_executor.place_stop_order`, updates positions.json to `protected`/`unprotected`, sends
+Telegram. On terminal states (cancelled/expired): removes position and alerts. Cron: `*/5 14-20 * *
+1-5` (US market hours).
+
+### Rollout Simulation Hard-Block (`apex-decision-engine.py`)
+`sim_verdict == 'FAIL'` (WR < 30% or day-1 stop risk > 30%) now blocks the trade and returns
+instead of logging an advisory warning. Sends Telegram alert with WR and day-1 stop percentages.
+
+### EV Marginal Block in Adverse Regimes (`apex-decision-engine.py`)
+MARGINAL EV signals (EV between -2 and 0) are now blocked in CAUTIOUS and HOSTILE regimes.
+Previously only NEGATIVE (EV < -2 AND optimistic EV < 0) was blocked. In adverse conditions
+marginal edge is not enough — market punishes marginal setups.
+
+### Exclude Held Positions from Contrarian Scan (`apex-contrarian-scan.py`)
+`run()` now reads `apex-positions.json` and skips instruments already held (status in
+awaiting_fill, entry_placed, protected, unprotected, pending). Prevents LEN/NFE/ULVR re-generating
+signals while already in portfolio.
+
+---
+
+## 2026-04-13 (session 3) — Late-fill gap, Alpaca watchdog confusion, systematic learning
+
+### Late-Fill After Cancel (executor)
+ULVR filled in T212 during the last milliseconds of the 3-min poll window, after the DELETE request
+was issued. Position was open with no stop and no positions.json entry for ~20 min. Fixed: executor
+now fetches `/equity/portfolio` after cancel — if ticker present, treats as late fill, updates
+entry price/qty from T212, and falls through to stop placement. Added lesson to scripts/CLAUDE.md.
+
+### Alpaca Venue Confusion (watchdog)
+XOM was routed via Alpaca with UUID entry_order_id. Watchdog queried T212 for the UUID → HTTP 400.
+Also: `str(None)='None'` passed the `not sid` guard, triggering false STOP MISSING alerts.
+Fixed: `check_stop_price_drift`, `check_deferred_stops`, `check_stale_in_flight` all skip
+`venue=ALPACA` positions. `stop_order_id` guard now correctly checks `raw_sid is not None`.
+
+---
+
+## 2026-04-13 (session 2) — GBX price unit bug: ULVR limit orders never filling
+
+### Root Cause
+GBX instruments (LSE stocks quoted in pence) require T212 API prices in **pence**, not pounds.
+Signal prices are always stored in pounds (e.g. ULVR entry=£42.93). Executor was sending 42.93
+to T212 which treated it as 42.93p — the order rested at ~43p when the stock trades at ~4292p.
+Orders were accepted by T212 but never filled, then cancelled after 3-minute polling window.
+This affected all 30 GBX instruments in the ticker map.
+
+### Fixes
+- **`apex_order_executor.py`**: Added `_to_t212_price(price, currency)` logic — multiplies by 100
+  for GBX, passes through for USD/GBP. Applied to both `limitPrice` and `stopPrice` at order placement.
+- **`apex-broker-watchdog.py`**: Added `_to_t212_price()` helper and `currency` parameter to
+  `place_stop_order()`. Fixed all three stop placement sites (auto_fix, addon, deferred stops).
+  Built `currency_map` from positions alongside existing `stop_map`.
+- **`apex-trailing-stop.py`**: Same fix — `_to_t212_price()` helper added, `currency` extracted from
+  `pos` in the main loop, passed to both `place_stop_order()` calls (T1 ratchet, trailing ratchet).
+- **`apex-trade-queue.py`**: `_is_duplicate()` now blocks same-day `FAILED` entries in addition to
+  `QUEUED`/`EXECUTED` — prevents thrashing re-queue when execution fails repeatedly.
+- **Queue cleanup**: Cleared today's FAILED/CANCELLED ULVR entries so fresh signal can execute
+  with correct pence pricing on the 13:00 scan → 13:05 execute cycle.
+
+---
+
+## 2026-04-13 — Full system audit: 20+ fixes across safety, reliability, data integrity
+
+### Tier 1 — Data Corruption
+- **Outcomes deduplication**: Removed duplicate Exxon (id 19) and Unilever (id 14) entries caused by dual listener. Win rate corrected from 47.4% → 75.0% (ghost BREAKEVENs now excluded from stats).
+- **Outcomes field normalisation**: Fixed `r`→`r_achieved`, `qty`→`quantity`, `type`→`outcome_type`. Fixed 4 entries with `result=None`. Assigned missing IDs. Back-filled default fields.
+
+### Tier 2 — Silent Safety Bypasses
+- **Watchdog false clear** (`apex-broker-watchdog.py`): When T212 API is down, watchdog now sends CRITICAL alert instead of reporting "✅ All clear".
+- **`_remove_pending` expanded** (`apex_order_executor.py`): Now covers `awaiting_fill` in addition to `pending`/`entry_placed`.
+- **Stop retry backoff** (`apex_order_executor.py`): Changed from 3×2s (6s total) to 2s→8s→20s exponential (30s total) — clears T212 60s rate limits.
+- **FX rate abort** (`apex_order_executor.py`): Non-GBP trades now blocked (not silently sized at fx=1.0) when FX fetch fails.
+- **EV module guard** (`apex-decision-engine.py`): Explicit None check on EV module — trade blocked if EV calculation unavailable.
+
+### Tier 3 — Race Conditions & Duplicate Prevention
+- **Queue post-execution verification** (`apex-trade-queue.py`): After EXECUTED, verifies position exists in positions file; changes to FAILED if missing.
+- **Queue ID collision** (`apex-trade-queue.py`): Uses `max(IDs)+1` instead of `len(queue)+1`.
+- **Queue duplicate window** (`apex-trade-queue.py`): `_is_duplicate()` now checks EXECUTED entries from same day, not just QUEUED.
+
+### Tier 4 — Defensive Hardening
+- **Dictionary bracket access** (`apex-decision-engine.py`, `apex_filters.py`, `apex_sizer.py`): ~15 unsafe `dict['key']` calls converted to `.get()` with sensible defaults.
+- **Reuters feed disabled** (`apex-blackswan-test.py`): Dead RSS feed commented out.
+- **ULVR ticker derivation** (`apex_order_executor.py`, `apex-price-feed.py`, `apex_price_feed.py`): Fixed reverse ticker map and `l_EQ` suffix stripping for LSE instruments.
+
+### Tier 5 — Observability
+- **Autopilot counter alert** (`apex-trade-queue.py`): Sends Telegram alert if counter write fails (was silently swallowed).
+- **Watchdog drift report** (`apex-broker-watchdog.py`): Positions not in T212 now reported in drift list instead of silently skipped.
+
+## 2026-04-13 — Reuters feed disabled, ULVR yfinance ticker derivation fixed
+
+**`apex-blackswan-test.py` — Reuters RSS feed disabled:**
+`https://feeds.reuters.com/reuters/businessNews` has been returning URLError consistently (feed discontinued). Commented out with note. Script continues with BBC feed; error handling already suppresses failures gracefully.
+
+**`apex_order_executor.py` — Reverse ticker map was broken for dict-valued entries:**
+`_check_entry_staleness` built a reverse map assuming `apex-ticker-map.json` was `{yahoo: t212_string}`, but the actual format is `{yahoo_key: {t212: ..., currency: ...}}`. The reverse map was always empty, falling through to a naive `.replace('_EQ','')` that turned `ULVRl_EQ` into `ULVRl` (invalid yfinance symbol). Fixed: reverse map now reads `entry['t212']`, and appends `.L` for GBX/GBP currencies. Fallback strip now handles `l_EQ` suffix before `_EQ`.
+
+**`apex-price-feed.py` / `apex_price_feed.py` — Same `l_EQ` suffix stripping bug:**
+`.upper().replace('_EQ','')` turned `ULVRl_EQ` → `ULVRL` (invalid). Added `L_EQ` replacement before `_EQ` in both `get_technical_data()` and `get_live_price()`.
+
+---
+
+## 2026-04-13 — Four systemic fixes: ghost positions, reconcile promotion, stop_order_id race, duplicate listener
+
+**`apex_order_executor.py` — `_remove_pending` left ghost `entry_placed` positions:**
+When a limit entry is placed (status upgrades `pending` → `entry_placed`) then cancelled unfilled during market hours, `_remove_pending` only removed `pending` status — leaving a ghost `entry_placed` that confused reconcile and triggered stale watchdog alerts (reproduced by ULVR). Fixed: now removes both `pending` and `entry_placed`.
+
+**`apex-reconcile.py` — Two bugs fixed:**
+- Alert read-back ran unconditionally: when an unfilled ghost was processed after a real closure (e.g. ULVR after Exxon), the alert showed the previous trade's exit price/P&L. Fixed: outcome read-back moved inside `else` block (only runs when outcome was actually logged). Unfilled ghosts now show *"Never filled — no outcome logged"*.
+- No promotion path for stale `entry_placed`: positions confirmed open in T212 with `entry_placed` status in Apex were never promoted. Added step 3 that detects `entry_placed` positions present in T212 and promotes them to `protected`, back-filling entry price from T212 avg if missing.
+
+**`apex-trailing-stop.py` — `save_positions` race condition overwrote newer stop_order_id:**
+If broker-watchdog placed a new stop between the trailing stop's load and save, `save_positions` overwrote it with the stale ID from memory. Fixed: merge now preserves the on-disk `stop_order_id` if it differs from what we have in memory (on-disk is always newer in this scenario).
+
+**`apex-listener.service` — Duplicate Telegram listener disabled:**
+Both `apex-listener.service` (old, 419 lines) and `apex-trading-bot.service` (new, 653 lines) were running simultaneously, causing every Telegram message to get two responses. Old service stopped and disabled — `apex-trading-bot.service` is the canonical listener.
+
+## 2026-04-13 — Fix cron PATH: yfinance missing in data refresher
+
+**Root cause**: `apex-data-refresher.sh:54` used bare `python3` which resolves to `/usr/bin/python3` (no venv) in cron's environment (`PATH=/usr/bin:/bin`). All yfinance-dependent scripts failed silently over the Easter weekend, leaving breadth/multiframe/regime/relative-strength 71h stale.
+
+**Fixes**:
+- `apex-data-refresher.sh:54` — `python3` → `/home/ubuntu/bin/python3`
+- Added `export PATH=/home/ubuntu/bin:$PATH` as line 2 in all 10 cron-invoked `.sh` scripts: `apex-stop-monitor`, `apex-friday-review`, `apex-weekly-report`, `apex-health-check`, `apex-news-check`, `apex-fill-check`, `apex-eod-review`, `apex-morning-briefing`, `apex-morning-scan`, `apex-intraday-scan`
+- Updated `scripts/CLAUDE.md` coding standards with the rule
+
+**Manual recovery**: Ran refresher manually — 5/6 files refreshed (sentiment timed out, separate network issue). `apex-hitl.log` / `apex-trading-listener.log` staleness was Easter holiday false alarm (no market events).
+
+## 2026-04-12 — Stress test battery: 4 real bugs found and fixed
+
+**`apex_sizer.py` — 2 bugs fixed:**
+- **Zero free cash `or` operator bug**: `get_free_cash() or fallback` treated `0.0` (genuine zero cash) as falsy, using a 30% portfolio fallback instead of blocking. Fixed: `_fc if _fc is not None else fallback`. Added explicit early return when `cash_available <= 0` — genuinely broke means no new trades.
+- **Correlation cache datetime import bug**: `from datetime import timezone as _tz2` imported only `timezone`, not the `datetime` class. `datetime.now(timezone.utc)` raised `NameError`, silently caught, cache always invalidated → sector proxy (0.72) used instead of real 50% cut for r≥0.85 pairs. Fixed: `from datetime import datetime as _dt2, timezone as _tz2` and use `_dt2.now(_tz2.utc)`.
+
+**`apex_filters.py` — 2 architectural gaps fixed:**
+- **Stale direction allows TREND entries**: `is_blocked()` checked `direction_status == 'BLOCKED'` exactly, but stale status was set to `'STALE (Nh old)'`. 25h-old bearish direction data silently allowed TREND entries. Fixed: block TREND if `'STALE' in direction_status` as well as `== 'BLOCKED'`.
+- **VIX extreme gate only blocked TREND**: `vix >= 35` check applied only to `signal_type == 'TREND'`. EARNINGS_DRIFT and DIVIDEND_CAPTURE could enter at VIX=46. Fixed: extended gate to all long-equity signal types `('TREND', 'EARNINGS_DRIFT', 'DIVIDEND_CAPTURE')`. The 28–35 high-VIX score requirement remains TREND-only.
+
+**`apex-stress-test.py` — 39-test battery added** (see entry below)
+
+---
+
+## 2026-04-12 — Stress test battery: apex-stress-test.py (39 automated tests)
+
+- **New**: `apex-stress-test.py` — 39 automated tests across 8 categories, no live API calls
+- Categories: Statistical Validity · Sizing Integrity · Regime Logic · Signal Quality · Resilience · Market Stress · New Feature Validation (P1–P8) · Operational
+- All CRITICAL and HIGH severity paths validated; 8 manual Monday-morning checks documented
+- Run: `python3 apex-stress-test.py` | Output: `apex-stress-test-results.json`
+- Result: **39 PASS | 0 WARN | 0 FAIL** after fixing the 4 bugs above
+
+---
+
+## 2026-04-11 — Gemini migration: P3/P4 LLM features switched from Anthropic to Gemini
+
+- **`apex_config.py`**: Replaced `ANTHROPIC_API_KEY` / `claude-haiku-4-5-20251001` with `GEMINI_API_KEY` / `gemini-1.5-flash`
+- **`apex-sentiment.py`**: `_llm_score_headlines()` switched from `anthropic` SDK to `google-genai` (`from google import genai`, `genai.Client`, `client.models.generate_content`)
+- **`apex-taco-classifier.py`**: `_llm_classify_taco_headlines()` switched to same `google-genai` pattern
+- **`.env.trading212`**: Added `GEMINI_API_KEY=` placeholder — paste your Gemini API key here
+- **Package**: `pip install google-genai` (replaces `anthropic`; `arch` and `hmmlearn` unchanged)
+- Both LLM functions continue to fall back to VADER/keyword scoring if key is absent or call fails
+
+---
+
+## 2026-04-11 — Frontier Matrix Upgrades: 8 items across 3 phases
+
+Implemented all 8 frontier-matrix upgrades from the quant-systems audit. All LLM features degrade gracefully to rule-based fallbacks if `GEMINI_API_KEY` is absent. New packages required: `google-genai`, `arch`, `hmmlearn`.
+
+### Phase 1 — Quick Wins
+- **P1 — Regime-aware signal priority** (`apex-decision-engine.py`): Added `_regime_priority_bonus()` function. Signals are now ranked by `adjusted_score + regime_bonus` rather than score alone. In FAVOURABLE regime, TREND gets +2.0 sort bonus; INVERSE gets -2.0. Bonus stored in `signal['regime_priority_bonus']` for audit trail. `adjusted_score` itself is NOT mutated (sizing/logging unchanged).
+- **P2 — GARCH(1,1) volatility forecast** (`apex-regime-scaling.py`): Added `_garch_vix_forecast()` that fits GARCH(1,1) on 120d SPY returns and blends with spot VIX (60% spot + 40% GARCH, always ≥ spot). Output JSON now includes `vix_raw`, `vix_garch_blended`, `garch_available`. Falls back to spot VIX on any failure.
+- **P3 — LLM sentiment** (`apex-sentiment.py`, `apex_config.py`): Added `_llm_score_headlines()` using Claude Haiku for context-aware headline scoring. Replaces VADER as primary scorer; VADER remains as fallback. Output JSON includes `scoring_method: "llm"|"vader"`. `ANTHROPIC_API_KEY` / `LLM_SENTIMENT_MODEL` / `LLM_TIMEOUT` added to `apex_config.py`. Instrument tagging uses LLM's `instruments` field directly when available.
+
+### Phase 2 — Core Upgrades
+- **P4 — LLM TACO classifier** (`apex-taco-classifier.py`): Added `_llm_classify_taco_headlines()` that replaces keyword regex with Claude Haiku intent analysis. Returns `rhetoric_score`, `action_score`, `walkback_score`, `is_fundamental`, `threat_type`, and `llm_reasoning`. State JSON now includes `classification_method` and `llm_reasoning` fields. Falls back to keyword scoring on failure.
+- **P5 — Inverse-vol risk parity** (`apex-portfolio-heat.py`, `apex_sizer.py`): Added `calculate_risk_parity_check()` that fetches 20d realized vol per position, computes inverse-vol target weights, and flags positions deviating >30% from target. Result included in heat JSON under `risk_parity` key. Sizer applies -25% sizing penalty when entering an OVERWEIGHT ticker.
+- **P6 — Pairwise causal ablation** (`apex-layer-audit.py`): Added `_rank()` and `pairwise_interaction_analysis()`. For each layer pair with |r|≥0.50, measures co-activation rate and rank stability (Pearson of rank vectors). Verdicts: REDUNDANT / LIKELY_REDUNDANT / COMPLEMENTARY. Results in output JSON under `interaction_analysis` key.
+
+### Phase 3 — Structural Enhancements
+- **P7 — HMM regime detection** (new: `apex-regime-hmm.py`): 3-state Gaussian HMM on SPY returns + VIX changes. States auto-labelled: TRENDING (high return, low VIX change), CRISIS (low return, high VIX change), MEAN_REVERTING (middle). Outputs `apex-regime-hmm.json` with current state, state probabilities, run length, transition matrix, and emission means. Registered in `apex-schedule.json` (07:22 UTC) and `apex-tool-manifest.json`.
+- **P8 — HMM-driven priority matrix** (`apex-decision-engine.py`): Updated `_regime_priority_bonus()` to use HMM state when available. Bonus is confidence-weighted by `state_probabilities[current_state]`. Falls back to VIX/breadth regime label when `apex-regime-hmm.json` is absent or `available: false`.
+
+---
+
+## 2026-04-10 — Harden: metadata cache pre-populated, second-layer duplicate guard
+
+Pre-populated `apex-instrument-meta.json` with 16,740 instruments from list endpoint — eliminates 404 log_error spam on every order execution. Added second-layer duplicate ticker guard in `apex-trade-queue.queue_signal()` in addition to `apex_filters.is_blocked()`. Lessons added to `scripts/CLAUDE.md`.
+
+**Files changed:** `scripts/apex-trade-queue.py`, `scripts/CLAUDE.md`, `logs/apex-instrument-meta.json` (generated)
+
+---
+
+## 2026-04-10 — Fix: duplicate position re-entry + T212 metadata endpoint 404
+
+**Issue 1:** Decision engine had no same-ticker duplicate check — only checked total position count. LEN and NFE (already held) were re-queued, orders placed and failed.
+**Fix:** Added "Already in positions" block to `is_blocked()` in `apex_filters.py` — checks signal's `t212_ticker` against all open position tickers.
+
+**Issue 2:** T212's `/equity/metadata/instruments/{ticker}` endpoint now returns 404 for all tickers. Was causing `log_error` spam on every order execution (though code defaulted to 2dp precision harmlessly).
+**Fix:** `apex_order_executor.py` now falls back to `/equity/metadata/instruments` (list endpoint) and bulk-caches all instruments on first call. Subsequent orders use the cache.
+
+**Files changed:** `scripts/apex_filters.py`, `scripts/apex_order_executor.py`
+
+---
+
+## 2026-04-10 — Fix: yfinance double-scan rate-limiting causing 0 contrarian candidates
+
+**Root cause:** `apex-intraday-scan.sh` runs `apex-contrarian-scan.py` as intelligence refresh, then the decision engine calls `run_contrarian_scan()` which re-runs the same script seconds later. The second yfinance batch (40 tickers) gets rate-limited → all return empty history → 0 candidates → system idles all day.
+
+**Fix:** `run_contrarian_scan()` in `apex-decision-engine.py` now reads `apex-contrarian-signals.json` directly if file age < 20 min. Falls through to subprocess only when stale (e.g. AM scan, file ~18h old).
+
+**Files changed:** `scripts/apex-decision-engine.py`
+
+---
+
+## 2026-04-10 — System audit phase 2: T212 reconciliation, HMRC FX fallback, RUNBOOK
+
+**Files changed:** `dashboard/tax_tracker/routes.py`, `dashboard/tax_tracker/importer.py`, `dashboard/tax_tracker/templates/tax_tracker/reconcile.html`, `RUNBOOK.md`
+
+**1. T212 live reconciliation** (`tax_tracker/routes.py`):
+`/tax/reconcile` now fetches the live T212 portfolio via `GET /equity/portfolio` on every page load. The reconciliation is a 3-way comparison: T212 broker (ground truth) vs `apex-positions.json` vs S104 CGT pool. New discrepancy categories: "T212 shows open position not in APEX (manual trade?)" and "APEX shows open position not in T212 (missed close?)". Falls back to existing 2-way comparison if T212 API is unavailable, with a banner explaining why. Template updated with conditional T212 Live column.
+
+**2. HMRC FX rate prior-month fallback** (`tax_tracker/importer.py`):
+`_apply_fx_to_pending_trades()` now falls back to the most recently published prior-month HMRC rate when the exact month's rate is not yet available (HMRC publishes 6-8 weeks in arrears). Applied trades get `fx_source = 'HMRC_PRIOR_MONTH_FALLBACK'` so the approximation is traceable. Prevents USD trades from being blocked indefinitely when HMRC is behind.
+
+**3. Operational RUNBOOK** (`RUNBOOK.md`):
+New file covering: circuit breaker manual resume, stuck order cancellation, API key rotation, unexpected/unprotected position recovery, VM recovery, TACO state reset, reconciliation discrepancy resolution, secondary watchdog setup, dashboard troubleshooting.
+
+---
+
+## 2026-04-09 — System audit phase 1: 5 trading engine improvements
+
+**Files changed:** `scripts/apex-trade-queue.py`, `scripts/apex_order_executor.py`, `scripts/apex-decision-engine.py`, `scripts/apex-score-adapter.py`, `scripts/apex_sizer.py`, `scripts/apex-performance-decomp.py` (new), `scripts/apex-state-export.py` (new), `scripts/apex-secondary-watchdog.py` (new), `scripts/apex-correlation-update.py` (new), `dashboard/app.py`, `logs/apex-scoring-weights.json`
+
+**1. Trade queue deduplication** (`apex-trade-queue.py`): `_is_duplicate()` helper prevents same ticker+signal_type being queued twice in one session. **2. Intraday cancel-on-timeout** (`apex_order_executor.py`): Orders unfilled after 18 polls during market hours are cancelled via T212 DELETE, preventing stale open orders. **3. Regime-locked score threshold** (`apex-decision-engine.py`, `apex-score-adapter.py`): `MIN_SIGNAL_SCORE` now reads from `min_score_by_regime` in the weights file — CAUTIOUS=7.0, HOSTILE=8.0. **4. Per-family Kelly priors** (`apex-score-adapter.py`): Global 2× EV multiplier replaced with family-specific calibrated priors (TREND: OOS-seeded, others: Beta priors). Global adjustment deactivated when live family data present. **5. Correlation concentration** (`apex_sizer.py`): Nightly pairwise correlation cache read at sizing time — ≥0.85 corr sizes down 50%, ≥0.70 sizes down 25%.
+
+---
+
+## 2026-04-09 — System audit fixes: watchdog persistence, qty precision, queue TTL, ATR fallback
+
+**Files changed:** `scripts/apex-broker-watchdog.py`, `scripts/apex_order_executor.py`, `scripts/apex-trade-queue.py`, `logs/apex-positions.json`
+
+**1. Broker watchdog — stop_order_id not persisted after auto-fix** (`apex-broker-watchdog.py`):
+`auto_fix_unprotected()` placed stop orders successfully but never wrote the order ID back to `apex-positions.json`. Every subsequent watchdog cycle re-flagged the same position as unprotected and placed duplicate stops. Fixed: added `locked_read_modify_write()` call after successful stop placement to persist `stop_order_id`, set `unprotected=False`, `status='protected'`.
+
+**2. Quantity precision mismatch** (`apex_order_executor.py`):
+T212 has per-instrument precision rules (e.g. some penny stocks require whole numbers). Sending `601.4` to an instrument requiring `0` decimal places caused HTTP 400 `/api-errors/quantity-precision-mismatch`. Fixed: added `_get_quantity_precision(ticker)` that fetches T212 instrument metadata (`/equity/metadata/instruments/{ticker}`), caches in `apex-instrument-meta.json`, and rounds quantity before order submission. Falls back to 2dp on API error.
+
+**3. ATR=0 degenerate stops** (`apex_order_executor.py`):
+When yfinance returns insufficient history (low-volume stocks), ATR=0 and stop/target fields in the signal become degenerate (equal to entry). Previously just warned and continued. Fixed: when ATR=0 AND stop is within 0.2% of entry (degenerate), rebuild using fixed-% fallbacks: TREND=6%, CONTRARIAN=4%, EARNINGS_DRIFT=5%, DIVIDEND_CAPTURE=3%.
+
+**4. Queue TTL cleanup** (`apex-trade-queue.py`):
+Queue had 38 items with no cleanup — 15 were >7 days old with terminal status (EXECUTED/FAILED/CANCELLED). Added `purge_stale_entries()` which runs at the start of each `execute_queue()` call. Purged 15 items immediately. Queue now 23 items.
+
+**5. Stop order IDs backfilled** (`logs/apex-positions.json`):
+ABBV: `46451554910` (stop 191.07), LEN: `47250417827` (stop 82.95). Both positions now `status=protected`.
+
+---
+
+## 2026-04-09 — Fix contrarian-gates NaT crash + NFE unprotected flag
+
+**Files changed:** `scripts/apex-contrarian-gates.py`, `logs/apex-positions.json`
+
+**`apex-contrarian-gates.py`**: yfinance sometimes returns `NaT` as an earnings date entry. `pd.Timestamp(NaT) - datetime.now()` produces `NaT`, and `NaT.days` returns `None`. The chained comparison `0 <= None <= 45` returns False (pandas NaT silently fails `<=`), but `None > 45` raises `TypeError: '>' not supported`. Fix: skip NaT timestamps with `pd.isnull(_ts)` guard, and add `isinstance(days_away, int)` guard before comparisons.
+
+**NFE_US_EQ position**: Broker watchdog placed stop order 47250417835 at £0.61 but didn't update the positions file (stop_order_id stayed empty, unprotected flag stayed True). Manually reconciled: stop_order_id set, unprotected cleared. Note: watchdog used 6% fallback stop (£0.61) rather than trailing stop (£0.6905) — acceptable protection but wider than ideal.
+
+---
+
+## 2026-04-09 — Increase trade frequency: threshold loosening + pipeline fixes
+
+**Files changed:** `scripts/apex_config.py`, `scripts/apex-autopilot.py`, `scripts/apex-contrarian-scan.py`, `scripts/apex-decision-engine.py`, crontab
+
+**Problem:** System was executing ~1 trade per 4 weeks due to 11 stacked bottlenecks. Root causes:
+1. Backtest v2 calibrated TREND score threshold to 9/10 — near-impossible to reach
+2. Contrarian RSI hard gate at 30 killed ~78% of candidates
+3. Geo ALERT blanket-blocked EARNINGS_DRIFT and DIVIDEND_CAPTURE (no reason — they're company-specific)
+4. Contrarian 24h cooldown + 1/day cap meant at most 1 contrarian trade ever per day
+5. Decision engine crashed on null price in best signal, losing all runner-ups
+6. Only 2 runner-ups queued with threshold 7.0 — left 8+ valid signals unqueued
+
+**Changes:**
+- `apex_config.py`: `CONTRARIAN_RSI_MAX` 30 → 38 (3-4x more contrarian candidates)
+- `apex-autopilot.py`: Backtest threshold ceiling added (+1.0 max above default — prevents TREND threshold reaching 9 from 7.0 default); contrarian daily cap 1 → 2; contrarian cooldown 24h → 6h; geo ALERT allowlist now includes EARNINGS_DRIFT and DIVIDEND_CAPTURE; RSI gate 30 → 38
+- `apex-contrarian-scan.py`: Added RSI 30-38 tier (+1 score — "weakening momentum, pullback candidate")
+- `apex-decision-engine.py`: Runner-up queue depth 2 → 4; queue score threshold 7.0 → 6.0; null-price candidate fallback (skip to next if best has no price); null-price crash fix on `float(None)` for all `signal.get('entry', signal.get('price', 0))` patterns
+- Crontab: Added 09:00 scan (1h after LSE open), 15:00 scan (30min after US open), autopilot check every 15 min during 08:00-15:00
+
+**Expected outcome:** Multiple trades per week instead of 1 per month.
+
+---
+
+## 2026-04-09 — Fix earnings drift null-price signal
+
+**Files changed:** `scripts/apex-earnings-drift.py`
+
+`check_earnings_beat` could return a signal with `price=NaN` when yfinance returns NaN during extreme market volatility (tariff sell-off). `atomic_write` serialises NaN → null, producing a JSON signal with `price: null, target1: null, target2: null`. Queue revalidation was catching this and cancelling harmlessly, but the signal was still noisy. Added NaN guard: return None if `price != price` (IEEE NaN self-comparison).
+
+---
+
+## 2026-04-08 — Fix 4 health alert root causes (META ticker, SQQQ, limit=100, earnings crash)
+
+**Files changed:** `scripts/apex-ticker-map.json`, `scripts/apex-decision-engine.py`, `scripts/apex_scoring.py`, `scripts/apex-reconcile.py`, `scripts/apex-queue-revalidate.py`
+
+**41 errors triggered CRITICAL health alert — root causes:**
+
+1. **META ticker stale** (`apex-ticker-map.json`): `META → FB_US_EQ` was the old Facebook ticker. Changed to `META_US_EQ`. Decision engine was generating valid META signals but resolving to a non-existent ticker, causing repeated 400 "invalid payload" failures and re-queueing.
+
+2. **SQQQ MiFID II blocked** (`apex-ticker-map.json`, `apex-decision-engine.py`, `apex_scoring.py`): `SQQQ → SQQQ_EQ` (US-listed ProShares) is blocked for UK retail accounts. Changed to `QQQSl_EQ` (WisdomTree NASDAQ 100 3x Short, LSE-listed equivalent, already confirmed tradeable in T212 history).
+
+3. **`limit=100` too large** (`apex-reconcile.py:59`): T212 `/equity/history/orders` API has a max of 50. Changed to `limit=50` (was generating 400 "Limit cannot be greater than 50").
+
+4. **Earnings check crash** (`apex-queue-revalidate.py:150`): `apex-earnings-flags.json` is an empty list `[]` but code called `.get()` on it as a dict → `AttributeError: 'list' object has no attribute 'get'`. Added `if not isinstance(earnings, dict): earnings = {}` guard before `.get()`.
+
+---
+
+## 2026-04-08 — Trevor v1: Investment Partner with Full Control & Visibility
+
+**Files changed:** `scripts/trevor.py` (new), `dashboard/app.py`
+
+Trevor is a dry, analytical AI advisor that explains decisions and proactively improves portfolio health. Designed for solo investor who wants **control** over Apex while maintaining **transparency** into why the system acts.
+
+**Trevor's Components:**
+
+1. **Signal Explainer** — Every pending signal gets a detailed breakdown:
+   - Conviction (1-10), Expected Value, Kelly sizing recommendation
+   - Risk/Reward ratio, regime fit, tax impact
+   - Risk flags + Trevor's dry commentary on why to size it that way
+   - Action buttons: Accept, Accept (85% Kelly), Decline, Wait for clarity
+
+2. **Portfolio Health Monitor** — Continuous checks for:
+   - Concentration risk (alerts if growth >75%)
+   - Correlation creep (warns if avg correlation >0.80)
+   - Thesis decay (flags positions held >90 days with >20% gains)
+   - Divergence alerts between local state and T212 broker
+
+3. **Morning Brief** (7am, auto-generated) — Snapshot of:
+   - Regime status + confidence, portfolio P&L
+   - Pending signal count + top candidates
+   - Top 2-3 portfolio alerts
+   - What to watch through the day
+
+4. **EOD Wrap** (4:30pm, auto-generated) — Reflection on:
+   - Day's P&L breakdown + win rate  
+   - Thematic patterns (momentum, drawdown, signal quality)
+   - Next day's setup + action items
+
+5. **Conviction Calibration Tracker** — Scatter chart showing:
+   - Stated conviction (1-10) vs actual trade returns
+   - Grouped by conviction bucket with accuracy scoring
+   - Trevor's assessment: "You're strong on macro, weak on sectors" etc.
+   - Reveals calibration gaps for next cycle
+
+**API Endpoints:**
+- `/api/trevor/status` — All Trevor data (signal, health, briefs, conviction)
+- `/api/trevor/signal` — Detailed signal explainer
+- `/api/trevor/health` — Portfolio health alerts
+- `/api/trevor/conviction` — Conviction calibration analysis
+- `/api/trevor/brief` — Morning briefing
+- `/api/trevor/eod` — EOD wrap-up
+
+**Dashboard Integration:**
+- Trevor banner at top of Overview page (shows current signal + high-level recommendation)
+- Signal Explainer card on Signals page (full breakdown + action buttons)
+- Conviction Tracker table on Signals page (calibration analysis)
+- All Trevor data loads in parallel (doesn't block main dashboard if slower)
+
+**Trevor's Voice:**
+- Dry, analytical (no fluff)
+- Honest about uncertainty ("I'm uncertain here", "My signal timing was off")
+- Proactive problem-solver ("This concentration is fragile, here's what I'd do")
+- Respectful of user judgment ("You were right to override me")
+
+**Next Steps for v2:**
+- Consensus trading (ask user before executing high-conviction signals)
+- Override tracking (logs every decline + user reason for pattern analysis)
+- Weekly postmortem with skill attribution (what's working, what isn't)
+- Conversation thread (user can chat with Trevor about positions)
+- Scheduled briefings via Telegram (morning digest, alerts, weekly summary)
+
+---
+
 ## 2026-04-08 — Six follow-up fixes identified post-audit
 
 **Files changed:** `scripts/apex_order_executor.py`, `scripts/apex-trailing-stop.py`, `scripts/apex_config.py`

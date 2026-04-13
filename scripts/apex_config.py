@@ -56,7 +56,7 @@ MIN_WIN_RATE           = 45     # Minimum historical win rate %
 MIN_SIGNAL_SCORE       = 6      # Minimum score to qualify for entry
 
 # ── Contrarian Signal Gates ───────────────────────────────────────────────────
-CONTRARIAN_RSI_MAX     = 30     # RSI must be below this for contrarian entries
+CONTRARIAN_RSI_MAX     = 38     # RSI must be below this for contrarian entries
 
 # ── Hold Period Caps (calendar days) ─────────────────────────────────────────
 MAX_HOLD_TREND         = 15
@@ -88,6 +88,13 @@ CB_ROLLING_THRESHOLDS   = {
     10: -15.0,   # 10-day cumulative loss > 15% → CRITICAL
 }
 
+# ── LLM / AI Integration (Gemini) ────────────────────────────────────────────
+# Set GEMINI_API_KEY in .env.trading212 to enable LLM-powered features.
+# All LLM features degrade gracefully to rule-based fallbacks if key is absent.
+GEMINI_API_KEY      = ''   # Populated at runtime via get_env() below
+LLM_SENTIMENT_MODEL = 'gemini-2.5-flash'
+LLM_TIMEOUT         = 30   # seconds per API call
+
 # ── Environment / Credentials ────────────────────────────────────────────────
 def get_env(key: str, default: str = '') -> str:
     """Return a value from .env.trading212, delegating to apex_utils cache."""
@@ -109,3 +116,6 @@ def get_env(key: str, default: str = '') -> str:
         except Exception:
             pass
         return default
+
+# Populate LLM key at import time (after get_env is defined)
+GEMINI_API_KEY = get_env('GEMINI_API_KEY', '')

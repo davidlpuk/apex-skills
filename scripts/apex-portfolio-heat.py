@@ -159,6 +159,9 @@ def calculate_heat():
     # Warn on any single sector with > 4% heat (concentrated sector risk)
     hot_sectors = {s: v for s, v in sector_heat.items() if v['risk_pct'] > 4.0}
 
+    # Inverse-vol risk parity check (P5) — non-blocking, informational + sizer input
+    risk_parity = calculate_risk_parity_check(positions, portfolio_value)
+
     result = {
         'total_heat_pct':    total_heat_pct,
         'total_heat_gbp':    round(total_heat_gbp, 2),
@@ -171,11 +174,97 @@ def calculate_heat():
         'multiplier':        multiplier,
         'note':              note,
         'block_new_entries': total_heat_pct > MAX_HEAT_PCT,
+        'risk_parity':       risk_parity,
         'updated_at':        now.isoformat(),
     }
 
     atomic_write(HEAT_FILE, result)
     return result
+
+
+def calculate_risk_parity_check(positions, portfolio_value):
+    """Inverse-volatility risk-parity check across open positions (P5).
+
+    For each position, computes 20-day realized annualized volatility using yfinance.
+    Compares actual notional weights to inverse-vol target weights.
+    Returns a dict flagging positions deviating >30% from their target weight,
+    so the sizer can penalize OVERWEIGHT positions on new entries.
+
+    Gracefully returns {'status': 'SKIP'} if <2 positions or vol data unavailable.
+    """
+    if not positions or len(positions) < 2:
+        return {'status': 'SKIP', 'reason': 'fewer than 2 positions'}
+
+    try:
+        import yfinance as yf
+
+        # Compute 20-day realized annualized vol per position
+        vols = {}
+        for pos in positions:
+            t212_ticker = pos.get('t212_ticker', pos.get('ticker', ''))
+            yahoo_ticker = pos.get('yahoo_ticker') or pos.get('ticker', '')
+            if not yahoo_ticker:
+                vols[t212_ticker] = 0.20  # default 20% vol if no Yahoo ticker
+                continue
+            try:
+                hist = yf.download(yahoo_ticker, period='30d', interval='1d',
+                                   progress=False, auto_adjust=True)
+                if hist is not None and len(hist) >= 15:
+                    daily_vol = hist['Close'].pct_change().dropna().std()
+                    ann_vol = float(daily_vol) * (252 ** 0.5)
+                    vols[t212_ticker] = max(ann_vol, 0.05)  # floor at 5%
+                else:
+                    vols[t212_ticker] = 0.20
+            except Exception:
+                vols[t212_ticker] = 0.20
+
+        if not vols:
+            return {'status': 'SKIP', 'reason': 'no vol data'}
+
+        # Inverse-vol target weights
+        inv_vols = {t: 1.0 / v for t, v in vols.items()}
+        total_inv = sum(inv_vols.values())
+        target_weights = {t: iv / total_inv for t, iv in inv_vols.items()}
+
+        # Actual notional weights
+        actual_weights = {}
+        for pos in positions:
+            t = pos.get('t212_ticker', pos.get('ticker', ''))
+            qty = float(pos.get('quantity', 0))
+            price = float(pos.get('currentPrice', pos.get('averagePrice',
+                                  pos.get('entry', 0))))
+            notional = qty * price
+            actual_weights[t] = notional / portfolio_value if portfolio_value > 0 else 0.0
+
+        # Identify positions deviating >30% from risk-parity target
+        deviations = []
+        for t, target in target_weights.items():
+            if target <= 0:
+                continue
+            actual = actual_weights.get(t, 0.0)
+            deviation_pct = (actual - target) / target * 100
+            if abs(deviation_pct) > 30:
+                direction = 'OVERWEIGHT' if deviation_pct > 0 else 'UNDERWEIGHT'
+                deviations.append({
+                    'ticker':           t,
+                    'actual_weight_pct':  round(actual * 100, 1),
+                    'target_weight_pct':  round(target * 100, 1),
+                    'deviation_pct':      round(deviation_pct, 1),
+                    'direction':          direction,
+                    'realized_vol_pct':   round(vols.get(t, 0) * 100, 1),
+                })
+
+        return {
+            'status':         'REBALANCE_SUGGESTED' if deviations else 'BALANCED',
+            'deviations':     sorted(deviations, key=lambda x: abs(x['deviation_pct']), reverse=True),
+            'target_weights': {t: round(w * 100, 1) for t, w in target_weights.items()},
+            'actual_weights': {t: round(w * 100, 1) for t, w in actual_weights.items()},
+            'position_vols':  {t: round(v * 100, 1) for t, v in vols.items()},
+        }
+
+    except Exception as _e:
+        log_warning(f"Risk parity check failed (non-blocking): {_e}")
+        return {'status': 'SKIP', 'reason': str(_e)}
 
 
 def get_heat_multiplier():

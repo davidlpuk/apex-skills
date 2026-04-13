@@ -142,9 +142,13 @@ def load_backtest_calibration(signal_type: str) -> dict:
             'max_hold_days':   int(optimal.get('max_hold_days',     15)),
             'source':          'v2_insights',
         }
-        # Safety guard: never accept below the default threshold
-        # (backtest could produce a lower threshold due to data lookahead artefacts)
+        # Safety guard: keep threshold within a sensible range of the default.
+        # Floor: never below default (backtest lookahead artefacts can lower it artificially).
+        # Ceiling: never more than 1.0 above default (prevents over-fitted backtest from
+        # completely blocking an entire signal type — seen with TREND calibrated to 9 on
+        # limited data, making every trend signal unreachable).
         result['score_threshold'] = max(result['score_threshold'], default['score_threshold'])
+        result['score_threshold'] = min(result['score_threshold'], default['score_threshold'] + 1.0)
         return result
 
     except Exception as e:
@@ -195,7 +199,7 @@ def safety_check(config, signal):
     # Max trades per day — stricter for contrarian
     max_trades = config.get('max_trades_per_day', 2)
     if signal_type == 'CONTRARIAN':
-        max_trades = min(max_trades, 1)  # Only 1 contrarian trade per day
+        max_trades = min(max_trades, 2)  # Max 2 contrarian trades per day
     if config.get('trades_today', 0) >= max_trades:
         blocks.append(f"Max {max_trades} {'contrarian ' if signal_type == 'CONTRARIAN' else ''}trades per day reached")
 
@@ -216,14 +220,15 @@ def safety_check(config, signal):
         blocks.append("No trades Friday afternoon")
 
     # Min time between trades
-    # Contrarian trades enforce a 24h gap — mean reversion setups don't repeat
-    # the same day. Other signal types enforce a 2h gap to prevent overtrading.
+    # Contrarian trades enforce a 6h gap — enough to avoid doubling into the same
+    # down-move within a session but allows a second setup later in the day.
+    # Other signal types enforce a 2h gap to prevent overtrading.
     last_trade = config.get('last_trade_time')
     if last_trade:
         try:
             last_dt = datetime.fromisoformat(last_trade)
             elapsed = (now - last_dt).total_seconds() / 3600
-            min_hours = 24 if signal_type == 'CONTRARIAN' else 2
+            min_hours = 6 if signal_type == 'CONTRARIAN' else 2
             if elapsed < min_hours:
                 blocks.append(f"Min {min_hours}h between {'contrarian ' if signal_type == 'CONTRARIAN' else ''}trades — last was {round(elapsed,1)}h ago")
         except Exception as _e:
@@ -401,14 +406,15 @@ def geo_news_check(signal):
     name   = signal.get('name', '')
     sector = signal.get('sector', '')
 
-    # Contrarian, TACO, and INVERSE trades allowed during geo alert.
-    # Contrarian/TACO = buying the panic dip.
+    # Contrarian, TACO, INVERSE, and event-driven trades allowed during geo alert.
+    # EARNINGS_DRIFT / DIVIDEND_CAPTURE are company-specific, not geo-macro sensitive.
     # INVERSE = explicitly bearish — geo events strengthen the bear case, not weaken it.
-    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL', 'TACO_CONTRARIAN', 'INVERSE']:
+    if signal_type in ['CONTRARIAN', 'GEO_REVERSAL', 'TACO_CONTRARIAN', 'INVERSE',
+                       'EARNINGS_DRIFT', 'DIVIDEND_CAPTURE']:
         return "CLEAR", []
 
     # All TREND/momentum entries blocked during geo ALERT — uncertainty too high
-    return "BLOCK", ["Geo alert active — all trend entries halted (contrarian/inverse still allowed)"]
+    return "BLOCK", ["Geo alert active — all trend entries halted (contrarian/inverse/event-driven still allowed)"]
 
 def market_direction_check(signal):
     signal_type = signal.get('signal_type', 'TREND')
@@ -476,10 +482,11 @@ def contrarian_quality_check(signal):
     except Exception as _e:
         log_error(f"Silent failure in apex-autopilot.py: {_e}")
 
-    # RSI must be genuinely oversold for contrarian — RSI 38 is just "slightly weak",
-    # not oversold. Professional contrarian entries need real capitulation (RSI < 30).
-    if rsi > 30:
-        return "BLOCK", [f"RSI {rsi} not oversold enough for contrarian trade (need < 30)"]
+    # RSI gate — must show clear weakness for contrarian entry.
+    # RSI < 30 is genuinely oversold; RSI 30-38 is weakening and acceptable for
+    # high-quality names with strong discount from 52w high.
+    if rsi > 38:
+        return "BLOCK", [f"RSI {rsi} not weak enough for contrarian trade (need < 38)"]
 
     return "CLEAR", []
 

@@ -125,6 +125,14 @@ def is_blocked(signal, intel):
     signal_type = signal.get('signal_type', 'TREND')
     blocks      = []
 
+    # Duplicate position block — prevent adding to a ticker already held
+    # t212_ticker is resolved by score_signal_with_intelligence before is_blocked is called.
+    _sig_t212 = signal.get('t212_ticker', '')
+    if _sig_t212:
+        _held_tickers = {p.get('t212_ticker', '') for p in intel.get('open_positions', [])}
+        if _sig_t212 in _held_tickers:
+            blocks.append(f"Already in positions: {_sig_t212}")
+
     # Earnings block
     if name in intel['earnings_blocked']:
         blocks.append(f"Earnings block: {name}")
@@ -149,7 +157,7 @@ def is_blocked(signal, intel):
     if signal_type == 'TREND':
         sector = get_instrument_sector(name)
         if sector:
-            breadth = intel['sector_breadth'].get(sector, {})
+            breadth = intel.get('sector_breadth', {}).get(sector, {})
             if breadth.get('breadth_200', 50) <= 20:
                 blocks.append(f"Sector breadth too low: {sector} at {breadth.get('breadth_200',0)}%")
 
@@ -158,14 +166,14 @@ def is_blocked(signal, intel):
     # at HIGH fear levels without this check. Catch that gap explicitly.
     # VIX ≥ 35 (EXTREME): TREND blocked entirely — trade CONTRARIAN/INVERSE instead.
     # VIX 28–35 (HIGH): TREND requires score ≥ 9.0 or is blocked.
-    if signal_type == 'TREND':
-        vix = float(intel.get('vix', 20))
-        sig_score = float(signal.get('adjusted_score', signal.get('total_score', 7.0)))
+    if signal_type in ('TREND', 'EARNINGS_DRIFT', 'DIVIDEND_CAPTURE'):
+        vix = float(intel.get('vix') or 20)
+        sig_score = float(signal.get('adjusted_score', signal.get('total_score', 7.0)) or 7.0)
         if vix >= 35:
             blocks.append(
-                f"VIX EXTREME ({vix:.1f}): TREND blocked — switch to CONTRARIAN/INVERSE"
+                f"VIX EXTREME ({vix:.1f}): {signal_type} blocked — macro risk overrides fundamentals"
             )
-        elif vix >= 28:
+        elif vix >= 28 and signal_type == 'TREND':
             if sig_score < 9.0:
                 blocks.append(
                     f"VIX HIGH ({vix:.1f}): TREND requires score ≥9.0, signal scored {sig_score:.1f}"
@@ -200,8 +208,14 @@ def is_blocked(signal, intel):
             blocks.append(f"Geo risk: {name} hurt by current conflict")
 
     # Market direction block — trend signals only
-    if signal_type == 'TREND' and intel['direction_status'] == 'BLOCKED':
-        blocks.append(f"Market direction: {' | '.join(intel['direction_blocks'])}")
+    # Also block on STALE direction data: 25h-old bearish data is not safe to ignore.
+    _dir_st = intel.get('direction_status', '')
+    if signal_type == 'TREND' and (_dir_st == 'BLOCKED' or 'STALE' in str(_dir_st)):
+        _dir_reason = intel.get('direction_blocks', [])
+        blocks.append(
+            f"Market direction: {' | '.join(_dir_reason)}" if _dir_reason
+            else f"Market direction: {_dir_st}"
+        )
 
     # Adversarial anti-rules (data-driven, statistically validated)
     adv_blocks = is_adversarial_blocked(signal, intel)

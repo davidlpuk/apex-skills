@@ -29,7 +29,7 @@ def load_slippage():
 def save_slippage(data):
     atomic_write(SLIPPAGE_FILE, data)
 
-def log_slippage(name, ticker, intended_price, actual_price, quantity, side="BUY", stop_price=0):
+def log_slippage(name, ticker, intended_price, actual_price, quantity, side="BUY", stop_price=0, signal_type='', score=0.0):
     db      = load_slippage()
     now     = datetime.now(timezone.utc)
 
@@ -48,6 +48,8 @@ def log_slippage(name, ticker, intended_price, actual_price, quantity, side="BUY
         "name":             name,
         "ticker":           ticker,
         "side":             side,
+        "signal_type":      signal_type.upper() if signal_type else 'UNKNOWN',
+        "score":            float(score),
         "intended_price":   intended_price,
         "actual_price":     actual_price,
         "quantity":         quantity,
@@ -121,4 +123,6 @@ if __name__ == '__main__':
             quantity=float(sys.argv[6]),
             side=sys.argv[7] if len(sys.argv) > 7 else "BUY",
             stop_price=float(sys.argv[8]) if len(sys.argv) > 8 else 0,
+            signal_type=sys.argv[9] if len(sys.argv) > 9 else '',
+            score=float(sys.argv[10]) if len(sys.argv) > 10 else 0.0,
         )

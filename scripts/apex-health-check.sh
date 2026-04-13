@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH=/home/ubuntu/bin:$PATH
 
 source /home/ubuntu/.picoclaw/scripts/apex-telegram.sh
 LOG="/home/ubuntu/.picoclaw/logs/apex-health.log"
@@ -145,7 +146,19 @@ except:
     print('UNKNOWN')
 " 2>/dev/null)
 
-# 9 — Check open positions vs T212
+# 9 — LLM module status (compact — for OK message only)
+LLM_STATUS=$($PYTHON -c "
+import sys; sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
+try:
+    from apex_llm_flags import get_llm_flag
+    s = 'ON' if get_llm_flag('sentiment_llm') else 'OFF'
+    t = 'ON' if get_llm_flag('taco_llm') else 'OFF'
+    print(f'Sentiment:{s} TACO:{t}')
+except Exception:
+    print('unavailable')
+" 2>/dev/null)
+
+# 10 — Check open positions vs T212
 # Only flag a mismatch if T212 API is reachable (T212_RESPONSE=OK above).
 # An API error returns a non-list dict which previously printed 0 and caused
 # false "tracking 4 but T212 has 0" alerts.
@@ -325,6 +338,7 @@ Services: picoclaw ✅ listener ✅ trading-bot ✅ dashboard ✅
 APIs: T212 ✅ Alpaca ✅
 Autopilot: $AP_STATUS
 Positions: $TRACKED tracked / ${T212_POSITIONS:-unknown} in T212
+LLM: $LLM_STATUS
 Disk: ${DISK_FREE}GB free | RAM: ${MEM_FREE}MB available
 Uptime: $UPTIME${ERROR_NOTE}"
 

@@ -65,7 +65,10 @@ def _update_velocity(geo_count, energy_count):
 RSS_FEEDS = {
     "BBC Business":     "http://feeds.bbci.co.uk/news/business/rss.xml",
     "BBC World":        "http://feeds.bbci.co.uk/news/world/rss.xml",
-    "Reuters Business": "https://feeds.reuters.com/reuters/businessNews",
+    # Reuters free RSS was shut down. Replacements verified working 2026-04-09:
+    "CNBC Markets":     "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+    "Guardian Business":"https://www.theguardian.com/business/rss",
+    "Google Finance":   "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtVnVHZ0pIUWlnQVAB?hl=en-GB&gl=GB&ceid=GB:en",
 }
 
 GEO_KEYWORDS = [

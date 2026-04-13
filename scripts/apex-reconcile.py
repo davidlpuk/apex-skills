@@ -56,7 +56,7 @@ def get_exit_from_history(ticker, opened_date):
     close_type: 'STOP_HIT' | 'TARGET_HIT' | 'MARKET_CLOSE' | 'unknown'
     """
     try:
-        data = t212_request('/equity/history/orders?limit=100')
+        data = t212_request('/equity/history/orders?limit=50')
         if not isinstance(data, dict):
             return None, 'unknown'
         items = data.get('items', [])
@@ -247,18 +247,30 @@ def reconcile(silent=False):
             print(f"  ⚠️  Ghost position: {name} ({ticker}) — in Apex but not T212")
 
         log_warning(f"Ghost position removed: {name} ({ticker})")
-        log_closed_position(pos, 'auto_reconciled_not_in_t212')
 
-        # Read back the just-logged outcome to include P&L in the alert
-        try:
-            _outcomes = safe_read(OUTCOMES_FILE, {'trades': []})
-            _last     = _outcomes.get('trades', [{}])[-1]
-            _pnl      = _last.get('pnl', '?')
-            _result   = _last.get('result', '?')
-            _exit     = _last.get('exit', '?')
-            alert_detail = f"Result: {_result} | Exit: {_exit} | P&L: £{_pnl}"
-        except Exception:
-            alert_detail = "P&L lookup failed — check apex-outcomes.json"
+        # Only log an outcome if the position was actually filled.
+        # Pending/entry_placed positions were never confirmed filled — logging
+        # them as BREAKEVEN corrupts win-rate stats and skews the scoring model.
+        _status = pos.get('status', '')
+        _entry  = float(pos.get('entry', 0) or 0)
+        _is_unfilled = _status in ('pending', 'entry_placed') or _entry == 0
+        if _is_unfilled:
+            log_warning(f"Ghost position {ticker} was never filled (status={_status!r}, entry={_entry}) — skipping outcome log")
+            alert_detail = "Never filled — no outcome logged"
+        else:
+            log_closed_position(pos, 'auto_reconciled_not_in_t212')
+            # Read back the outcome we just logged to include P&L in the alert.
+            # Must be inside the else block — reading unconditionally would show
+            # the previous trade's data for unfilled ghost positions.
+            try:
+                _outcomes = safe_read(OUTCOMES_FILE, {'trades': []})
+                _last     = _outcomes.get('trades', [{}])[-1]
+                _pnl      = _last.get('pnl', '?')
+                _result   = _last.get('result', '?')
+                _exit     = _last.get('exit', '?')
+                alert_detail = f"Result: {_result} | Exit: {_exit} | P&L: £{_pnl}"
+            except Exception:
+                alert_detail = "P&L lookup failed — check apex-outcomes.json"
 
         changes.append(f"REMOVED: {name} — closed in T212")
         alerts.append(f"⚠️ {name} closed externally\n{alert_detail}")
@@ -309,7 +321,24 @@ def reconcile(silent=False):
         changes.append(f"ADDED: {name} — found in T212 not tracked by Apex")
         alerts.append(f"⚠️ {name} found in T212 but not tracked — added with default stop")
 
-    # ── 3. Quantity mismatches ──────────────────────────────────────
+    # ── 3. Promote stale entry_placed → protected ──────────────────
+    # When a position exists in BOTH Apex (entry_placed) and T212, the entry
+    # order filled but the executor didn't update the status (e.g. crash, race).
+    # Promote to 'protected' so the broker-watchdog stops alerting on it as stale.
+    for pos in apex_positions:
+        ticker = pos.get('t212_ticker', '')
+        if ticker not in t212_positions:
+            continue
+        if pos.get('status') == 'entry_placed':
+            name = pos.get('name', ticker)
+            t212_avg = float(t212_positions[ticker].get('averagePrice', 0))
+            if not pos.get('entry') and t212_avg:
+                pos['entry'] = round(t212_avg, 4)
+            pos['status'] = 'protected'
+            log_warning(f"Promoted stale entry_placed → protected: {name} ({ticker}), T212 avg={t212_avg}")
+            changes.append(f"PROMOTED: {name} — entry_placed → protected (T212 confirms filled)")
+
+    # ── 4. Quantity mismatches ──────────────────────────────────────
     for pos in apex_positions:
         ticker   = pos.get('t212_ticker', '')
         if ticker not in t212_positions:

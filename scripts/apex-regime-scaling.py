@@ -23,6 +23,36 @@ except ImportError:
 REGIME_FILE  = '/home/ubuntu/.picoclaw/logs/apex-regime.json'
 SCALING_FILE = '/home/ubuntu/.picoclaw/logs/apex-regime-scaling.json'
 
+
+def _garch_vix_forecast(spot_vix):
+    """1-day-ahead GARCH(1,1) conditional volatility forecast blended with spot VIX (P2).
+
+    Fits on 120 days of SPY daily returns. Annualises the conditional standard deviation
+    to produce a VIX-like forward estimate, then blends conservatively with spot VIX.
+
+    Returns the blended value (always >= spot_vix) or spot_vix on any failure.
+    """
+    try:
+        import yfinance as yf
+        from arch import arch_model
+        spy = yf.download('^GSPC', period='120d', interval='1d', progress=False, auto_adjust=True)
+        if spy.empty or len(spy) < 60:
+            return spot_vix, False
+        returns = spy['Close'].pct_change().dropna() * 100  # percentage returns
+        model = arch_model(returns, vol='Garch', p=1, q=1, mean='Zero', rescale=False)
+        res = model.fit(disp='off', show_warning=False)
+        fcast = res.forecast(horizon=1)
+        cond_var = float(fcast.variance.iloc[-1, 0])
+        # Annualise daily variance to VIX-like units (%)
+        garch_vix = (cond_var ** 0.5) * (252 ** 0.5)
+        # Blend: 60% spot (market consensus) + 40% GARCH (predictive) — always >= spot
+        blended = 0.6 * spot_vix + 0.4 * garch_vix
+        return round(max(blended, spot_vix), 2), True
+    except Exception as _e:
+        log_warning(f"GARCH forecast failed, using spot VIX: {_e}")
+        return spot_vix, False
+
+
 def calculate_scaling():
     try:
         with open(REGIME_FILE) as f:
@@ -32,6 +62,10 @@ def calculate_scaling():
 
     vix     = float(regime.get('vix') or 20)
     breadth = float(regime.get('breadth_pct') or 50)
+
+    # GARCH(1,1) forward-looking VIX blend (P2)
+    vix_raw = vix
+    vix, garch_available = _garch_vix_forecast(vix)
 
     # VIX scaling — continuous smooth curve
     # At VIX 15 → 1.0 (full size)
@@ -85,6 +119,9 @@ def calculate_scaling():
     result = {
         "timestamp":        datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC'),
         "vix":              vix,
+        "vix_raw":          vix_raw,
+        "vix_garch_blended": vix,
+        "garch_available":  garch_available,
         "breadth":          breadth,
         "vix_scale":        vix_scale,
         "breadth_scale":    breadth_scale,
@@ -151,7 +188,8 @@ def display(result):
     icon  = {"FAVOURABLE":"🟢","NEUTRAL":"🟡","CAUTIOUS":"🟠","HOSTILE":"🔴","BLOCKED":"⛔"}.get(label,"⚪")
 
     print(f"\n=== CONTINUOUS REGIME SCALING ===")
-    print(f"  VIX:     {result['vix']} → scale {result['vix_scale']:.2f}")
+    _garch_str = f" (GARCH blend from raw {result.get('vix_raw', result['vix'])})" if result.get('garch_available') else " (spot only)"
+    print(f"  VIX:     {result['vix']}{_garch_str} → scale {result['vix_scale']:.2f}")
     print(f"  Breadth: {result['breadth']}% → scale {result['breadth_scale']:.2f}")
     print(f"  Combined: {result['combined_scale']:.2f} → {icon} {label}")
     print(f"")

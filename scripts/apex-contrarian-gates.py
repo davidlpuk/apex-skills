@@ -223,8 +223,12 @@ def check_catalyst(symbol, yahoo):
                         try:
                             import pandas as _pd
                             _ts = _pd.Timestamp(ed)
+                            if _pd.isnull(_ts):
+                                continue  # yfinance returned NaT — skip
                             ed_naive  = _ts.tz_convert(None) if _ts.tzinfo else _ts
                             days_away = (ed_naive - datetime.now()).days
+                            if not isinstance(days_away, int):
+                                continue  # NaT subtraction returned None/.days is not int
                             if 0 <= days_away <= 45:
                                 catalysts.append(f"Earnings in {days_away} days — potential reset catalyst")
                             elif days_away > 45:
@@ -366,7 +370,7 @@ def check_fundamental_floor(symbol):
             sig_data = json.load(f)
         div = sig_data.get('data', {}).get(symbol, {}).get('dividend', {})
         if div and div.get('has_dividend'):
-            payout = div.get('payout_ratio', 0)
+            payout = div.get('payout_ratio', 0) or 0
             safety = div.get('safety', 'UNKNOWN')
             if payout > 100:
                 gates_failed.append(f"Dividend payout {payout}% — cut likely, creates additional selling pressure")

@@ -52,6 +52,8 @@ def check_earnings_beat(ticker, yahoo_ticker):
             close = close / 100
 
         price      = round(float(close.iloc[-1]), 2)
+        if not (price == price):  # NaN check — yfinance can return NaN in volatile markets
+            return None
         avg_volume = float(volume.rolling(20).mean().iloc[-1])
 
         # Look for earnings gap — single day move > 4% on high volume

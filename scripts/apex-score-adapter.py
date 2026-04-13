@@ -128,7 +128,18 @@ def build_weights(trades):
             'baseline_expectancy': baseline_exp,
             'baseline_win_rate':   baseline_wr,
             'generated':           datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC'),
-        }
+        },
+        # ── Regime-locked score thresholds ────────────────────────────────
+        # Decision engine reads these dynamically instead of the hardcoded 6.0
+        # from apex_config.py.  Tighter gates in adverse regimes prevent
+        # marginal signals from qualifying when the environment is hostile.
+        'min_score_by_regime': {
+            'FAVOURABLE': 6.0,   # VIX < 15, breadth > 70% — normal gate
+            'NEUTRAL':    6.0,   # default
+            'CAUTIOUS':   7.0,   # VIX 20–28 or breadth 35–50% — raise bar
+            'HOSTILE':    8.0,   # VIX 28–35 or breadth 20–35% — only high conviction
+            'BLOCKED':    99.0,  # VIX ≥ 35 or breadth ≤ 20% — no TREND entries
+        },
     }
 
     # ── Tier 1: global adjustment (5+ trades) ──────────────────────────
@@ -148,6 +159,65 @@ def build_weights(trades):
         # Tier 2 not yet ready — return with just global + meta
         weights['_meta']['status'] = 'GLOBAL_ACTIVE'
         return weights
+
+    # ── By signal family (per-family Bayesian priors, fades from backtest) ─
+    # Each family has its own expectancy prior seeded from OOS backtest results
+    # and the hardcoded Beta priors in apex-expected-value.py.  Blends with live
+    # data using the same PRIOR_FADE_TRADES=30 mechanism as the backtest prior.
+    # When any family has ≥1 live trade, the global_adjustment is deactivated —
+    # the family-level priors are more informative and correctly signal-specific.
+    FAMILY_BACKTEST_PRIORS = {
+        # TREND: OOS aggregate from apex-backtest-v2-results.json (n=1107 trades)
+        'TREND':            {'expectancy': 0.635, 'win_rate': 0.388},
+        # Others: Beta priors from get_win_rate_by_type() in apex-expected-value.py
+        'CONTRARIAN':       {'expectancy': 0.450, 'win_rate': 0.556},
+        'INVERSE':          {'expectancy': 0.145, 'win_rate': 0.500},
+        'EARNINGS_DRIFT':   {'expectancy': 0.350, 'win_rate': 0.571},
+        'DIVIDEND_CAPTURE': {'expectancy': 0.350, 'win_rate': 0.571},
+    }
+
+    weights['by_signal_family'] = {}
+    any_live_family_trades = False
+
+    for family, prior in FAMILY_BACKTEST_PRIORS.items():
+        family_bucket = [
+            t for t in trades
+            if t.get('signal_type', t.get('result', '')).upper() == family
+            or family in str(t.get('outcome_type', '')).upper()
+        ]
+        n_live = len(family_bucket)
+        if n_live > 0:
+            any_live_family_trades = True
+
+        prior_weight = round(max(0.0, 1.0 - n_live / PRIOR_FADE_TRADES), 3)
+
+        if n_live >= 1:
+            live_exp, live_wr, _ = _expectancy(family_bucket)
+            blended_exp = round(prior_weight * prior['expectancy'] + (1 - prior_weight) * live_exp, 4)
+            blended_wr  = round(prior_weight * prior['win_rate']   + (1 - prior_weight) * live_wr,  4)
+            source = 'blended' if prior_weight > 0 else 'live'
+        else:
+            blended_exp = prior['expectancy']
+            blended_wr  = prior['win_rate']
+            source = 'backtest_prior'
+
+        # Compare against 0.0 (break-even), not the live baseline.
+        # Family priors validate absolute edge ("is this family profitable?"),
+        # not relative performance vs a noisy small-sample live average.
+        adj = _expectancy_to_adjustment(blended_exp, 0.0)
+        weights['by_signal_family'][family] = {
+            'adjustment':   adj,
+            'expectancy':   blended_exp,
+            'win_rate':     blended_wr,
+            'trades':       n_live,
+            'prior_weight': prior_weight,
+            'source':       source,
+            'active':       True,
+        }
+
+    # Deactivate global once any family has real trades — family priors supersede it
+    if any_live_family_trades and 'global_adjustment' in weights:
+        weights['global_adjustment']['active'] = False
 
     # ── By signal type ─────────────────────────────────────────────────
     weights['by_signal_type'] = {}
@@ -291,14 +361,33 @@ def get_learned_adjustment(signal):
         adjustments.append(prior_adj)
         reasons.append(prior_reason)
 
-    # ── Tier 1: global adjustment (5+ trades) ───────────────────────────
+    # ── Tier 1a: per-family prior (supersedes global when present) ─────────
+    # Uses blended backtest+live expectancy per signal family so that a TREND
+    # signal and a CONTRARIAN signal are evaluated against their own baselines,
+    # not a single pooled average.  Active as soon as any family has ≥1 trade.
+    sig_type    = signal.get('signal_type', 'TREND')
+    family_data = weights.get('by_signal_family', {}).get(sig_type.upper())
+    use_global  = True
+
+    if family_data and family_data.get('active'):
+        family_adj = family_data.get('adjustment', 0)
+        if family_adj != 0:
+            adjustments.append(family_adj)
+            reasons.append(
+                f"Family prior [{sig_type}]: {family_adj:+.1f} "
+                f"(WR={family_data['win_rate']*100:.0f}%, "
+                f"exp={family_data['expectancy']:.3f}, "
+                f"src={family_data['source']}, n={family_data['trades']})"
+            )
+        use_global = False  # family priors supersede global
+
+    # ── Tier 1b: global adjustment (5+ trades, fallback only) ───────────────
     global_data = weights.get('global_adjustment', {})
     global_adj  = global_data.get('adjustment', 0) if global_data.get('active') else 0
 
     # ── Tier 2: bucketed adjustments (15+ trades per category) ──────────
     bucket_adjustments = []
 
-    sig_type = signal.get('signal_type', 'TREND')
     st_data  = weights.get('by_signal_type', {}).get(sig_type)
     if st_data:
         adj = st_data['adjustment']
@@ -347,10 +436,10 @@ def get_learned_adjustment(signal):
             )
 
     if bucket_adjustments:
-        # Tier 2 active — use bucketed data, global superseded
+        # Tier 2 active — bucketed data takes over from family and global
         adjustments.extend(bucket_adjustments)
-    elif global_adj != 0:
-        # Tier 1 fallback — no bucket hit, apply global directional signal
+    elif use_global and global_adj != 0:
+        # No family prior and no bucket data — Tier 1b global fallback
         adjustments.append(global_adj)
         reasons.append(
             f"Learned [global]: {global_adj:+.1f} "
@@ -410,10 +499,23 @@ def run():
     if gd.get('active'):
         print(f"\n  global_adjustment:   adj={gd['adjustment']:+.1f}  "
               f"wr={gd['win_rate']*100:.0f}%  n={gd['trades']}")
+    else:
+        print(f"\n  global_adjustment:   INACTIVE (superseded by family priors)")
+
+    # Per-family prior summary
+    family_weights = weights.get('by_signal_family', {})
+    if family_weights:
+        print(f"\n  by_signal_family:")
+        for fam, fv in family_weights.items():
+            print(f"    {fam:20} adj={fv['adjustment']:+.1f}  "
+                  f"wr={fv['win_rate']*100:.0f}%  "
+                  f"exp={fv['expectancy']:.3f}  "
+                  f"n={fv['trades']}  "
+                  f"src={fv['source']}")
 
     for category, category_data in weights.items():
-        if category in ('_meta', 'global_adjustment'):
-            continue
+        if category in ('_meta', 'global_adjustment', 'by_signal_family'):
+            continue  # by_signal_family already printed above
         if not isinstance(category_data, dict):
             continue
         active = {k: v for k, v in category_data.items()

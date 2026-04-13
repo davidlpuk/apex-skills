@@ -25,9 +25,12 @@ except ImportError:
 SENTIMENT_FILE = '/home/ubuntu/.picoclaw/logs/apex-sentiment.json'
 
 RSS_FEEDS = {
-    "BBC Business": "http://feeds.bbci.co.uk/news/business/rss.xml",
-    "BBC World":    "http://feeds.bbci.co.uk/news/world/rss.xml",
-    "Reuters":      "https://feeds.reuters.com/reuters/businessNews",
+    "BBC Business":     "http://feeds.bbci.co.uk/news/business/rss.xml",
+    "BBC World":        "http://feeds.bbci.co.uk/news/world/rss.xml",
+    # Reuters free RSS was shut down. Replacements verified working 2026-04-09:
+    "CNBC Markets":     "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+    "Guardian Business":"https://www.theguardian.com/business/rss",
+    "MarketWatch":      "https://feeds.marketwatch.com/marketwatch/topstories/",
 }
 
 # Instrument-specific keywords for targeted sentiment
@@ -61,6 +64,54 @@ MARKET_CRISIS_KEYWORDS = [
     "emergency rate cut", "fed emergency", "contagion",
     "flash crash", "market meltdown", "global selloff",
 ]
+
+def _llm_score_headlines(headlines):
+    """Score headlines using Gemini for context-aware sentiment (P3).
+
+    Batches headlines in groups of 15 to stay within token limits.
+    Returns a list of scored dicts with the same structure as VADER output,
+    plus 'llm_scored': True and 'instruments': [str] for instrument tagging.
+    Returns None on any failure so the caller can fall back to VADER.
+    """
+    try:
+        from apex_llm_flags import call_gemini_json
+        scored = []
+        for i in range(0, len(headlines), 15):
+            batch = headlines[i:i + 15]
+            headline_text = '\n'.join(
+                f'{j + 1}. {h["title"]}' for j, h in enumerate(batch)
+            )
+            prompt = (
+                'You are a financial sentiment classifier for a trading system. '
+                'Score each headline from -1.0 (very bearish for markets) to +1.0 (very bullish). '
+                'Focus on market impact, not just tone. '
+                'Examples: "Company beats earnings" = +0.7, "Company faces antitrust probe" = -0.5, '
+                '"Fed holds rates" = neutral +0.1, "Bank collapses" = -0.9. '
+                'Also list any specific company tickers mentioned (AAPL, MSFT, etc). '
+                'Return ONLY a JSON array: '
+                '[{"idx": 1, "score": 0.5, "instruments": ["AAPL"]}]\n\n'
+                f'Headlines:\n{headline_text}'
+            )
+            parsed = call_gemini_json(prompt)
+            for item in parsed:
+                idx = int(item.get('idx', 1)) - 1
+                if 0 <= idx < len(batch):
+                    raw_score = float(item.get('score', 0))
+                    scored.append({
+                        'source':      batch[idx].get('source', ''),
+                        'title':       batch[idx]['title'][:120],
+                        'compound':    round(raw_score, 3),
+                        'pos':         round(max(0.0, raw_score), 3),
+                        'neg':         round(max(0.0, -raw_score), 3),
+                        'neu':         0.0,
+                        'instruments': item.get('instruments', []),
+                        'llm_scored':  True,
+                    })
+        return scored if scored else None
+    except Exception as _e:
+        log_warning(f"Gemini sentiment failed, falling back to VADER: {_e}")
+        return None
+
 
 def clean_cdata(text):
     text = re.sub(r'<!\[CDATA\[(.*?)\]\]>', r'\1', text, flags=re.DOTALL)
@@ -97,9 +148,27 @@ def fetch_headlines():
     return headlines
 
 def score_headlines(headlines, analyzer):
+    """Score headlines — tries LLM first if flag enabled, falls back to VADER."""
+    try:
+        from apex_llm_flags import get_llm_flag, record_llm_call
+        _flag_on = get_llm_flag('sentiment_llm')
+    except ImportError:
+        _flag_on = True  # fail-open if flag module unavailable
+        record_llm_call = None
+
+    llm_result = _llm_score_headlines(headlines) if _flag_on else None
+    if llm_result is not None:
+        if record_llm_call:
+            record_llm_call('sentiment_llm', used_llm=True,
+                            result_summary=f"{len(llm_result)} headlines scored")
+        return llm_result, 'llm'
+    if record_llm_call:
+        record_llm_call('sentiment_llm', used_llm=False,
+                        result_summary='flag_off' if not _flag_on else 'gemini_failed')
+    # VADER fallback
     scored = []
     for h in headlines:
-        text  = h['title'] + '. ' + h.get('desc','')
+        text  = h['title'] + '. ' + h.get('desc', '')
         score = analyzer.polarity_scores(text)
         scored.append({
             'source':   h['source'],
@@ -109,21 +178,40 @@ def score_headlines(headlines, analyzer):
             'neg':      round(score['neg'], 3),
             'neu':      round(score['neu'], 3),
         })
-    return scored
+    return scored, 'vader'
 
 def get_instrument_sentiment(instrument, headlines, analyzer):
-    keywords = INSTRUMENT_KEYWORDS.get(instrument, [instrument.lower()])
+    """Extract per-instrument sentiment. If headlines are LLM-scored, use their
+    instrument tagging directly; otherwise fall back to keyword matching (P3)."""
     relevant = []
 
-    for h in headlines:
-        text_lower = (h['title'] + ' ' + h.get('desc','')).lower()
-        if any(kw in text_lower for kw in keywords):
-            text  = h['title'] + '. ' + h.get('desc','')
-            score = analyzer.polarity_scores(text)
-            relevant.append({
-                'title':    h['title'][:80],
-                'compound': round(score['compound'], 3),
-            })
+    # LLM-tagged path: use instrument field from LLM output
+    if headlines and headlines[0].get('llm_scored'):
+        for h in headlines:
+            if instrument in h.get('instruments', []):
+                relevant.append({
+                    'title':    h['title'][:80],
+                    'compound': h['compound'],
+                })
+        # Fallback within LLM path: keyword match if no explicit tagging found
+        if not relevant:
+            keywords = INSTRUMENT_KEYWORDS.get(instrument, [instrument.lower()])
+            for h in headlines:
+                text_lower = h['title'].lower()
+                if any(kw in text_lower for kw in keywords):
+                    relevant.append({'title': h['title'][:80], 'compound': h['compound']})
+    else:
+        # VADER path: keyword match
+        keywords = INSTRUMENT_KEYWORDS.get(instrument, [instrument.lower()])
+        for h in headlines:
+            text_lower = (h['title'] + ' ' + h.get('desc', '')).lower()
+            if any(kw in text_lower for kw in keywords):
+                text  = h['title'] + '. ' + h.get('desc', '')
+                score = analyzer.polarity_scores(text)
+                relevant.append({
+                    'title':    h['title'][:80],
+                    'compound': round(score['compound'], 3),
+                })
 
     if not relevant:
         return 0.0, []
@@ -146,8 +234,9 @@ def run():
     headlines = fetch_headlines()
     print(f"  {len(headlines)} headlines fetched", flush=True)
 
-    # Score all headlines
-    all_scored = score_headlines(headlines, analyzer)
+    # Score all headlines — LLM first, VADER fallback (P3)
+    all_scored, scoring_method = score_headlines(headlines, analyzer)
+    print(f"  Scoring method: {scoring_method.upper()}", flush=True)
 
     # Overall market sentiment
     if all_scored:
@@ -189,6 +278,7 @@ def run():
 
     output = {
         "timestamp":         now.strftime('%Y-%m-%d %H:%M UTC'),
+        "scoring_method":    scoring_method,
         "total_headlines":   len(headlines),
         "market_sentiment":  market_sentiment,
         "market_class":      market_class,

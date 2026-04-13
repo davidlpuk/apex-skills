@@ -19,7 +19,7 @@ def get_technical_data(ticker, yahoo_ticker=None):
         "WMT","PG","XOM","CVX","NVO"
     }
 
-    clean_ticker = ticker.upper().replace('_US_EQ','').replace('_EQ','')
+    clean_ticker = ticker.upper().replace('_US_EQ','').replace('L_EQ','').replace('_EQ','')
 
     if clean_ticker in us_tickers:
         # Use Alpaca for real-time US data
@@ -49,7 +49,7 @@ def detect_currency(yahoo_ticker):
     return "USD"
 
 def fix_pence(price, currency):
-    if currency == "GBX" and price > 100:
+    if currency == "GBX":
         return round(price / 100, 2)
     return price
 
@@ -121,7 +121,7 @@ def get_yfinance_data(yahoo_ticker, currency="USD"):
 
 def get_live_price(ticker, yahoo_ticker=None):
     """Get just the current price — fastest call."""
-    clean = ticker.upper().replace('_US_EQ','').replace('_EQ','')
+    clean = ticker.upper().replace('_US_EQ','').replace('L_EQ','').replace('_EQ','')
 
     us_tickers = {
         "AAPL","MSFT","NVDA","GOOGL","AMZN","META","TSLA","CRM","ORCL",
@@ -146,7 +146,7 @@ def get_live_price(ticker, yahoo_ticker=None):
         if not hist.empty:
             price = float(hist['Close'].iloc[-1])
             currency = detect_currency(yahoo_ticker or ticker)
-            if currency == "GBX" and price > 100:
+            if currency == "GBX":
                 price = price / 100
             return round(price, 2), currency, "YFINANCE"
     except:

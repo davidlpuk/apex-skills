@@ -131,7 +131,8 @@ def scan_regulatory_risk():
 
     FEEDS = [
         "http://feeds.bbci.co.uk/news/business/rss.xml",
-        "https://feeds.reuters.com/reuters/businessNews",
+        # Reuters RSS feed discontinued — disabled 2026-04-13
+        # "https://feeds.reuters.com/reuters/businessNews",
     ]
 
     regulatory_alerts = []

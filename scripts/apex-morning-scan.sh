@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH=/home/ubuntu/bin:$PATH
 set -euo pipefail
 
 PYTHON=/home/ubuntu/bin/python3

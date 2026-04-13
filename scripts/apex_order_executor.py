@@ -41,9 +41,66 @@ except ImportError:
     T212_FILL_POLL_INTERVAL = 10
     SIGNAL_MAX_AGE_HOURS    = 6
 
-SIGNAL_FILE    = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
-POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
-LOG            = '/home/ubuntu/.picoclaw/logs/apex-orders.log'
+SIGNAL_FILE         = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
+PROCESSING_FILE     = SIGNAL_FILE + '.processing'
+POSITIONS_FILE      = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
+LOG                 = '/home/ubuntu/.picoclaw/logs/apex-orders.log'
+INSTRUMENT_META_CACHE = '/home/ubuntu/.picoclaw/logs/apex-instrument-meta.json'
+
+
+def _get_quantity_precision(ticker: str) -> int:
+    """
+    Return the number of decimal places T212 allows for this instrument.
+    Fetches from T212 metadata API and caches indefinitely (instrument
+    precision rules don't change).  Falls back to 2 on any error.
+
+    T212 returns quantityPrecision as an integer (0 = whole numbers only,
+    2 = up to 2 decimal places, etc.).
+    """
+    try:
+        cache = safe_read(INSTRUMENT_META_CACHE, {})
+        if ticker in cache:
+            return int(cache[ticker].get('quantity_precision', 2))
+
+        # Individual-ticker endpoint (/equity/metadata/instruments/{ticker}) is no longer
+        # available on T212 — returns 404. Fall back to the list endpoint and cache all.
+        data = t212_request(f'/equity/metadata/instruments/{ticker}')
+        if data and isinstance(data, dict):
+            precision = int(data.get('quantityPrecision', 2))
+            cache[ticker] = {
+                'quantity_precision': precision,
+                'min_quantity':       data.get('minTradeQuantity'),
+                'max_quantity':       data.get('maxTradeQuantity'),
+            }
+            atomic_write(INSTRUMENT_META_CACHE, cache)
+            return precision
+
+        # Fallback: fetch full instrument list and extract this ticker
+        all_instruments = t212_request('/equity/metadata/instruments')
+        if all_instruments and isinstance(all_instruments, list):
+            for inst in all_instruments:
+                t = inst.get('ticker', '')
+                if t:
+                    cache[t] = {
+                        'quantity_precision': int(inst.get('quantityPrecision', 2)),
+                        'min_quantity':       inst.get('minTradeQuantity'),
+                        'max_quantity':       inst.get('maxTradeQuantity'),
+                    }
+            atomic_write(INSTRUMENT_META_CACHE, cache)
+            if ticker in cache:
+                return int(cache[ticker]['quantity_precision'])
+    except Exception as _e:
+        log_warning(f"Could not fetch instrument metadata for {ticker}: {_e} — defaulting to 2dp")
+    return 2
+
+
+def _round_quantity(qty: float, ticker: str) -> float:
+    """Round quantity to T212's required precision for this instrument."""
+    precision = _get_quantity_precision(ticker)
+    rounded = round(qty, precision)
+    if precision == 0:
+        rounded = int(rounded)
+    return rounded
 TRADING_STATE  = '/home/ubuntu/.picoclaw/workspace/skills/apex-trading/TRADING_STATE.md'
 
 # Alpaca executor — preferred for US stocks when credentials are configured
@@ -129,12 +186,21 @@ def _check_entry_staleness(ticker: str, signal_entry: float, signal_type: str) -
         # Convert T212 ticker to yahoo equivalent via existing map
         from apex_utils import safe_read
         ticker_map = safe_read('/home/ubuntu/.picoclaw/scripts/apex-ticker-map.json', {}) or {}
-        # apex-ticker-map.json stores {yahoo: t212} pairs — invert it
-        reverse_map = {v: k for k, v in ticker_map.items() if isinstance(k, str) and isinstance(v, str)}
+        # apex-ticker-map.json stores {yahoo_key: {t212: ..., currency: ...}}
+        # Build reverse map: t212 ticker → yahoo key
+        reverse_map = {}
+        for yahoo_key, entry in ticker_map.items():
+            if isinstance(entry, dict) and entry.get('t212'):
+                reverse_map[entry['t212']] = yahoo_key
         yahoo_ticker = reverse_map.get(ticker)
-        if not yahoo_ticker:
-            # Best-effort: strip T212 suffix
-            yahoo_ticker = ticker.replace('_US_EQ', '').replace('_EQ', '')
+        if yahoo_ticker:
+            # Append .L for LSE-listed stocks
+            currency = ticker_map.get(yahoo_ticker, {}).get('currency', 'USD')
+            if currency in ('GBX', 'GBP'):
+                yahoo_ticker = f"{yahoo_ticker}.L"
+        else:
+            # Best-effort: strip T212 suffix (order matters for 'l_EQ' LSE tickers)
+            yahoo_ticker = ticker.replace('_US_EQ', '').replace('l_EQ', '').replace('_EQ', '')
 
         hist = yf.Ticker(yahoo_ticker).history(period='1d', interval='5m')
         if hist.empty:
@@ -208,11 +274,22 @@ def _update_position(ticker: str, updates: dict) -> None:
 
 
 def _remove_pending(ticker: str) -> None:
-    """Remove a 'pending' entry — order never left, no orphan risk."""
+    """Remove a pending, entry_placed, or awaiting_fill entry that never confirmed.
+    Covers three cases:
+    - status='pending'        — order was never even placed (pre-placement abort)
+    - status='entry_placed'   — limit order was placed but cancelled unfilled during
+                                market hours; executor upgrades pending→entry_placed
+                                before the fill check, so both statuses must be cleaned
+                                up here to prevent a ghost entry_placed record that
+                                confuses reconcile and triggers stale watchdog alerts.
+    - status='awaiting_fill'  — executor crashed after upgrading entry_placed→awaiting_fill
+                                but before confirming the fill; without cleanup a re-run
+                                creates a duplicate position.
+    """
     def _rm(positions):
         return [p for p in (positions or [])
                 if not (p.get('t212_ticker') == ticker
-                        and p.get('status') == 'pending')]
+                        and p.get('status') in ('pending', 'entry_placed', 'awaiting_fill'))]
     locked_read_modify_write(POSITIONS_FILE, _rm, default=[])
 
 
@@ -244,6 +321,16 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
     signal_type = signal.get('signal_type', 'TREND')
     currency = signal.get('currency', 'GBP')
 
+    # Round quantity to T212's required precision for this instrument.
+    # Some instruments require whole numbers (quantityPrecision=0), others
+    # allow up to 2 dp. Sending the wrong precision causes HTTP 400
+    # "/api-errors/quantity-precision-mismatch".
+    if ticker:
+        original_qty = quantity
+        quantity = _round_quantity(quantity, ticker)
+        if quantity != original_qty:
+            _log(f"Quantity adjusted for T212 precision: {original_qty} → {quantity} ({ticker})")
+
     if not ticker or not quantity:
         _log(f"ERROR: Signal missing ticker or quantity — aborting")
         send_telegram("⚠️ Signal file incomplete — no ticker or quantity.")
@@ -266,16 +353,38 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
             f"Signal deleted. Re-run morning scan to regenerate."
         )
         try:
-            os.remove(SIGNAL_FILE)
+            os.remove(PROCESSING_FILE)
         except FileNotFoundError:
             pass
         return False
 
-    # ── ATR sanity check ─────────────────────────────────────────────────────
+    # ── ATR sanity check — rebuild degenerate stops/targets if ATR is zero ──────
+    # ATR=0 means the yfinance fetch failed or returned insufficient history.
+    # The signal's stop/target values were calculated from ATR and will be
+    # degenerate (stop = entry, target = entry).  Use fixed-percentage fallbacks
+    # rather than rejecting the trade entirely.
+    _ATR_FALLBACK_PCT = {
+        'TREND':            0.06,   # 6% stop, 9% / 15% targets
+        'CONTRARIAN':       0.04,   # 4% stop (tighter — buying into weakness)
+        'EARNINGS_DRIFT':   0.05,
+        'DIVIDEND_CAPTURE': 0.03,
+        'INVERSE':          0.04,
+    }
     try:
         _atr_val = float(atr) if atr else 0.0
-        if _atr_val <= 0:
-            log_warning(f"Signal for {name} has ATR={atr} — trailing stop and target calculations may be degenerate")
+        if _atr_val <= 0 and entry > 0:
+            _pct = _ATR_FALLBACK_PCT.get(signal_type, 0.05)
+            _stop_fallback    = round(entry * (1 - _pct), 4)
+            _target1_fallback = round(entry * (1 + _pct * 1.5), 4)
+            _target2_fallback = round(entry * (1 + _pct * 2.5), 4)
+            # Only override if current values are degenerate (equal to entry or zero)
+            if stop <= 0 or abs(stop - entry) / entry < 0.002:
+                stop    = _stop_fallback
+                log_warning(f"{name} ATR=0: stop rebuilt as {_pct*100:.0f}% fallback → {stop}")
+            if target1 <= 0 or abs(target1 - entry) / entry < 0.002:
+                target1 = _target1_fallback
+            if target2 <= 0 or abs(target2 - entry) / entry < 0.002:
+                target2 = _target2_fallback
     except (TypeError, ValueError):
         log_warning(f"Signal for {name} has non-numeric ATR={atr!r}")
 
@@ -358,7 +467,7 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
                     f"🏦 Venue: Alpaca (DMA)"
                 )
                 try:
-                    os.remove(SIGNAL_FILE)
+                    os.remove(PROCESSING_FILE)
                 except FileNotFoundError:
                     pass
             return True
@@ -429,7 +538,7 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
                 f"No position opened — waiting for better entry."
             )
             try:
-                os.remove(SIGNAL_FILE)
+                os.remove(PROCESSING_FILE)
             except FileNotFoundError:
                 pass
         return False
@@ -446,6 +555,12 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
     try:
         fx_at_entry = get_fx_rate(currency)
     except Exception as _fx_e:
+        if currency and currency.upper() != "GBP":
+            log_error(f"FX rate fetch failed for {currency}: {_fx_e} — trade blocked")
+            send_telegram(
+                f"⚠️ FX rate unavailable for {ticker} — trade blocked to prevent mis-sizing"
+            )
+            return False
         log_warning(f"FX snapshot failed for {currency}: {_fx_e}")
         fx_at_entry = 1.0
 
@@ -485,13 +600,20 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
 
     # ─────────────────────────────────────────────────────────────────────────
     # Step 1: Place limit entry order (fallback to market)
+    # GBX instruments (LSE stocks quoted in pence) require the T212 API price
+    # in pence, not pounds.  Signal prices are always stored in pounds, so
+    # multiply by 100 before sending to T212 for GBX instruments.
     # ─────────────────────────────────────────────────────────────────────────
-    _log(f"Step 1: Placing LIMIT entry — {ticker} ×{quantity} @ £{entry}")
+    t212_entry_price = round(entry * 100, 2) if currency == 'GBX' else round(entry, 4)
+    t212_stop_price  = round(stop  * 100, 2) if currency == 'GBX' else round(stop,  4)
+    _log(f"Step 1: Placing LIMIT entry — {ticker} ×{quantity} @ "
+         f"{'%dp' % t212_entry_price if currency == 'GBX' else '£%.4f' % entry} "
+         f"(currency={currency})")
 
     entry_data = t212_request('/equity/orders/limit', method='POST', payload={
         "ticker":       ticker,
         "quantity":     quantity,
-        "limitPrice":   round(entry, 4),
+        "limitPrice":   t212_entry_price,
         "timeValidity": "DAY",
     })
 
@@ -563,8 +685,70 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
         time.sleep(T212_FILL_POLL_INTERVAL)
 
     if filled_qty == 0:
-        # Order not filled within 3 min (e.g. pre-market limit) — save
-        # deferred stop state and let fill-check.sh finish it.
+        # During market hours a limit that hasn't filled in 3 min is unlikely
+        # to fill before session end — cancel it explicitly to prevent a phantom
+        # awaiting_fill record persisting until the next watchdog cycle.
+        # Pre-market entries are left open (expected DAY behaviour).
+        _now_utc   = datetime.now(timezone.utc)
+        _hour_min  = _now_utc.hour * 60 + _now_utc.minute
+        _intraday  = 480 <= _hour_min <= 930 and _now_utc.weekday() < 5  # 08:00–15:30 Mon–Fri
+        if _intraday:
+            _log(f"Intraday non-fill — cancelling limit order {entry_id} to prevent phantom position")
+            try:
+                t212_request(f'/equity/orders/{entry_id}', method='DELETE')
+            except Exception as _ce:
+                log_warning(f"Could not cancel unfilled limit order {entry_id}: {_ce}")
+
+            # ── Late-fill guard ───────────────────────────────────────────────
+            # A fill can arrive in the last milliseconds of the poll window and
+            # be processed by T212 after our DELETE.  Check the portfolio once
+            # before removing the pending record — if the position already exists
+            # in T212 we must NOT remove it or we create a dark, unprotected
+            # position.  This is what happened with ULVR on 2026-04-13.
+            try:
+                _portfolio = t212_request('/equity/portfolio') or []
+                _late_fill = next(
+                    (p for p in _portfolio if p.get('ticker') == ticker), None
+                )
+            except Exception as _pfe:
+                log_warning(f"Portfolio check after cancel failed for {ticker}: {_pfe}")
+                _late_fill = None
+
+            if _late_fill:
+                _filled_qty = float(_late_fill.get('quantity', quantity))
+                _avg_price  = float(_late_fill.get('averagePrice', entry))
+                # Convert T212 price back to pounds for GBX instruments
+                if currency == 'GBX' and _avg_price > entry * 10:
+                    _avg_price = round(_avg_price / 100, 4)
+                log_warning(
+                    f"Late fill detected for {name} ({ticker}): "
+                    f"{_filled_qty} shares @ {_avg_price} — order filled after poll window. "
+                    f"Recovering position record and placing stop."
+                )
+                # Update pending record with correct fill price and quantity
+                _update_position(ticker, {
+                    'entry':    _avg_price,
+                    'quantity': _filled_qty,
+                })
+                # Fall through to stop placement below (filled_qty set)
+                filled_qty = _filled_qty
+                send_telegram(
+                    f"⚠️ LATE FILL DETECTED — RECOVERING\n\n"
+                    f"{name} ({ticker})\n"
+                    f"Filled {_filled_qty} shares @ £{_avg_price} after poll window.\n"
+                    f"Placing stop automatically..."
+                )
+            else:
+                _remove_pending(ticker)
+                send_telegram(
+                    f"⚠️ ENTRY LIMIT NOT FILLED (CANCELLED)\n\n"
+                    f"{name} ({ticker})\n"
+                    f"Limit order @ £{entry} did not fill within 3 min during market hours.\n"
+                    f"Order cancelled. No position opened — signal will re-qualify on next scan."
+                )
+                return False
+
+        # Pre-market or low-liquidity — defer stop to fill-check watchdog.
         _log(f"Entry not filled within 3 min — deferring stop to fill-check")
         _update_position(ticker, {
             'status':         'awaiting_fill',
@@ -611,14 +795,15 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
         stop_data = t212_request('/equity/orders/stop', method='POST', payload={
             "ticker":       ticker,
             "quantity":     neg_qty,
-            "stopPrice":    round(stop, 4),
+            "stopPrice":    t212_stop_price,
             "timeValidity": "GOOD_TILL_CANCEL",
         })
         stop_id = (stop_data or {}).get('id')
         if stop_id:
             break
         if attempt < attempts:
-            time.sleep(2)   # extra wait between stop retries only
+            backoff = [2, 8, 20][attempt - 1]
+            time.sleep(backoff)   # exponential backoff: 2s → 8s → 20s (30s total covers 60s rate-limit window)
 
     # ─────────────────────────────────────────────────────────────────────────
     # Step 4a: Stop success → protected
@@ -646,7 +831,7 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
 
         # Remove signal file — consumed
         try:
-            os.remove(SIGNAL_FILE)
+            os.remove(PROCESSING_FILE)
         except FileNotFoundError:
             pass
 
@@ -694,9 +879,20 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
                         ['python3',
                          '/home/ubuntu/.picoclaw/scripts/apex-slippage-tracker.py',
                          'log', name, ticker, str(entry), str(actual_price),
-                         str(quantity), 'BUY', str(stop)],
+                         str(quantity), 'BUY', str(stop),
+                         signal_type, str(score)],
                         capture_output=True
                     )
+        except Exception:
+            pass
+
+        # Step 7: Export state to Gist for secondary watchdog (non-blocking)
+        try:
+            import subprocess as _sp
+            _sp.Popen(
+                ['python3', '/home/ubuntu/.picoclaw/scripts/apex-state-export.py'],
+                stdout=open('/dev/null', 'w'), stderr=open('/dev/null', 'w')
+            )
         except Exception:
             pass
 
@@ -779,6 +975,40 @@ def main() -> None:
     mode_at_entry = _get_mode()
 
     signal_path = args.signal
+    processing_path = signal_path + '.processing'
+
+    # ── Crash recovery: if .processing exists, a previous run crashed mid-execution ──
+    # Do NOT start a new trade — the previous one may have partially executed.
+    # Log a warning and exit so a human can investigate.
+    if os.path.exists(processing_path):
+        if os.path.exists(signal_path):
+            # Both files exist — previous run crashed before cleanup, but a new
+            # signal was also generated.  The .processing file is the dangerous one
+            # (may have been partially executed).  Remove the NEW signal to prevent
+            # double-entry, keep .processing for investigation.
+            _log("WARNING: Both signal and .processing files exist — previous run crashed. "
+                 "Removing new signal to prevent duplicate trade. Investigate .processing file.")
+            send_telegram(
+                "⚠️ DUPLICATE SIGNAL DETECTED\n\n"
+                "A .processing file exists from a crashed run AND a new signal appeared.\n"
+                "New signal removed. Investigate the .processing file manually."
+            )
+            try:
+                os.remove(signal_path)
+            except OSError:
+                pass
+            sys.exit(1)
+        else:
+            # Only .processing exists — previous run crashed mid-execution.
+            _log("WARNING: .processing file exists from a crashed run — possible partial execution. "
+                 "Will NOT re-execute. Investigate manually and delete .processing when resolved.")
+            send_telegram(
+                "⚠️ CRASHED EXECUTION DETECTED\n\n"
+                "A .processing file exists from a previous run that crashed mid-trade.\n"
+                "Check T212/Alpaca for partial fills. Delete .processing when resolved."
+            )
+            sys.exit(1)
+
     if not os.path.exists(signal_path):
         _log(f"ERROR: Signal file not found: {signal_path}")
         send_telegram("⚠️ No pending signal found.")
@@ -822,7 +1052,42 @@ def main() -> None:
         except Exception as _ttl_e:
             _log(f"WARNING: Cannot parse generated_at '{generated_at_str}': {_ttl_e}")
 
+    # ── Atomic rename: claim the signal file before executing ─────────────────
+    # os.rename() is atomic on POSIX (same filesystem).  If this fails, another
+    # executor instance grabbed it first, or the disk is in trouble — either way
+    # we must not proceed.
+    try:
+        os.rename(signal_path, processing_path)
+    except OSError as e:
+        _log(f"ERROR: Cannot rename signal to .processing — aborting to prevent duplicate: {e}")
+        send_telegram(
+            f"⚠️ EXECUTOR ABORTED — cannot claim signal file\n\n"
+            f"os.rename failed: {e}\n"
+            f"No trade placed. Investigate disk/permissions."
+        )
+        sys.exit(1)
+
     success = execute(signal, dry_run=args.dry_run, _mode=mode_at_entry)
+
+    # ── Post-execution cleanup ───────────────────────────────────────────────
+    # On failure, rename .processing back to the original path so retry is
+    # possible on the next cycle.  On success, execute() already deleted the
+    # .processing file — but clean up defensively in case it didn't.
+    if not success:
+        if os.path.exists(processing_path):
+            try:
+                os.rename(processing_path, signal_path)
+                _log("Execution failed — signal file restored for retry")
+            except OSError as e:
+                _log(f"WARNING: Could not restore signal file after failure: {e}")
+    else:
+        # Defensive cleanup — execute() should have deleted .processing already
+        if os.path.exists(processing_path):
+            try:
+                os.remove(processing_path)
+            except OSError:
+                pass
+
     sys.exit(0 if success else 1)
 
 

@@ -19,7 +19,7 @@ def get_technical_data(ticker, yahoo_ticker=None):
         "WMT","PG","XOM","CVX","NVO"
     }
 
-    clean_ticker = ticker.upper().replace('_US_EQ','').replace('_EQ','')
+    clean_ticker = ticker.upper().replace('_US_EQ','').replace('L_EQ','').replace('_EQ','')
 
     if clean_ticker in us_tickers:
         # Use Alpaca for real-time US data
@@ -121,7 +121,7 @@ def get_yfinance_data(yahoo_ticker, currency="USD"):
 
 def get_live_price(ticker, yahoo_ticker=None):
     """Get just the current price — fastest call."""
-    clean = ticker.upper().replace('_US_EQ','').replace('_EQ','')
+    clean = ticker.upper().replace('_US_EQ','').replace('L_EQ','').replace('_EQ','')
 
     us_tickers = {
         "AAPL","MSFT","NVDA","GOOGL","AMZN","META","TSLA","CRM","ORCL",

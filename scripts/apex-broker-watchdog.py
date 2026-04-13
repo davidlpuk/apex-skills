@@ -53,16 +53,31 @@ def load_positions():
     except Exception:
         return []
 
-def place_stop_order(ticker, quantity, stop_price):
+def _to_t212_price(price, currency):
+    """
+    Convert a signal price (always stored in pounds/dollars) to the unit
+    expected by the T212 API.  LSE stocks quoted in GBX (pence) need their
+    price multiplied by 100 before being sent — T212 requires the native
+    exchange currency, not the normalised pounds value.
+    """
+    if currency == 'GBX':
+        return round(float(price) * 100, 2)
+    return round(float(price), 4)
+
+
+def place_stop_order(ticker, quantity, stop_price, currency='GBP'):
     """
     Place a GTC stop-sell order in T212 via centralised rate-limited caller.
     Returns order ID on success, None on failure.
+    currency: instrument currency from positions file ('GBP', 'USD', 'GBX').
+              GBX instruments require price in pence (×100).
     """
-    neg_qty = round(float(quantity) * -1, 8)
+    neg_qty    = round(float(quantity) * -1, 8)
+    t212_price = _to_t212_price(stop_price, currency)
     data = t212_request('/equity/orders/stop', method='POST', payload={
         "ticker":       ticker,
         "quantity":     neg_qty,
-        "stopPrice":    round(float(stop_price), 4),
+        "stopPrice":    t212_price,
         "timeValidity": "GOOD_TILL_CANCEL"
     })
     if data is None:
@@ -98,9 +113,10 @@ def auto_fix_unprotected(unprotected):
     Returns lists of fixed and failed tickers.
     Backs off after 3 consecutive failures to avoid log spam.
     """
-    positions  = load_positions()
-    stop_map   = {p['t212_ticker']: p['stop'] for p in positions if 'stop' in p}
-    failures   = _load_stop_failures()
+    positions    = load_positions()
+    stop_map     = {p['t212_ticker']: p['stop']                      for p in positions if 'stop' in p}
+    currency_map = {p['t212_ticker']: p.get('currency', 'GBP')       for p in positions}
+    failures     = _load_stop_failures()
     now        = datetime.now(timezone.utc)
 
     fixed  = []
@@ -134,10 +150,11 @@ def auto_fix_unprotected(unprotected):
             except Exception:
                 pass
 
-        print(f"  🔧 Auto-fixing {ticker}: placing stop @ £{stop} qty={quantity}")
+        _currency = currency_map.get(ticker, 'GBP')
+        print(f"  🔧 Auto-fixing {ticker}: placing stop @ £{stop} qty={quantity} (currency={_currency})")
         order_id = None
         for attempt in range(1, 4):
-            order_id = place_stop_order(ticker, quantity, stop)
+            order_id = place_stop_order(ticker, quantity, stop, currency=_currency)
             if order_id:
                 break
             if attempt < 3:
@@ -148,6 +165,23 @@ def auto_fix_unprotected(unprotected):
             fixed.append({'ticker': ticker, 'stop': stop, 'order_id': order_id})
             failures.pop(ticker, None)  # clear failure record on success
             print(f"  ✅ Stop placed for {ticker} — order {order_id}")
+            # Persist stop_order_id and clear unprotected flag immediately.
+            # Without this, the next watchdog cycle re-flags the position as
+            # unprotected and places a duplicate stop order.
+            try:
+                from apex_utils import locked_read_modify_write
+                _oid = str(order_id)
+                _tkr = ticker
+                def _persist_stop(positions, _t=_tkr, _sid=_oid, _stop=stop):
+                    for p in positions:
+                        if p.get('t212_ticker') == _t:
+                            p['stop_order_id'] = _sid
+                            p['unprotected']   = False
+                            p['status']        = 'protected'
+                    return positions
+                locked_read_modify_write(POSITIONS_FILE, _persist_stop, default=[])
+            except Exception as _pe:
+                log_warning(f"auto_fix: stop placed for {ticker} but could not persist order_id — {_pe}")
         else:
             consec = rec.get('consecutive_failures', 0) + 1
             rec['consecutive_failures'] = consec
@@ -301,6 +335,10 @@ def check_stale_pending_positions():
         status = p.get('status', '')
         if status not in ('pending', 'entry_placed', 'awaiting_fill'):
             continue
+        # Alpaca awaiting_fill is expected behaviour when the US market hasn't
+        # opened yet — the limit order sits pre-market.  Skip Alpaca positions.
+        if p.get('venue') == 'ALPACA':
+            continue
         # Prefer opened_iso (full datetime) over opened (date-only) to avoid
         # midnight-parse false positives — e.g. opened="2026-03-25" parses as
         # 00:00 UTC and appears 575m stale at 09:35 even if opened_iso shows 09:33.
@@ -369,7 +407,10 @@ def check_addon_orders():
             continue
 
         # Filled — place stop for the addon quantity
-        print(f"  ✅ {ticker}: addon filled {filled_qty} shares — placing stop @ £{stop}")
+        _pos_currency = pos.get('currency', 'GBP')
+        _t212_stop    = _to_t212_price(stop, _pos_currency)
+        print(f"  ✅ {ticker}: addon filled {filled_qty} shares — placing stop @ £{stop} "
+              f"(T212={_t212_stop}, currency={_pos_currency})")
 
         # Duplicate guard: re-fetch live orders immediately before placement
         # to prevent two concurrent watchdog runs placing the same stop
@@ -394,7 +435,7 @@ def check_addon_orders():
             stop_data = t212_request('/equity/orders/stop', method='POST', payload={
                 "ticker":       ticker,
                 "quantity":     neg_qty,
-                "stopPrice":    round(stop, 4),
+                "stopPrice":    _t212_stop,
                 "timeValidity": "GOOD_TILL_CANCEL",
             })
             stop_id = (stop_data or {}).get('id')
@@ -447,6 +488,10 @@ def check_and_place_deferred_stops():
     for pos in positions:
         if pos.get('status') != 'awaiting_fill':
             continue
+        # Alpaca positions have UUID entry_order_ids — querying them in T212
+        # returns HTTP 400 (expects Long).  Alpaca manages its own fill/stop flow.
+        if pos.get('venue') == 'ALPACA':
+            continue
 
         ticker   = pos.get('t212_ticker', '')
         name     = pos.get('name', ticker)
@@ -485,7 +530,10 @@ def check_and_place_deferred_stops():
             continue  # still pending — check again next cycle
 
         # Order filled — place stop now
-        print(f"  ✅ {ticker}: filled {filled_qty} shares — placing stop @ £{stop}")
+        _pos_currency = pos.get('currency', 'GBP')
+        _t212_stop    = _to_t212_price(stop, _pos_currency)
+        print(f"  ✅ {ticker}: filled {filled_qty} shares — placing stop @ £{stop} "
+              f"(T212={_t212_stop}, currency={_pos_currency})")
 
         # Duplicate guard: re-fetch live orders immediately before placement
         # to prevent two concurrent watchdog runs placing the same stop
@@ -510,7 +558,7 @@ def check_and_place_deferred_stops():
             stop_data = t212_request('/equity/orders/stop', method='POST', payload={
                 "ticker":       ticker,
                 "quantity":     neg_qty,
-                "stopPrice":    round(float(stop), 4),
+                "stopPrice":    _t212_stop,
                 "timeValidity": "GOOD_TILL_CANCEL",
             })
             stop_id = (stop_data or {}).get('id')
@@ -589,17 +637,25 @@ def check_stop_price_drift(orders=None, portfolio=None):
         positions = safe_read(POSITIONS_FILE, [])
         for p in (positions or []):
             ticker    = p.get('t212_ticker', '')
-            sid       = str(p.get('stop_order_id', ''))
             pos_stop  = float(p.get('stop', 0))
+            # Skip Alpaca-routed positions — their stops are managed by Alpaca,
+            # not T212.  Checking T212 for an Alpaca stop_order_id (UUID) causes
+            # HTTP 400 (T212 expects a Long) and false STOP MISSING alerts.
+            if p.get('venue') == 'ALPACA':
+                continue
+            raw_sid = p.get('stop_order_id')
+            sid = str(raw_sid) if raw_sid is not None else ''
             if not sid or not pos_stop:
                 continue
             # Skip positions not in T212 live portfolio — they were manually
             # closed and apex-reconcile.py will remove them on the next run.
             if live_tickers is not None and ticker not in live_tickers:
                 log_warning(f"check_stop_price_drift: skipping {ticker} — not in T212 live portfolio (manually closed?)")
+                drifts.append({'ticker': ticker, 'local_stop': pos_stop, 't212_stop': None,
+                               'delta': None, 'note': 'NOT_IN_T212 — reconcile will clean up'})
                 continue
-            t212_stop = t212_stops.get(sid)
-            if t212_stop is None:
+            t212_stop_raw = t212_stops.get(sid)
+            if t212_stop_raw is None:
                 msg = f"STOP MISSING: {ticker} order {sid} not in T212 live orders (local stop=£{pos_stop})"
                 log_error(msg)
                 send_telegram(
@@ -610,7 +666,15 @@ def check_stop_price_drift(orders=None, portfolio=None):
                 )
                 drifts.append({'ticker': ticker, 'local_stop': pos_stop, 't212_stop': None, 'delta': None})
                 _log_drift_to_sqlite(ticker, pos_stop, None, None)
-            elif abs(pos_stop - t212_stop) > 0.02:
+                continue
+            # GBX instruments: T212 returns stopPrice in pence, positions.json stores pounds.
+            # Convert T212 pence → pounds before comparison so drift check doesn't false-fire.
+            currency = p.get('currency', 'GBP')
+            if currency == 'GBX' and t212_stop_raw > pos_stop * 10:
+                t212_stop = round(t212_stop_raw / 100, 4)
+            else:
+                t212_stop = t212_stop_raw
+            if abs(pos_stop - t212_stop) > 0.02:
                 delta = round(pos_stop - t212_stop, 4)
                 msg = f"STOP DRIFT: {ticker} local=£{pos_stop} T212=£{t212_stop} Δ={delta:+.4f}"
                 log_error(msg)
@@ -684,6 +748,22 @@ def run():
     # Fetch portfolio and orders ONCE — rate limiter spaces calls automatically
     orders    = get_open_orders()   # /equity/orders
     portfolio = get_portfolio()     # /equity/portfolio
+
+    # If BOTH API calls failed, we cannot verify anything — alert and bail
+    if portfolio is None and orders is None:
+        msg = "🚨 WATCHDOG: T212 API unreachable — cannot verify position protection"
+        log_error(msg)
+        send_telegram(msg)
+        print(f"  ❌ {msg}")
+        output = {
+            'timestamp':   now.strftime('%Y-%m-%d %H:%M UTC'),
+            'api_healthy': False,
+            'alerts':      [msg] + alerts,
+            'warnings':    warnings,
+            'status':      'ISSUES',
+        }
+        atomic_write(WATCHDOG_FILE, output)
+        return output
 
     # Unprotected positions — detect then auto-fix
     unprotected, msg = check_unprotected_positions(portfolio=portfolio, orders=orders)
@@ -801,6 +881,17 @@ def run():
     atomic_write(WATCHDOG_FILE, output)
 
     print(f"\n  Status: {'✅ CLEAR' if not alerts else '❌ ISSUES DETECTED'}")
+
+    # Export current position state to Gist for secondary watchdog
+    try:
+        import subprocess as _sp
+        _sp.Popen(
+            ['python3', '/home/ubuntu/.picoclaw/scripts/apex-state-export.py'],
+            stdout=open('/dev/null', 'w'), stderr=open('/dev/null', 'w')
+        )
+    except Exception:
+        pass
+
     return output
 
 if __name__ == '__main__':

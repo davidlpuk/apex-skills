@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH=/home/ubuntu/bin:$PATH
 
 source /home/ubuntu/.picoclaw/.env.trading212
 BOT_TOKEN="${APEX_BOT_TOKEN}"

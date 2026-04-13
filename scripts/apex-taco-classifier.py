@@ -198,6 +198,44 @@ def is_state_stale(state):
         return True
 
 
+def _llm_classify_taco_headlines(all_headlines):
+    """Use Gemini to classify TACO headlines with reasoning (P4).
+
+    Replaces keyword regex scoring with LLM intent analysis, distinguishing
+    e.g. 'considers tariff delay' (WALKBACK) from 'threatens tariff' (RHETORIC).
+    Returns a dict with rhetoric_score, action_score, walkback_score, is_fundamental,
+    threat_type, and llm_reasoning — or None on any failure.
+    """
+    try:
+        from apex_llm_flags import call_gemini_json
+        if not all_headlines:
+            return None
+        headline_text = '\n'.join(f'- {h}' for h in all_headlines[:20])
+        prompt = (
+            'You are a geopolitical risk classifier for an automated trading system. '
+            'Analyze these market headlines and classify the current event type.\n\n'
+            'Scoring guide:\n'
+            '- rhetoric_score (0-10): threats/warnings/ultimatums WITHOUT confirmed action\n'
+            '- action_score (0-10): policies CONFIRMED as implemented/signed/effective\n'
+            '- walkback_score (0-10): pauses/delays/exemptions/reversals of prior threats\n'
+            '- is_fundamental (bool): true if VIX spike is driven by earnings/rates/recession, NOT geopolitics\n'
+            '- threat_type: one of GEO_ENERGY, TARIFF_SEMI, TARIFF_CHINA, TARIFF_TECH, TARIFF_DEFENSE, TARIFF_BROAD, NONE\n\n'
+            'Key distinction: "considers tariff" = rhetoric, "tariff enacted" = action, "tariff paused" = walkback.\n\n'
+            'Return ONLY valid JSON:\n'
+            '{"rhetoric_score": 0, "action_score": 0, "walkback_score": 0, '
+            '"is_fundamental": false, "threat_type": "NONE", "llm_reasoning": "..."}\n\n'
+            f'Headlines:\n{headline_text}'
+        )
+        result = call_gemini_json(prompt)
+        # Clamp integer fields to 0-10
+        for field in ('rhetoric_score', 'action_score', 'walkback_score'):
+            result[field] = max(0, min(10, int(result.get(field, 0))))
+        return result
+    except Exception as _e:
+        log_warning(f"Gemini TACO classification failed, using keyword fallback: {_e}")
+        return None
+
+
 def classify(vix_data, geo_data, config):
     """Run the full TACO classification pipeline and return state dict."""
     clf_cfg       = config.get('classifier', {})
@@ -218,9 +256,37 @@ def classify(vix_data, geo_data, config):
         [f.get('title', '') for f in geo_data.get('energy_flags', [])]
     )
 
-    rhetoric_score = score_headlines(all_headlines, rhetoric_kw)
-    action_score   = score_headlines(all_headlines, action_kw)
-    walkback_score = score_headlines(all_headlines, walkback_kw)
+    # Try LLM classification first if flag enabled; fall back to keyword scoring
+    try:
+        from apex_llm_flags import get_llm_flag, record_llm_call
+        _taco_flag_on = get_llm_flag('taco_llm')
+    except ImportError:
+        _taco_flag_on = True  # fail-open if flag module unavailable
+        record_llm_call = None
+
+    llm_result = _llm_classify_taco_headlines(all_headlines) if _taco_flag_on else None
+    if llm_result:
+        rhetoric_score   = llm_result['rhetoric_score']
+        action_score     = llm_result['action_score']
+        walkback_score   = llm_result['walkback_score']
+        _fundamental     = llm_result.get('is_fundamental', False)
+        _threat_type_llm = llm_result.get('threat_type', None)
+        _llm_reasoning   = llm_result.get('llm_reasoning', '')
+        classification_method = 'llm'
+        if record_llm_call:
+            record_llm_call('taco_llm', used_llm=True,
+                            result_summary=f"r={rhetoric_score} a={action_score} w={walkback_score}")
+    else:
+        rhetoric_score = score_headlines(all_headlines, rhetoric_kw)
+        action_score   = score_headlines(all_headlines, action_kw)
+        walkback_score = score_headlines(all_headlines, walkback_kw)
+        _fundamental     = check_fundamental_vix(geo_data, config)
+        _threat_type_llm = None
+        _llm_reasoning   = ''
+        classification_method = 'keyword'
+        if record_llm_call:
+            record_llm_call('taco_llm', used_llm=False,
+                            result_summary='flag_off' if not _taco_flag_on else 'gemini_failed')
 
     escalation_count, latest_event_id = load_taco_log_for_escalation()
     exhausted = load_exhausted_flag()
@@ -240,7 +306,7 @@ def classify(vix_data, geo_data, config):
     elif (spike_pct >= threshold
           and rhetoric_score >= r_min
           and rhetoric_score > action_score
-          and not check_fundamental_vix(geo_data, config)):
+          and not _fundamental):
         status = "RHETORIC"
 
     else:
@@ -248,25 +314,27 @@ def classify(vix_data, geo_data, config):
 
     confidence   = compute_confidence(rhetoric_score, action_score, walkback_score,
                                       escalation_count, config)
-    threat_type  = detect_threat_type(all_headlines, geo_data)
+    threat_type  = _threat_type_llm if _threat_type_llm else detect_threat_type(all_headlines, geo_data)
     now          = datetime.now(timezone.utc)
     expires_at   = (now + timedelta(hours=ttl_hours)).isoformat()
 
     return {
-        "status":           status,
-        "confidence":       confidence,
-        "vix_today":        vix_data.get("today"),
-        "vix_spike_pct":    round(spike_pct, 2),
-        "rhetoric_score":   rhetoric_score,
-        "action_score":     action_score,
-        "walkback_score":   walkback_score,
-        "keyword_score":    rhetoric_score - action_score,
-        "escalation_count": escalation_count,
-        "threat_type":      threat_type,
-        "trigger_headlines": all_headlines[:5],
-        "classified_at":    now.isoformat(),
-        "expires_at":       expires_at,
-        "exhausted":        exhausted,
+        "status":                status,
+        "confidence":            confidence,
+        "vix_today":             vix_data.get("today"),
+        "vix_spike_pct":         round(spike_pct, 2),
+        "rhetoric_score":        rhetoric_score,
+        "action_score":          action_score,
+        "walkback_score":        walkback_score,
+        "keyword_score":         rhetoric_score - action_score,
+        "escalation_count":      escalation_count,
+        "threat_type":           threat_type,
+        "trigger_headlines":     all_headlines[:5],
+        "classified_at":         now.isoformat(),
+        "expires_at":            expires_at,
+        "exhausted":             exhausted,
+        "classification_method": classification_method,
+        "llm_reasoning":         _llm_reasoning,
     }
 
 

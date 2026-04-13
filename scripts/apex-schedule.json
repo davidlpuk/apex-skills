@@ -1,12 +1,10 @@
 {
-  "_comment": "Canonical schedule config — source of truth for when each script runs. Edit here to change timing, then run apex-cron-manager.py --install to apply.",
+  "_comment": "Canonical schedule config \u2014 source of truth for when each script runs. Edit here to change timing, then run apex-cron-manager.py --install to apply.",
   "version": "1.0",
   "updated": "2026-04-07",
   "python": "/home/ubuntu/bin/python3",
   "log_default": "/home/ubuntu/.picoclaw/logs/apex-cron.log",
-
   "schedule": [
-
     {
       "name": "log-rotate",
       "cron": "55 6 * * 1-5",
@@ -17,9 +15,10 @@
       "command": "/home/ubuntu/bin/python3 -c \"import sys; sys.path.insert(0,'/home/ubuntu/.picoclaw/scripts'); from apex_utils import rotate_error_log; rotate_error_log()\"",
       "description": "Rotate error log before market day starts",
       "category": "health",
-      "tags": ["maintenance"]
+      "tags": [
+        "maintenance"
+      ]
     },
-
     {
       "name": "drawdown-premarket",
       "cron": "30 6 * * 1-5",
@@ -29,9 +28,11 @@
       "script": "apex-drawdown-check.py",
       "description": "Pre-market drawdown check before any data runs",
       "category": "risk",
-      "tags": ["risk", "morning"]
+      "tags": [
+        "risk",
+        "morning"
+      ]
     },
-
     {
       "name": "fred-macro",
       "cron": "30 6 * * 1-5",
@@ -40,11 +41,13 @@
       "chain": null,
       "script": "apex-fred-macro.py",
       "log": "/home/ubuntu/.picoclaw/logs/apex-fred-macro.log",
-      "description": "FRED macro data fetch (separate log — exec_module pollution risk)",
+      "description": "FRED macro data fetch (separate log \u2014 exec_module pollution risk)",
       "category": "macro",
-      "tags": ["macro", "morning"]
+      "tags": [
+        "macro",
+        "morning"
+      ]
     },
-
     {
       "name": "market-calendar",
       "cron": "5 7 * * 1-5",
@@ -54,9 +57,10 @@
       "script": "apex-market-calendar.py",
       "description": "Check today's market calendar (holidays, early closes)",
       "category": "data",
-      "tags": ["morning"]
+      "tags": [
+        "morning"
+      ]
     },
-
     {
       "name": "t212-history-sync-open",
       "cron": "5 7 * * 1-5",
@@ -66,9 +70,11 @@
       "script": "apex-t212-history-sync.py",
       "description": "Sync T212 trade history at open",
       "category": "data",
-      "tags": ["morning", "data-sync"]
+      "tags": [
+        "morning",
+        "data-sync"
+      ]
     },
-
     {
       "name": "learning-report",
       "cron": "5 7 * * 1",
@@ -78,9 +84,11 @@
       "script": "apex-learning-report.py",
       "description": "Weekly learning report",
       "category": "learning",
-      "tags": ["weekly", "learning"]
+      "tags": [
+        "weekly",
+        "learning"
+      ]
     },
-
     {
       "name": "param-logger",
       "cron": "4 7 * * 1",
@@ -90,9 +98,10 @@
       "script": "apex-param-logger.py report",
       "description": "Weekly parameter snapshot",
       "category": "learning",
-      "tags": ["weekly"]
+      "tags": [
+        "weekly"
+      ]
     },
-
     {
       "name": "health-check-morning",
       "cron": "0 7 * * 1-5",
@@ -102,9 +111,11 @@
       "script": "apex-health-check.sh",
       "description": "Morning health check",
       "category": "health",
-      "tags": ["morning", "health"]
+      "tags": [
+        "morning",
+        "health"
+      ]
     },
-
     {
       "name": "blackswan-morning",
       "cron": "14 7 * * 1-5",
@@ -114,9 +125,11 @@
       "script": "apex-blackswan-test.py",
       "description": "Morning black swan stress test",
       "category": "risk",
-      "tags": ["morning", "risk"]
+      "tags": [
+        "morning",
+        "risk"
+      ]
     },
-
     {
       "name": "data-integrity",
       "cron": "15 7 * * 1-5",
@@ -126,9 +139,11 @@
       "script": "apex-data-integrity.py",
       "description": "Cross-validate local state vs T212 (6 checks)",
       "category": "health",
-      "tags": ["morning", "data-quality"]
+      "tags": [
+        "morning",
+        "data-quality"
+      ]
     },
-
     {
       "name": "macro-signals",
       "cron": "16 7 * * 1-5",
@@ -138,9 +153,11 @@
       "script": "apex-macro-signals.py",
       "description": "FRED macro signal scoring",
       "category": "signals",
-      "tags": ["morning", "macro"]
+      "tags": [
+        "morning",
+        "macro"
+      ]
     },
-
     {
       "name": "multiframe",
       "cron": "17 7 * * 1-5",
@@ -150,9 +167,11 @@
       "script": "apex-multiframe.py",
       "description": "Multi-timeframe trend confirmation",
       "category": "signals",
-      "tags": ["morning", "signals"]
+      "tags": [
+        "morning",
+        "signals"
+      ]
     },
-
     {
       "name": "relative-strength",
       "cron": "18 7 * * 1-5",
@@ -162,9 +181,11 @@
       "script": "apex-relative-strength.py",
       "description": "Portfolio relative strength vs SPY",
       "category": "signals",
-      "tags": ["morning", "signals"]
+      "tags": [
+        "morning",
+        "signals"
+      ]
     },
-
     {
       "name": "breadth-thrust",
       "cron": "19 7 * * 1-5",
@@ -174,9 +195,11 @@
       "script": "apex-breadth-thrust.py",
       "description": "Advance/decline breadth thrust",
       "category": "regime",
-      "tags": ["morning", "regime"]
+      "tags": [
+        "morning",
+        "regime"
+      ]
     },
-
     {
       "name": "regime-check",
       "cron": "20 7 * * 1-5",
@@ -186,9 +209,12 @@
       "script": "apex-regime-check.py",
       "description": "VIX + breadth regime classification",
       "category": "regime",
-      "tags": ["morning", "regime", "core"]
+      "tags": [
+        "morning",
+        "regime",
+        "core"
+      ]
     },
-
     {
       "name": "regime-scaling",
       "cron": "21 7 * * 1-5",
@@ -198,9 +224,27 @@
       "script": "apex-regime-scaling.py",
       "description": "Position size scaling from regime",
       "category": "regime",
-      "tags": ["morning", "regime", "sizing"]
+      "tags": [
+        "morning",
+        "regime",
+        "sizing"
+      ]
     },
-
+    {
+      "name": "regime-hmm",
+      "cron": "22 7 * * 1-5",
+      "days": "weekdays",
+      "time_utc": "07:22",
+      "chain": "morning-regime",
+      "script": "apex-regime-hmm.py",
+      "description": "HMM 3-state regime detection (TRENDING/MEAN_REVERTING/CRISIS)",
+      "category": "regime",
+      "tags": [
+        "morning",
+        "regime",
+        "ml"
+      ]
+    },
     {
       "name": "sector-rotation",
       "cron": "22 7 * * 1",
@@ -210,9 +254,11 @@
       "script": "apex-sector-rotation.py",
       "description": "Weekly sector rotation ranking",
       "category": "signals",
-      "tags": ["weekly", "signals"]
+      "tags": [
+        "weekly",
+        "signals"
+      ]
     },
-
     {
       "name": "breadth-drilldown",
       "cron": "23 7 * * 1",
@@ -222,9 +268,11 @@
       "script": "apex-breadth-drilldown.py",
       "description": "Weekly sector breadth breakdown",
       "category": "regime",
-      "tags": ["weekly", "regime"]
+      "tags": [
+        "weekly",
+        "regime"
+      ]
     },
-
     {
       "name": "vix-correlation",
       "cron": "24 7 * * 1",
@@ -234,9 +282,11 @@
       "script": "apex-vix-correlation.py",
       "description": "Weekly VIX-portfolio correlation",
       "category": "risk",
-      "tags": ["weekly", "risk"]
+      "tags": [
+        "weekly",
+        "risk"
+      ]
     },
-
     {
       "name": "market-direction",
       "cron": "29 7 * * 1-5",
@@ -246,9 +296,11 @@
       "script": "apex-market-direction.py",
       "description": "SPY/QQQ trend direction",
       "category": "regime",
-      "tags": ["morning", "regime"]
+      "tags": [
+        "morning",
+        "regime"
+      ]
     },
-
     {
       "name": "geo-news",
       "cron": "25 7 * * 1-5",
@@ -258,9 +310,11 @@
       "script": "apex-geo-news.py",
       "description": "Geopolitical risk flags",
       "category": "macro",
-      "tags": ["morning", "macro"]
+      "tags": [
+        "morning",
+        "macro"
+      ]
     },
-
     {
       "name": "earnings-drift",
       "cron": "26 7 * * 1-5",
@@ -270,9 +324,11 @@
       "script": "apex-earnings-drift.py",
       "description": "Post-earnings drift setups",
       "category": "signals",
-      "tags": ["morning", "earnings"]
+      "tags": [
+        "morning",
+        "earnings"
+      ]
     },
-
     {
       "name": "dividend-capture",
       "cron": "27 7 * * 1-5",
@@ -282,9 +338,11 @@
       "script": "apex-dividend-capture.py",
       "description": "Dividend capture opportunities",
       "category": "signals",
-      "tags": ["morning", "income"]
+      "tags": [
+        "morning",
+        "income"
+      ]
     },
-
     {
       "name": "sentiment",
       "cron": "28 7 * * 1-5",
@@ -294,9 +352,11 @@
       "script": "apex-sentiment.py",
       "description": "NLP sentiment on portfolio holdings",
       "category": "signals",
-      "tags": ["morning", "nlp"]
+      "tags": [
+        "morning",
+        "nlp"
+      ]
     },
-
     {
       "name": "inverse-scanner",
       "cron": "29 7 * * 1-5",
@@ -306,9 +366,11 @@
       "script": "apex-inverse-scanner.py",
       "description": "Inverse ETF signals in RISK_OFF",
       "category": "signals",
-      "tags": ["morning", "inverse"]
+      "tags": [
+        "morning",
+        "inverse"
+      ]
     },
-
     {
       "name": "morning-briefing",
       "cron": "30 7 * * 1-5",
@@ -318,9 +380,10 @@
       "script": "apex-morning-briefing.sh",
       "description": "Telegram morning summary",
       "category": "reporting",
-      "tags": ["morning"]
+      "tags": [
+        "morning"
+      ]
     },
-
     {
       "name": "learning-digest",
       "cron": "50 7 * * 1-5",
@@ -330,9 +393,11 @@
       "script": "apex-learning-digest.py",
       "description": "What the system has learned from recent trades",
       "category": "learning",
-      "tags": ["morning", "learning"]
+      "tags": [
+        "morning",
+        "learning"
+      ]
     },
-
     {
       "name": "weekly-fundamentals",
       "cron": "8 7 * * 1",
@@ -342,9 +407,11 @@
       "script": "apex-fundamentals.py",
       "description": "Weekly fundamental data fetch",
       "category": "signals",
-      "tags": ["weekly", "fundamentals"]
+      "tags": [
+        "weekly",
+        "fundamentals"
+      ]
     },
-
     {
       "name": "weekly-fundamental-signals",
       "cron": "9 7 * * 1",
@@ -354,9 +421,11 @@
       "script": "apex-fundamental-signals.py",
       "description": "Weekly fundamental signal scoring",
       "category": "signals",
-      "tags": ["weekly", "fundamentals"]
+      "tags": [
+        "weekly",
+        "fundamentals"
+      ]
     },
-
     {
       "name": "weekly-insider-data",
       "cron": "9 7 * * 1",
@@ -366,9 +435,11 @@
       "script": "apex-insider-data.py",
       "description": "Weekly EDGAR insider signal aggregation",
       "category": "signals",
-      "tags": ["weekly", "fundamentals"]
+      "tags": [
+        "weekly",
+        "fundamentals"
+      ]
     },
-
     {
       "name": "weekly-weight-optimizer",
       "cron": "7 7 * * 1",
@@ -378,9 +449,11 @@
       "script": "apex-weight-optimizer.py",
       "description": "Weekly Bayesian layer weight update",
       "category": "learning",
-      "tags": ["weekly", "learning"]
+      "tags": [
+        "weekly",
+        "learning"
+      ]
     },
-
     {
       "name": "weekly-edge-proof",
       "cron": "8 7 * * 1",
@@ -390,9 +463,11 @@
       "script": "apex-edge-proof.py",
       "description": "Weekly signal significance testing",
       "category": "learning",
-      "tags": ["weekly", "learning"]
+      "tags": [
+        "weekly",
+        "learning"
+      ]
     },
-
     {
       "name": "weekly-simons-test",
       "cron": "11 7 * * 1",
@@ -402,9 +477,11 @@
       "script": "apex-simons-test.py",
       "description": "Weekly Renaissance-style factor test",
       "category": "risk",
-      "tags": ["weekly", "quant"]
+      "tags": [
+        "weekly",
+        "quant"
+      ]
     },
-
     {
       "name": "weekly-thorp-test",
       "cron": "12 7 * * 1",
@@ -414,9 +491,11 @@
       "script": "apex-thorp-test.py",
       "description": "Weekly Thorp Kelly test",
       "category": "risk",
-      "tags": ["weekly", "quant"]
+      "tags": [
+        "weekly",
+        "quant"
+      ]
     },
-
     {
       "name": "weekly-shaw-test",
       "cron": "13 7 * * 1",
@@ -426,9 +505,11 @@
       "script": "apex-shaw-test.py",
       "description": "Weekly D.E. Shaw stat arb check",
       "category": "risk",
-      "tags": ["weekly", "quant"]
+      "tags": [
+        "weekly",
+        "quant"
+      ]
     },
-
     {
       "name": "queue-revalidate",
       "cron": "45 7 * * 1",
@@ -438,9 +519,10 @@
       "script": "apex-queue-revalidate.py",
       "description": "Revalidate signals in trade queue",
       "category": "signals",
-      "tags": ["weekly"]
+      "tags": [
+        "weekly"
+      ]
     },
-
     {
       "name": "watchlist-analyzer",
       "cron": "0 8 * * 1-5",
@@ -450,9 +532,11 @@
       "script": "apex-watchlist-analyzer.py",
       "description": "Score watchlist universe (18-layer scoring)",
       "category": "signals",
-      "tags": ["morning", "universe"]
+      "tags": [
+        "morning",
+        "universe"
+      ]
     },
-
     {
       "name": "circuit-breaker-open",
       "cron": "0 8 * * 1-5",
@@ -462,9 +546,12 @@
       "script": "apex-circuit-breaker.py",
       "description": "Circuit breaker check at open",
       "category": "risk",
-      "tags": ["morning", "risk", "core"]
+      "tags": [
+        "morning",
+        "risk",
+        "core"
+      ]
     },
-
     {
       "name": "gap-protection-open",
       "cron": "3 8 * * 1-5",
@@ -474,9 +561,11 @@
       "script": "apex-gap-protection.py",
       "description": "Gap protection check at open",
       "category": "risk",
-      "tags": ["morning", "risk"]
+      "tags": [
+        "morning",
+        "risk"
+      ]
     },
-
     {
       "name": "trade-queue-execute-open",
       "cron": "5 8 * * 1-5",
@@ -486,10 +575,12 @@
       "script": "apex-trade-queue.py execute",
       "description": "Execute queued trades at open",
       "category": "execution",
-      "tags": ["morning", "core"],
+      "tags": [
+        "morning",
+        "core"
+      ],
       "safety": "execute-trade"
     },
-
     {
       "name": "morning-scan",
       "cron": "30 8 * * 1-5",
@@ -497,11 +588,13 @@
       "time_utc": "08:30",
       "chain": "full-morning",
       "script": "apex-morning-scan.sh",
-      "description": "Main morning scan — contrarian + trend signals",
+      "description": "Main morning scan \u2014 contrarian + trend signals",
       "category": "signals",
-      "tags": ["morning", "core"]
+      "tags": [
+        "morning",
+        "core"
+      ]
     },
-
     {
       "name": "staged-addon-check",
       "cron": "0 9 * * 1-5",
@@ -511,9 +604,10 @@
       "script": "apex-staged-addon-check.py",
       "description": "Check for staged position add-on conditions",
       "category": "execution",
-      "tags": ["intraday"]
+      "tags": [
+        "intraday"
+      ]
     },
-
     {
       "name": "t212-history-sync-session",
       "cron": "1 9 * * 1-5",
@@ -523,9 +617,11 @@
       "script": "apex-t212-history-sync.py",
       "description": "T212 history sync at session open",
       "category": "data",
-      "tags": ["morning", "data-sync"]
+      "tags": [
+        "morning",
+        "data-sync"
+      ]
     },
-
     {
       "name": "trade-queue-execute-session",
       "cron": "30 9 * * 1-5",
@@ -535,10 +631,11 @@
       "script": "apex-trade-queue.py execute",
       "description": "Execute queued trades at session open",
       "category": "execution",
-      "tags": ["intraday"],
+      "tags": [
+        "intraday"
+      ],
       "safety": "execute-trade"
     },
-
     {
       "name": "options-flow",
       "cron": "0 8,10,12,14,16 * * 1-5",
@@ -549,9 +646,11 @@
       "log": "/home/ubuntu/.picoclaw/logs/apex-options-flow.log",
       "description": "Options flow unusual activity (every 2h)",
       "category": "signals",
-      "tags": ["intraday", "options"]
+      "tags": [
+        "intraday",
+        "options"
+      ]
     },
-
     {
       "name": "insider-edgar",
       "cron": "0 */6 * * 1-5",
@@ -561,9 +660,10 @@
       "script": "apex-insider-edgar.py",
       "description": "EDGAR insider filing fetch (every 6h)",
       "category": "signals",
-      "tags": ["fundamentals"]
+      "tags": [
+        "fundamentals"
+      ]
     },
-
     {
       "name": "broker-watchdog",
       "cron": "5,35 9-16 * * 1-5",
@@ -573,10 +673,12 @@
       "script": "apex-broker-watchdog.py",
       "description": "Verify stop orders exist for all positions",
       "category": "risk",
-      "tags": ["intraday", "stops"],
+      "tags": [
+        "intraday",
+        "stops"
+      ],
       "safety": "execute-trade"
     },
-
     {
       "name": "circuit-breaker-intraday",
       "cron": "2,32 9-16 * * 1-5",
@@ -586,9 +688,12 @@
       "script": "apex-circuit-breaker.py",
       "description": "Intraday circuit breaker check",
       "category": "risk",
-      "tags": ["intraday", "risk", "core"]
+      "tags": [
+        "intraday",
+        "risk",
+        "core"
+      ]
     },
-
     {
       "name": "blackswan-intraday",
       "cron": "2,32 9-16 * * 1-5",
@@ -598,9 +703,11 @@
       "script": "apex-blackswan-test.py quick",
       "description": "Intraday black swan quick check",
       "category": "risk",
-      "tags": ["intraday", "risk"]
+      "tags": [
+        "intraday",
+        "risk"
+      ]
     },
-
     {
       "name": "safe-haven-intraday",
       "cron": "0,30 9-16 * * 1-5",
@@ -610,9 +717,11 @@
       "script": "apex-safe-haven.py",
       "description": "Safe-haven instrument scan",
       "category": "signals",
-      "tags": ["intraday", "risk"]
+      "tags": [
+        "intraday",
+        "risk"
+      ]
     },
-
     {
       "name": "realtime-correlation",
       "cron": "15,45 9-16 * * 1-5",
@@ -622,9 +731,11 @@
       "script": "apex-realtime-correlation.py crash",
       "description": "Intraday correlation crash detection",
       "category": "risk",
-      "tags": ["intraday", "risk"]
+      "tags": [
+        "intraday",
+        "risk"
+      ]
     },
-
     {
       "name": "taco-classifier",
       "cron": "*/15 8-16 * * 1-5",
@@ -635,9 +746,11 @@
       "log": "/home/ubuntu/.picoclaw/logs/apex-taco-cron.log",
       "description": "TACO VIX spike classifier",
       "category": "taco",
-      "tags": ["intraday", "taco"]
+      "tags": [
+        "intraday",
+        "taco"
+      ]
     },
-
     {
       "name": "taco-monitor",
       "cron": "*/5 8-16 * * 1-5",
@@ -648,9 +761,11 @@
       "log": "/home/ubuntu/.picoclaw/logs/apex-taco-cron.log",
       "description": "TACO state machine monitor",
       "category": "taco",
-      "tags": ["intraday", "taco"]
+      "tags": [
+        "intraday",
+        "taco"
+      ]
     },
-
     {
       "name": "intraday-scan-10am",
       "cron": "0 10 * * 1-5",
@@ -660,9 +775,10 @@
       "script": "apex-intraday-scan.sh 10am",
       "description": "10am intraday signal scan",
       "category": "signals",
-      "tags": ["intraday"]
+      "tags": [
+        "intraday"
+      ]
     },
-
     {
       "name": "trade-queue-10am",
       "cron": "5 10 * * 1-5",
@@ -672,10 +788,11 @@
       "script": "apex-trade-queue.py execute",
       "description": "Execute queue after 10am scan",
       "category": "execution",
-      "tags": ["intraday"],
+      "tags": [
+        "intraday"
+      ],
       "safety": "execute-trade"
     },
-
     {
       "name": "intraday-scan-11am",
       "cron": "0 11 * * 1-5",
@@ -685,9 +802,10 @@
       "script": "apex-intraday-scan.sh 11am",
       "description": "11am intraday signal scan",
       "category": "signals",
-      "tags": ["intraday"]
+      "tags": [
+        "intraday"
+      ]
     },
-
     {
       "name": "trade-queue-11am",
       "cron": "5 11 * * 1-5",
@@ -697,10 +815,11 @@
       "script": "apex-trade-queue.py execute",
       "description": "Execute queue after 11am scan",
       "category": "execution",
-      "tags": ["intraday"],
+      "tags": [
+        "intraday"
+      ],
       "safety": "execute-trade"
     },
-
     {
       "name": "midday-scan",
       "cron": "30 12 * * 1-5",
@@ -710,9 +829,10 @@
       "script": "apex-morning-scan.sh midday",
       "description": "Midday scan + digest",
       "category": "signals",
-      "tags": ["intraday"]
+      "tags": [
+        "intraday"
+      ]
     },
-
     {
       "name": "midday-digest",
       "cron": "30 12 * * 1-5",
@@ -722,9 +842,10 @@
       "script": "apex-digest.py",
       "description": "Midday portfolio digest",
       "category": "reporting",
-      "tags": ["intraday"]
+      "tags": [
+        "intraday"
+      ]
     },
-
     {
       "name": "intraday-scan-1pm",
       "cron": "0 13 * * 1-5",
@@ -734,9 +855,10 @@
       "script": "apex-intraday-scan.sh 13pm",
       "description": "1pm intraday signal scan",
       "category": "signals",
-      "tags": ["intraday"]
+      "tags": [
+        "intraday"
+      ]
     },
-
     {
       "name": "trade-queue-1pm",
       "cron": "5 13 * * 1-5",
@@ -746,10 +868,11 @@
       "script": "apex-trade-queue.py execute",
       "description": "Execute queue after 1pm scan",
       "category": "execution",
-      "tags": ["intraday"],
+      "tags": [
+        "intraday"
+      ],
       "safety": "execute-trade"
     },
-
     {
       "name": "intraday-scan-2pm",
       "cron": "0 14 * * 1-5",
@@ -759,9 +882,10 @@
       "script": "apex-intraday-scan.sh 14pm",
       "description": "2pm intraday signal scan (US open)",
       "category": "signals",
-      "tags": ["intraday"]
+      "tags": [
+        "intraday"
+      ]
     },
-
     {
       "name": "trade-queue-2pm",
       "cron": "5 14 * * 1-5",
@@ -771,10 +895,11 @@
       "script": "apex-trade-queue.py execute",
       "description": "Execute queue after 2pm scan",
       "category": "execution",
-      "tags": ["intraday"],
+      "tags": [
+        "intraday"
+      ],
       "safety": "execute-trade"
     },
-
     {
       "name": "gap-protection-afternoon",
       "cron": "32 14 * * 1-5",
@@ -784,9 +909,11 @@
       "script": "apex-gap-protection.py",
       "description": "Afternoon gap protection (US open volatility)",
       "category": "risk",
-      "tags": ["intraday", "risk"]
+      "tags": [
+        "intraday",
+        "risk"
+      ]
     },
-
     {
       "name": "taco-outcomes",
       "cron": "0 17 * * 1-5",
@@ -797,9 +924,12 @@
       "log": "/home/ubuntu/.picoclaw/logs/apex-taco-cron.log",
       "description": "Track TACO trade outcomes",
       "category": "taco",
-      "tags": ["eod", "taco", "learning"]
+      "tags": [
+        "eod",
+        "taco",
+        "learning"
+      ]
     },
-
     {
       "name": "fill-check",
       "cron": "15 15 * * 1-5",
@@ -809,9 +939,10 @@
       "script": "apex-fill-check.sh",
       "description": "Check for order fills before close",
       "category": "execution",
-      "tags": ["intraday"]
+      "tags": [
+        "intraday"
+      ]
     },
-
     {
       "name": "eod-review",
       "cron": "30 16 * * 1-5",
@@ -821,9 +952,10 @@
       "script": "apex-eod-review.sh",
       "description": "End-of-day review and Telegram summary",
       "category": "reporting",
-      "tags": ["eod"]
+      "tags": [
+        "eod"
+      ]
     },
-
     {
       "name": "score-adapter-eod",
       "cron": "35 16 * * 1-5",
@@ -833,9 +965,11 @@
       "script": "apex-score-adapter.py",
       "description": "EOD score factor recalibration",
       "category": "learning",
-      "tags": ["eod", "learning"]
+      "tags": [
+        "eod",
+        "learning"
+      ]
     },
-
     {
       "name": "weekly-report-fri",
       "cron": "35 16 * * 5",
@@ -845,9 +979,11 @@
       "script": "apex-weekly-report.sh",
       "description": "Friday weekly performance report",
       "category": "reporting",
-      "tags": ["weekly", "eod"]
+      "tags": [
+        "weekly",
+        "eod"
+      ]
     },
-
     {
       "name": "sharpe-eod",
       "cron": "40 16 * * 1-5",
@@ -857,9 +993,11 @@
       "script": "apex-sharpe.py",
       "description": "EOD Sharpe/Sortino ratio update",
       "category": "performance",
-      "tags": ["eod", "performance"]
+      "tags": [
+        "eod",
+        "performance"
+      ]
     },
-
     {
       "name": "opportunity-cost-eod",
       "cron": "40 16 * * 1-5",
@@ -869,9 +1007,11 @@
       "script": "apex-opportunity-cost.py",
       "description": "EOD opportunity cost vs benchmark",
       "category": "performance",
-      "tags": ["eod", "performance"]
+      "tags": [
+        "eod",
+        "performance"
+      ]
     },
-
     {
       "name": "benchmark-eod",
       "cron": "45 16 * * 1-5",
@@ -881,9 +1021,10 @@
       "script": "apex-benchmark.py",
       "description": "EOD benchmark comparison update",
       "category": "performance",
-      "tags": ["eod"]
+      "tags": [
+        "eod"
+      ]
     },
-
     {
       "name": "t212-history-sync-eod",
       "cron": "50 16 * * 1-5",
@@ -893,9 +1034,11 @@
       "script": "apex-t212-history-sync.py",
       "description": "EOD T212 history sync",
       "category": "data",
-      "tags": ["eod", "data-sync"]
+      "tags": [
+        "eod",
+        "data-sync"
+      ]
     },
-
     {
       "name": "health-check-midday",
       "cron": "0 10,13,16 * * 1-5",
@@ -905,9 +1048,11 @@
       "script": "apex-health-check.sh",
       "description": "Intraday health checks",
       "category": "health",
-      "tags": ["intraday", "health"]
+      "tags": [
+        "intraday",
+        "health"
+      ]
     },
-
     {
       "name": "geo-news-weekend",
       "cron": "0 8,12,18 * * 6,0",
@@ -917,9 +1062,10 @@
       "script": "apex-geo-news.py",
       "description": "Weekend geopolitical monitoring",
       "category": "macro",
-      "tags": ["weekend"]
+      "tags": [
+        "weekend"
+      ]
     },
-
     {
       "name": "data-refresher-sunday",
       "cron": "0 20 * * 0",
@@ -929,9 +1075,11 @@
       "script": "apex-data-refresher.sh",
       "description": "Sunday evening full data refresh for Monday",
       "category": "data",
-      "tags": ["weekly", "maintenance"]
+      "tags": [
+        "weekly",
+        "maintenance"
+      ]
     },
-
     {
       "name": "weekly-report-mon",
       "cron": "0 7 * * 1",
@@ -941,9 +1089,10 @@
       "script": "apex-weekly-report.sh",
       "description": "Monday morning weekly report",
       "category": "reporting",
-      "tags": ["weekly"]
+      "tags": [
+        "weekly"
+      ]
     },
-
     {
       "name": "weekly-news-mon",
       "cron": "15 7 * * 1",
@@ -953,9 +1102,10 @@
       "script": "apex-news-check.sh",
       "description": "Monday news check",
       "category": "data",
-      "tags": ["weekly"]
+      "tags": [
+        "weekly"
+      ]
     },
-
     {
       "name": "friday-review",
       "cron": "0 15 * * 5",
@@ -965,8 +1115,10 @@
       "script": "apex-friday-review.sh",
       "description": "Friday afternoon position review",
       "category": "reporting",
-      "tags": ["weekly", "eod"]
+      "tags": [
+        "weekly",
+        "eod"
+      ]
     }
-
   ]
 }

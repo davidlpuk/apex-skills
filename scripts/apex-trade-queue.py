@@ -35,12 +35,39 @@ def load_queue():
 def save_queue(queue):
     atomic_write(QUEUE_FILE, queue)
 
+def _is_duplicate(queue, ticker, signal_type):
+    """
+    Returns the existing entry if the same ticker+signal_type is already
+    QUEUED, EXECUTED, or FAILED for today's session, None otherwise.
+    Prevents re-scans or TACO events from double-queuing the same instrument,
+    including instruments already executed or failed earlier the same day.
+    FAILED is included to prevent thrashing when execution repeatedly fails
+    (e.g. price feed error, limit non-fill) — the next day's scan will retry.
+    """
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    for t in queue:
+        if (t.get('status') in ('QUEUED', 'EXECUTED', 'FAILED')
+                and t.get('t212_ticker') == ticker
+                and t.get('signal_type', '').upper() == signal_type.upper()
+                and t.get('queued_at', '').startswith(today)):
+            return t
+    return None
+
+
 def add_to_queue(signal):
     queue = load_queue()
     now   = datetime.now(timezone.utc)
 
+    ticker      = signal.get('t212_ticker', '')
+    signal_type = signal.get('signal_type', 'TREND')
+    dup = _is_duplicate(queue, ticker, signal_type)
+    if dup:
+        print(f"  Dedup: {signal.get('name','?')} ({ticker}) already QUEUED as ID #{dup['id']} — skipping")
+        return None
+
+    next_id = max((t.get('id', 0) for t in queue), default=0) + 1
     entry = {
-        'id':           len(queue) + 1,
+        'id':           next_id,
         'queued_at':    now.isoformat(),
         'queued_date':  now.strftime('%Y-%m-%d %H:%M UTC'),
         'name':         signal.get('name','?'),
@@ -102,11 +129,28 @@ def add_scored_signal(signal):
         print(f"  Skipping queue: position limit reached ({_open_count} open + {_existing_queued} queued = {_max_pos})")
         return None
 
+    # Second-layer duplicate guard: block if ticker already in open positions.
+    # Primary guard is is_blocked() in apex_filters.py; this catches any slip-through.
+    _ticker_check = signal.get('t212_ticker', '')
+    if _ticker_check and isinstance(_positions, list):
+        _held = {p.get('t212_ticker', '') for p in _positions}
+        if _ticker_check in _held:
+            print(f"  Already held: {signal.get('name','?')} ({_ticker_check}) — skipping queue")
+            return None
+
     queue = load_queue()
     now   = datetime.now(timezone.utc)
 
+    ticker      = signal.get('t212_ticker', '')
+    signal_type = signal.get('signal_type', 'TREND')
+    dup = _is_duplicate(queue, ticker, signal_type)
+    if dup:
+        print(f"  Dedup: {signal.get('name','?')} ({ticker}) already QUEUED as ID #{dup['id']} — skipping")
+        return None
+
+    next_id = max((t.get('id', 0) for t in queue), default=0) + 1
     entry = {
-        'id':              len(queue) + 1,
+        'id':              next_id,
         'queued_at':       now.isoformat(),
         'queued_date':     now.strftime('%Y-%m-%d %H:%M UTC'),
         'source':          'decision_engine',
@@ -190,9 +234,91 @@ def show_queue():
 
     send_telegram('\n'.join(lines))
 
+def purge_stale_entries(queue, max_age_days=7):
+    """
+    Remove terminal entries (EXECUTED, FAILED, CANCELLED) older than
+    max_age_days.  QUEUED entries are never purged here — they decay via
+    score-check or market-hours guards.
+    Returns (cleaned_queue, purge_count).
+    """
+    now      = datetime.now(timezone.utc)
+    cutoff   = max_age_days * 86400  # seconds
+    terminal = {'EXECUTED', 'FAILED', 'CANCELLED'}
+    kept, purged = [], 0
+    for t in queue:
+        if t.get('status') in terminal:
+            try:
+                age = (now - datetime.fromisoformat(t['queued_at'])).total_seconds()
+                if age > cutoff:
+                    purged += 1
+                    continue
+            except Exception:
+                pass
+        kept.append(t)
+    return kept, purged
+
+
+QUEUE_LOCK_FILE = '/home/ubuntu/.picoclaw/logs/apex-queue-execute.lock'
+
+def _acquire_queue_lock() -> bool:
+    """
+    Write a PID lock file.  Returns True if the lock was acquired (no other
+    execute_queue() instance is running), False if one is already active.
+    Stale locks (PID no longer alive) are cleared automatically.
+    """
+    import os, signal as _signal
+    if os.path.exists(QUEUE_LOCK_FILE):
+        try:
+            with open(QUEUE_LOCK_FILE) as _f:
+                old_pid = int(_f.read().strip())
+            # Check if PID is still alive
+            os.kill(old_pid, 0)   # raises OSError if dead
+            print(f"Queue execute already running (PID {old_pid}) — skipping")
+            return False
+        except (OSError, ValueError):
+            # Dead PID or corrupt file — clear it
+            os.remove(QUEUE_LOCK_FILE)
+    try:
+        with open(QUEUE_LOCK_FILE, 'w') as _f:
+            _f.write(str(os.getpid()))
+        return True
+    except Exception as _e:
+        log_warning(f"Could not write queue lock: {_e}")
+        return True   # fail-open: allow execution if lock can't be written
+
+def _release_queue_lock():
+    import os
+    try:
+        os.remove(QUEUE_LOCK_FILE)
+    except FileNotFoundError:
+        pass
+
+
 def execute_queue():
     """Execute all queued trades — called at market open."""
+    # ── Concurrent execution guard ────────────────────────────────────────────
+    # The executor polls for up to 3 min per trade.  Without a lock, two cron
+    # triggers fired 5 min apart can overlap and attempt to execute the same
+    # QUEUED entry simultaneously — producing duplicate orders.
+    if not _acquire_queue_lock():
+        return
+
+    try:
+        _execute_queue_inner()
+    finally:
+        _release_queue_lock()
+
+
+def _execute_queue_inner():
+    """Inner queue execution logic — always called inside a lock."""
     queue    = load_queue()
+
+    # Purge stale terminal entries to keep the queue file lean
+    queue, purged = purge_stale_entries(queue)
+    if purged:
+        save_queue(queue)
+        print(f"Purged {purged} stale queue entries (>7 days, terminal status)")
+
     pending  = [t for t in queue if t['status'] == 'QUEUED']
 
     if not pending:
@@ -220,7 +346,54 @@ def execute_queue():
     executed = []
     failed   = []
 
+    EARNINGS_FILE = '/home/ubuntu/.picoclaw/logs/apex-earnings-flags.json'
+    NEWS_FILE     = '/home/ubuntu/.picoclaw/logs/apex-news-flags.json'
+
     for trade in pending:
+        # ── Intraday safety re-check ─────────────────────────────────────────
+        # Re-read earnings and news flags from disk at execution time.
+        # These may have been updated since signals were generated at 08:30.
+        trade_name = trade.get('name', '')
+        try:
+            _earnings_raw = safe_read(EARNINGS_FILE, [])
+            if isinstance(_earnings_raw, list):
+                _earnings_blocked = [d['name'] if isinstance(d, dict) else d for d in _earnings_raw]
+            elif isinstance(_earnings_raw, dict):
+                _earnings_blocked = list(_earnings_raw.keys())
+            else:
+                _earnings_blocked = []
+        except Exception:
+            _earnings_blocked = []
+
+        try:
+            _news_blocked = safe_read(NEWS_FILE, [])
+            if not isinstance(_news_blocked, list):
+                _news_blocked = list(_news_blocked) if _news_blocked else []
+        except Exception:
+            _news_blocked = []
+
+        if trade_name in _earnings_blocked:
+            trade['status'] = 'CANCELLED'
+            trade['notes']  = 'Earnings block detected at execution time — skipped'
+            send_telegram(
+                f"⚠️ QUEUE TRADE SKIPPED — EARNINGS BLOCK\n\n"
+                f"{trade_name}\n"
+                f"Earnings flag detected since signal was queued. Order not placed."
+            )
+            print(f"  Earnings block at execution: {trade_name} — cancelled")
+            continue
+
+        if trade_name in _news_blocked:
+            trade['status'] = 'CANCELLED'
+            trade['notes']  = 'News block detected at execution time — skipped'
+            send_telegram(
+                f"⚠️ QUEUE TRADE SKIPPED — NEWS BLOCK\n\n"
+                f"{trade_name}\n"
+                f"News flag detected since signal was queued. Order not placed."
+            )
+            print(f"  News block at execution: {trade_name} — cancelled")
+            continue
+
         # Save as pending signal and execute
         signal = {
             'name':        trade['name'],
@@ -250,6 +423,24 @@ def execute_queue():
         if result.returncode == 0:
             trade['status']      = 'EXECUTED'
             trade['executed_at'] = now.isoformat()
+
+            # Verify position actually appeared in positions file
+            _ticker = trade.get('t212_ticker', '')
+            try:
+                _pos_data = safe_read(POSITIONS_FILE, [])
+                if isinstance(_pos_data, dict):
+                    _pos_data = _pos_data.get('positions', [])
+                _pos_tickers = {p.get('t212_ticker', '') for p in _pos_data if isinstance(p, dict)}
+                if _ticker and _ticker not in _pos_tickers:
+                    trade['status'] = 'FAILED'
+                    trade['error']  = 'Subprocess returned 0 but position not found in apex-positions.json'
+                    failed.append(trade)
+                    log_warning(f"Queue: {trade['name']} ({_ticker}) — executor returned success but position missing from positions file")
+                    print(f"⚠️ Position verification failed: {trade['name']} — marking FAILED")
+                    continue
+            except Exception as _ve:
+                log_warning(f"Queue: could not verify position for {trade['name']}: {_ve}")
+
             executed.append(trade)
             print(f"✅ Executed: {trade['name']}")
             # Increment autopilot trade counters so dashboard reflects queue executions
@@ -262,7 +453,8 @@ def execute_queue():
                 ap['last_action_ts']          = now.isoformat()
                 atomic_write(AUTOPILOT_FILE, ap)
             except Exception as _e:
-                print(f"Warning: could not update autopilot counters: {_e}")
+                log_warning(f"Autopilot counter write failed — trades_today may be stale: {_e}")
+                send_telegram(f"⚠️ Autopilot counter write failed — max_trades_per_day gate may be inaccurate.\n{_e}")
         else:
             stderr = result.stderr or ''
             # Detect T212 instrument-invisible — permanent block (MiFID II restriction or

@@ -107,7 +107,14 @@ def load_positions():
 
 def save_positions(updated_positions):
     """Write positions atomically under file lock, merging our changes into
-    the latest on-disk state so concurrent writers don't lose each other's work."""
+    the latest on-disk state so concurrent writers don't lose each other's work.
+
+    Race condition guard: if the on-disk stop_order_id differs from the one we
+    loaded (e.g. broker-watchdog placed a new stop between our load and save),
+    keep the on-disk version — it is guaranteed to be newer than the stale ID
+    we have in memory.  This prevents trailing-stop from overwriting a freshly
+    placed watchdog stop with a stale order ID.
+    """
     our_map = {p.get('t212_ticker'): p for p in updated_positions}
     def _merge(current):
         current = current or []
@@ -116,7 +123,14 @@ def save_positions(updated_positions):
         for p in current:
             t = p.get('t212_ticker')
             if t in our_map:
-                merged.append(our_map[t])   # use our updated version
+                updated = our_map[t]
+                # If on-disk has a different (newer) stop_order_id, keep it.
+                disk_sid = p.get('stop_order_id', '')
+                our_sid  = updated.get('stop_order_id', '')
+                if disk_sid and disk_sid != our_sid:
+                    updated = dict(updated)  # copy to avoid mutating original
+                    updated['stop_order_id'] = disk_sid
+                merged.append(updated)
             else:
                 merged.append(p)            # preserve untouched positions
             seen.add(t)
@@ -141,12 +155,27 @@ def cancel_stop_order(stop_order_id):
     result = t212_request(f'/equity/orders/{stop_order_id}', method='DELETE')
     return result is not None
 
-def place_stop_order(ticker, quantity, stop_price):
-    neg_qty = round(float(quantity) * -1, 8)
+def _to_t212_price(price, currency):
+    """
+    Convert a signal price (stored in £/$ pounds) to the T212 API unit.
+    GBX instruments (LSE pence-quoted) require ×100 before API submission.
+    """
+    if currency == 'GBX':
+        return round(float(price) * 100, 2)
+    return round(float(price), 4)
+
+
+def place_stop_order(ticker, quantity, stop_price, currency='GBP'):
+    """
+    Place a GTC stop-sell order.
+    currency: 'GBX' instruments require price in pence (×100) for T212 API.
+    """
+    neg_qty    = round(float(quantity) * -1, 8)
+    t212_price = _to_t212_price(stop_price, currency)
     data = t212_request('/equity/orders/stop', method='POST', payload={
         "ticker":       ticker,
         "quantity":     neg_qty,
-        "stopPrice":    round(float(stop_price), 4),
+        "stopPrice":    t212_price,
         "timeValidity": "GOOD_TILL_CANCEL",
     })
     if data is None:
@@ -294,6 +323,7 @@ def run():
         target1   = float(pos.get('target1', 0))
         target2   = float(pos.get('target2', 0))
         quantity  = float(pos.get('quantity', 0))
+        currency  = pos.get('currency', 'GBP')
         stop_id   = pos.get('stop_order_id', '')
         t1_hit    = pos.get('t1_hit', False)
         t2_hit    = pos.get('t2_hit', False)
@@ -384,6 +414,18 @@ def run():
         elif not t1_hit and current >= target1:
             # Per-position fraction: trajectory insights may override if T2 runner profile
             pos_fraction  = _sortino_partial_fraction(pos)
+            # LLM exit timing — may adjust fraction based on news/regime context
+            try:
+                import importlib.util as _ilu_et
+                _spec_et = _ilu_et.spec_from_file_location(
+                    'exit_timing', '/home/ubuntu/.picoclaw/scripts/apex-llm-exit-timing.py')
+                _et_mod = _ilu_et.module_from_spec(_spec_et)
+                _spec_et.loader.exec_module(_et_mod)
+                pos_fraction, _et_reason = _et_mod.get_exit_fraction(pos, pos_fraction)
+                if _et_reason not in ('flag_disabled', 'not_applicable', 'timing_error'):
+                    print(f"  LLM exit timing: {int(pos_fraction*100)}% — {_et_reason}")
+            except Exception as _et_e:
+                print(f"  LLM exit timing skipped (non-blocking): {_et_e}")
             close_fraction = pos_fraction
             sell_qty      = round(quantity * close_fraction, 8)
             remaining_qty = round(quantity - sell_qty, 8)
@@ -404,7 +446,7 @@ def run():
             # Minimum: entry (breakeven), in case current is only just above T1
             ratchet_stop  = round(entry + 0.5 * (current - entry), 4)
             ratchet_stop  = max(ratchet_stop, entry)  # Never below breakeven
-            new_stop_id   = place_stop_order(ticker, remaining_qty, ratchet_stop)
+            new_stop_id   = place_stop_order(ticker, remaining_qty, ratchet_stop, currency=currency)
             print(f"  Partial close: {partial_id} | Ratchet stop @ £{ratchet_stop}: {new_stop_id}")
 
             # Step 4: Update position record
@@ -458,7 +500,7 @@ def run():
                 # Cancel old stop, place ratcheted one
                 if stop_id:
                     cancel_stop_order(stop_id)
-                new_stop_id = place_stop_order(ticker, quantity, new_ratchet)
+                new_stop_id = place_stop_order(ticker, quantity, new_ratchet, currency=currency)
                 if new_stop_id:
                     pos['trailing_stop_level'] = new_ratchet
                     pos['stop']                = new_ratchet

@@ -212,6 +212,102 @@ def effective_dimensionality(matrix: dict, layer_list: list) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Pairwise Causal Ablation (P6)
+# ---------------------------------------------------------------------------
+
+def _rank(values: list) -> list:
+    """Assign ordinal ranks to a list of values (ascending). Ties get distinct ranks."""
+    indexed = sorted(enumerate(values), key=lambda x: x[1])
+    ranks = [0] * len(values)
+    for rank, (orig_idx, _) in enumerate(indexed):
+        ranks[orig_idx] = rank
+    return ranks
+
+
+def pairwise_interaction_analysis(matrix: dict, layer_list: list, corr_matrix: dict) -> dict:
+    """Test whether correlated layer pairs provide independent or redundant information (P6).
+
+    For each pair with |r| >= 0.50, measures:
+    - Co-activation rate: how often both fire in the same direction
+    - Rank stability: does removing one layer change the signal ranking?
+
+    Verdict:
+    - REDUNDANT: co_activation > 0.70 AND rank barely changes without either layer
+    - LIKELY_REDUNDANT: co_activation > 0.50
+    - COMPLEMENTARY: correlated but provide different ranking information
+
+    Returns dict with categorized pairs and recommendations.
+    """
+    keys = list(matrix.keys())
+    if len(keys) < 3:
+        return {'pairs_tested': 0, 'redundant': [], 'likely_redundant': [], 'complementary': []}
+
+    tested_pairs = []
+    for i, la in enumerate(layer_list):
+        for j, lb in enumerate(layer_list):
+            if j <= i:
+                continue
+            r = corr_matrix.get((la, lb), corr_matrix.get((lb, la), 0.0))
+            if abs(r) < 0.50:
+                continue
+
+            # Co-activation: how often do both fire in the same direction?
+            both_same = 0
+            either_active = 0
+            for k in keys:
+                va = matrix[k].get(la, 0)
+                vb = matrix[k].get(lb, 0)
+                if va != 0 or vb != 0:
+                    either_active += 1
+                    if (va > 0 and vb > 0) or (va < 0 and vb < 0):
+                        both_same += 1
+            co_activation = round(both_same / max(either_active, 1), 3)
+
+            # Rank stability: does removing la or lb change signal ranking?
+            scores_with    = [sum(matrix[k].get(l, 0) for l in layer_list) for k in keys]
+            scores_minus_a = [s - matrix[k].get(la, 0) for s, k in zip(scores_with, keys)]
+            scores_minus_b = [s - matrix[k].get(lb, 0) for s, k in zip(scores_with, keys)]
+
+            rank_with    = _rank(scores_with)
+            rank_minus_a = _rank(scores_minus_a)
+            rank_minus_b = _rank(scores_minus_b)
+
+            stab_a = _pearson(rank_with, rank_minus_a) if len(rank_with) > 2 else 1.0
+            stab_b = _pearson(rank_with, rank_minus_b) if len(rank_with) > 2 else 1.0
+
+            # Verdict logic
+            if co_activation > 0.70 and min(stab_a, stab_b) > 0.95:
+                verdict = 'REDUNDANT'
+                rec = f'Consider merging {la}+{lb} into one layer or removing the weaker one'
+            elif co_activation > 0.50:
+                verdict = 'LIKELY_REDUNDANT'
+                rec = f'Monitor {la}+{lb} — review if a new layer is added that also overlaps'
+            else:
+                verdict = 'COMPLEMENTARY'
+                rec = f'{la} and {lb} provide independent ranking signal despite correlation'
+
+            tested_pairs.append({
+                'layer_a':               la,
+                'layer_b':               lb,
+                'correlation':           round(r, 4),
+                'co_activation_rate':    co_activation,
+                'rank_stability_drop_a': round(stab_a, 4),
+                'rank_stability_drop_b': round(stab_b, 4),
+                'verdict':               verdict,
+                'recommendation':        rec,
+            })
+
+    tested_pairs.sort(key=lambda x: abs(x['correlation']), reverse=True)
+    return {
+        'pairs_tested':    len(tested_pairs),
+        'redundant':       [p for p in tested_pairs if p['verdict'] == 'REDUNDANT'],
+        'likely_redundant':[p for p in tested_pairs if p['verdict'] == 'LIKELY_REDUNDANT'],
+        'complementary':   [p for p in tested_pairs if p['verdict'] == 'COMPLEMENTARY'],
+        'all_pairs':       tested_pairs,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Main Report
 # ---------------------------------------------------------------------------
 def run(summary_only: bool = False):
@@ -313,6 +409,25 @@ def run(summary_only: bool = False):
     else:
         print(f"\n    LOW REDUNDANCY: layers are largely independent.")
 
+    # --- Pairwise interaction analysis (P6) ---
+    interaction = pairwise_interaction_analysis(matrix, layer_list, corr)
+    if interaction['pairs_tested'] > 0:
+        print(f"\n  Pairwise Interaction Analysis ({interaction['pairs_tested']} pairs with |r|≥0.50):")
+        if interaction['redundant']:
+            print(f"    REDUNDANT ({len(interaction['redundant'])} pairs):")
+            for p in interaction['redundant']:
+                print(f"      {p['layer_a']:12} ↔ {p['layer_b']:12}  r={p['correlation']:+.3f}  "
+                      f"co-act={p['co_activation_rate']:.0%}  → {p['recommendation']}")
+        if interaction['likely_redundant']:
+            print(f"    LIKELY REDUNDANT ({len(interaction['likely_redundant'])} pairs):")
+            for p in interaction['likely_redundant'][:5]:
+                print(f"      {p['layer_a']:12} ↔ {p['layer_b']:12}  r={p['correlation']:+.3f}  "
+                      f"co-act={p['co_activation_rate']:.0%}")
+        if interaction['complementary']:
+            print(f"    COMPLEMENTARY ({len(interaction['complementary'])} pairs — keep both)")
+    else:
+        print(f"\n  Pairwise Interaction Analysis: no pairs with |r|≥0.50 found")
+
     # --- Full correlation matrix ---
     if not summary_only and n_layers <= 20:
         print(f"\n  Full Correlation Matrix:")
@@ -334,19 +449,20 @@ def run(summary_only: bool = False):
 
     # --- Save output ---
     output = {
-        'timestamp':        now.strftime('%Y-%m-%d %H:%M UTC'),
-        'n_signals':        n_signals,
-        'n_layers':         n_layers,
-        'layers':           layer_list,
-        'low_data_warning': low_data,
-        'activation':       activation,
-        'effective_dims':   eff,
-        'high_corr_pairs':  [{'la': la, 'lb': lb, 'r': r}
-                              for r, la, lb in high_pairs],
-        'medium_corr_pairs': [{'la': la, 'lb': lb, 'r': r}
-                               for r, la, lb in medium_pairs],
-        'all_pairs': [{'la': la, 'lb': lb, 'r': r}
-                      for (_, r, la, lb) in sorted(pairs, key=lambda x: -abs(x[0]))],
+        'timestamp':          now.strftime('%Y-%m-%d %H:%M UTC'),
+        'n_signals':          n_signals,
+        'n_layers':           n_layers,
+        'layers':             layer_list,
+        'low_data_warning':   low_data,
+        'activation':         activation,
+        'effective_dims':     eff,
+        'interaction_analysis': interaction,
+        'high_corr_pairs':    [{'la': la, 'lb': lb, 'r': r}
+                                for r, la, lb in high_pairs],
+        'medium_corr_pairs':  [{'la': la, 'lb': lb, 'r': r}
+                                for r, la, lb in medium_pairs],
+        'all_pairs':          [{'la': la, 'lb': lb, 'r': r}
+                                for (_, r, la, lb) in sorted(pairs, key=lambda x: -abs(x[0]))],
     }
 
     try:

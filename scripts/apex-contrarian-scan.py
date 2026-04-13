@@ -54,7 +54,10 @@ CURRENCY_MAP = {
 }
 
 def fix_pence(price, currency):
-    if currency == "GBX" and price > 100:
+    # yfinance ALWAYS returns .L tickers in GBX (pence). Always divide by 100.
+    # The old `price > 100` guard broke for stocks trading below 100p (£1) —
+    # exactly the distressed names that contrarian logic targets.
+    if currency == "GBX":
         return round(price / 100, 2)
     return price
 
@@ -116,8 +119,7 @@ def score_contrarian(name, yahoo_ticker, currency, quality_score):
         score = 0
         reasons = []
 
-        # RSI must show genuine capitulation for contrarian entry.
-        # RSI 30-38 is just "slightly weak" — not a real oversold signal.
+        # RSI scoring — capitulation depth determines score weight
         if rsi <= 20:
             score += 4
             reasons.append(f"RSI {rsi} — extreme oversold, capitulation likely")
@@ -127,6 +129,9 @@ def score_contrarian(name, yahoo_ticker, currency, quality_score):
         elif rsi <= 30:
             score += 2
             reasons.append(f"RSI {rsi} — oversold")
+        elif rsi <= 38:
+            score += 1
+            reasons.append(f"RSI {rsi} — weakening momentum, pullback candidate")
 
         # Significant discount from 52-week high
         if discount_pct >= 25:
@@ -183,12 +188,44 @@ def score_contrarian(name, yahoo_ticker, currency, quality_score):
     except Exception as e:
         return None
 
+POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
+
+def _held_tickers():
+    """Return set of short names already held (status not cancelled/failed)."""
+    try:
+        with open(POSITIONS_FILE) as _f:
+            positions = json.load(_f)
+        if not isinstance(positions, list):
+            return set()
+        active_statuses = {'awaiting_fill', 'entry_placed', 'protected', 'unprotected', 'pending'}
+        held = set()
+        for p in positions:
+            if p.get('status') in active_statuses:
+                # Use the short name key that matches YAHOO_MAP / quality_stocks keys
+                _name = p.get('name', '')
+                _ticker = p.get('t212_ticker', '')
+                # Derive short name from ticker (e.g. "ULVR_EQ" → "ULVR", "ULVRl_EQ" → "ULVR")
+                _short = _ticker.replace('_US_EQ', '').replace('_EQ', '').rstrip('l')
+                if _name:
+                    held.add(_name)
+                if _short:
+                    held.add(_short)
+        return held
+    except Exception:
+        return set()
+
+
 def run():
     with open(QUALITY_FILE) as f:
         quality_db = json.load(f)
 
     geo_favs = load_geo_favourites()
     quality  = quality_db['quality_stocks']
+
+    # Exclude instruments we already hold — no point generating signals for them
+    held = _held_tickers()
+    if held:
+        print(f"Excluding held positions from scan: {', '.join(sorted(held))}", flush=True)
 
     results  = []
     geo_opps = []
@@ -199,6 +236,11 @@ def run():
         # Skip value traps identified in backtest
         if data.get('contrarian_skip', False):
             print(f"  {name}... SKIPPED (backtest: {data.get('contrarian_note','')})", flush=True)
+            continue
+
+        # Skip instruments we already hold
+        if name in held:
+            print(f"  {name}... SKIPPED (already held)", flush=True)
             continue
 
         yahoo   = YAHOO_MAP.get(name, name)

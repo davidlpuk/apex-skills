@@ -7,6 +7,7 @@ Runs at 08:30 daily, replacing apex-morning-scan.sh
 import json
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 import sys as _sys
 _sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
@@ -293,7 +294,7 @@ def score_signal_with_intelligence(signal, intel):
                 'GSK.L':'GSK_EQ','ULVR.L':'ULVR_EQ',
                 'HSBA.L':'HSBA_EQ','SHEL.L':'SHEL_EQ',
                 'VUAG.L':'VUAGl_EQ','QQQS.L':'QQQSl_EQ',
-                'SQQQ':'SQQQ_EQ','SPXU':'SPXU_EQ',
+                'SQQQ':'QQQSl_EQ','SPXU':'SPXU_EQ',
             }
             _macro_ticker = _YAHOO_TO_T212.get(_yahoo_ticker, _yahoo_ticker)
             _macro_adj, _macro_reasons = _mac.get_macro_adjustment(
@@ -679,11 +680,31 @@ def run_trend_scan():
         return []
     try:
         data = json.loads(output[start + len('=== FULL DATA ==='):].strip())
-        return [x for x in data if x.get('total_score', 0) >= 6 and 'error' not in x]
+        # MIN_SIGNAL_SCORE is set dynamically in run() from apex-scoring-weights.json;
+        # fall back to 6 here (pre-run calls, tests, standalone invocations).
+        _min = globals().get('MIN_SIGNAL_SCORE', 6)
+        return [x for x in data if x.get('total_score', 0) >= _min and 'error' not in x]
     except Exception:
         return []
 
 def run_contrarian_scan(intel):
+    # Avoid double-scan yfinance rate-limiting: when the intraday refresh just ran
+    # apex-contrarian-scan.py (writing the file), running it again as a subprocess
+    # immediately after hits yfinance rate limits and returns 0 candidates.
+    # Use the cached file if it is fresh (< 15 min), otherwise re-run the scan.
+    _CSIG_FILE = '/home/ubuntu/.picoclaw/logs/apex-contrarian-signals.json'
+    try:
+        import os as _os
+        _mtime = _os.path.getmtime(_CSIG_FILE)
+        _age_s = time.time() - _mtime
+        if _age_s < 1200:  # file written < 20 min ago — use it directly
+            _cached = safe_read(_CSIG_FILE, [])
+            if isinstance(_cached, list) and _cached:
+                print(f"  [contrarian scan] using cached file ({int(_age_s)}s old)", flush=True)
+                return [x for x in _cached if x.get('contrarian_score', 0) >= 5 and 'error' not in x]
+    except Exception:
+        pass
+
     result = subprocess.run(
         ['python3', '/home/ubuntu/.picoclaw/scripts/apex-contrarian-scan.py'],
         capture_output=True, text=True, timeout=300
@@ -739,152 +760,7 @@ def is_blocked(signal, intel):
 
     return blocks
 
-# ============================================================
-# LAYER 6 — POSITION SIZING WITH FULL CONTEXT
-# ============================================================
-
-def calculate_final_position(signal, intel):
-    entry = float(signal.get('entry', signal.get('price', 0)))
-    stop  = float(signal.get('stop', entry * 0.94))
-
-    if entry <= 0 or stop <= 0:
-        return 1, 50
-
-    risk_per_share = entry - stop
-    if risk_per_share <= 0:
-        return 1, entry
-
-    # Continuous regime scaling — replaces binary VIX thresholds
-    try:
-        import importlib.util as _ilu
-        _spec = _ilu.spec_from_file_location("rs", "/home/ubuntu/.picoclaw/scripts/apex-regime-scaling.py")
-        _rs   = _ilu.module_from_spec(_spec)
-        _spec.loader.exec_module(_rs)
-        regime_scale = _rs.get_scale_for_signal(signal.get('signal_type','TREND'))
-    except Exception:
-        regime_scale = 0.5
-
-    # RSI-conviction boost for CONTRARIAN signals
-    # Deep oversold (RSI < 25) is HIGHER conviction, not lower.
-    # The regime scale penalises all signals equally — override for extreme readings.
-    # RSI < 25: +0.10  RSI < 20: +0.20  RSI < 15: +0.30  RSI < 10: force 1.0
-    _sig_rsi = float(signal.get('rsi', 50))
-    if signal.get('signal_type') == 'CONTRARIAN' and 0 < _sig_rsi < 25:
-        if _sig_rsi < 10:
-            _rsi_boost = 1.0 - regime_scale   # Force to 1.0
-            print(f"  RSI {_sig_rsi:.1f} < 10 — extreme oversold, CONTRARIAN scale forced to 1.0")
-        elif _sig_rsi < 15:
-            _rsi_boost = 0.30
-            print(f"  RSI {_sig_rsi:.1f} < 15 — severe oversold, CONTRARIAN scale +0.30")
-        elif _sig_rsi < 20:
-            _rsi_boost = 0.20
-            print(f"  RSI {_sig_rsi:.1f} < 20 — deep oversold, CONTRARIAN scale +0.20")
-        else:
-            _rsi_boost = 0.10
-            print(f"  RSI {_sig_rsi:.1f} < 25 — oversold, CONTRARIAN scale +0.10")
-        regime_scale = min(1.0, regime_scale + _rsi_boost)
-
-    # Risk budget: 1% of live portfolio value, scaled by regime
-    # Falls back to £50 if portfolio value unavailable
-    portfolio_value = get_portfolio_value() or 5000
-    risk_pct        = 0.0175 # 2026-04-07: 1% → 1.75% to fix cash drag (still well below 1/4-Kelly)
-    base_risk       = round(portfolio_value * risk_pct * regime_scale, 2)
-    # Floor: £5 (avoid sub-penny qty), ceiling: 1.5% of portfolio
-    base_risk       = max(5.0, min(portfolio_value * 0.025, base_risk))
-
-    vix = intel['vix']  # Keep for reference
-
-    # Score conviction
-    score     = signal.get('adjusted_score', signal.get('total_score', 7))
-    max_score = 12  # With boosts, max possible
-    conviction = score / max_score
-
-    # Signal type
-    if signal.get('signal_type') == 'CONTRARIAN':
-        conviction *= 0.8
-    elif signal.get('signal_type') == 'EARNINGS_DRIFT':
-        conviction *= 1.1
-    elif signal.get('signal_type') == 'DIVIDEND_CAPTURE':
-        conviction *= 0.9
-
-    # Performance + momentum feedback from position sizer module
-    try:
-        from apex_position_sizer import _performance_multiplier, _momentum_multiplier
-        _perf_m = _performance_multiplier()
-        _mom_m  = _momentum_multiplier()
-        _combined_feedback = max(0.5, min(1.5, _perf_m * _mom_m))
-    except Exception:
-        _perf_m = _mom_m = _combined_feedback = 1.0
-
-    # Drawdown adjustment (intel['size_multiplier'] is the drawdown multiplier)
-    risk_amount = base_risk * conviction * _combined_feedback * intel['size_multiplier']
-    # Floor £5, ceiling 1.5% of portfolio
-    risk_amount = max(5.0, min(portfolio_value * 0.025, round(risk_amount, 2)))
-
-    # ── Kelly Criterion overlay ────────────────────────────────────────
-    # Load the Kelly recommendation from apex-thorp-test.py.
-    # When using backtest priors: Kelly acts as a soft cap (don't exceed by >20%).
-    # When using real trade data (50+ trades): Kelly recommended_risk used directly.
-    # On negative Kelly (no edge): signal is still allowed but sized at minimum.
-    try:
-        import importlib.util as _ilu_k
-        _spec_k = _ilu_k.spec_from_file_location(
-            "thorp", "/home/ubuntu/.picoclaw/scripts/apex-thorp-test.py")
-        _thorp = _ilu_k.module_from_spec(_spec_k)
-        _spec_k.loader.exec_module(_thorp)
-        _kelly = _thorp.calculate_optimal_size(signal, portfolio_value)
-
-        if _kelly and _kelly.get('verdict') != 'ABORT':
-            kelly_risk    = _kelly['recommended_risk']
-            using_prior   = _kelly['using_prior']
-
-            if not using_prior:
-                # Real data — use Kelly directly, keep conviction & regime scaling
-                risk_amount = round(min(risk_amount, kelly_risk), 2)
-                log_info(f"Kelly (real data, {_kelly['sample_count']} trades): "
-                         f"£{kelly_risk} → using £{risk_amount}")
-            else:
-                # Priors — use Kelly as a soft cap (allow up to 120% of Kelly prior)
-                kelly_soft_cap = round(kelly_risk * 1.2, 2)
-                if risk_amount > kelly_soft_cap:
-                    risk_amount = kelly_soft_cap
-                    log_info(f"Kelly (prior): soft-capped risk at £{risk_amount}")
-
-        elif _kelly and _kelly.get('verdict') == 'ABORT':
-            # Negative Kelly — still trade but at minimum size (no mathematical edge)
-            risk_amount = max(5.0, portfolio_value * 0.002)
-            log_warning(f"Kelly ABORT for {signal.get('name','?')}: "
-                        f"{_kelly.get('verdict_reason','')} — sizing at minimum")
-
-    except Exception as _ke:
-        log_error(f"Kelly overlay failed (non-fatal): {_ke}")
-    # ── end Kelly overlay ──────────────────────────────────────────────
-
-    qty      = round(risk_amount / risk_per_share, 2)
-    notional = round(qty * entry, 2)
-
-    # Cap notional at 8% of portfolio
-    max_notional = portfolio_value * 0.08
-    if notional > max_notional:
-        qty      = round(max_notional / entry, 2)
-        notional = round(qty * entry, 2)
-
-    # ── Cash reserve enforcement ───────────────────────────────────────
-    # Never commit more than 90% of free cash to a single trade.
-    # Protects against limit orders tying up all available capital.
-    try:
-        free_cash      = get_free_cash() or portfolio_value * 0.3
-        cash_available = round(free_cash * 0.90, 2)
-        if notional > cash_available and cash_available > 0:
-            qty      = round(cash_available / entry, 2)
-            notional = round(qty * entry, 2)
-            log_info(f"Cash reserve cap: notional reduced to £{notional} "
-                     f"(90% of £{free_cash:.2f} free cash)")
-    except Exception as _ce:
-        log_error(f"Cash reserve check failed (non-fatal): {_ce}")
-    # ── end cash reserve ───────────────────────────────────────────────
-
-    return qty, notional
+# LAYER 6 — POSITION SIZING: apex_sizer.calculate_final_position() (imported line 19)
 
 # ============================================================
 # LAYER 7 — SAVE SIGNAL AND NOTIFY
@@ -893,8 +769,8 @@ def calculate_final_position(signal, intel):
 def save_and_notify(signal, intel, qty, notional):
     name        = signal.get('name', '?')
     signal_type = signal.get('signal_type', 'TREND')
-    entry       = float(signal.get('entry', signal.get('price', 0)))
-    stop        = float(signal.get('stop', entry * 0.94))
+    entry       = float(signal.get('entry') or signal.get('price') or 0)
+    stop        = float(signal.get('stop') or entry * 0.94)
     score       = signal.get('adjusted_score', signal.get('total_score', 0))
     adjustments = signal.get('adjustments', [])
     rsi         = signal.get('rsi', 0)
@@ -1086,6 +962,58 @@ def log_decision_run(all_signals, blocked_map, qualified, best, intel):
 
 
 # ============================================================
+# REGIME-AWARE SIGNAL PRIORITY (P1)
+# ============================================================
+
+def _regime_priority_bonus(signal, intel):
+    """Return a sort-only bonus that boosts signals matching the current regime (P1 + P8).
+
+    Priority: HMM state (more predictive, probabilistic) → VIX/breadth regime label (fallback).
+    Bonus is confidence-weighted by HMM state probability when using HMM.
+
+    Applied ONLY to signal ranking — never mutates adjusted_score (which drives sizing/logging).
+    Falls back to 0.0 gracefully if all regime data is unavailable.
+    """
+    sig_type = signal.get('signal_type', 'TREND')
+
+    # ── HMM-derived priority (P8) ────────────────────────────────────────────
+    # Priority matrix: HMM state -> {signal_type: sort bonus}
+    HMM_PRIORITY = {
+        'TRENDING':       {'TREND': 2.0, 'EARNINGS_DRIFT': 1.5, 'CONTRARIAN': -1.0, 'INVERSE': -2.0, 'DIVIDEND_CAPTURE': 1.0},
+        'MEAN_REVERTING': {'TREND': -0.5,'EARNINGS_DRIFT': 0.0, 'CONTRARIAN': 2.0,  'INVERSE': 0.5,  'DIVIDEND_CAPTURE': 0.5},
+        'CRISIS':         {'TREND': -3.0,'EARNINGS_DRIFT': -2.0,'CONTRARIAN': 1.0,  'INVERSE': 3.0,  'DIVIDEND_CAPTURE': -1.0},
+    }
+
+    try:
+        hmm_data = safe_read('/home/ubuntu/.picoclaw/logs/apex-regime-hmm.json', {})
+        if hmm_data.get('available'):
+            hmm_state = hmm_data.get('current_state', 'UNKNOWN')
+            if hmm_state in HMM_PRIORITY:
+                raw_bonus = HMM_PRIORITY[hmm_state].get(sig_type, 0.0)
+                # Weight bonus by state probability — reduce when HMM is uncertain
+                state_prob = hmm_data.get('state_probabilities', {}).get(hmm_state, 0.5)
+                return round(raw_bonus * float(state_prob), 2)
+    except Exception:
+        pass
+
+    # ── Fallback: VIX/breadth regime label (P1) ─────────────────────────────
+    LABEL_PRIORITY = {
+        'FAVOURABLE': {'TREND': 2.0, 'EARNINGS_DRIFT': 1.5, 'CONTRARIAN': -0.5, 'INVERSE': -2.0, 'DIVIDEND_CAPTURE': 1.0},
+        'NEUTRAL':    {'TREND': 1.0, 'EARNINGS_DRIFT': 1.0, 'CONTRARIAN': 0.5,  'INVERSE': -1.0, 'DIVIDEND_CAPTURE': 0.5},
+        'CAUTIOUS':   {'TREND': -0.5,'EARNINGS_DRIFT': 0.0, 'CONTRARIAN': 1.5,  'INVERSE': 1.0,  'DIVIDEND_CAPTURE': 0.0},
+        'HOSTILE':    {'TREND': -2.0,'EARNINGS_DRIFT': -1.0,'CONTRARIAN': 2.0,  'INVERSE': 2.0,  'DIVIDEND_CAPTURE': -0.5},
+        'BLOCKED':    {'TREND': -3.0,'EARNINGS_DRIFT': -2.0,'CONTRARIAN': 2.0,  'INVERSE': 2.5,  'DIVIDEND_CAPTURE': -1.0},
+    }
+
+    try:
+        regime_data = safe_read('/home/ubuntu/.picoclaw/logs/apex-regime-scaling.json', {})
+        label = regime_data.get('regime_label', 'NEUTRAL')
+        return LABEL_PRIORITY.get(label, {}).get(sig_type, 0.0)
+    except Exception:
+        return 0.0
+
+
+# ============================================================
 # MAIN — ORCHESTRATED DECISION PASS
 # ============================================================
 
@@ -1185,6 +1113,21 @@ def run():
     intel = gather_intelligence()
 
     print(f"  Regime:    {intel['regime_status']} | VIX {intel['vix']} | Breadth {intel['breadth']}%")
+
+    # ── Regime-locked score threshold (loaded from apex-scoring-weights.json) ──
+    # Replaces the hardcoded MIN_SIGNAL_SCORE=6 from apex_config.py.
+    # Raises the entry bar in CAUTIOUS (7.0) and HOSTILE (8.0) regimes so only
+    # high-conviction signals qualify when market conditions are adverse.
+    _WEIGHTS_FILE = '/home/ubuntu/.picoclaw/logs/apex-scoring-weights.json'
+    _regime_label = intel.get('regime_status', 'NEUTRAL')
+    try:
+        _wts = safe_read(_WEIGHTS_FILE, {})
+        _score_map = _wts.get('min_score_by_regime', {})
+        MIN_SIGNAL_SCORE = float(_score_map.get(_regime_label,
+                                 _score_map.get('NEUTRAL', 6.0)))
+    except Exception:
+        MIN_SIGNAL_SCORE = 6.0
+    print(f"  Min score threshold: {MIN_SIGNAL_SCORE} (regime: {_regime_label})")
     print(f"  Geo:       {intel['geo_status']}")
     print(f"  Direction: {intel['direction_status']}")
     print(f"  Drawdown:  {intel['drawdown_pct']}% ({intel['drawdown_status']})")
@@ -1254,6 +1197,9 @@ def run():
         all_signals.append(scored)
 
     for s in drift_signals:
+        if not s.get('price'):
+            print(f"  ⚠️ {s.get('name','?')} skipped — null price (yfinance data gap)")
+            continue
         s['signal_type'] = 'EARNINGS_DRIFT'
         scored = score_signal_with_intelligence(s, intel)
         all_signals.append(scored)
@@ -1296,8 +1242,26 @@ def run():
 
     print(f"  {len(qualified)} qualified | {len(blocked_map)} blocked")
 
-    # Sort by adjusted score
-    qualified.sort(key=lambda x: x.get('adjusted_score', 0), reverse=True)
+    # Sort by adjusted score + regime-aware priority bonus (P1)
+    # Bonus stored on each signal for audit trail; adjusted_score itself is NOT mutated.
+    for _sig in qualified:
+        _sig['regime_priority_bonus'] = _regime_priority_bonus(_sig, intel)
+    qualified.sort(
+        key=lambda x: x.get('adjusted_score', 0) + x.get('regime_priority_bonus', 0.0),
+        reverse=True
+    )
+
+    # ── LLM tiebreaker — re-rank when top signals are within 0.8 pts ──────────
+    try:
+        _tb_mod = _load_module('tiebreaker', f'{SCRIPTS}/apex-llm-tiebreaker.py')
+        if _tb_mod:
+            _tb_original = qualified[0].get('name', '?') if qualified else '?'
+            qualified    = _tb_mod.rerank_signals(qualified, intel)
+            _tb_new      = qualified[0].get('name', '?') if qualified else '?'
+            if _tb_new != _tb_original:
+                print(f"  Tiebreaker reranked: {_tb_original} → {_tb_new}")
+    except Exception as _tb_e:
+        print(f"  Tiebreaker skipped (non-blocking): {_tb_e}")
 
     # Step 6 — Select best signal
     print("\n[7/7] Selecting best signal...", flush=True)
@@ -1330,10 +1294,24 @@ def run():
         print("  No qualifying signals — defensive mode")
         return
 
-    best = qualified[0]
+    # Try candidates in order — if the best signal fails position sizing/EV, fall through
+    best = None
+    for _candidate in qualified[:3]:
+        _entry_check = _candidate.get('entry') or _candidate.get('price') or 0
+        if not _entry_check:
+            print(f"  ⚠️  {_candidate.get('name','?')} skipped as primary — no valid price")
+            continue
+        best = _candidate
+        break
+    if best is None:
+        print("  No valid primary signal (all candidates have null prices) — defensive mode")
+        return
+
     name = best.get('name', '?')
 
-    print(f"  Best signal: {best.get('name','?')} | Score: {best.get('adjusted_score',0)}/10 (raw:{best.get('raw_score',0)} | {best.get('confidence_pct',0)}% confidence) | Type: {best.get('signal_type','')}")
+    _rpb = best.get('regime_priority_bonus', 0.0)
+    _rpb_str = f" | regime_bonus:{_rpb:+.1f}" if _rpb != 0.0 else ""
+    print(f"  Best signal: {best.get('name','?')} | Score: {best.get('adjusted_score',0)}/10 (raw:{best.get('raw_score',0)} | {best.get('confidence_pct',0)}% confidence) | Type: {best.get('signal_type','')}{_rpb_str}")
 
     # Print top 5 for reference
     print(f"\n  Top signals considered:")
@@ -1341,13 +1319,15 @@ def run():
         adj = s.get('adjusted_score', 0)
         base = s.get('total_score', s.get('contrarian_score', s.get('score', 0)))
         stype = s.get('signal_type', 'TREND')[:4]
-        print(f"    {i+1}. {s.get('name','?'):8} | {stype} | base:{base} → {adj}/10 (raw:{s.get('raw_score',adj)} | {s.get('confidence_pct',0)}%) | RSI:{s.get('rsi',0)}")
+        _sb = s.get('regime_priority_bonus', 0.0)
+        _sb_str = f" | rpb:{_sb:+.1f}" if _sb != 0.0 else ""
+        print(f"    {i+1}. {s.get('name','?'):8} | {stype} | base:{base} → {adj}/10 (raw:{s.get('raw_score',adj)} | {s.get('confidence_pct',0)}%) | RSI:{s.get('rsi',0)}{_sb_str}")
 
     # Calculate final position size
     qty, notional = calculate_final_position(best, intel)
 
     # Calculate expected value
-    entry  = float(best.get('entry', best.get('price', 0)))
+    entry  = float(best.get('entry') or best.get('price') or 0)
     name   = best.get('name', '?')
 
     # ATR-based stops — replace fixed 6%
@@ -1377,22 +1357,26 @@ def run():
         t2   = float(best.get('target2', entry + (entry-stop)*2.5))
 
     ev_mod = _MODULE_CACHE.get('ev', _ev_calc)
+    if ev_mod is None:
+        log_error("EV module failed to load — blocking trade")
+        print("  ❌ EV module unavailable — trade blocked")
+        return
 
     ev_data = ev_mod.calculate_ev(entry, stop, t1, t2, best.get('signal_type'), qty)
     ev_mod.log_ev(best.get('name','?'), ev_data)
 
-    best['ev']           = ev_data['ev']
-    best['ev_verdict']   = ev_data['verdict']
-    best['r_expectancy'] = ev_data['r_expectancy']
-    best['breakeven_wr'] = ev_data['breakeven_wr']
+    best['ev']           = ev_data.get('ev', 0)
+    best['ev_verdict']   = ev_data.get('verdict', 'UNKNOWN')
+    best['r_expectancy'] = ev_data.get('r_expectancy', 0)
+    best['breakeven_wr'] = ev_data.get('breakeven_wr', 0.5)
 
-    print(f"  EV: £{ev_data['ev']} ({ev_data['verdict']}) | R-expect: {ev_data['r_expectancy']} | Breakeven WR: {round(ev_data['breakeven_wr']*100,1)}%")
+    print(f"  EV: £{best['ev']} ({best['ev_verdict']}) | R-expect: {best['r_expectancy']} | Breakeven WR: {round(best['breakeven_wr']*100,1)}%")
 
     # FX drag advisory — USD instruments face higher EV bar
     if ev_data.get('fx_degraded'):
         _eff_ratio = ev_data.get('effective_min_ev_ratio', 2.0)
-        if ev_data['ev_per_risk'] < _eff_ratio and ev_data['ev_per_risk'] > 0:
-            print(f"  ⚠️  FX drag: USD instrument — EV ratio {ev_data['ev_per_risk']:.2f} < {_eff_ratio:.1f} required (0.30% round-trip FX)")
+        if ev_data.get('ev_per_risk', 0) < _eff_ratio and ev_data.get('ev_per_risk', 0) > 0:
+            print(f"  ⚠️  FX drag: USD instrument — EV ratio {ev_data.get('ev_per_risk', 0):.2f} < {_eff_ratio:.1f} required (0.30% round-trip FX)")
 
     # EV hard gate — active from trade 1 via Bayesian posterior.
     # Blocks only when the verdict is NEGATIVE (ev < -2) AND even the optimistic
@@ -1400,25 +1384,45 @@ def run():
     # At low sample sizes the Beta(0.5,0.5) prior keeps the CI wide, so
     # ev_optimistic stays positive for marginal signals — the gate fires only
     # when the trade is clearly negative-EV under any reasonable win-rate assumption.
-    _ev_optimistic = ev_data.get('ev_optimistic', ev_data['ev'])
-    if ev_data.get('verdict') == 'NEGATIVE' and _ev_optimistic < 0:
+    #
+    # MARGINAL extension: in CAUTIOUS or HOSTILE regimes, also block MARGINAL
+    # signals (EV between -2 and 0). Only trade when positive or neutral EV in
+    # adverse conditions — the market will keep punishing marginal setups.
+    _ev_optimistic = ev_data.get('ev_optimistic', ev_data.get('ev', 0))
+    _ev_regime_strict = _regime_label in ('CAUTIOUS', 'HOSTILE')
+    _ev_marginal_block = (_ev_regime_strict
+                          and ev_data.get('verdict') == 'MARGINAL'
+                          and float(ev_data.get('ev', 0)) < 0)
+    if (ev_data.get('verdict') == 'NEGATIVE' and _ev_optimistic < 0) or _ev_marginal_block:
         name = best.get('name', '?')
         _ci_note = (f"CI: [{ev_data.get('win_rate_ci_lo',0):.2f}–{ev_data.get('win_rate_ci_hi',1):.2f}] win rate"
                     if ev_data.get('ci_width') else "")
+        _ev_block_label = f"MARGINAL in {_regime_label} regime" if _ev_marginal_block else "NEGATIVE under all CI scenarios"
         blocked_map[name] = blocked_map.get(name, []) + [
-            f"EV block: £{ev_data['ev']} (optimistic: £{_ev_optimistic}) — negative under all CI scenarios"
+            f"EV block: £{ev_data['ev']} ({_ev_block_label})"
         ]
         log_decision_run(all_signals, blocked_map, qualified, None, intel)
-        send_telegram(
-            f"❌ EV BLOCK — {name}\n\n"
-            f"Expected value: £{ev_data['ev']} (NEGATIVE)\n"
-            f"Optimistic EV (upper CI): £{_ev_optimistic}\n"
-            f"Sample size: {ev_data['sample_size']} trades {_ci_note}\n"
-            f"R-expectancy: {ev_data['r_expectancy']}R\n\n"
-            f"Signal skipped — negative expected value under all win-rate scenarios.\n"
-            f"Capital preserved."
-        )
-        print(f"  EV BLOCKED: £{ev_data['ev']} (optimistic £{_ev_optimistic}) — NEGATIVE under full CI range")
+        if _ev_marginal_block:
+            send_telegram(
+                f"❌ EV MARGINAL BLOCK — {name}\n\n"
+                f"Expected value: £{ev_data['ev']} (MARGINAL)\n"
+                f"Regime: {_regime_label} — stricter EV bar applies\n"
+                f"R-expectancy: {ev_data['r_expectancy']}R\n\n"
+                f"Marginal EV rejected in adverse market conditions.\n"
+                f"Capital preserved."
+            )
+            print(f"  EV MARGINAL BLOCK: £{ev_data['ev']} — {_regime_label} regime requires positive EV")
+        else:
+            send_telegram(
+                f"❌ EV BLOCK — {name}\n\n"
+                f"Expected value: £{ev_data['ev']} (NEGATIVE)\n"
+                f"Optimistic EV (upper CI): £{_ev_optimistic}\n"
+                f"Sample size: {ev_data['sample_size']} trades {_ci_note}\n"
+                f"R-expectancy: {ev_data['r_expectancy']}R\n\n"
+                f"Signal skipped — negative expected value under all win-rate scenarios.\n"
+                f"Capital preserved."
+            )
+            print(f"  EV BLOCKED: £{ev_data['ev']} (optimistic £{_ev_optimistic}) — NEGATIVE under full CI range")
         return
 
     # INVERSE ETF EV gate — 3x leveraged instruments compound decay cost daily.
@@ -1485,8 +1489,21 @@ def run():
                       f"| E[R]={_sim_result.get('sim_expected_r',0):+.2f} "
                       f"| Day1Stop={_sim_result.get('sim_p_day1_stop',0):.0%}")
                 if _sv == 'FAIL':
-                    print(f"  ⚠️  Rollout FAIL — simulation suggests poor risk structure")
-                    # Advisory penalty, logged but not blocking
+                    _wr_pct  = f"{_sim_result.get('sim_win_rate',0):.0%}"
+                    _d1s_pct = f"{_sim_result.get('sim_p_day1_stop',0):.0%}"
+                    print(f"  ❌ Rollout FAIL — WR={_wr_pct} Day1Stop={_d1s_pct} — trade blocked")
+                    blocked_map[best.get('name','?')] = blocked_map.get(best.get('name','?'), []) + [
+                        f"Rollout FAIL: WR={_wr_pct} Day1Stop={_d1s_pct} — simulated win rate < 30% or excessive day-1 stop risk"
+                    ]
+                    log_decision_run(all_signals, blocked_map, qualified, None, intel)
+                    send_telegram(
+                        f"🚫 ROLLOUT BLOCK — {best.get('name','?')}\n\n"
+                        f"Monte Carlo simulation rejected this trade:\n"
+                        f"  Simulated WR: {_wr_pct} (min: 30%)\n"
+                        f"  Day-1 stop risk: {_d1s_pct} (max: 30%)\n\n"
+                        f"Risk structure too poor — capital preserved."
+                    )
+                    return
     except Exception as _sim_e:
         print(f"  Rollout sim skipped: {_sim_e}")
 
@@ -1516,6 +1533,29 @@ def run():
         print(f"  Position limit reached ({_open_count}/{_max_pos}{_dust_note}) — no new entry")
         return
 
+    # ── LLM pre-entry falling knife filter (CONTRARIAN/GEO_REVERSAL only) ──
+    if best.get('signal_type') in ('CONTRARIAN', 'GEO_REVERSAL'):
+        try:
+            _pf_mod = _load_module('preflight', f'{SCRIPTS}/apex-llm-preflight.py')
+            if _pf_mod:
+                _pf_allow, _pf_reason = _pf_mod.check_preflight(best, intel)
+                print(f"  Preflight: allow={_pf_allow} — {_pf_reason}")
+                if not _pf_allow:
+                    blocked_map[best.get('name', '?')] = blocked_map.get(best.get('name', '?'), []) + [
+                        f"Preflight BLOCK: {_pf_reason}"
+                    ]
+                    log_decision_run(all_signals, blocked_map, qualified, None, intel)
+                    send_telegram(
+                        f"🔪 FALLING KNIFE BLOCK — {best.get('name', '?')}\n\n"
+                        f"Gemini pre-entry filter detected fundamental risk:\n"
+                        f"  {_pf_reason}\n\n"
+                        f"RSI {best.get('rsi', '?')} oversold but fundamental deterioration detected.\n"
+                        f"Capital preserved. Enable LLM OFF preflight_llm to bypass."
+                    )
+                    return
+        except Exception as _pf_e:
+            print(f"  Preflight skipped (non-blocking): {_pf_e}")
+
     # Save and notify
     pending = save_and_notify(best, intel, qty, notional)
     print(f"\n  Signal saved: {pending.get('name')} | {qty} shares @ £{best.get('entry',0)}")
@@ -1538,8 +1578,8 @@ def run():
             _tmap = {}
 
         _queued_count = 0
-        for _runner_up in qualified[1:3]:
-            if _runner_up.get('adjusted_score', 0) < 7.0:
+        for _runner_up in qualified[1:5]:
+            if _runner_up.get('adjusted_score', 0) < MIN_SIGNAL_SCORE:
                 continue
             if _runner_up.get('name') == best.get('name'):
                 continue

@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH=/home/ubuntu/bin:$PATH
 
 source /home/ubuntu/.picoclaw/scripts/apex-telegram.sh
 LOG="/home/ubuntu/.picoclaw/logs/apex-cron.log"
@@ -117,3 +118,5 @@ PYEOF
 
 send_message "$REVIEW"
 echo "$(date): EOD review sent" >> "$LOG"
+echo "$(date): Exporting state to Gist..." >> /home/ubuntu/.picoclaw/logs/apex-cron.log
+/home/ubuntu/bin/python3 /home/ubuntu/.picoclaw/scripts/apex-state-export.py >> /home/ubuntu/.picoclaw/logs/apex-cron.log 2>&1

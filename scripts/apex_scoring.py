@@ -64,7 +64,7 @@ def _load_layer_weights() -> dict:
     # ── Primary: Bayesian learned weights ──────────────────────────
     try:
         learned = safe_read(_LEARNED_WEIGHTS_FILE, {})
-        if learned and learned.get('n_signals_matched', 0) >= 5:  # 2026-04-07: lowered 10→5 to activate with current data
+        if learned and learned.get('n_signals_matched', 0) >= 10:  # 2026-04-13: restored 5→10 — 5 signals too few (30% chance of 60% WR on coin flip)
             layers = learned.get('layers', {})
             weights = {k: v.get('weight', 1.0) for k, v in layers.items()}
             if weights:
@@ -133,6 +133,8 @@ _REDUND_ALIAS = {
     'diverge':        'DIVERGE',
     'revision':       'REVISION',
     'vol_accumulation': 'VOL',
+    'sec_filing':       'SEC_FILING',
+    'sec':              'SEC_FILING',
 }
 _REDUND_ADJ_RE = re.compile(r'^([A-Za-z_\s]+?)\s*:\s*([+-]?\d+(?:\.\d+)?)', re.IGNORECASE)
 
@@ -371,7 +373,7 @@ _YAHOO_TO_T212 = {
     'VUAG.L':'VUAGl_EQ',  'QQQS.L':'QQQSl_EQ',
     'AZN.L':'AZN_EQ',     'SHEL.L':'SHEL_EQ',    'HSBA.L':'HSBA_EQ',
     'GSK.L':'GSK_EQ',     'ULVR.L':'ULVR_EQ',
-    'SQQQ':'SQQQ_EQ',     'SPXU':'SPXU_EQ',
+    'SQQQ':'QQQSl_EQ',    'SPXU':'SPXU_EQ',
 }
 
 def _resolve_tickers(signal):
@@ -469,7 +471,7 @@ def score_signal_with_intelligence(signal, intel):
                 'GSK.L':'GSK_EQ','ULVR.L':'ULVR_EQ',
                 'HSBA.L':'HSBA_EQ','SHEL.L':'SHEL_EQ',
                 'VUAG.L':'VUAGl_EQ','QQQS.L':'QQQSl_EQ',
-                'SQQQ':'SQQQ_EQ','SPXU':'SPXU_EQ',
+                'SQQQ':'QQQSl_EQ','SPXU':'SPXU_EQ',
             }
             _macro_ticker = _YAHOO_TO_T212.get(_yahoo_ticker, _yahoo_ticker)
             _macro_adj, _macro_reasons = _mac.get_macro_adjustment(
@@ -849,7 +851,27 @@ def score_signal_with_intelligence(signal, intel):
         failed_layers.append('ADAPTER')
         log_error(f"Score adapter failed (non-fatal): {_e}")
 
-    # Layer 19: Adversarial exploitation boost
+    # Layer 20: SEC Filing Risk
+    # Reads apex-sec-filing-risk.json (EDGAR 8-K/10-K/10-Q scan, 90-day lookback).
+    # Penalises: going concern (-3), bankruptcy (-3), restatement (-2),
+    # auditor departure (-2), late filing (-2), material termination (-2),
+    # mass officer departures (-1). 24h TTL cache; 48h hard skip.
+    try:
+        import importlib.util as _ilu_sec
+        _spec_sec = _ilu_sec.spec_from_file_location(
+            "sec_filing_risk", f"{_SCRIPTS}/apex-sec-filing-risk.py")
+        _sec = _ilu_sec.module_from_spec(_spec_sec)
+        _spec_sec.loader.exec_module(_sec)
+        _sec_adj, _sec_reasons = _sec.get_sec_filing_adjustment(name, signal_type)
+        if _sec_adj != 0:
+            total_score += _sec_adj
+            for _sr in _sec_reasons:
+                adjustments.append(f"SEC_FILING: {_sec_adj:+.1f} ({_sr[:80]})")
+    except Exception as _e:
+        failed_layers.append('SEC_FILING')
+        log_error(f"SEC filing risk adjustment failed for {name}: {_e}")
+
+    # Layer 21: Adversarial exploitation boost
     # Reads apex-adversarial-results.json exploitation_opportunities; applies
     # +1 score when the current signal matches a validated positive pattern
     # (>= 15 trades, lower CI > 0.60). Capped at +1 total from this layer.
@@ -892,7 +914,7 @@ def score_signal_with_intelligence(signal, intel):
         pass  # Layer 19 is fully optional — silent failure
 
     # Layer confidence — how many of the 14 tracked layers ran without error
-    _TOTAL_TRACKED_LAYERS = 15  # 14 original + VOL_ACCUMULATION
+    _TOTAL_TRACKED_LAYERS = 16  # 14 original + VOL_ACCUMULATION + SEC_FILING
     layer_confidence = round(1.0 - (len(failed_layers) / _TOTAL_TRACKED_LAYERS), 2)
     if failed_layers:
         adjustments.append(

@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 """
 LLM Feature Flags
-Runtime on/off gates for Gemini-powered modules. Fail-open: if the flags
-file is missing or unreadable, every flag defaults to its DEFAULTS value.
+Runtime on/off gates for all LLM modules. Fail-open: if the flags file is
+missing or unreadable, every flag defaults to its DEFAULTS value.
 
 Usage:
-    from apex_llm_flags import get_llm_flag, record_llm_call
-    if get_llm_flag('sentiment_llm'):
-        result = call_gemini(...)
-        record_llm_call('sentiment_llm', used_llm=True, result_summary='ok')
+    from apex_llm_flags import get_llm_flag, record_llm_call, call_llm_thinking
+    if get_llm_flag('preflight_llm'):
+        result = call_llm_thinking(prompt, module='preflight')
+        record_llm_call('preflight_llm', used_llm=True, result_summary='ok')
     else:
-        record_llm_call('sentiment_llm', used_llm=False)
+        record_llm_call('preflight_llm', used_llm=False)
+
+    # Fast-tier (Gemini Flash) — unchanged behaviour:
+    result = call_gemini_json(prompt)
 
 CLI:
     python3 apex_llm_flags.py status
     python3 apex_llm_flags.py set sentiment_llm false
     python3 apex_llm_flags.py reset
+    python3 apex_llm_flags.py provider anthropic|gemini
+    python3 apex_llm_flags.py budget
 """
 import sys
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
@@ -63,23 +68,38 @@ KNOWN_FLAGS = {
     'preflight_llm',
     'exit_timing_llm',
     'signal_tiebreaker_llm',
+    'morning_brief_llm',
+    'queue_revalidate_llm',
+    'drawdown_review_llm',
+    'portfolio_agent_llm',
 }
 
-# Default enabled state — existing production modules ON, experimental stubs OFF
+# Default enabled state:
+#   Fast-tier modules (sentiment, taco): ON — cheap, already battle-tested
+#   Thinking-tier modules: OFF until explicitly enabled (budget awareness)
+#   New modules: OFF until tested
 _DEFAULTS = {
     'sentiment_llm':         True,
     'taco_llm':              True,
     'preflight_llm':         False,
     'exit_timing_llm':       False,
     'signal_tiebreaker_llm': False,
+    'morning_brief_llm':     False,
+    'queue_revalidate_llm':  False,
+    'drawdown_review_llm':   False,
+    'portfolio_agent_llm':   False,
 }
 
 _FLAG_LABELS = {
-    'sentiment_llm':         'Sentiment (Gemini)',
-    'taco_llm':              'TACO classifier (Gemini)',
-    'preflight_llm':         'Pre-entry filter (Gemini)',
-    'exit_timing_llm':       'Exit timing (Gemini)',
-    'signal_tiebreaker_llm': 'Signal tiebreaker (Gemini)',
+    'sentiment_llm':         'Sentiment (fast)',
+    'taco_llm':              'TACO classifier (thinking)',
+    'preflight_llm':         'Pre-entry filter (thinking)',
+    'exit_timing_llm':       'Exit timing (fast)',
+    'signal_tiebreaker_llm': 'Signal tiebreaker (thinking)',
+    'morning_brief_llm':     'Morning brief (thinking)',
+    'queue_revalidate_llm':  'Queue revalidation (thinking)',
+    'drawdown_review_llm':   'Drawdown review (thinking)',
+    'portfolio_agent_llm':   'Portfolio agent (thinking)',
 }
 
 
@@ -203,9 +223,27 @@ def get_all_flags() -> dict:
 
 
 def format_status_message() -> str:
-    """Format a Telegram-ready status block for all flags."""
+    """Format a Telegram-ready status block for all flags, provider, and budget."""
     data  = _load()
     lines = ['🤖 LLM MODULE FLAGS\n']
+
+    # Provider + budget header
+    try:
+        from apex_llm_client import get_provider, _thinking_model_name
+        from apex_llm_cost_tracker import get_daily_total, get_mtd_total
+        from apex_config import LLM_DAILY_BUDGET_USD
+        provider    = get_provider()
+        model       = _thinking_model_name(provider)
+        daily       = get_daily_total()
+        mtd         = get_mtd_total()
+        budget_pct  = daily / LLM_DAILY_BUDGET_USD * 100 if LLM_DAILY_BUDGET_USD else 0
+        bicon       = '✅' if budget_pct < 60 else ('⚠️' if budget_pct < 90 else '🚨')
+        picon       = '🧠' if provider == 'anthropic' else '🔷'
+        lines.append(f"{picon} Provider: {provider.upper()} ({model})")
+        lines.append(f"{bicon} Budget: ${daily:.4f}/${LLM_DAILY_BUDGET_USD:.2f} today | MTD ${mtd:.4f}\n")
+    except Exception:
+        pass
+
     for flag in sorted(KNOWN_FLAGS):
         flag_data = data.get(flag, {})
         if isinstance(flag_data, dict):
@@ -221,12 +259,104 @@ def format_status_message() -> str:
         label = _FLAG_LABELS.get(flag, flag)
         lines.append(f"{icon} {label}")
         lines.append(f"   Calls: {calls} LLM | {fallbk} fallback | Last: {last or 'never'}")
-    lines.append('\nLLM ON/OFF <flag> to toggle')
+    lines.append('\nLLM ON/OFF <flag> | LLM PROVIDER <anthropic|gemini> | LLM BUDGET')
     return '\n'.join(lines)
 
 
 # ============================================================
-# SHARED GEMINI HELPERS — used by all LLM modules
+# REGIME PREAMBLE — prepend to every LLM prompt for context
+# ============================================================
+
+_LOGS = '/home/ubuntu/.picoclaw/logs'
+
+
+def build_regime_preamble() -> str:
+    """
+    Return a concise regime-conditioned preamble for LLM prompts.
+    Reads the current regime, HMM state, VIX, breadth, and market hours.
+    Non-blocking — returns empty string on any failure so callers are unaffected.
+
+    Usage:
+        prompt = build_regime_preamble() + '\\n' + your_prompt
+    """
+    try:
+        import json as _json
+
+        def _r(fname, default=None):
+            try:
+                with open(f'{_LOGS}/{fname}') as _f:
+                    return _json.load(_f)
+            except Exception:
+                return default or {}
+
+        regime   = _r('apex-regime.json')
+        scaling  = _r('apex-regime-scaling.json')
+        calendar = _r('apex-market-calendar.json')
+        cb       = _r('apex-circuit-breaker.json')
+        draw     = _r('apex-drawdown.json')
+
+        overall      = regime.get('overall', 'UNKNOWN')
+        vix          = regime.get('vix', '?')
+        breadth      = regime.get('breadth_pct', '?')
+        hmm_state    = scaling.get('hmm_state', 'UNKNOWN')
+        regime_label = scaling.get('regime_label', 'NEUTRAL')
+        cb_status    = cb.get('status', 'NORMAL')
+        dd_status    = draw.get('status', 'NORMAL')
+        dd_pct       = draw.get('drawdown_pct', 0)
+
+        today        = calendar.get('today', {})
+        us_open      = today.get('us_currently_open', False)
+        uk_open      = today.get('uk_currently_open', False)
+        markets      = ', '.join(filter(None, [
+            'NYSE/NASDAQ OPEN' if us_open else '',
+            'LSE OPEN'         if uk_open else '',
+        ])) or 'ALL MARKETS CLOSED'
+
+        # Signal type priority by HMM state — mirrors decision engine priority matrix
+        _priority_map = {
+            'TRENDING':       'TREND > EARNINGS_DRIFT > DIVIDEND_CAPTURE > CONTRARIAN > INVERSE',
+            'MEAN_REVERTING': 'CONTRARIAN > INVERSE > DIVIDEND_CAPTURE > EARNINGS_DRIFT > TREND',
+            'CRISIS':         'INVERSE > CONTRARIAN > DIVIDEND_CAPTURE > EARNINGS_DRIFT > TREND',
+        }
+        priority = _priority_map.get(hmm_state, '')
+
+        lines = [
+            '╔══ LIVE MARKET CONTEXT (read before reasoning) ══╗',
+            f'  Regime: {overall} | Label: {regime_label} | HMM: {hmm_state}',
+            f'  VIX: {vix} | Breadth: {breadth}% | Markets: {markets}',
+        ]
+        if cb_status not in ('NORMAL', 'CLEAR', ''):
+            lines.append(f'  ⚠️  Circuit breaker: {cb_status}')
+        if dd_status != 'NORMAL':
+            lines.append(f'  ⚠️  Drawdown: {dd_status} ({dd_pct:.1f}%)')
+        if priority:
+            lines.append(f'  Signal priority ({hmm_state}): {priority}')
+        lines.append('╚═════════════════════════════════════════════════╝')
+        lines.append('')
+        return '\n'.join(lines)
+
+    except Exception:
+        return ''
+
+
+# ============================================================
+# THINKING-TIER WRAPPER — delegates to apex_llm_client
+# ============================================================
+
+def call_llm_thinking(prompt: str, module: str = 'unknown', budget_tokens: int = None) -> dict:
+    """
+    Call the configured thinking-tier LLM (Claude or Gemini Pro).
+    Wrapper around apex_llm_client.call_llm_thinking — import here for
+    convenience so all LLM modules only need to import apex_llm_flags.
+
+    Returns parsed dict. Raises on failure — callers must catch and fail-open.
+    """
+    from apex_llm_client import call_llm_thinking as _call
+    return _call(prompt, module=module, budget_tokens=budget_tokens)
+
+
+# ============================================================
+# SHARED GEMINI HELPERS — fast-tier, unchanged
 # ============================================================
 
 def parse_gemini_json(text: str) -> dict:
@@ -293,6 +423,14 @@ if __name__ == '__main__':
         locked_read_modify_write(FLAGS_FILE, _reset, default={})
         print('✅ LLM call counters reset')
 
+    elif cmd == 'provider' and len(sys.argv) >= 3:
+        from apex_llm_client import set_provider as _sp
+        print(_sp(sys.argv[2]))
+
+    elif cmd == 'budget':
+        from apex_llm_cost_tracker import format_digest_section
+        print(format_digest_section())
+
     else:
-        print('Usage: apex_llm_flags.py [status | set <flag> <true|false> | reset]')
+        print('Usage: apex_llm_flags.py [status | set <flag> <true|false> | reset | provider <anthropic|gemini> | budget]')
         sys.exit(1)

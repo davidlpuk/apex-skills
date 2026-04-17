@@ -35,6 +35,8 @@ def check_regime():
     # VIX check
     try:
         vix_hist = yf.Ticker('^VIX').history(period='1mo')
+        if vix_hist is None or vix_hist.empty:
+            raise ValueError("VIX history returned empty")
         vix = round(float(vix_hist['Close'].iloc[-1]), 2)
         result['vix'] = vix
 

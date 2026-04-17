@@ -22,12 +22,14 @@ from datetime import datetime, timezone, timedelta
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
     from apex_utils import atomic_write, safe_read, log_error, log_warning, send_telegram, t212_request
+    from apex_queue_audit import record_transition as _audit
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
         return True
     def log_error(m): print(f'ERROR: {m}')
     def log_warning(m): print(f'WARRANTY: {m}')
+    def _audit(*a, **kw): pass
 
 WATCHDOG_FILE  = '/home/ubuntu/.picoclaw/logs/apex-broker-watchdog.json'
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
@@ -119,8 +121,9 @@ def auto_fix_unprotected(unprotected):
     failures     = _load_stop_failures()
     now        = datetime.now(timezone.utc)
 
-    fixed  = []
-    failed = []
+    fixed    = []
+    failed   = []
+    deferred = []  # planned cooldowns (market closed, 0 real failures) — not alarmed
 
     for pos in unprotected:
         ticker   = pos['ticker']
@@ -140,8 +143,15 @@ def auto_fix_unprotected(unprotected):
                 cd_dt = datetime.fromisoformat(cooldown_until)
                 if now < cd_dt:
                     remaining = round((cd_dt - now).total_seconds() / 3600, 1)
-                    log_warning(f"auto_fix: {ticker} in cooldown for {remaining}h more (T212 keeps rejecting stop)")
-                    failed.append({'ticker': ticker, 'reason': f'in cooldown ({remaining}h remaining)'})
+                    consec = rec.get('consecutive_failures', 0)
+                    note   = rec.get('note', '')
+                    if consec == 0:
+                        # Planned market-hours defer — not a real failure, suppress alarm
+                        log_warning(f"auto_fix: {ticker} deferred until market open ({remaining}h) — {note}")
+                        deferred.append({'ticker': ticker, 'reason': f'awaiting market open ({remaining}h)', 'note': note})
+                    else:
+                        log_warning(f"auto_fix: {ticker} in cooldown for {remaining}h more after {consec} failures")
+                        failed.append({'ticker': ticker, 'reason': f'in cooldown ({remaining}h remaining)'})
                     continue
                 else:
                     # Cooldown expired — reset and try again
@@ -199,7 +209,7 @@ def auto_fix_unprotected(unprotected):
             print(f"  ❌ Failed to place stop for {ticker} after 3 attempts (total failures: {consec})")
 
     _save_stop_failures(failures)
-    return fixed, failed
+    return fixed, failed, deferred
 
 def get_open_orders():
     """Fetch all open orders from T212 via centralised rate-limited caller."""
@@ -490,6 +500,8 @@ def check_and_place_deferred_stops():
             continue
         # Alpaca positions have UUID entry_order_ids — querying them in T212
         # returns HTTP 400 (expects Long).  Alpaca manages its own fill/stop flow.
+        # Guard on both venue flag and UUID format to handle positions where
+        # venue was not explicitly set to 'ALPACA'.
         if pos.get('venue') == 'ALPACA':
             continue
 
@@ -499,6 +511,10 @@ def check_and_place_deferred_stops():
         stop     = pos.get('stop_price') or pos.get('stop', 0)
 
         if not entry_id or not stop:
+            continue
+
+        # UUID-format IDs are Alpaca orders — T212 expects Long (numeric) IDs.
+        if '-' in str(entry_id):
             continue
 
         # Check fill status
@@ -624,11 +640,31 @@ def check_stop_price_drift(orders=None, portfolio=None):
     """
     drifts = []
     try:
-        live_orders = orders if orders is not None else (t212_request('/equity/orders', timeout=10) or [])
+        # Resolve orders: use pre-fetched list, or fetch now, or SKIP if API unavailable.
+        # Critically: if the orders API returns None (rate-limited / Cloudflare block),
+        # we must NOT collapse to [] — that makes every stop appear "missing" and causes
+        # false STOP MISSING alerts (e.g. INRG 2026-04-16 after burst rate-limit).
+        if orders is not None:
+            live_orders = orders
+        else:
+            _fetched = t212_request('/equity/orders', timeout=10)
+            if _fetched is None:
+                log_warning("check_stop_price_drift: /equity/orders returned None (API unavailable) — skipping drift check to avoid false STOP MISSING alerts")
+                return []
+            live_orders = _fetched if isinstance(_fetched, list) else []
         t212_stops = {
             str(o['id']): float(o.get('stopPrice', 0))
             for o in live_orders if o.get('type') == 'STOP'
         }
+        # Reverse map: ticker → {id, stopPrice} for any live STOP order.
+        # Used to heal a stale stop_order_id when T212 has a new order for the same ticker.
+        t212_stop_by_ticker = {}
+        for o in live_orders:
+            if o.get('type') == 'STOP' and o.get('status') in ('NEW', 'WORKING'):
+                t212_stop_by_ticker[o.get('ticker', '')] = {
+                    'id': str(o['id']),
+                    'stopPrice': float(o.get('stopPrice', 0)),
+                }
         # Build set of live T212 tickers so we can skip ghost positions.
         # If portfolio wasn't passed, we accept a small false-positive risk
         # rather than making an extra API call here.
@@ -656,17 +692,43 @@ def check_stop_price_drift(orders=None, portfolio=None):
                 continue
             t212_stop_raw = t212_stops.get(sid)
             if t212_stop_raw is None:
-                msg = f"STOP MISSING: {ticker} order {sid} not in T212 live orders (local stop=£{pos_stop})"
-                log_error(msg)
-                send_telegram(
-                    f"⚠️ STOP MISSING IN T212\n\n"
-                    f"Ticker: {ticker}\nOrder ID: {sid}\n"
-                    f"Local stop price: £{pos_stop}\n\n"
-                    f"Run apex-data-integrity.py to reconcile."
-                )
-                drifts.append({'ticker': ticker, 'local_stop': pos_stop, 't212_stop': None, 'delta': None})
-                _log_drift_to_sqlite(ticker, pos_stop, None, None)
-                continue
+                # Old order ID is gone. Check if T212 has a *new* stop order for
+                # this ticker (placed by a previous watchdog cycle or manually).
+                # If so, heal the stale stop_order_id in positions.json and continue
+                # normally — no real gap, just a stale local reference.
+                alt = t212_stop_by_ticker.get(ticker)
+                if alt:
+                    new_id = alt['id']
+                    log_warning(
+                        f"check_stop_price_drift: {ticker} old order {sid} gone but "
+                        f"found replacement stop {new_id} @ £{alt['stopPrice']:.4f} — "
+                        f"healing positions.json"
+                    )
+                    try:
+                        from apex_utils import locked_read_modify_write
+                        def _heal_sid(positions, _t=ticker, _new_id=new_id):
+                            for _p in (positions or []):
+                                if _p.get('t212_ticker') == _t:
+                                    _p['stop_order_id'] = int(_new_id)
+                            return positions
+                        locked_read_modify_write(POSITIONS_FILE, _heal_sid, default=[])
+                    except Exception as _he:
+                        log_warning(f"heal stop_order_id failed for {ticker}: {_he}")
+                    # Continue with the replacement order's price for drift check
+                    t212_stop_raw = alt['stopPrice']
+                else:
+                    # Genuinely missing — no stop in T212 for this ticker at all.
+                    msg = f"STOP MISSING: {ticker} order {sid} not in T212 live orders (local stop=£{pos_stop})"
+                    log_error(msg)
+                    send_telegram(
+                        f"⚠️ STOP MISSING IN T212\n\n"
+                        f"Ticker: {ticker}\nOrder ID: {sid}\n"
+                        f"Local stop price: £{pos_stop}\n\n"
+                        f"Run apex-data-integrity.py to reconcile."
+                    )
+                    drifts.append({'ticker': ticker, 'local_stop': pos_stop, 't212_stop': None, 'delta': None})
+                    _log_drift_to_sqlite(ticker, pos_stop, None, None)
+                    continue
             # GBX instruments: T212 returns stopPrice in pence, positions.json stores pounds.
             # Convert T212 pence → pounds before comparison so drift check doesn't false-fire.
             currency = p.get('currency', 'GBP')
@@ -715,6 +777,94 @@ def check_stop_price_drift(orders=None, portfolio=None):
     except Exception as e:
         log_warning(f"check_stop_price_drift failed: {e}")
     return drifts
+
+
+def check_dead_pending(orders=None):
+    """
+    Sweep for 'entry_placed' positions whose T212 limit order has been
+    CANCELLED, REJECTED, or EXPIRED — meaning the fill never happened.
+
+    These dead positions must be removed from apex-positions.json so that:
+    1. The same ticker can be re-queued on the next scan cycle.
+    2. reconcile() doesn't see them as ghost positions and emit phantom outcomes.
+
+    Only runs during market hours (08:00–18:00 UTC Mon–Fri).
+    Alpaca positions are skipped (venue guard).
+
+    Returns list of tickers cleaned up.
+    """
+    from apex_utils import locked_read_modify_write
+    cleaned = []
+    now = datetime.now(timezone.utc)
+
+    # Only run during market hours
+    if now.weekday() >= 5 or not (8 <= now.hour < 18):
+        return cleaned
+
+    positions = load_positions()
+    entry_placed = [
+        p for p in positions
+        if p.get('status') == 'entry_placed'
+        and p.get('venue', 'T212') != 'ALPACA'
+        and '-' not in str(p.get('entry_order_id', ''))  # Alpaca UUID guard
+    ]
+
+    if not entry_placed:
+        return cleaned
+
+    # Use pre-fetched orders if provided, else skip (avoid extra API call if orders=None)
+    if orders is None:
+        return cleaned
+
+    # Build lookup: order_id → status
+    order_status_map = {}
+    for o in (orders or []):
+        oid = str(o.get('id', ''))
+        if oid:
+            order_status_map[oid] = o.get('status', 'UNKNOWN')
+
+    for pos in entry_placed:
+        ticker   = pos.get('t212_ticker', '')
+        order_id = str(pos.get('entry_order_id', ''))
+        name     = pos.get('name', ticker)
+
+        # Check T212 order status
+        t212_status = order_status_map.get(order_id)
+        if t212_status is None:
+            # Order not in open orders — fetch individually to confirm terminal state
+            try:
+                raw = t212_request(f'/equity/orders/{order_id}')
+                t212_status = (raw or {}).get('status', 'UNKNOWN')
+            except Exception as _e:
+                log_warning(f"check_dead_pending: could not fetch order {order_id} for {ticker}: {_e}")
+                continue
+
+        if t212_status in ('CANCELLED', 'REJECTED', 'EXPIRED'):
+            log_warning(
+                f"Dead entry_placed position: {name} ({ticker}) — "
+                f"T212 order {order_id} is {t212_status}. Removing from tracking."
+            )
+            # Remove via locked write to avoid race with stop-monitor
+            def _remove_dead(positions, _ticker=ticker):
+                return [p for p in (positions or [])
+                        if p.get('t212_ticker') != _ticker
+                        or p.get('status') != 'entry_placed']
+            locked_read_modify_write(POSITIONS_FILE, _remove_dead, default=[])
+
+            _audit(signal_id=None, ticker=ticker,
+                   signal_type=pos.get('signal_type', ''),
+                   from_state='entry_placed', to_state='REMOVED',
+                   detail=f'dead_pending sweep: T212 order {order_id} was {t212_status}')
+
+            cleaned.append(ticker)
+            send_telegram(
+                f"🧹 DEAD ENTRY REMOVED\n\n"
+                f"{name} ({ticker})\n"
+                f"Limit order {order_id} was {t212_status} in T212.\n"
+                f"Apex tracking removed — ticker is available for next scan."
+            )
+
+    return cleaned
 
 
 def run():
@@ -769,7 +919,7 @@ def run():
     unprotected, msg = check_unprotected_positions(portfolio=portfolio, orders=orders)
     if unprotected:
         print(f"  ⚠️  {len(unprotected)} unprotected position(s) — attempting auto-fix...")
-        fixed, failed = auto_fix_unprotected(unprotected)
+        fixed, failed, deferred = auto_fix_unprotected(unprotected)
 
         for f in fixed:
             alerts.append(f"AUTO-FIXED: stop placed for {f['ticker']} @ £{f['stop']} (order {f['order_id']})")
@@ -782,6 +932,9 @@ def run():
                 pass
         for f in failed:
             alerts.append(f"UNPROTECTED: {f['ticker']} — stop placement failed ({f['reason']})")
+        for f in deferred:
+            # Planned market-hours defer — log only, no alarm
+            print(f"  ⏳ {f['ticker']}: stop deferred — {f['note'] or f['reason']}")
 
         if fixed:
             fix_msg = (
@@ -842,6 +995,15 @@ def run():
             alerts.append(f"DEFERRED STOP FAILED: {a}")
         else:
             print(f"  ✅ Deferred: {a}")
+
+    # Dead entry_placed sweeper — limit orders that T212 cancelled/rejected
+    # Runs before stale-pending check so cleaned-up positions don't double-alert
+    dead_cleaned = check_dead_pending(orders=orders)
+    if dead_cleaned:
+        for t in dead_cleaned:
+            print(f"  🧹 Dead entry_placed removed: {t}")
+    else:
+        print(f"  ✅ No dead entry_placed positions")
 
     # Stale pending/entry_placed positions — script crashed mid-execution
     stale_pending = check_stale_pending_positions()

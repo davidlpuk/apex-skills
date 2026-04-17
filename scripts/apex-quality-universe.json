@@ -162,13 +162,49 @@
       "name": "Imperial Brands",
       "market_cap": "18B",
       "fcf_yield": 10.2,
-      "quality_score": 6
+      "quality_score": 7
     },
     "BATS": {
       "name": "BAT",
       "market_cap": "60B",
       "fcf_yield": 9.8,
-      "quality_score": 6
+      "quality_score": 7
+    },
+    "DGE": {
+      "name": "Diageo",
+      "market_cap": "55B",
+      "fcf_yield": 4.1,
+      "quality_score": 8
+    },
+    "RIO": {
+      "name": "Rio Tinto",
+      "market_cap": "90B",
+      "fcf_yield": 8.5,
+      "quality_score": 8
+    },
+    "EXPN": {
+      "name": "Experian",
+      "market_cap": "35B",
+      "fcf_yield": 3.2,
+      "quality_score": 8
+    },
+    "NWG": {
+      "name": "NatWest Group",
+      "market_cap": "28B",
+      "fcf_yield": 9.1,
+      "quality_score": 7
+    },
+    "PRU": {
+      "name": "Prudential",
+      "market_cap": "20B",
+      "fcf_yield": 4.5,
+      "quality_score": 7
+    },
+    "NOVN": {
+      "name": "Novartis",
+      "market_cap": "210B",
+      "fcf_yield": 5.8,
+      "quality_score": 8
     },
     "PGY": {
       "name": "Pagaya Technologies",

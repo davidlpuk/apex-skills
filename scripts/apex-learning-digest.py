@@ -82,9 +82,12 @@ def build_digest():
 
     # ── 2. Bayesian layer weights ──────────────────────────────────────────
     weights = safe_read(f'{LOGS}/apex-learned-weights.json', {})
-    layer_w = weights.get('layer_weights', {})
+    raw_layers = weights.get('layers') or weights.get('layer_weights') or {}
+    # Convert layers dict {NAME: {weight: X, accuracy: Y}} → {NAME: weight}
+    layer_w = {k: v['weight'] if isinstance(v, dict) else v
+               for k, v in raw_layers.items()}
     n_matched = weights.get('n_signals_matched', 0)
-    brier    = weights.get('calibration', {}).get('brier_score')
+    brier    = (weights.get('calibration') or {}).get('brier_score')
 
     lines.append(f"*🎯 Learning Weights* (n={n_matched} matched trades)")
     if layer_w:
@@ -126,12 +129,14 @@ def build_digest():
 
     # ── 4. Edge proof ──────────────────────────────────────────────────────
     edge = safe_read(f'{LOGS}/apex-edge-proof.json', {})
-    results = edge.get('results', {})
+    results = edge.get('by_signal_type') or edge.get('results') or {}
 
     lines.append(f"*🔬 Edge Proof* (updated weekly)")
     for sig_type, data in results.items():
         verdict  = data.get('verdict', 'NOT_PROVEN')
-        wr_real  = data.get('win_rate_real', 0)
+        wr_real  = data.get('win_rate_pct') or data.get('win_rate_real') or 0
+        if wr_real > 1:  # stored as 50.0 not 0.50
+            wr_real = wr_real / 100
         n_real   = data.get('n_real', 0)
         icon = '✅' if verdict == 'CONFIRMED' else ('🟡' if verdict == 'MARGINAL' else '❌')
         lines.append(f"  {icon} {sig_type:<18} {wr_real*100:.0f}% WR (n={n_real})")
@@ -141,9 +146,9 @@ def build_digest():
 
     # ── 5. Trajectory insights ─────────────────────────────────────────────
     traj = safe_read(f'{LOGS}/apex-trajectory-insights.json', {})
-    early_cut = traj.get('early_cut', {})
-    t2_runner = traj.get('t2_runner', {})
-    day1      = traj.get('day1_direction_accuracy', {})
+    early_cut = traj.get('early_cut') or {}
+    t2_runner = traj.get('t2_runner') or {}
+    day1      = traj.get('day1_direction_accuracy') or {}
     n_traj    = traj.get('n_trajectories', 0)
 
     lines.append(f"*📉 Trajectory Learning* (n={n_traj} trades)")
@@ -218,7 +223,192 @@ def build_digest():
 
     return '\n'.join(lines)
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Weekly synthesis (runs Mondays 07:05 UTC)
+# ─────────────────────────────────────────────────────────────────────────────
+
+STATE_FILE = f'{LOGS}/apex-learning-digest-state.json'
+
+
+def _stats_by_type_weekly(trades: list) -> dict:
+    """Return WR, avg_r, avg_hold_days per signal type."""
+    by_type: dict = {}
+    for t in trades:
+        st = t.get('signal_type', 'UNKNOWN')
+        if st not in by_type:
+            by_type[st] = {'wins': 0, 'total': 0, 'r_sum': 0.0, 'hold_days': []}
+        by_type[st]['total'] += 1
+        pnl = t.get('pnl', 0)
+        if pnl > 0:
+            by_type[st]['wins'] += 1
+        by_type[st]['r_sum'] += t.get('r_achieved', 0)
+        opened = t.get('opened', '')
+        closed = t.get('closed', '')
+        try:
+            from datetime import datetime as _dtp
+            d0 = _dtp.strptime(opened, '%Y-%m-%d')
+            d1 = _dtp.strptime(closed, '%Y-%m-%d')
+            by_type[st]['hold_days'].append((d1 - d0).days)
+        except Exception:
+            pass
+    result = {}
+    for st, v in by_type.items():
+        n = v['total']
+        result[st] = {
+            'n':        n,
+            'wr':       round(v['wins'] / n * 100, 1) if n else 0,
+            'avg_r':    round(v['r_sum'] / n, 2) if n else 0,
+            'avg_hold': round(sum(v['hold_days']) / len(v['hold_days']), 1) if v['hold_days'] else 0,
+        }
+    return result
+
+
+def _recommend_weekly(by_type, model_ev, empirical_ev, t1_reach_pct, stop_eff) -> str:
+    if model_ev and empirical_ev and empirical_ev < model_ev * 0.5:
+        return "Lower T1 targets — model over-predicts by >2x. Empirical peak is below T1."
+    if t1_reach_pct is not None and t1_reach_pct < 0.15:
+        return f"T1 reach {t1_reach_pct:.0%} — tighten T1 or take profits earlier near optimal exit."
+    if stop_eff == 'WIDE':
+        return "Stops are too loose — tighten initial stop width to reduce capital at risk."
+    worst = min(by_type.items(), key=lambda x: x[1]['avg_r'], default=(None, {}))
+    if worst[0] and worst[1].get('n', 0) >= 3 and worst[1].get('avg_r', 0) < 0:
+        return f"Review {worst[0]} strategy — negative avg R ({worst[1]['avg_r']}R). Consider pausing."
+    return "Continue current strategy mix — no major issues detected."
+
+
+def build_weekly_digest(dry_run: bool = False) -> str:
+    """Weekly synthesis: richer learning analysis for Monday morning."""
+    today_str = date.today().isoformat()
+    week_ago  = (date.today() - timedelta(days=7)).isoformat()
+    lines = []
+    lines.append(f"📚 WEEKLY LEARNING DIGEST — {today_str}")
+    lines.append("")
+
+    # ── 1. Outcomes ──────────────────────────────────────────────────────────
+    outcomes    = safe_read(f'{LOGS}/apex-outcomes.json', {'trades': []})
+    if not isinstance(outcomes, dict):
+        outcomes = {'trades': []}
+    all_trades  = outcomes.get('trades', [])
+    total       = len(all_trades)
+    winners     = [t for t in all_trades if t.get('pnl', 0) > 0]
+    wr_all      = _pct(len(winners), total)
+    avg_r_all   = round(sum(t.get('r_achieved', 0) for t in all_trades) / total, 2) if total else 0
+    week_trades = [t for t in all_trades if (t.get('closed') or t.get('opened', '')) >= week_ago]
+    week_wins   = [t for t in week_trades if t.get('pnl', 0) > 0]
+    week_wr     = _pct(len(week_wins), len(week_trades)) if week_trades else None
+    week_avg_r  = round(sum(t.get('r_achieved', 0) for t in week_trades) / len(week_trades), 2) if week_trades else None
+    by_type     = _stats_by_type_weekly(all_trades)
+
+    state       = safe_read(STATE_FILE, {})
+    last_count  = state.get('last_trade_count', 0)
+    new_this_wk = total - last_count
+
+    if week_trades:
+        lines.append(f"📊 This week: {len(week_trades)} trades | WR {week_wr}% | avg {week_avg_r}R")
+    lines.append(f"   All-time:  {total} trades | WR {wr_all}% | avg {avg_r_all}R")
+    lines.append(f"   +{new_this_wk} new trades vs last week")
+    lines.append("")
+
+    lines.append("📈 By strategy:")
+    for st, v in sorted(by_type.items(), key=lambda x: -x[1]['n']):
+        lines.append(f"  {st}: n={v['n']} WR={v['wr']}% avgR={v['avg_r']} hold={v['avg_hold']}d")
+    lines.append("")
+
+    # ── 2. Track record ───────────────────────────────────────────────────────
+    track = safe_read(f'{LOGS}/apex-agent-track-record.json', {})
+    if isinstance(track, dict):
+        by_act = track.get('by_type', {})
+        stop_d  = by_act.get('stop_tightened', {})
+        veto_d  = by_act.get('signal_vetoed', {})
+        bene    = stop_d.get('beneficial', 0)
+        prem    = stop_d.get('premature_exits', 0)
+        st_tot  = bene + prem
+        st_acc  = f"{round(bene/st_tot*100)}%" if st_tot else "n/a"
+        vc_ok   = veto_d.get('correct', 0)
+        vc_tot  = veto_d.get('count', 0)
+        vc_acc  = f"{round(vc_ok/vc_tot*100)}%" if vc_tot else "n/a"
+        lines.append(f"🤖 Agent: stop-tighten accuracy={st_acc} | veto accuracy={vc_acc}")
+        lines.append("")
+
+    # ── 3. MAE/MFE ───────────────────────────────────────────────────────────
+    cal  = safe_read(f'{LOGS}/apex-mae-mfe-calibration.json', {})
+    agg  = cal.get('aggregate', {}) if isinstance(cal, dict) else {}
+    mfe  = agg.get('mfe', {})
+    mae  = agg.get('mae', {})
+    ev_c = agg.get('ev_cmp', {})
+    model_ev     = ev_c.get('model_ev')
+    empirical_ev = ev_c.get('empirical_ev')
+    t1_reach_pct = mfe.get('reached_t1_pct')
+    stop_eff     = mae.get('stop_efficiency', 'UNKNOWN')
+    opt_exit     = mfe.get('optimal_exit_r')
+    n_cal        = cal.get('n_trades_total', total)
+    ev_err_pct   = ev_c.get('ev_model_error_pct')
+
+    if model_ev and empirical_ev and n_cal >= 5:
+        overest = f"{ev_err_pct:.0f}%" if ev_err_pct else "?"
+        lines.append(f"🎯 EV: model={model_ev:.2f}R | empirical={empirical_ev:.2f}R | err={overest}")
+        lines.append(f"   T1 reach={t1_reach_pct:.0%} | opt exit={opt_exit}R | stop={stop_eff}")
+    else:
+        lines.append(f"🎯 EV calibration: {n_cal} trades (need 5+ for analysis)")
+    lines.append("")
+
+    # ── 4. Learned weights ────────────────────────────────────────────────────
+    wt_data = safe_read(f'{LOGS}/apex-learned-weights.json', {})
+    layers  = wt_data.get('layers', {}) if isinstance(wt_data, dict) else {}
+    sorted_l  = sorted(layers.items(), key=lambda x: x[1].get('weight', 1.0))
+    penalised = sorted_l[:3]
+    boosted   = sorted_l[-3:][::-1]
+    lines.append("⚖️ Scoring weights (vs neutral=1.0):")
+    for nm, d in boosted:
+        lines.append(f"  ↑ {nm}: {d.get('weight', 1.0):.3f}")
+    for nm, d in penalised:
+        lines.append(f"  ↓ {nm}: {d.get('weight', 1.0):.3f}")
+    lines.append("")
+
+    # ── 5. Edge proof ─────────────────────────────────────────────────────────
+    edge  = safe_read(f'{LOGS}/apex-edge-proof.json', {})
+    ep_by = edge.get('by_signal_type', {}) if isinstance(edge, dict) else {}
+    lines.append("🔬 Edge proof:")
+    for st, ep in ep_by.items():
+        verdict  = ep.get('verdict', 'UNKNOWN')
+        n_real   = ep.get('n_real', 0)
+        needed   = ep.get('trades_needed_to_pass', None)
+        needed_s = f" (need {needed} more)" if needed else ""
+        wr_ep    = ep.get('win_rate_pct') or 0
+        lines.append(f"  {st}: {verdict} | n={n_real} | WR={wr_ep:.0f}%{needed_s}")
+    lines.append("")
+
+    # ── Recommended action ────────────────────────────────────────────────────
+    rec = _recommend_weekly(by_type, model_ev, empirical_ev, t1_reach_pct, stop_eff)
+    lines.append(f"💡 Action: {rec}")
+
+    msg = "\n".join(lines[:30])
+    print(msg)
+
+    if not dry_run:
+        send_telegram(msg)
+        try:
+            import json as _json
+            with open(STATE_FILE, 'w') as _sf:
+                _json.dump({'last_run': today_str, 'last_trade_count': total}, _sf, indent=2)
+        except Exception as _se:
+            log_warning(f"Could not save digest state: {_se}")
+
+    return msg
+
+
 if __name__ == '__main__':
-    digest = build_digest()
-    print(digest)
-    send_telegram(digest)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--weekly', action='store_true', help='Run weekly synthesis (default: daily)')
+    parser.add_argument('--dry-run', action='store_true', help='Print only, no Telegram')
+    args = parser.parse_args()
+
+    if args.weekly:
+        build_weekly_digest(dry_run=args.dry_run)
+    else:
+        digest = build_digest()
+        print(digest)
+        if not args.dry_run:
+            send_telegram(digest)

@@ -189,6 +189,107 @@ def check_signal_age(trade):
         return True, "Cannot check age"
 
 
+def check_thesis_validity(trade):
+    """
+    Re-evaluate the original signal thesis using live technical data.
+
+    A CONTRARIAN signal generated at RSI=28 with a 20% discount may now have
+    RSI=65 (already recovered) or only a 2% discount — the setup no longer exists.
+    Price drift check catches movement, but NOT the underlying technical state.
+
+    Checks (signal-type specific):
+      CONTRARIAN:
+        - RSI still in oversold range (< 55 — allows for partial recovery)
+        - Discount from 52-week high still meaningful (< -5%)
+        - If both conditions are now stale → CANCEL (thesis evaporated)
+      TREND:
+        - RSI not overbought (< 75 — don't buy into exhausted rallies)
+        - Price still above 50-day EMA (trend not broken)
+      INVERSE:
+        - Market hasn't staged a strong reversal (price not up >5% from signal)
+
+    Returns (ok: bool, reason: str)
+    """
+    ticker   = trade.get('t212_ticker', '')
+    sig_type = trade.get('signal_type', 'TREND')
+    yahoo    = YAHOO_MAP.get(ticker, '')
+
+    if not yahoo:
+        return True, "No Yahoo mapping — cannot re-validate thesis"
+
+    try:
+        hist = yf.Ticker(yahoo).history(period="60d")
+        if hist.empty or len(hist) < 5:
+            return True, "Insufficient history — cannot re-validate thesis"
+
+        close  = hist['Close']
+        high_52 = close.max()
+        cur    = float(close.iloc[-1])
+        if yahoo.endswith('.L') and cur > 100:
+            cur    /= 100
+            high_52 /= 100
+
+        # RSI (14-period)
+        delta = close.diff()
+        gain  = delta.clip(lower=0).rolling(14).mean()
+        loss  = (-delta.clip(upper=0)).rolling(14).mean()
+        rs    = gain / loss.replace(0, 1e-9)
+        rsi   = float(100 - (100 / (1 + rs.iloc[-1])))
+
+    except Exception as e:
+        log_warning(f"check_thesis_validity: yfinance error for {ticker}: {e}")
+        return True, "yfinance error — cannot re-validate thesis"
+
+    if sig_type == 'CONTRARIAN':
+        discount_pct = ((cur - high_52) / high_52 * 100) if high_52 > 0 else 0
+        rsi_ok       = rsi < 55  # still in recovery territory
+        discount_ok  = discount_pct < -5  # still materially below 52w high
+        if not rsi_ok and not discount_ok:
+            return (False,
+                    f"Contrarian thesis evaporated: RSI={rsi:.0f} (not oversold) "
+                    f"and discount={discount_pct:.1f}% (not significant) — "
+                    f"signal conditions no longer present")
+        if not rsi_ok:
+            return (True,
+                    f"RSI recovered to {rsi:.0f} — discount {discount_pct:.1f}% "
+                    f"still valid, proceed with caution")
+        if not discount_ok:
+            return (True,
+                    f"Discount minimal ({discount_pct:.1f}%) — RSI {rsi:.0f} "
+                    f"still oversold, proceed with caution")
+        return (True,
+                f"CONTRARIAN thesis intact: RSI={rsi:.0f}, discount={discount_pct:.1f}%")
+
+    elif sig_type == 'TREND':
+        # Overbought check — don't chase exhausted rallies
+        if rsi > 75:
+            return (False,
+                    f"Trend thesis stale: RSI={rsi:.0f} now overbought "
+                    f"— momentum may be exhausted at execution")
+        # Basic EMA check using 20-day
+        ema20 = float(close.ewm(span=20, adjust=False).mean().iloc[-1])
+        if yahoo.endswith('.L') and ema20 > 100:
+            ema20 /= 100
+        if cur < ema20 * 0.97:  # price >3% below 20-EMA = trend broken
+            return (False,
+                    f"Trend thesis broken: price {cur:.2f} is "
+                    f"{((cur/ema20)-1)*100:.1f}% below 20-EMA {ema20:.2f} "
+                    f"— trend no longer intact")
+        return (True, f"TREND thesis intact: RSI={rsi:.0f}, price vs EMA20={((cur/ema20)-1)*100:+.1f}%")
+
+    elif sig_type == 'INVERSE':
+        # For inverse ETFs, a sustained rally kills the thesis
+        signal_price = float(trade.get('entry', cur))
+        recovery_pct = (cur - signal_price) / signal_price * 100 if signal_price > 0 else 0
+        if recovery_pct > 8:
+            return (False,
+                    f"Inverse thesis stale: market recovered {recovery_pct:+.1f}% "
+                    f"since signal — short thesis no longer valid")
+        return (True, f"INVERSE thesis intact: price change {recovery_pct:+.1f}% from signal")
+
+    return True, f"No thesis check defined for {sig_type}"
+
+
 def check_score_decay(trade, current_price):
     """
     Score decay: a signal's effective score degrades as price moves away from
@@ -335,6 +436,17 @@ def revalidate_queue():
             soft_warnings.append(msg)
             trade['score_at_execution'] = round(float(trade.get('score', 7.5)) - loss, 2)
         print(f"    {'✅' if ok else '❌'} Decay: {msg}")
+
+        # Thesis validity — re-evaluate original signal conditions using live technicals.
+        # Catches scenarios where price drift check passes (small move) but the setup
+        # has fundamentally changed (RSI recovered, trend broken, etc.)
+        ok, msg = check_thesis_validity(trade)
+        checks.append(('Thesis', ok, msg))
+        if not ok:
+            hard_failures.append(msg)
+        elif 'caution' in msg.lower():
+            soft_warnings.append(msg)
+        print(f"    {'✅' if ok else '❌'} Thesis: {msg}")
 
         # Verdict
         if hard_failures:

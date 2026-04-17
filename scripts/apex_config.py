@@ -41,34 +41,83 @@ CB_MULT_CRITICAL = 0.0   # No new trades during CRITICAL
 CB_MULT_UNKNOWN  = 0.5   # Conservative default when status is unknown
 
 # ── Position Sizing ───────────────────────────────────────────────────────────
-BASE_RISK_PCT          = 0.01   # 1% of portfolio per trade
+BASE_RISK_PCT          = 0.015  # 1.5% of portfolio per trade
 MAX_RISK_PCT           = 0.025  # 2.5% hard cap
 MIN_POSITION_VALUE     = 50     # £50 minimum position
-MAX_OPEN_POSITIONS     = 6      # Maximum concurrent positions
+MAX_OPEN_POSITIONS     = 10     # [PAPER] raised from 6 — more simultaneous experiments
 MIN_COUNTED_NOTIONAL   = 150    # Positions below this notional (£) are dust — not counted toward limit
-MAX_SECTOR_POSITIONS   = 2      # Max positions (count) in one sector
-MAX_SECTOR_NOTIONAL_PCT = 0.10  # Max 10% of portfolio notional in any one sector
+MAX_SECTOR_POSITIONS   = 3      # [PAPER] raised from 2 — allow more sector diversity
+MAX_SECTOR_NOTIONAL_PCT = 0.20  # [PAPER] raised from 0.10 — less sector concentration constraint
 
 # ── Signal Quality Gates ──────────────────────────────────────────────────────
-MIN_EV_RATIO           = 1.5    # Minimum expected value ratio (GBP instruments)
-MIN_EV_USD_RATIO       = 2.0    # Higher bar for USD instruments — 0.30% round-trip FX drag
-MIN_WIN_RATE           = 45     # Minimum historical win rate %
-MIN_SIGNAL_SCORE       = 6      # Minimum score to qualify for entry
+MIN_EV_RATIO           = 1.2    # [PAPER] lowered from 1.5 — test marginal EV trades on virtual money
+MIN_EV_USD_RATIO       = 1.5    # [PAPER] lowered from 2.0 — less FX drag penalty on paper
+MIN_WIN_RATE           = 40     # [PAPER] lowered from 45 — let more signal types earn data
+MIN_SIGNAL_SCORE       = 5      # [PAPER] lowered from 6 — wider funnel for learning
+
+# ── Signal Type Enable Flags ─────────────────────────────────────────────────
+# Disabled types are paused pending root-cause investigation.
+# Do NOT delete entries — flip to True once edge-proof verdict reaches PROVEN.
+# See CHANGES.md 2026-04-16 for rationale.
+ENABLED_SIGNAL_TYPES = {
+    'TREND':            True,
+    'CONTRARIAN':       True,
+    'INVERSE':          True,
+    'MANUAL':           True,     # always-on — human-gated
+    'GEO_REVERSAL':     False,    # 6/6 ghost rate as of 2026-04-16, root cause TBD
+    'EARNINGS_DRIFT':   False,    # 2/2 ghost rate as of 2026-04-16, root cause TBD
+    'TACO_CONTRARIAN':  False,    # 0/1 WR, insufficient real fills
+    'DIVIDEND_CAPTURE': False,    # 0 real trades, untested in production
+}
 
 # ── Contrarian Signal Gates ───────────────────────────────────────────────────
 CONTRARIAN_RSI_MAX     = 38     # RSI must be below this for contrarian entries
 
 # ── Hold Period Caps (calendar days) ─────────────────────────────────────────
-MAX_HOLD_TREND         = 15
-MAX_HOLD_CONTRARIAN    = 20
+MAX_HOLD_TREND         = 10     # [PAPER] reduced from 15 — faster turnover = more closed trades = more data
+MAX_HOLD_CONTRARIAN    = 15     # [PAPER] reduced from 20
 MAX_HOLD_INVERSE       = 3      # Leveraged inverse ETFs decay fast
 
 # ── T212 API Rate Limiting ────────────────────────────────────────────────────
 T212_MIN_INTERVAL      = 0.6    # Min seconds between T212 API calls
 
 # ── Order Fill Polling ────────────────────────────────────────────────────────
-T212_FILL_POLL_COUNT   = 18     # Attempts before deferring (18 × interval = 3 min)
-T212_FILL_POLL_INTERVAL = 10    # Seconds between fill-status polls
+# 9 × 20s = 3 min total — same wait window as before, but half the API calls.
+# Burst rate (≥18 calls / 3min) was triggering Cloudflare error-1010 IP blocks
+# on T212 (geo-throttle), particularly when multiple execution attempts ran
+# back-to-back. Reduce to 9 × 20s to stay safely under the per-IP burst ceiling.
+# See: scripts/CLAUDE.md "T212 Cloudflare Rate-Limit (Geo-1010)" lesson.
+T212_FILL_POLL_COUNT   = 9      # Attempts before deferring (9 × 20s = 3 min)
+T212_FILL_POLL_INTERVAL = 20    # Seconds between fill-status polls
+
+# ── Limit-price slippage premium ─────────────────────────────────────────────
+# A passive BUY limit set at the inside ask never crosses the spread for
+# illiquid instruments — VAGS bond ETF sat NEW for 9 polls × 20s on 2026-04-16
+# without a single fill. Adding a small premium turns it into a "marketable
+# limit": still capped (no runaway market fill) but priced through the
+# inside ask so it executes immediately under normal spreads.
+#
+# 0.15% (15 bps) covers spreads on most liquid LSE GBP ETFs and US large-caps.
+# For known-illiquid instruments override via T212_LIMIT_PREMIUM_BPS_OVERRIDE.
+# Hard cap: premium can never exceed half the entry-to-stop distance, ensuring
+# the entry never opens already inside the stop's risk envelope.
+T212_LIMIT_PREMIUM_BPS              = 15      # 0.15% premium on BUY limits
+T212_LIMIT_PREMIUM_BPS_ILLIQUID     = 35      # 0.35% for low-volume ETFs
+T212_LIMIT_PREMIUM_MAX_FRAC_OF_STOP = 0.5     # Cap at 50% of stop distance
+
+# Tickers known to be illiquid (wide spread, low volume) — get the higher
+# premium. Add new entries here when fills repeatedly fail at the standard
+# premium. Tracked in scripts/CLAUDE.md.
+T212_ILLIQUID_TICKERS = {
+    'VAGSl_EQ',   # Vanguard Global Aggregate Bond — bond ETF, 15-30 bps spread
+    'IBTSl_EQ',   # iShares 0-1y Treasury — short-duration bond
+    'IS15l_EQ',   # iShares 1-5y Treasury — short-duration bond
+    'VGOVl_EQ',   # Vanguard UK Gilt
+    'AIGEl_EQ',   # Bloomberg Energy commodity ETC
+    'AIGPl_EQ',   # Bloomberg Precious Metals ETC
+    'ICOMl_EQ',   # Bloomberg Commodity ETC
+    'COPAl_EQ',   # WisdomTree Copper ETC
+}
 
 # ── ATR Stop Multipliers ──────────────────────────────────────────────────────
 ATR_STOP_TREND         = 2.0    # ATR multiplier for trend trades
@@ -88,12 +137,26 @@ CB_ROLLING_THRESHOLDS   = {
     10: -15.0,   # 10-day cumulative loss > 15% → CRITICAL
 }
 
-# ── LLM / AI Integration (Gemini) ────────────────────────────────────────────
-# Set GEMINI_API_KEY in .env.trading212 to enable LLM-powered features.
-# All LLM features degrade gracefully to rule-based fallbacks if key is absent.
+# ── LLM / AI Integration ─────────────────────────────────────────────────────
+# Set GEMINI_API_KEY and ANTHROPIC_API_KEY in .env.trading212.
+# All LLM features degrade gracefully to rule-based fallbacks if keys absent.
+#
+# Provider selection: LLM_PROVIDER controls which model handles thinking-tier
+# calls (preflight, tiebreaker, TACO, morning-brief, queue-revalidate).
+# Fast-tier calls (sentiment batch scoring) always use Gemini Flash.
+# Switch at runtime via: python3 apex_llm_client.py provider gemini|anthropic
+# Or Telegram: LLM PROVIDER anthropic|gemini
 GEMINI_API_KEY      = ''   # Populated at runtime via get_env() below
-LLM_SENTIMENT_MODEL = 'gemini-2.5-flash'
-LLM_TIMEOUT         = 30   # seconds per API call
+ANTHROPIC_API_KEY   = ''   # Populated at runtime via get_env() below
+LLM_PROVIDER                 = 'anthropic'       # 'anthropic' | 'gemini'
+LLM_SENTIMENT_MODEL          = 'gemini-2.5-flash'  # fast-tier (unchanged)
+LLM_THINKING_MODEL_ANTHROPIC = 'claude-sonnet-4-6'
+LLM_THINKING_MODEL_GEMINI    = 'gemini-2.5-pro'
+LLM_THINKING_BUDGET_TOKENS   = 2048   # max thinking tokens — increase for harder calls
+LLM_DAILY_BUDGET_USD         = 2.00   # hard daily spend cap — falls back to fast model
+LLM_BUDGET_ALERT_PCT         = 0.80   # send Telegram alert at this fraction of daily budget
+LLM_TIMEOUT                  = 30     # seconds per fast API call
+LLM_THINKING_TIMEOUT         = 90     # seconds per thinking-tier call (reasoning takes longer)
 
 # ── Environment / Credentials ────────────────────────────────────────────────
 def get_env(key: str, default: str = '') -> str:
@@ -117,5 +180,6 @@ def get_env(key: str, default: str = '') -> str:
             pass
         return default
 
-# Populate LLM key at import time (after get_env is defined)
-GEMINI_API_KEY = get_env('GEMINI_API_KEY', '')
+# Populate LLM keys at import time (after get_env is defined)
+GEMINI_API_KEY    = get_env('GEMINI_API_KEY', '')
+ANTHROPIC_API_KEY = get_env('ANTHROPIC_API_KEY', '')

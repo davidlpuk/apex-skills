@@ -86,7 +86,60 @@ def cmd_describe(manifest, name):
     return 0
 
 
-def _run_one(manifest, name, force=False):
+def _check_preconditions(tool):
+    """Return a list of precondition warnings for input files.
+
+    Checks that every declared input exists and (for JSON state files) is not
+    alarmingly stale. Returns a list of dicts describing missing/stale inputs.
+    """
+    warnings = []
+    for fname in tool.get('inputs', []):
+        if not fname.endswith('.json'):
+            continue  # only check state files, not Python modules
+        fpath = os.path.join(LOGS_DIR, fname)
+        if not os.path.exists(fpath):
+            warnings.append({'input': fname, 'issue': 'missing'})
+            continue
+        age_s = time.time() - os.path.getmtime(fpath)
+        # 6h default staleness threshold; manifest can override with max_age_s
+        max_age = tool.get('max_input_age_s', 21600)
+        if age_s > max_age:
+            warnings.append({
+                'input': fname,
+                'issue': 'stale',
+                'age_minutes': int(age_s / 60),
+                'threshold_minutes': int(max_age / 60),
+            })
+    return warnings
+
+
+def _next_steps(tool, outcome_status):
+    """Suggest likely next tools based on this tool's tags and outcome.
+
+    This is a lightweight heuristic — it reads the manifest-declared `next`
+    hint if present, otherwise falls back to tag-based suggestions. Goal:
+    every tool response tells the agent what's sensible to do next so the
+    agent doesn't flounder after an unfamiliar result.
+    """
+    explicit = tool.get('next_on_ok') if outcome_status == 'ok' else tool.get('next_on_error')
+    if explicit:
+        return explicit
+
+    tags = set(tool.get('tags', []))
+    if outcome_status == 'error':
+        return ['staleness-check', 'data-integrity']
+    if 'regime' in tags:
+        return ['query-regime', 'circuit-breaker']
+    if 'signals' in tags or 'scan' in tags:
+        return ['expected-value', 'vwap-gate', 'query-signals']
+    if 'exits' in tags:
+        return ['intraday-momentum', 'query-positions']
+    if 'context' in tags:
+        return ['build-context']
+    return []
+
+
+def _run_one(manifest, name, force=False, check_preconditions=True):
     """Run a single tool. Returns a result dict (not printed)."""
     tool = find_tool(manifest, name)
     if not tool:
@@ -99,7 +152,11 @@ def _run_one(manifest, name, force=False):
             'tool': name,
             'safety': safety,
             'reason': 'execute-trade tools require --force flag.',
+            'next_steps': ['request_confirmation', 'send_telegram'],
         }
+
+    # Precondition check — surfaces missing or stale inputs BEFORE running.
+    precondition_warnings = _check_preconditions(tool) if check_preconditions else []
 
     # Script field may include args e.g. "apex-query.py positions"
     script_parts = tool['script'].split()
@@ -136,8 +193,9 @@ def _run_one(manifest, name, force=False):
             except Exception:
                 output_data[fname] = None
 
-    return {
-        'status': 'ok' if success else 'error',
+    outcome = 'ok' if success else 'error'
+    result = {
+        'status': outcome,
         'tool': name,
         'safety': safety,
         'elapsed_s': elapsed,
@@ -145,7 +203,11 @@ def _run_one(manifest, name, force=False):
         'stdout': proc.stdout[-4000:] if proc.stdout else '',
         'stderr': proc.stderr[-2000:] if proc.stderr else '',
         'outputs': output_data,
+        'next_steps': _next_steps(tool, outcome),
     }
+    if precondition_warnings:
+        result['precondition_warnings'] = precondition_warnings
+    return result
 
 
 def cmd_run(manifest, name, force=False):

@@ -387,6 +387,174 @@ def get_fx_rate(currency: str) -> float:
 
 
 # ============================================================
+# CROSS-CURRENCY CONVERSION (for T212 limit/stop submission)
+# ============================================================
+# `get_fx_rate(c)` only returns "1 unit of c → GBP". The order executor needs
+# arbitrary pair conversion (e.g. USD→EUR for HEAL.L which yfinance quotes in
+# USD but T212 trades in EUR). This helper composes any pair via GBP base
+# rates, fetched live from yfinance and cached on disk.
+#
+# Cache: `apex-fx-rates.json`, TTL 6 hours (FX moves <1% intraday for liquid
+# major pairs — sub-day staleness is acceptable for limit-pricing decisions).
+# Fail-CLOSED: on rate fetch failure raise FxRateUnavailable so the executor
+# can decline the trade rather than submit a wrongly-priced limit.
+
+_FX_CACHE_FILE = f'{LOG_DIR}/apex-fx-rates.json'
+_FX_CACHE_TTL_SECONDS = 6 * 3600  # 6 hours
+
+# yfinance symbols for each major pair vs GBP
+_FX_GBP_PAIRS = {
+    'USD': 'GBPUSD=X',  # GBPUSD=X = how many USD per 1 GBP
+    'EUR': 'GBPEUR=X',
+    'CHF': 'GBPCHF=X',
+    'JPY': 'GBPJPY=X',
+    'CAD': 'GBPCAD=X',
+    'AUD': 'GBPAUD=X',
+    'CNY': 'GBPCNY=X',
+}
+
+
+class FxRateUnavailable(Exception):
+    """Raised when an FX rate cannot be fetched and no cached value is fresh."""
+
+
+def _normalise_currency(c: str) -> str:
+    """GBX (pence) shares the same FX rate as GBP — they are the same fiat."""
+    if not c:
+        return 'GBP'
+    c = c.upper()
+    if c in ('GBX', 'GBPENCE'):
+        return 'GBP'
+    return c
+
+
+def _refresh_fx_cache(currencies):
+    """
+    Fetch GBP→<currency> rates from yfinance and update the cache file.
+    `currencies` = iterable of ISO codes to refresh (skips GBP).
+    Returns the updated cache dict. Best-effort: failures for one pair don't
+    abort others — they leave the previous cached value in place.
+    """
+    cache = safe_read(_FX_CACHE_FILE, {}) or {}
+    if 'rates' not in cache:
+        cache = {'rates': {}, 'updated_at': None}
+
+    try:
+        import yfinance as yf  # local import — only needed when refreshing
+    except ImportError:
+        # If yfinance is unavailable, return whatever's already cached
+        return cache
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    for c in currencies:
+        c = _normalise_currency(c)
+        if c == 'GBP':
+            continue
+        sym = _FX_GBP_PAIRS.get(c)
+        if not sym:
+            continue
+        try:
+            tk = yf.Ticker(sym)
+            # fast_info is faster than .history() and avoids the 1-day window
+            rate = float(getattr(tk.fast_info, 'last_price', None) or 0)
+            if rate > 0:
+                cache['rates'][c] = {
+                    'gbp_per_unit': round(1.0 / rate, 8),  # 1 unit of c → GBP
+                    'unit_per_gbp': round(rate, 8),         # how many c per 1 GBP
+                    'fetched_at':   now_iso,
+                    'source':       sym,
+                }
+        except Exception:
+            # leave previous cached value in place
+            pass
+    cache['updated_at'] = now_iso
+    try:
+        atomic_write(_FX_CACHE_FILE, cache)
+    except Exception:
+        pass  # cache write failure is non-fatal — we still return the dict
+    return cache
+
+
+def _get_gbp_per_unit(currency: str) -> float:
+    """
+    Return "how many GBP equals 1 unit of *currency*" using the FX cache,
+    refreshing yfinance if the cached value is stale (>6h) or missing.
+    Raises FxRateUnavailable if no rate can be obtained.
+    """
+    c = _normalise_currency(currency)
+    if c == 'GBP':
+        return 1.0
+
+    cache = safe_read(_FX_CACHE_FILE, {}) or {}
+    rates = (cache.get('rates') or {})
+    entry = rates.get(c)
+
+    needs_refresh = True
+    if entry and entry.get('gbp_per_unit'):
+        try:
+            ts = datetime.fromisoformat(entry['fetched_at'])
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            age = (datetime.now(timezone.utc) - ts).total_seconds()
+            if age < _FX_CACHE_TTL_SECONDS:
+                return float(entry['gbp_per_unit'])
+            needs_refresh = True
+        except Exception:
+            needs_refresh = True
+
+    if needs_refresh:
+        cache = _refresh_fx_cache([c])
+        entry = (cache.get('rates') or {}).get(c)
+        if entry and entry.get('gbp_per_unit'):
+            return float(entry['gbp_per_unit'])
+
+    # Final fallback: try the macro file (existing get_fx_rate path) for USD
+    if c == 'USD':
+        v = get_fx_rate('USD')
+        if v and v != 1.0:
+            return float(v)
+
+    raise FxRateUnavailable(
+        f"No FX rate available for {c} — yfinance fetch failed and no fresh "
+        f"cache entry. Trade cannot be priced safely."
+    )
+
+
+def convert_price(price: float, from_currency: str, to_currency: str) -> float:
+    """
+    Convert *price* from *from_currency* to *to_currency*.
+
+    Returns the converted price. Raises FxRateUnavailable if either side
+    cannot be resolved (the executor should decline the trade in that case
+    rather than submit a wrongly-priced limit).
+
+    GBX is treated as GBP — the pence/pounds split is handled separately
+    by the executor when serialising to the T212 API. This helper deals
+    in fiat units only, never sub-units.
+
+    Examples:
+        convert_price(16.78, 'USD', 'USD') → 16.78          (no conversion)
+        convert_price(30.18, 'GBP', 'CHF') → 30.18 / GBP-per-CHF
+        convert_price(9.005, 'USD', 'EUR') → cross via GBP
+    """
+    if price is None or price <= 0:
+        return price
+    src = _normalise_currency(from_currency)
+    dst = _normalise_currency(to_currency)
+    if src == dst:
+        return float(price)
+
+    # Convert source → GBP, then GBP → destination
+    src_gbp = _get_gbp_per_unit(src) if src != 'GBP' else 1.0
+    dst_gbp = _get_gbp_per_unit(dst) if dst != 'GBP' else 1.0
+    if dst_gbp <= 0:
+        raise FxRateUnavailable(f"GBP-per-{dst} resolved to {dst_gbp}")
+
+    price_gbp = float(price) * src_gbp
+    return price_gbp / dst_gbp
+
+
+# ============================================================
 # PORTFOLIO VALUE
 # ============================================================
 _PORTFOLIO_CACHE_FILE = f'{LOG_DIR}/apex-portfolio-cache.json'

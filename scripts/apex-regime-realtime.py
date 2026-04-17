@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 try:
-    from apex_utils import atomic_write, safe_read, log_error, send_telegram
+    from apex_utils import atomic_write, safe_read, log_error, log_warning, send_telegram
 except ImportError:
     def atomic_write(p, d):
         with open(p, 'w') as f: json.dump(d, f, indent=2)
@@ -79,11 +79,11 @@ def fetch_vix() -> float | None:
     try:
         import yfinance as yf
         hist = yf.Ticker('^VIX').history(period='2d')
-        if hist.empty:
+        if hist is None or hist.empty:
             return None
         return round(float(hist['Close'].iloc[-1]), 2)
     except Exception as e:
-        log_error(f"VIX fetch failed: {e}")
+        log_warning(f"VIX fetch failed: {e}")
         return None
 
 
@@ -160,10 +160,11 @@ def trigger_scaling() -> None:
     try:
         subprocess.run(
             ['/home/ubuntu/bin/python3', SCALING_SCRIPT],
-            capture_output=True, timeout=30
+            capture_output=True, timeout=90
         )
     except Exception as e:
-        log_error(f"Scaling recalc failed: {e}")
+        # Transient external dependency — system continues with last known scaling values.
+        log_warning(f"Scaling recalc failed: {e}")
 
 
 def check_vix_alerts(vix: float, prev_vix: float | None) -> None:

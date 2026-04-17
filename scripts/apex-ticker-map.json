@@ -2,27 +2,32 @@
   "VWRP": {
     "t212": "VWRPl_EQ",
     "name": "Vanguard FTSE All-World (Acc)",
-    "currency": "GBP"
+    "currency": "GBP",
+    "yahoo_currency": "GBP"
   },
   "VUAG": {
     "t212": "VUAGl_EQ",
     "name": "Vanguard S&P 500 (Acc)",
-    "currency": "GBP"
+    "currency": "GBP",
+    "yahoo_currency": "GBP"
   },
   "VFEA": {
     "t212": "VFEAl_EQ",
     "name": "Vanguard FTSE Emerging Markets (Acc)",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "IGWD": {
     "t212": "IGWDl_EQ",
     "name": "iShares MSCI World GBP Hedged (Acc)",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "HMWO": {
     "t212": "HMWOl_EQ",
     "name": "HSBC MSCI World (Dist)",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "IITU": {
     "t212": "IITU_EQ",
@@ -32,37 +37,44 @@
   "IUFS": {
     "t212": "IUFSl_EQ",
     "name": "iShares S&P 500 Financials (Acc)",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "IUHC": {
     "t212": "IUHCl_EQ",
     "name": "iShares S&P 500 Healthcare (Acc)",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "IUES": {
     "t212": "IUESl_EQ",
     "name": "iShares S&P 500 Energy (Acc)",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "IUCD": {
     "t212": "IUCDl_EQ",
     "name": "iShares S&P 500 Consumer Disc (Acc)",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "SGLN": {
     "t212": "SGLNl_EQ",
     "name": "iShares Physical Gold",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "SSLN": {
     "t212": "SSLNl_EQ",
     "name": "iShares Physical Silver",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "ISF": {
     "t212": "ISFl_EQ",
     "name": "iShares Core FTSE 100 (Dist)",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "CSPX": {
     "t212": "CSPX_EQ",
@@ -72,177 +84,215 @@
   "EQQQ": {
     "t212": "EQQQm_EQ",
     "name": "Invesco EQQQ Nasdaq-100 (Dist)",
-    "currency": "EUR"
+    "currency": "EUR",
+    "yahoo_currency": "GBP"
   },
   "HEAL": {
     "t212": "HEALm_EQ",
     "name": "iShares Healthcare Innovation (Acc)",
-    "currency": "EUR"
+    "currency": "EUR",
+    "yahoo_currency": "USD"
   },
   "INRG": {
     "t212": "INRGl_EQ",
     "name": "iShares Global Clean Energy (Dist)",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "WCLD": {
     "t212": "WCLDl_EQ",
     "name": "WisdomTree Cloud Computing (Acc)",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "VAPX": {
     "t212": "VAPXs_EQ",
     "name": "Vanguard FTSE Dev Asia Pacific (Dist)",
-    "currency": "CHF"
+    "currency": "CHF",
+    "yahoo_currency": "GBP"
   },
   "VJPN": {
     "t212": "VJPNd_EQ",
     "name": "Vanguard FTSE Japan (Dist)",
-    "currency": "EUR"
+    "currency": "EUR",
+    "yahoo_currency": "GBP"
   },
   "VGOV": {
     "t212": "VGOVd_EQ",
     "name": "Vanguard UK Gilt (Dist)",
-    "currency": "EUR"
+    "currency": "EUR",
+    "yahoo_currency": "GBP"
   },
   "VAGS": {
     "t212": "VAGSl_EQ",
     "name": "Vanguard Global Aggregate Bond (Acc)",
-    "currency": "GBP"
+    "currency": "GBP",
+    "yahoo_currency": "GBP"
   },
   "HSBA": {
     "t212": "HSBAl_EQ",
     "name": "HSBC",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "SHEL": {
     "t212": "SHELl_EQ",
     "name": "Shell",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "AZN": {
     "t212": "AZNl_EQ",
     "name": "AstraZeneca",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "ULVR": {
     "t212": "ULVRl_EQ",
     "name": "Unilever",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "GSK": {
     "t212": "GSKl_EQ",
     "name": "GSK",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "LLOY": {
     "t212": "LLOYl_EQ",
     "name": "Lloyds Banking Group",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "BP": {
     "t212": "BPl_EQ",
     "name": "BP",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "RIO": {
     "t212": "RIOl_EQ",
     "name": "Rio Tinto",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "BA": {
     "t212": "BAl_EQ",
     "name": "BAE Systems",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "REL": {
     "t212": "RELl_EQ",
     "name": "RELX",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "BARC": {
     "t212": "BARCl_EQ",
     "name": "Barclays",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "NWG": {
     "t212": "NWG_US_EQ",
     "name": "NatWest",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "PRU": {
     "t212": "PRUl_EQ",
     "name": "Prudential",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "NG": {
     "t212": "NGl_EQ",
     "name": "National Grid",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "SSE": {
     "t212": "SSEl_EQ",
     "name": "SSE",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "DGE": {
     "t212": "DGEl_EQ",
     "name": "Diageo",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "IMB": {
     "t212": "IMBl_EQ",
     "name": "Imperial Brands",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "BATS": {
     "t212": "BATSl_EQ",
     "name": "British American Tobacco",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "EXPN": {
     "t212": "EXPNl_EQ",
     "name": "Experian",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "CPG": {
     "t212": "CPGl_EQ",
     "name": "Compass Group",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "USD"
   },
   "WPP": {
     "t212": "WPPl_EQ",
     "name": "WPP",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "VOD": {
     "t212": "VOD_US_EQ",
     "name": "Vodafone",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "BT": {
     "t212": "BTl_EQ",
     "name": "BT Group",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_ticker": "BT-A.L",
+    "yahoo_currency": "GBX"
   },
   "LGEN": {
     "t212": "LGENl_EQ",
     "name": "Legal & General",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_currency": "GBX"
   },
   "AVIVA": {
     "t212": "AVl_EQ",
     "name": "Aviva",
-    "currency": "GBX"
+    "currency": "GBX",
+    "yahoo_ticker": "AV.L",
+    "yahoo_currency": "GBX"
   },
   "SIE": {
     "t212": "SIEd_EQ",
     "name": "Siemens",
-    "currency": "EUR"
+    "currency": "EUR",
+    "yahoo_ticker": "SIE.DE",
+    "yahoo_currency": "EUR"
   },
   "AIR": {
     "t212": "AIRp_EQ",
     "name": "Airbus",
-    "currency": "EUR"
+    "currency": "EUR",
+    "yahoo_currency": "USD"
   },
   "LVMH": {
     "t212": "MCp_EQ",
@@ -252,202 +302,247 @@
   "SAN": {
     "t212": "SAN_US_EQ",
     "name": "Banco Santander",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "NOVN": {
     "t212": "NOVNs_EQ",
     "name": "Novartis",
-    "currency": "CHF"
+    "currency": "CHF",
+    "yahoo_ticker": "NOVN.SW",
+    "yahoo_currency": "CHF"
   },
   "ROG": {
     "t212": "ROGs_EQ",
     "name": "Roche",
-    "currency": "CHF"
+    "currency": "CHF",
+    "yahoo_ticker": "ROG.SW",
+    "yahoo_currency": "CHF"
   },
   "TTE": {
     "t212": "TOT_US_EQ",
     "name": "TotalEnergies",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "ASML": {
     "t212": "ASML_US_EQ",
     "name": "ASML",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "NOVO": {
     "t212": "NVO_US_EQ",
     "name": "Novo Nordisk",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "AAPL": {
     "t212": "AAPL_US_EQ",
     "name": "Apple",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "MSFT": {
     "t212": "MSFT_US_EQ",
     "name": "Microsoft",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "NVDA": {
     "t212": "NVDA_US_EQ",
     "name": "Nvidia",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "GOOGL": {
     "t212": "GOOGL_US_EQ",
     "name": "Alphabet (Class A)",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "AMZN": {
     "t212": "AMZN_US_EQ",
     "name": "Amazon",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "META": {
     "t212": "META_US_EQ",
     "name": "Meta Platforms",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "TSLA": {
     "t212": "TSLA_US_EQ",
     "name": "Tesla",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "CRM": {
     "t212": "CRM_US_EQ",
     "name": "Salesforce",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "ORCL": {
     "t212": "ORCL_US_EQ",
     "name": "Oracle",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "AMD": {
     "t212": "AMDd_EQ",
     "name": "Advanced Micro Devices",
-    "currency": "EUR"
+    "currency": "EUR",
+    "yahoo_ticker": "AMD.DE",
+    "yahoo_currency": "EUR"
   },
   "INTC": {
     "t212": "INTC_US_EQ",
     "name": "Intel",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "QCOM": {
     "t212": "QCOM_US_EQ",
     "name": "Qualcomm",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "JPM": {
     "t212": "JPM_US_EQ",
     "name": "JPMorgan Chase",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "GS": {
     "t212": "GS_US_EQ",
     "name": "Goldman Sachs",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "MS": {
     "t212": "MS_US_EQ",
     "name": "Morgan Stanley",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "BAC": {
     "t212": "BAC_US_EQ",
     "name": "Bank of America",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "BLK": {
     "t212": "BLK_US_EQ",
     "name": "BlackRock",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "AXP": {
     "t212": "AXP_US_EQ",
     "name": "American Express",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "C": {
     "t212": "C_US_EQ",
     "name": "Citigroup",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "V": {
     "t212": "V_US_EQ",
     "name": "Visa",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "JNJ": {
     "t212": "JNJ_US_EQ",
     "name": "Johnson & Johnson",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "PFE": {
     "t212": "PFEd_EQ",
     "name": "Pfizer",
-    "currency": "EUR"
+    "currency": "EUR",
+    "yahoo_ticker": "PFE.DE",
+    "yahoo_currency": "EUR"
   },
   "MRK": {
     "t212": "MRK_US_EQ",
     "name": "Merck & Co",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "UNH": {
     "t212": "UNH_US_EQ",
     "name": "UnitedHealth",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "ABBV": {
     "t212": "ABBV_US_EQ",
     "name": "AbbVie",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "TMO": {
     "t212": "TMO_US_EQ",
     "name": "Thermo Fisher Scientific",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "DHR": {
     "t212": "DHR_US_EQ",
     "name": "Danaher",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "KO": {
     "t212": "KO_US_EQ",
     "name": "Coca-Cola",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "PEP": {
     "t212": "PEPd_EQ",
     "name": "PepsiCo",
-    "currency": "EUR"
+    "currency": "EUR",
+    "yahoo_ticker": "PEP.DE",
+    "yahoo_currency": "EUR"
   },
   "MCD": {
     "t212": "MCD_US_EQ",
     "name": "McDonald's",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "WMT": {
     "t212": "WMT_US_EQ",
     "name": "Walmart",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "PG": {
     "t212": "PG_US_EQ",
     "name": "Procter & Gamble",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "XOM": {
     "t212": "XOM_US_EQ",
     "name": "Exxon Mobil",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "CVX": {
     "t212": "CVX_US_EQ",
     "name": "Chevron",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "QQQS": "QQQSl_EQ",
   "3USS": "3USSl_EQ",
@@ -459,68 +554,85 @@
     "name": "Pagaya Technologies",
     "currency": "USD",
     "sector": "Financials",
-    "user_added": true
+    "user_added": true,
+    "yahoo_currency": "USD"
   },
   "NFE": {
     "t212": "NFE_US_EQ",
     "name": "New Fortress Energy",
     "currency": "USD",
     "sector": "Energy",
-    "user_added": true
+    "user_added": true,
+    "yahoo_currency": "USD"
   },
   "CRDO": {
     "t212": "CRDO_US_EQ",
     "name": "Credo Technology",
     "currency": "USD",
     "sector": "Technology",
-    "user_added": true
+    "user_added": true,
+    "yahoo_currency": "USD"
   },
   "IUIT": {
     "t212": "IUITl_EQ",
     "name": "iShares US IT ETF",
     "currency": "GBP",
     "sector": "Technology",
-    "user_added": true
+    "user_added": true,
+    "yahoo_currency": "USD"
   },
   "POOL": {
     "t212": "POOL_US_EQ",
     "name": "POOL",
     "currency": "USD",
     "sector": "Consumer",
-    "user_added": true
+    "user_added": true,
+    "yahoo_currency": "USD"
   },
   "COP": {
     "t212": "COP_US_EQ",
     "name": "ConocoPhillips",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "LLY": {
     "t212": "LLY_US_EQ",
     "name": "Eli Lilly",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "RTX": {
     "t212": "RTX_US_EQ",
     "name": "RTX Corp",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "LMT": {
     "t212": "LMT_US_EQ",
     "name": "Lockheed Martin",
-    "currency": "USD"
+    "currency": "USD",
+    "yahoo_currency": "USD"
   },
   "ALLE": {
     "t212": "ALLE_US_EQ",
     "name": "ALLE",
     "currency": "USD",
     "sector": "Consumer",
-    "user_added": true
+    "user_added": true,
+    "yahoo_currency": "USD"
   },
   "LEN": {
     "t212": "LEN_US_EQ",
     "name": "LEN",
     "currency": "USD",
     "sector": "Consumer",
-    "user_added": true
+    "user_added": true,
+    "yahoo_currency": "USD"
+  },
+  "DFNG": {
+    "t212": "DFNGl_EQ",
+    "name": "VanEck Defense UCITS ETF",
+    "currency": "GBP",
+    "yahoo_currency": "GBP"
   }
 }

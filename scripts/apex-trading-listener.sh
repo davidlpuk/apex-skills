@@ -445,20 +445,289 @@ PYEOF
           LLM_MSG=$(python3 /home/ubuntu/.picoclaw/scripts/apex_llm_flags.py reset 2>/dev/null || echo "❌ Failed")
           send_message "$LLM_MSG"
           ;;
+        PROVIDER)
+          PROVIDER=$(echo "${arg2:-}" | tr '[:upper:]' '[:lower:]')
+          if [ -z "$PROVIDER" ]; then
+            LLM_MSG=$(python3 /home/ubuntu/.picoclaw/scripts/apex_llm_client.py status 2>/dev/null || echo "❌ Failed")
+          else
+            LLM_MSG=$(python3 /home/ubuntu/.picoclaw/scripts/apex_llm_client.py provider "$PROVIDER" 2>/dev/null || echo "❌ Failed")
+          fi
+          send_message "$LLM_MSG"
+          ;;
+        BUDGET)
+          LLM_MSG=$(python3 /home/ubuntu/.picoclaw/scripts/apex_llm_cost_tracker.py status 2>/dev/null || echo "❌ Cost tracker unavailable")
+          send_message "$LLM_MSG"
+          ;;
+        AB|ABTEST)
+          LLM_MSG=$(python3 /home/ubuntu/.picoclaw/scripts/apex_llm_ab_tracker.py summary 2>/dev/null || echo "❌ A/B tracker unavailable")
+          send_message "$LLM_MSG"
+          ;;
+        BRIEF)
+          BRIEF_MSG=$(python3 -c "
+import json
+try:
+    with open('/home/ubuntu/.picoclaw/logs/apex-llm-morning-brief.json') as f:
+        b = json.load(f)
+    posture = b.get('risk_posture','?')
+    icons = {'FULL':'✅','REDUCED':'⚠️','CAUTIOUS':'🟠','DEFENSIVE':'🔴'}
+    icon = icons.get(posture,'❓')
+    text = b.get('brief_text','')[:400]
+    reason = b.get('risk_posture_reason','')[:100]
+    ts = b.get('timestamp','')[:16].replace('T',' ')
+    print(f'{icon} MORNING BRIEF ({ts})\nPosture: {posture} — {reason}\n\n{text}')
+except Exception as e:
+    print(f'❌ No morning brief available: {e}')
+" 2>/dev/null || echo "❌ Brief unavailable")
+          send_message "$BRIEF_MSG"
+          ;;
         *)
           send_message "🤖 LLM Commands:
 
-  LLM STATUS            — show all flag states + call counts
-  LLM ON <flag>         — enable a Gemini module
-  LLM OFF <flag>        — disable (fall back to rule-based)
-  LLM RESET             — clear call counters
+  LLM STATUS               — all flags + provider + budget
+  LLM ON <flag>            — enable a module
+  LLM OFF <flag>           — disable (fall back to rules)
+  LLM RESET                — clear call counters
+  LLM PROVIDER anthropic   — switch to Claude thinking
+  LLM PROVIDER gemini      — switch to Gemini Pro
+  LLM BUDGET               — today's spend vs limit
+  LLM AB                   — A/B performance report (7d)
+  LLM BRIEF                — today's morning brief
 
-Flags:
-  sentiment_llm         — news headline scoring
+Thinking-tier flags (use Claude/Gemini Pro):
   taco_llm              — geopolitical classifier
-  preflight_llm         — pre-entry filter (experimental)
-  exit_timing_llm       — exit timing (experimental)
-  signal_tiebreaker_llm — signal ranking (experimental)"
+  preflight_llm         — pre-entry falling knife filter
+  signal_tiebreaker_llm — signal ranking
+  morning_brief_llm     — daily strategy brief
+  queue_revalidate_llm  — overnight signal check
+  drawdown_review_llm   — drawdown cause assessment
+
+Fast-tier flags (Gemini Flash):
+  sentiment_llm         — news headline scoring
+  exit_timing_llm       — partial exit fraction"
+          ;;
+      esac
+      ;;
+
+    AGENT)
+      # Claude Agent control: AGENT ON | OFF | STATUS | CONFIRM | REJECT
+      AGENT_FLAG="/home/ubuntu/.picoclaw/logs/apex-agent-enabled.json"
+      AGENT_CONFIRM="/home/ubuntu/.picoclaw/logs/apex-agent-pending-confirm.json"
+      case "$arg1" in
+        ON)
+          python3 << 'PYEOF'
+import json, tempfile, os, datetime
+path = "/home/ubuntu/.picoclaw/logs/apex-agent-enabled.json"
+data = {"enabled": True, "changed_by": "telegram", "changed_at": datetime.datetime.utcnow().isoformat() + "Z", "reason": "enabled via Telegram"}
+d = os.path.dirname(path)
+with tempfile.NamedTemporaryFile(mode="w", dir=d, delete=False, suffix=".tmp") as tf:
+    json.dump(data, tf, indent=2); tmp = tf.name
+os.replace(tmp, path)
+print("ENABLED")
+PYEOF
+          send_message "🤖 AGENT ENABLED
+
+Autonomous analysis will run on schedule.
+Shadow mode — analysis is logged and Telegrammed, no trades without AGENT CONFIRM.
+Send AGENT OFF to disable."
+          ;;
+        OFF)
+          python3 << 'PYEOF'
+import json, tempfile, os, datetime
+path = "/home/ubuntu/.picoclaw/logs/apex-agent-enabled.json"
+data = {"enabled": False, "changed_by": "telegram", "changed_at": datetime.datetime.utcnow().isoformat() + "Z", "reason": "disabled via Telegram"}
+d = os.path.dirname(path)
+with tempfile.NamedTemporaryFile(mode="w", dir=d, delete=False, suffix=".tmp") as tf:
+    json.dump(data, tf, indent=2); tmp = tf.name
+os.replace(tmp, path)
+print("DISABLED")
+PYEOF
+          send_message "🤖 AGENT DISABLED — scheduled runs will skip. Send AGENT ON to re-enable."
+          ;;
+        STATUS)
+          AGENT_STATUS=$(python3 << 'PYEOF'
+import json, os
+from datetime import datetime, timezone
+
+flag_path   = "/home/ubuntu/.picoclaw/logs/apex-agent-enabled.json"
+log_path    = "/home/ubuntu/.picoclaw/logs/apex-agent-reasoning.jsonl"
+
+def r(p, d=None):
+    try:
+        with open(p) as f: return json.load(f)
+    except: return d
+
+flag = r(flag_path, {})
+enabled = flag.get("enabled", False) if isinstance(flag, dict) else False
+changed = flag.get("changed_at", "")[:16].replace("T", " ") if isinstance(flag, dict) else ""
+changed_by = flag.get("changed_by", "") if isinstance(flag, dict) else ""
+
+# Last run from reasoning log
+last_run = {}
+try:
+    with open(log_path) as f:
+        data = json.load(f)
+    if isinstance(data, list) and data:
+        last_run = data[-1]
+except: pass
+
+# Current signal review
+review = r("/home/ubuntu/.picoclaw/logs/apex-agent-review.json", {})
+
+status_icon = "🟢" if enabled else "🔴"
+lines = [
+    f"🤖 AGENT STATUS",
+    f"State:   {status_icon} {'ENABLED' if enabled else 'DISABLED'}",
+]
+if changed:
+    lines.append(f"Changed: {changed} by {changed_by}")
+if last_run:
+    ts = last_run.get("started","")[:16].replace("T"," ")
+    mode = last_run.get("mode","?")
+    cost = last_run.get("cost_usd", 0)
+    tools = last_run.get("tool_count", 0)
+    lines += ["", f"Last run: {mode} @ {ts}", f"  Tools: {tools}  Cost: ${cost:.3f}"]
+if review and isinstance(review, dict) and review.get("verdict"):
+    v = review.get("verdict","?")
+    ho = review.get("human_override") or "none"
+    sig_ts = review.get("signal_timestamp","")[:16]
+    summary = review.get("reasoning_summary","")[:60]
+    lines += ["", f"Signal review: {v} (override: {ho})", f"  {sig_ts} — {summary}"]
+
+print("\n".join(lines))
+PYEOF
+)
+          send_message "$AGENT_STATUS"
+          ;;
+        CONFIRM)
+          # Confirm: applies to BOTH the signal review file and any pending-confirm request.
+          # Signal review: overrides agent's NEUTRAL or VETO → autopilot proceeds.
+          # Pending confirm: unblocks a waiting request_confirmation() call.
+          AGENT_REVIEW="/home/ubuntu/.picoclaw/logs/apex-agent-review.json"
+          CONFIRMED_SOMETHING=0
+          RESULT=$(python3 << 'PYEOF'
+import json, tempfile, os, datetime
+msgs = []
+
+# 1. Apply to signal review file if it exists and has no override yet
+review_path = "/home/ubuntu/.picoclaw/logs/apex-agent-review.json"
+if os.path.exists(review_path):
+    try:
+        with open(review_path) as f: rv = json.load(f)
+        if rv.get("human_override") is None:
+            rv["human_override"] = "CONFIRM"
+            rv["human_override_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            d = os.path.dirname(review_path)
+            with tempfile.NamedTemporaryFile(mode="w", dir=d, delete=False, suffix=".tmp") as tf:
+                json.dump(rv, tf, indent=2); tmp = tf.name
+            os.replace(tmp, review_path)
+            sig = rv.get("signal_timestamp","")[:16]
+            msgs.append(f"REVIEW_CONFIRMED|{rv.get('verdict','?')} overridden → PROCEED|{sig}")
+        else:
+            msgs.append(f"REVIEW_ALREADY|{rv.get('human_override','?')}")
+    except Exception as e:
+        msgs.append(f"REVIEW_ERROR|{e}")
+
+# 2. Apply to pending-confirm file if it exists
+confirm_path = "/home/ubuntu/.picoclaw/logs/apex-agent-pending-confirm.json"
+if os.path.exists(confirm_path):
+    try:
+        with open(confirm_path) as f: cv = json.load(f)
+        if cv.get("confirmed") is None:
+            cv["confirmed"] = True
+            d = os.path.dirname(confirm_path)
+            with tempfile.NamedTemporaryFile(mode="w", dir=d, delete=False, suffix=".tmp") as tf:
+                json.dump(cv, tf, indent=2); tmp = tf.name
+            os.replace(tmp, confirm_path)
+            msgs.append(f"ACTION_CONFIRMED|{cv.get('action_description','?')[:60]}")
+    except Exception as e:
+        msgs.append(f"ACTION_ERROR|{e}")
+
+print("\n".join(msgs) if msgs else "NOTHING_PENDING")
+PYEOF
+)
+          if echo "$RESULT" | grep -q "CONFIRMED\|REVIEW_CONFIRMED"; then
+            MSG=$(echo "$RESULT" | python3 -c "
+import sys
+lines = sys.stdin.read().strip().split('\n')
+out = ['✅ AGENT CONFIRMED']
+for l in lines:
+    parts = l.split('|')
+    if 'REVIEW_CONFIRMED' in l:
+        out.append(f'Signal review: {parts[1]}')
+    elif 'ACTION_CONFIRMED' in l:
+        out.append(f'Action: {parts[1]}')
+print('\n'.join(out))
+" 2>/dev/null || echo "✅ AGENT CONFIRMED")
+            send_message "$MSG"
+          elif echo "$RESULT" | grep -q "ALREADY"; then
+            send_message "⚠️ Already responded to this request."
+          elif [ "$RESULT" = "NOTHING_PENDING" ]; then
+            send_message "⚠️ No pending agent confirmation request."
+          else
+            send_message "❌ Confirm error: $RESULT"
+          fi
+          ;;
+        REJECT)
+          # Reject: clears the signal review (sets VETO) and/or the pending-confirm request.
+          RESULT=$(python3 << 'PYEOF'
+import json, tempfile, os, datetime
+msgs = []
+
+# 1. Apply to signal review file
+review_path = "/home/ubuntu/.picoclaw/logs/apex-agent-review.json"
+if os.path.exists(review_path):
+    try:
+        with open(review_path) as f: rv = json.load(f)
+        if rv.get("human_override") is None:
+            rv["human_override"] = "REJECT"
+            rv["human_override_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            d = os.path.dirname(review_path)
+            with tempfile.NamedTemporaryFile(mode="w", dir=d, delete=False, suffix=".tmp") as tf:
+                json.dump(rv, tf, indent=2); tmp = tf.name
+            os.replace(tmp, review_path)
+            msgs.append(f"REVIEW_REJECTED|{rv.get('signal_timestamp','')[:16]}")
+        else:
+            msgs.append(f"REVIEW_ALREADY|{rv.get('human_override','?')}")
+    except Exception as e:
+        msgs.append(f"REVIEW_ERROR|{e}")
+
+# 2. Apply to pending-confirm file
+confirm_path = "/home/ubuntu/.picoclaw/logs/apex-agent-pending-confirm.json"
+if os.path.exists(confirm_path):
+    try:
+        with open(confirm_path) as f: cv = json.load(f)
+        if cv.get("confirmed") is None:
+            cv["confirmed"] = False
+            d = os.path.dirname(confirm_path)
+            with tempfile.NamedTemporaryFile(mode="w", dir=d, delete=False, suffix=".tmp") as tf:
+                json.dump(cv, tf, indent=2); tmp = tf.name
+            os.replace(tmp, confirm_path)
+            msgs.append("ACTION_REJECTED")
+    except Exception as e:
+        msgs.append(f"ACTION_ERROR|{e}")
+
+print("\n".join(msgs) if msgs else "NOTHING_PENDING")
+PYEOF
+)
+          if echo "$RESULT" | grep -q "REJECTED"; then
+            send_message "❌ AGENT REJECTED — signal/action blocked. Autopilot will not execute."
+          elif [ "$RESULT" = "NOTHING_PENDING" ]; then
+            send_message "⚠️ No pending agent request to reject."
+          else
+            send_message "⚠️ $RESULT"
+          fi
+          ;;
+        *)
+          send_message "🤖 AGENT Commands:
+
+  AGENT ON       — enable autonomous analysis
+  AGENT OFF      — disable (scheduled runs skip)
+  AGENT STATUS   — show enabled state + last run
+  AGENT CONFIRM  — approve a pending agent action
+  AGENT REJECT   — reject a pending agent action
+
+Agent runs in shadow mode by default — it analyses and messages you,
+but never executes trades without AGENT CONFIRM."
           ;;
       esac
       ;;
@@ -493,10 +762,20 @@ Flags:
   CONFIRM TACO      — authorise TACO signal
   CANCEL TACO       — abort TACO signal
 
-🤖 GEMINI / LLM
-  LLM STATUS        — Gemini module on/off + usage
-  LLM ON sentiment_llm  — enable module
-  LLM OFF taco_llm      — disable module
+🤖 LLM / AI
+  LLM STATUS           — flags + provider + spend
+  LLM ON/OFF <flag>    — toggle module
+  LLM PROVIDER <x>     — switch anthropic|gemini
+  LLM BUDGET           — today's cost vs limit
+  LLM AB               — A/B performance (7d)
+  LLM BRIEF            — today's morning brief
+
+🧠 CLAUDE AGENT
+  AGENT ON             — enable autonomous analysis
+  AGENT OFF            — disable scheduled runs
+  AGENT STATUS         — state + last run summary
+  AGENT CONFIRM        — approve a pending trade action
+  AGENT REJECT         — reject a pending trade action
 
 🤖 AGENT / QUERY
   QUERY regime      — regime + VIX snapshot

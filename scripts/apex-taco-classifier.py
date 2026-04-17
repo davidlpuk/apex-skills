@@ -64,7 +64,7 @@ def fetch_vix_data():
     try:
         import yfinance as yf
         hist = yf.Ticker('^VIX').history(period='5d')
-        if hist.empty or len(hist) < 2:
+        if hist is None or hist.empty or len(hist) < 2:
             log_warning("TACO classifier: insufficient VIX history")
             return {"today": None, "yesterday": None, "spike_pct": 0.0, "error": "insufficient_data"}
         today_vix     = float(hist['Close'].iloc[-1])
@@ -76,7 +76,7 @@ def fetch_vix_data():
             "spike_pct": round(spike_pct, 2)
         }
     except Exception as e:
-        log_error(f"TACO classifier fetch_vix_data: {e}", exc=e)
+        log_warning(f"TACO classifier fetch_vix_data: {e}")
         return {"today": None, "yesterday": None, "spike_pct": 0.0, "error": str(e)}
 
 
@@ -207,7 +207,7 @@ def _llm_classify_taco_headlines(all_headlines):
     threat_type, and llm_reasoning — or None on any failure.
     """
     try:
-        from apex_llm_flags import call_gemini_json
+        from apex_llm_flags import call_llm_thinking
         if not all_headlines:
             return None
         headline_text = '\n'.join(f'- {h}' for h in all_headlines[:20])
@@ -220,19 +220,22 @@ def _llm_classify_taco_headlines(all_headlines):
             '- walkback_score (0-10): pauses/delays/exemptions/reversals of prior threats\n'
             '- is_fundamental (bool): true if VIX spike is driven by earnings/rates/recession, NOT geopolitics\n'
             '- threat_type: one of GEO_ENERGY, TARIFF_SEMI, TARIFF_CHINA, TARIFF_TECH, TARIFF_DEFENSE, TARIFF_BROAD, NONE\n\n'
-            'Key distinction: "considers tariff" = rhetoric, "tariff enacted" = action, "tariff paused" = walkback.\n\n'
+            'Key distinction: "considers tariff" = rhetoric, "tariff enacted" = action, "tariff paused" = walkback.\n'
+            'Be especially careful with conditional language: "may impose", "considering", "threatens to" = rhetoric.\n'
+            '"signed executive order", "effective immediately", "in force" = action.\n\n'
             'Return ONLY valid JSON:\n'
             '{"rhetoric_score": 0, "action_score": 0, "walkback_score": 0, '
             '"is_fundamental": false, "threat_type": "NONE", "llm_reasoning": "..."}\n\n'
             f'Headlines:\n{headline_text}'
         )
-        result = call_gemini_json(prompt)
+        # Thinking-tier: TACO classification affects the full regime layer
+        result = call_llm_thinking(prompt, module='taco')
         # Clamp integer fields to 0-10
         for field in ('rhetoric_score', 'action_score', 'walkback_score'):
             result[field] = max(0, min(10, int(result.get(field, 0))))
         return result
     except Exception as _e:
-        log_warning(f"Gemini TACO classification failed, using keyword fallback: {_e}")
+        log_warning(f"LLM TACO classification failed, using keyword fallback: {_e}")
         return None
 
 

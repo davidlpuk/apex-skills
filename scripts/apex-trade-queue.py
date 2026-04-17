@@ -19,6 +19,11 @@ except ImportError:
     def log_error(m): print(f'ERROR: {m}')
     def log_warning(m): print(f'WARNING: {m}')
 
+try:
+    from apex_queue_audit import record_transition
+except ImportError:
+    def record_transition(*a, **kw): pass
+
 
 QUEUE_FILE     = '/home/ubuntu/.picoclaw/logs/apex-trade-queue.json'
 SIGNAL_FILE    = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
@@ -54,12 +59,42 @@ def _is_duplicate(queue, ticker, signal_type):
     return None
 
 
+def _ticker_queued_today(queue, ticker):
+    """
+    Returns the existing entry if the ticker has ANY active (QUEUED or
+    EXECUTED) entry today, regardless of signal type.
+
+    Prevents the XOM-style ghost loop where the same ticker is queued as
+    GEO_REVERSAL then CONTRARIAN on the same day after failing to fill.
+    FAILED is excluded intentionally — a failed signal may legitimately
+    be retried under a different signal type if the root cause is resolved.
+    """
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    for t in queue:
+        if (t.get('status') in ('QUEUED', 'EXECUTED')
+                and t.get('t212_ticker') == ticker
+                and t.get('queued_at', '').startswith(today)):
+            return t
+    return None
+
+
 def add_to_queue(signal):
     queue = load_queue()
     now   = datetime.now(timezone.utc)
 
     ticker      = signal.get('t212_ticker', '')
     signal_type = signal.get('signal_type', 'TREND')
+
+    # Same-ticker-today guard: block any new signal for a ticker that is
+    # already QUEUED or EXECUTED today, regardless of signal type.
+    # Prevents the XOM-style ghost loop (6 GEO_REVERSAL + 2 CONTRARIAN in 3 days).
+    active = _ticker_queued_today(queue, ticker)
+    if active:
+        print(f"  Ticker guard: {signal.get('name','?')} ({ticker}) already "
+              f"{active.get('status')} today as {active.get('signal_type')} "
+              f"(ID #{active.get('id')}) — skipping")
+        return None
+
     dup = _is_duplicate(queue, ticker, signal_type)
     if dup:
         print(f"  Dedup: {signal.get('name','?')} ({ticker}) already QUEUED as ID #{dup['id']} — skipping")
@@ -77,7 +112,7 @@ def add_to_queue(signal):
         'target1':      signal.get('target1', 0),
         'target2':      signal.get('target2', 0),
         'quantity':     signal.get('quantity', 0),
-        'score':        signal.get('score', 0),
+        'score':        signal.get('adjusted_score', signal.get('score', signal.get('contrarian_score', 0))),
         'signal_type':  signal.get('signal_type','TREND'),
         'rsi':          signal.get('rsi', 0),
         'sector':       signal.get('sector',''),
@@ -88,6 +123,11 @@ def add_to_queue(signal):
 
     queue.append(entry)
     save_queue(queue)
+
+    record_transition(
+        signal_id=next_id, ticker=ticker, signal_type=signal_type,
+        from_state=None, to_state='QUEUED', detail='add_to_queue'
+    )
 
     send_telegram(
         f"📋 TRADE QUEUED\n\n"
@@ -143,6 +183,15 @@ def add_scored_signal(signal):
 
     ticker      = signal.get('t212_ticker', '')
     signal_type = signal.get('signal_type', 'TREND')
+
+    # Same-ticker-today guard (see add_to_queue for rationale)
+    active = _ticker_queued_today(queue, ticker)
+    if active:
+        print(f"  Ticker guard: {signal.get('name','?')} ({ticker}) already "
+              f"{active.get('status')} today as {active.get('signal_type')} "
+              f"(ID #{active.get('id')}) — skipping")
+        return None
+
     dup = _is_duplicate(queue, ticker, signal_type)
     if dup:
         print(f"  Dedup: {signal.get('name','?')} ({ticker}) already QUEUED as ID #{dup['id']} — skipping")
@@ -161,8 +210,8 @@ def add_scored_signal(signal):
         'target1':         signal.get('target1', 0),
         'target2':         signal.get('target2', 0),
         'quantity':        signal.get('quantity', 0),
-        'score':           signal.get('score', 0),
-        'adjusted_score':  signal.get('adjusted_score', signal.get('score', 0)),
+        'score':           signal.get('adjusted_score', signal.get('score', signal.get('contrarian_score', 0))),
+        'adjusted_score':  signal.get('adjusted_score', signal.get('score', signal.get('contrarian_score', 0))),
         'signal_type':     signal.get('signal_type', 'TREND'),
         'rsi':             signal.get('rsi', 0),
         'sector':          signal.get('sector', ''),
@@ -178,6 +227,11 @@ def add_scored_signal(signal):
 
     queue.append(entry)
     save_queue(queue)
+
+    record_transition(
+        signal_id=next_id, ticker=ticker, signal_type=signal_type,
+        from_state=None, to_state='QUEUED', detail='add_scored_signal'
+    )
 
     score = entry['adjusted_score']
     send_telegram(
@@ -403,7 +457,7 @@ def _execute_queue_inner():
             'stop':        trade['stop'],
             'target1':     trade['target1'],
             'target2':     trade['target2'],
-            'score':       trade['score'],
+            'score':       trade.get('adjusted_score', trade['score']),
             'rsi':         trade['rsi'],
             'macd':        0,
             'sector':      trade['sector'],
@@ -434,6 +488,12 @@ def _execute_queue_inner():
                 if _ticker and _ticker not in _pos_tickers:
                     trade['status'] = 'FAILED'
                     trade['error']  = 'Subprocess returned 0 but position not found in apex-positions.json'
+                    record_transition(
+                        signal_id=trade.get('id'), ticker=_ticker,
+                        signal_type=trade.get('signal_type', ''),
+                        from_state='EXECUTED', to_state='FAILED',
+                        detail='executor returned 0 but position missing from positions.json'
+                    )
                     failed.append(trade)
                     log_warning(f"Queue: {trade['name']} ({_ticker}) — executor returned success but position missing from positions file")
                     print(f"⚠️ Position verification failed: {trade['name']} — marking FAILED")
@@ -441,6 +501,12 @@ def _execute_queue_inner():
             except Exception as _ve:
                 log_warning(f"Queue: could not verify position for {trade['name']}: {_ve}")
 
+            record_transition(
+                signal_id=trade.get('id'), ticker=trade.get('t212_ticker', ''),
+                signal_type=trade.get('signal_type', ''),
+                from_state='QUEUED', to_state='EXECUTED',
+                detail='executor subprocess returned 0'
+            )
             executed.append(trade)
             print(f"✅ Executed: {trade['name']}")
             # Increment autopilot trade counters so dashboard reflects queue executions
@@ -476,6 +542,12 @@ def _execute_queue_inner():
                 trade['status'] = 'FAILED'
                 trade['error']  = 'T212: Instrument can not be traded (MiFID II restriction or account type block)'
                 trade['notes']  = 'Permanent — remove ticker from scanning universe'
+                record_transition(
+                    signal_id=trade.get('id'), ticker=trade.get('t212_ticker', ''),
+                    signal_type=trade.get('signal_type', ''),
+                    from_state='QUEUED', to_state='FAILED',
+                    detail='T212 instrument-invisible permanent block'
+                )
                 failed.append(trade)
                 print(f"🚫 Permanently blocked: {trade['name']} ({trade['t212_ticker']}) — not retrying")
                 log_warning(f"Queue: {trade['t212_ticker']} permanently blocked by T212 (instrument-invisible) — cancel, not retrying")
@@ -491,11 +563,23 @@ def _execute_queue_inner():
                 trade['retry_count'] = retry_count + 1
                 trade['error']       = stderr[:300]
                 trade['notes']       = f"T212 transient suspension — auto-retry {retry_count+1}/{MAX_RETRIES}"
+                record_transition(
+                    signal_id=trade.get('id'), ticker=trade.get('t212_ticker', ''),
+                    signal_type=trade.get('signal_type', ''),
+                    from_state='QUEUED', to_state='QUEUED',
+                    detail=f'T212 transient suspension retry {retry_count+1}/{MAX_RETRIES}'
+                )
                 print(f"⏳ Suspended (retry {retry_count+1}/{MAX_RETRIES}): {trade['name']} — re-queued for next run")
                 log_warning(f"Queue: {trade['t212_ticker']} transient suspension, retry {retry_count+1}/{MAX_RETRIES}")
             else:
                 trade['status'] = 'FAILED'
                 trade['error']  = stderr[:300]
+                record_transition(
+                    signal_id=trade.get('id'), ticker=trade.get('t212_ticker', ''),
+                    signal_type=trade.get('signal_type', ''),
+                    from_state='QUEUED', to_state='FAILED',
+                    detail=f'executor non-zero exit: {stderr[:120]}'
+                )
                 failed.append(trade)
                 print(f"❌ Failed: {trade['name']}")
 

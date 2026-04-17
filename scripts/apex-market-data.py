@@ -160,6 +160,28 @@ SECTOR_MAP = {
     "KO":   "IUCD", "PEP":  "IUCD",
 }
 
+# Dynamic weight loading — reads from weights file if available.
+# MUST be defined before get_technicals() which uses these variables.
+# 2026-04-16: moved from bottom of file where it caused NameError in every
+# get_technicals() call, producing 0 trend signals.
+import os as _os
+_WEIGHTS_FILE = '/home/ubuntu/.picoclaw/logs/apex-weights.json'
+try:
+    with open(_WEIGHTS_FILE) as _f:
+        _w = json.load(_f)
+    WEIGHT_TREND  = _w.get('trend',  3)
+    WEIGHT_RSI    = _w.get('rsi',    3)
+    WEIGHT_VOLUME = _w.get('volume', 2)
+    WEIGHT_MACD   = _w.get('macd',   2)
+    MAX_SCORE     = WEIGHT_TREND + WEIGHT_RSI + WEIGHT_VOLUME + WEIGHT_MACD
+except Exception:
+    WEIGHT_TREND  = 3
+    WEIGHT_RSI    = 3
+    WEIGHT_VOLUME = 2
+    WEIGHT_MACD   = 2
+    MAX_SCORE     = 10
+
+
 def fix_pence(price, currency):
     if currency == "GBX" and price > 100:
         return round(price / 100, 2)
@@ -276,20 +298,4 @@ print(f"\nTotal: {len(results)} | Unblocked: {len(unblocked)} | Blocked: {len(se
 print("\n=== FULL DATA ===")
 print(json.dumps(results, indent=2))
 
-# Dynamic weight loading — reads from weights file if available
-import os as _os
-_WEIGHTS_FILE = '/home/ubuntu/.picoclaw/logs/apex-weights.json'
-try:
-    with open(_WEIGHTS_FILE) as _f:
-        _w = json.load(_f)
-    WEIGHT_TREND  = _w.get('trend',  3)
-    WEIGHT_RSI    = _w.get('rsi',    3)
-    WEIGHT_VOLUME = _w.get('volume', 2)
-    WEIGHT_MACD   = _w.get('macd',   2)
-    MAX_SCORE     = WEIGHT_TREND + WEIGHT_RSI + WEIGHT_VOLUME + WEIGHT_MACD
-except:
-    WEIGHT_TREND  = 3
-    WEIGHT_RSI    = 3
-    WEIGHT_VOLUME = 2
-    WEIGHT_MACD   = 2
-    MAX_SCORE     = 10
+# (weight loading block moved to top of file — before get_technicals())

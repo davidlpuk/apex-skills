@@ -6,10 +6,13 @@ Checks a CONTRARIAN signal against recent headlines before execution.
 Distinguishes genuine oversold bounces (macro selloff, temporary sentiment)
 from falling knives (earnings collapse, fraud, structural decline).
 
+Uses the thinking-tier LLM (Claude Extended Thinking or Gemini Pro) for
+higher-quality reasoning on this high-stakes binary decision.
+
 check_preflight(signal, intel) -> (allow: bool, reason: str)
 
-Always fail-open: any exception returns (True, 'preflight_error') so a
-Gemini failure never silently blocks a valid trade.
+Always fail-open: any exception returns (True, 'preflight_error') so an
+LLM failure never silently blocks a valid trade.
 """
 import json
 import sys
@@ -17,7 +20,8 @@ sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 
 try:
     from apex_utils import safe_read, log_warning, log_info
-    from apex_llm_flags import get_llm_flag, record_llm_call
+    from apex_llm_flags import get_llm_flag, record_llm_call, call_llm_thinking, build_regime_preamble
+    from apex_llm_ab_tracker import record_decision as _record_ab, get_module_performance
 except ImportError as _e:
     def safe_read(p, d=None):
         try:
@@ -27,6 +31,10 @@ except ImportError as _e:
     def log_info(m):    print(f'INFO: {m}')
     def get_llm_flag(n): return True
     def record_llm_call(*a, **k): pass
+    def call_llm_thinking(p, **k): raise RuntimeError('apex_llm_flags not available')
+    def _record_ab(*a, **k): pass
+    def build_regime_preamble(): return ''
+    def get_module_performance(m, **k): return ''
 
 SENTIMENT_FILE = '/home/ubuntu/.picoclaw/logs/apex-sentiment.json'
 GEO_FILE       = '/home/ubuntu/.picoclaw/logs/apex-geo-news.json'
@@ -113,13 +121,18 @@ def check_preflight(signal: dict, intel: dict) -> tuple[bool, str]:
     headlines, headlines_stale = _get_headlines_for_instrument(name)
 
     try:
-        from apex_llm_flags import call_gemini_json
-
         headline_text = '\n'.join(f'- {h}' for h in headlines) if headlines else '(no recent headlines found)'
         adj_text      = '\n'.join(f'- {a}' for a in adj[:5]) if adj else '(none)'
         stale_note    = ' (STALE — >90 min old, may miss recent news)' if headlines_stale else ''
 
+        # Prepend regime context and self-calibrating track record
+        regime_preamble  = build_regime_preamble()
+        track_record     = get_module_performance('preflight', last_n=20)
+        track_record_str = (f'\n{track_record}\n') if track_record else ''
+
         prompt = (
+            regime_preamble +
+            track_record_str +
             'You are a pre-entry risk filter for an automated contrarian trading system. '
             'A contrarian signal fires when a stock is oversold (low RSI). '
             'Your job is to detect FALLING KNIVES — stocks falling due to fundamental '
@@ -154,10 +167,18 @@ def check_preflight(signal: dict, intel: dict) -> tuple[bool, str]:
             'risk_level: LOW (clear bounce) / MEDIUM (uncertain) / HIGH (falling knife)'
         )
 
-        result = call_gemini_json(prompt)
+        # Thinking-tier call — Claude/Gemini Pro with extended reasoning
+        # Higher budget for this call: it's binary, high-stakes, and rare
+        result     = call_llm_thinking(prompt, module='preflight', budget_tokens=3000)
         allow      = bool(result.get('allow', True))
         reason     = str(result.get('reason', ''))[:120]
         risk_level = result.get('risk_level', 'MEDIUM')
+
+        # A/B tracking — baseline always allows (fail-open rule)
+        baseline = 'ALLOW'
+        llm_dec  = 'ALLOW' if allow else 'BLOCK'
+        _record_ab('preflight', name, llm_dec, baseline,
+                   llm_reason=f"risk={risk_level} {reason}")
 
         record_llm_call('preflight_llm', used_llm=True,
                         result_summary=f"allow={allow} risk={risk_level}")

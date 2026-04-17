@@ -44,9 +44,12 @@ def run_chain(chain_name: str, force: bool = False) -> int:
     if force:
         cmd.append('--force')
 
+    # performance-review fetches 18 instruments × 5y from yfinance — needs more time
+    _timeout = 1200 if chain_name == 'performance-review' else 600
+
     t_start = time.monotonic()
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600, cwd=SCRIPTS_DIR)
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=_timeout, cwd=SCRIPTS_DIR)
     except subprocess.TimeoutExpired:
         elapsed = round(time.monotonic() - t_start, 2)
         append_run_log({
@@ -54,11 +57,11 @@ def run_chain(chain_name: str, force: bool = False) -> int:
             'type': 'chain',
             'name': chain_name,
             'status': 'error',
-            'error': 'timed out after 600s',
+            'error': f'timed out after {_timeout}s',
             'elapsed_s': elapsed,
             'triggered_by': 'cron',
         })
-        print(f'ERROR: chain {chain_name} timed out', file=sys.stderr)
+        print(f'ERROR: chain {chain_name} timed out after {_timeout}s', file=sys.stderr)
         return 1
 
     elapsed = round(time.monotonic() - t_start, 2)

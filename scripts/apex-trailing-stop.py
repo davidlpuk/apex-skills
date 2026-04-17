@@ -496,7 +496,8 @@ def run():
         elif t1_hit and not t2_hit and current > entry:
             trailing_level = float(pos.get('trailing_stop_level', pos.get('stop', entry)))
             new_ratchet    = round(entry + 0.5 * (current - entry), 4)
-            if new_ratchet > trailing_level + 0.01:  # Only update if meaningfully higher
+            _ratchet_min_move = max(0.25, float(entry) * 0.001)  # ≥25p or ≥0.1% of entry
+            if new_ratchet > trailing_level + _ratchet_min_move:  # Only update if meaningfully higher
                 # Cancel old stop, place ratcheted one
                 if stop_id:
                     cancel_stop_order(stop_id)

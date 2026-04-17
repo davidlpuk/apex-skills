@@ -6,6 +6,68 @@ Drop-in replacement for yfinance calls throughout Apex.
 import sys
 import os
 
+# Yahoo-symbol resolution map.  Mirrors WATCHLIST_YAHOO in
+# `apex-staleness-check.py` — keep the two in sync when adding instruments.
+# Used by the yfinance fallback to convert a clean equity name (e.g. "INRG")
+# or T212 ticker (e.g. "INRGl_EQ") to a Yahoo-recognised symbol (e.g. "INRG.L").
+# Without this resolution the fallback would call yf.Ticker("INRG") or
+# yf.Ticker("INRGL_EQ") — both 404 on Yahoo for LSE/EU instruments.
+_YAHOO_MAP = {
+    "VWRP": "VWRP.L", "VUAG": "VUAG.L", "VFEA": "VFEA.L",
+    "IGWD": "IGWD.L", "HMWO": "HMWO.L", "IITU": "IITU.L",
+    "IUFS": "IUFS.L", "IUHC": "IUHC.L", "IUES": "IUES.L",
+    "IUCD": "IUCD.L", "SGLN": "SGLN.L", "SSLN": "SSLN.L",
+    "ISF":  "ISF.L",  "CSPX": "CSPX.L", "EQQQ": "EQQQ.L",
+    "HEAL": "HEAL.L", "INRG": "INRG.L", "WCLD": "WCLD.L",
+    "VAPX": "VAPX.L", "VJPN": "VJPN.L", "VGOV": "VGOV.L",
+    "VAGS": "VAGS.L", "HSBA": "HSBA.L", "SHEL": "SHEL.L",
+    "AZN":  "AZN.L",  "ULVR": "ULVR.L", "GSK":  "GSK.L",
+    "LLOY": "LLOY.L", "BP":   "BP.L",   "RIO":  "RIO.L",
+    "BA":   "BA.L",   "REL":  "REL.L",  "BARC": "BARC.L",
+    "NWG":  "NWG.L",  "PRU":  "PRU.L",  "NG":   "NG.L",
+    "SSE":  "SSE.L",  "DGE":  "DGE.L",  "IMB":  "IMB.L",
+    "BATS": "BATS.L", "EXPN": "EXPN.L", "CPG":  "CPG.L",
+    "WPP":  "WPP.L",  "VOD":  "VOD.L",  "BT":   "BT-A.L",
+    "AVIVA":"AV.L",   "AIR":  "AIR.PA", "LVMH": "MC.PA",
+    "SAN":  "SAN.MC", "NOVN": "NOVN.SW","ROG":  "ROG.SW",
+    "TTE":  "TTE.PA", "ASML": "ASML.AS","SIE":  "SIE.DE",
+    "AAPL": "AAPL",   "MSFT": "MSFT",   "NVDA": "NVDA",
+    "GOOGL":"GOOGL",  "AMZN": "AMZN",   "META": "META",
+    "TSLA": "TSLA",   "CRM":  "CRM",    "ORCL": "ORCL",
+    "AMD":  "AMD",    "INTC": "INTC",   "QCOM": "QCOM",
+    "JPM":  "JPM",    "GS":   "GS",     "MS":   "MS",
+    "BAC":  "BAC",    "BLK":  "BLK",    "AXP":  "AXP",
+    "C":    "C",      "V":    "V",      "JNJ":  "JNJ",
+    "PFE":  "PFE",    "MRK":  "MRK",    "UNH":  "UNH",
+    "ABBV": "ABBV",   "TMO":  "TMO",    "DHR":  "DHR",
+    "KO":   "KO",     "PEP":  "PEP",    "MCD":  "MCD",
+    "WMT":  "WMT",    "PG":   "PG",     "XOM":  "XOM",
+    "CVX":  "CVX",    "NOVO": "NVO",
+}
+
+
+def _resolve_yahoo(clean, ticker):
+    """
+    Best-effort resolution of a Yahoo symbol given:
+      clean  — equity name with T212 suffix already stripped (e.g. "INRG", "AAPL")
+      ticker — original raw ticker, possibly a T212 form (e.g. "INRGl_EQ", "AAPL_US_EQ")
+
+    Returns a Yahoo-recognised string, or None if no mapping is known. Callers
+    should NOT pass the unresolved ticker to yfinance when this returns None —
+    that produces guaranteed-404 noise in the logs (e.g. "INRGL_EQ" lookups).
+    """
+    if not clean and not ticker:
+        return None
+    # Try direct map hit on the cleaned name first.
+    if clean and clean in _YAHOO_MAP:
+        return _YAHOO_MAP[clean]
+    # If raw ticker is already in Yahoo form (contains a dot, e.g. "INRG.L"),
+    # accept it as-is.
+    if ticker and "." in ticker and "_" not in ticker:
+        return ticker
+    return None
+
+
 def get_technical_data(ticker, yahoo_ticker=None):
     """
     Get technical data for any instrument.
@@ -32,10 +94,15 @@ def get_technical_data(ticker, yahoo_ticker=None):
         except Exception as e:
             pass
         # Fall back to yfinance if Alpaca fails
-        return get_yfinance_data(yahoo_ticker or clean_ticker, "USD")
+        resolved = yahoo_ticker or _resolve_yahoo(clean_ticker, ticker) or clean_ticker
+        return get_yfinance_data(resolved, "USD")
     else:
-        # Use yfinance for non-US instruments
-        return get_yfinance_data(yahoo_ticker or ticker, detect_currency(yahoo_ticker or ticker))
+        # Use yfinance for non-US instruments — resolve via map so a raw T212
+        # ticker like "INRGl_EQ" becomes "INRG.L" instead of triggering a 404.
+        resolved = yahoo_ticker or _resolve_yahoo(clean_ticker, ticker)
+        if not resolved:
+            return None
+        return get_yfinance_data(resolved, detect_currency(resolved))
 
 def detect_currency(yahoo_ticker):
     if not yahoo_ticker:
@@ -139,13 +206,19 @@ def get_live_price(ticker, yahoo_ticker=None):
         except:
             pass
 
-    # yfinance fallback
+    # yfinance fallback — resolve to a Yahoo-recognised symbol first.  Without
+    # this, a raw T212 ticker like "INRGl_EQ" would be passed straight to
+    # yfinance and produce a guaranteed 404 ("Quote not found for symbol:
+    # INRGL_EQ"), polluting the cron log and silently returning None.
+    resolved = yahoo_ticker or _resolve_yahoo(clean, ticker)
+    if not resolved:
+        return None, "USD", "NO_YAHOO_MAP"
     try:
         import yfinance as yf
-        hist = yf.Ticker(yahoo_ticker or ticker).history(period="1d")
+        hist = yf.Ticker(resolved).history(period="1d")
         if not hist.empty:
             price = float(hist['Close'].iloc[-1])
-            currency = detect_currency(yahoo_ticker or ticker)
+            currency = detect_currency(resolved)
             if currency == "GBX":
                 price = price / 100
             return round(price, 2), currency, "YFINANCE"

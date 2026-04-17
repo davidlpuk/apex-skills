@@ -65,11 +65,19 @@ def run():
         if p.get('venue') == 'ALPACA' and p.get('status') == 'awaiting_fill'
     ]
 
-    if not alpaca_pending:
-        _log("No Alpaca positions awaiting fill")
+    # Also handle positions that are filled but have no stop yet (unprotected)
+    alpaca_unprotected = [
+        p for p in positions
+        if p.get('venue') == 'ALPACA' and p.get('status') == 'unprotected'
+           and not p.get('stop_order_id')
+    ]
+
+    if not alpaca_pending and not alpaca_unprotected:
+        _log("No Alpaca positions awaiting fill or needing stop placement")
         return
 
-    _log(f"Found {len(alpaca_pending)} Alpaca position(s) awaiting fill")
+    _log(f"Found {len(alpaca_pending)} Alpaca position(s) awaiting fill, "
+         f"{len(alpaca_unprotected)} unprotected")
 
     try:
         alpaca = _load_alpaca_executor()
@@ -226,6 +234,66 @@ def run():
                 _log(f"  {name}: still pending (age={age_min:.0f}m, status={status})")
             except Exception:
                 _log(f"  {name}: still pending (status={status})")
+
+    # ── Handle unprotected Alpaca positions (filled but no stop placed yet) ──
+    if alpaca_unprotected:
+        try:
+            alpaca = _load_alpaca_executor()
+        except Exception as e:
+            log_error(f"alpaca-watchdog: could not load executor for unprotected handler: {e}")
+            return
+
+        for pos in alpaca_unprotected:
+            ticker = pos.get('t212_ticker', '')
+            name   = pos.get('name', ticker)
+            stop   = float(pos.get('stop', 0) or 0)
+            qty    = float(pos.get('quantity', 0) or 0)
+            symbol = ticker.replace('_US_EQ', '').replace('_EQ', '').replace('l', '')
+
+            if not stop or not qty:
+                log_warning(f"alpaca-watchdog: {name} unprotected but missing stop/qty — skipping")
+                continue
+
+            _log(f"Placing stop for unprotected position {name}: {qty} shares @ stop ${stop}")
+
+            stop_id = None
+            for attempt in range(1, 4):
+                try:
+                    stop_order = alpaca.place_stop_order(symbol, qty, stop)
+                    stop_id = (stop_order or {}).get('id')
+                    if stop_id:
+                        break
+                    _log(f"  Stop attempt {attempt}/3 failed — retrying in 3s")
+                    time.sleep(3)
+                except Exception as _se:
+                    _log(f"  Stop attempt {attempt}/3 exception: {_se}")
+                    time.sleep(3)
+
+            if stop_id:
+                _log(f"  Stop placed for {name}: {stop_id}")
+                def _protect(positions, _t=ticker, _sid=stop_id):
+                    for p in (positions or []):
+                        if p.get('t212_ticker') == _t and p.get('venue') == 'ALPACA':
+                            p['stop_order_id'] = str(_sid)
+                            p['status']        = 'protected'
+                            p['unprotected']   = False
+                    return positions
+                locked_read_modify_write(POSITIONS_FILE, _protect, default=[])
+                send_telegram(
+                    f"✅ ALPACA STOP PLACED\n"
+                    f"🏷 {name}\n"
+                    f"🛑 Stop: ${stop} (GTC) ✅\n"
+                    f"📐 Qty: {qty} shares\n"
+                    f"🔖 Stop ID: {stop_id}"
+                )
+            else:
+                log_error(f"alpaca-watchdog: stop placement FAILED for unprotected {name}")
+                send_telegram(
+                    f"🚨 ALPACA UNPROTECTED — STOP FAILED\n\n"
+                    f"{name} ({ticker})\n"
+                    f"Could not place stop at ${stop} after 3 attempts.\n"
+                    f"Log in to Alpaca and set stop IMMEDIATELY."
+                )
 
 
 if __name__ == '__main__':

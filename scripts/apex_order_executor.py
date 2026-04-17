@@ -28,24 +28,60 @@ try:
     from apex_utils import (
         safe_read, atomic_write, log_error, log_warning,
         locked_read_modify_write, t212_request, send_telegram,
-        get_fx_rate,
+        get_fx_rate, convert_price, FxRateUnavailable,
     )
 except ImportError as _e:
     print(f"FATAL: apex_utils not available — {_e}")
     sys.exit(2)
 
 try:
-    from apex_config import T212_FILL_POLL_COUNT, T212_FILL_POLL_INTERVAL, SIGNAL_MAX_AGE_HOURS
+    from apex_config import (
+        T212_FILL_POLL_COUNT, T212_FILL_POLL_INTERVAL, SIGNAL_MAX_AGE_HOURS,
+        T212_LIMIT_PREMIUM_BPS, T212_LIMIT_PREMIUM_BPS_ILLIQUID,
+        T212_LIMIT_PREMIUM_MAX_FRAC_OF_STOP, T212_ILLIQUID_TICKERS,
+    )
 except ImportError:
-    T212_FILL_POLL_COUNT    = 18
-    T212_FILL_POLL_INTERVAL = 10
-    SIGNAL_MAX_AGE_HOURS    = 6
+    T212_FILL_POLL_COUNT                = 18
+    T212_FILL_POLL_INTERVAL             = 10
+    SIGNAL_MAX_AGE_HOURS                = 6
+    T212_LIMIT_PREMIUM_BPS              = 15
+    T212_LIMIT_PREMIUM_BPS_ILLIQUID     = 35
+    T212_LIMIT_PREMIUM_MAX_FRAC_OF_STOP = 0.5
+    T212_ILLIQUID_TICKERS               = set()
+
+try:
+    from apex_queue_audit import record_transition as _audit
+except ImportError:
+    def _audit(*a, **kw): pass
 
 SIGNAL_FILE         = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
 PROCESSING_FILE     = SIGNAL_FILE + '.processing'
 POSITIONS_FILE      = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 LOG                 = '/home/ubuntu/.picoclaw/logs/apex-orders.log'
 INSTRUMENT_META_CACHE = '/home/ubuntu/.picoclaw/logs/apex-instrument-meta.json'
+REGIME_FILE         = '/home/ubuntu/.picoclaw/logs/apex-regime.json'
+
+
+def _regime_snapshot():
+    """
+    Capture market regime at position-open time. Stored on the position so the
+    eventual outcome row can be bucketed by entry regime (strategy×regime
+    heatmap, edge-by-regime DSR). Never raises — missing file → empty dict.
+    """
+    try:
+        with open(REGIME_FILE) as _f:
+            r = json.load(_f)
+        if not isinstance(r, dict):
+            return {}
+        return {
+            'overall':         r.get('overall'),
+            'vix_regime':      r.get('vix_regime'),
+            'breadth_regime':  r.get('breadth_regime'),
+            'vix':             r.get('vix'),
+            'breadth_pct':     r.get('breadth_pct'),
+        }
+    except Exception:
+        return {}
 
 
 def _get_quantity_precision(ticker: str) -> int:
@@ -103,18 +139,10 @@ def _round_quantity(qty: float, ticker: str) -> float:
     return rounded
 TRADING_STATE  = '/home/ubuntu/.picoclaw/workspace/skills/apex-trading/TRADING_STATE.md'
 
-# Alpaca executor — preferred for US stocks when credentials are configured
-try:
-    import importlib.util as _ilu
-    _spec = _ilu.spec_from_file_location(
-        "apex_alpaca_executor",
-        "/home/ubuntu/.picoclaw/scripts/apex-alpaca-executor.py")
-    _alpaca_mod = _ilu.module_from_spec(_spec)
-    _spec.loader.exec_module(_alpaca_mod)
-    _ALPACA_AVAILABLE = _alpaca_mod.is_configured()
-except Exception:
-    _alpaca_mod = None
-    _ALPACA_AVAILABLE = False
+# Alpaca routing DISABLED — all trades go through T212 only.
+# To re-enable: set "use_alpaca": true in apex-autopilot.json
+_alpaca_mod = None
+_ALPACA_AVAILABLE = False
 
 # US tickers that qualify for Alpaca execution (from apex-alpaca.py)
 _ALPACA_US_TICKERS = {
@@ -194,9 +222,20 @@ def _check_entry_staleness(ticker: str, signal_entry: float, signal_type: str) -
                 reverse_map[entry['t212']] = yahoo_key
         yahoo_ticker = reverse_map.get(ticker)
         if yahoo_ticker:
-            # Append .L for LSE-listed stocks
+            # Append .L for ANY LSE-listed T212 instrument, regardless of the
+            # ticker-map currency tag. T212 LSE suffixes are 'l_EQ', 'm_EQ',
+            # 's_EQ', 'd_EQ' — all surface as <KEY>.L on Yahoo (Yahoo returns
+            # the LSE listing's quote currency automatically). Without this,
+            # HEALm_EQ resolved to bare 'HEAL' which is the unrelated US REIT
+            # @ $25.86 → false +185% drift abort on 2026-04-16.
+            _is_lse = (
+                ticker.endswith('l_EQ') or
+                ticker.endswith('m_EQ') or
+                ticker.endswith('s_EQ') or
+                ticker.endswith('d_EQ')
+            )
             currency = ticker_map.get(yahoo_ticker, {}).get('currency', 'USD')
-            if currency in ('GBX', 'GBP'):
+            if _is_lse or currency in ('GBX', 'GBP'):
                 yahoo_ticker = f"{yahoo_ticker}.L"
         else:
             # Best-effort: strip T212 suffix (order matters for 'l_EQ' LSE tickers)
@@ -261,13 +300,30 @@ def _log(msg: str) -> None:
         pass
 
 
+_PRICE_FIELDS = ('entry', 'stop', 'target1', 'target2', 'trailing_stop_level')
+
+
 def _update_position(ticker: str, updates: dict) -> None:
-    """Apply *updates* to the position matching *ticker*, under file lock."""
+    """Apply *updates* to the position matching *ticker*, under file lock.
+    All price fields are rounded to 4 decimal places before writing to prevent
+    floating-point residue (e.g. 7.186822400523831 from FX/ATR math).
+    """
+    # Round price fields in the update dict itself
+    _clean = {}
+    for k, v in updates.items():
+        if k in _PRICE_FIELDS and v is not None:
+            try:
+                _clean[k] = round(float(v), 4)
+            except (TypeError, ValueError):
+                _clean[k] = v
+        else:
+            _clean[k] = v
+
     def _apply(positions):
         positions = positions or []
         for p in positions:
             if p.get('t212_ticker') == ticker:
-                p.update(updates)
+                p.update(_clean)
                 return positions
         return positions
     locked_read_modify_write(POSITIONS_FILE, _apply, default=[])
@@ -334,7 +390,95 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
     if not ticker or not quantity:
         _log(f"ERROR: Signal missing ticker or quantity — aborting")
         send_telegram("⚠️ Signal file incomplete — no ticker or quantity.")
+        try:
+            os.remove(PROCESSING_FILE)
+        except FileNotFoundError:
+            pass
+        _remove_pending(name)
         return False
+
+    # ── Ticker-map currency reconciliation + FX pre-validation ──────────────
+    # The signal's `currency` field comes from apex-market-data.py's WATCHLIST,
+    # which has historically disagreed with the actual T212 trading currency
+    # (e.g. WATCHLIST said HEAL=EUR but yfinance HEAL.L returns USD; WATCHLIST
+    # said IUCD=GBP but T212 trades IUCDl_EQ in USD; WATCHLIST said VAPX=CHF
+    # but yfinance VAPX.L returns GBP). Trust the ticker-map for both sides:
+    #   • `currency`        = T212 trading currency (ground truth for API)
+    #   • `yahoo_currency`  = yfinance quote currency (signal-source unit)
+    #
+    # FX strategy — defer the actual conversion until just before API submission:
+    #   1. Override `currency` to T212 truth NOW (downstream gates use it)
+    #   2. Validate the FX conversion can be performed (fail-CLOSED if not)
+    #   3. Store _yahoo_currency + _needs_fx flag for the limit-price step
+    #   4. Leave entry/stop/target1/target2 in their original yfinance unit
+    #
+    # The staleness check (further down) compares the yfinance live price
+    # against `entry`. Both must be in the same unit (yfinance currency), so
+    # we MUST NOT convert entry until after the staleness check. The actual
+    # FX conversion happens at the limit-price construction below, alongside
+    # the existing GBX pence×100 branch.
+    #
+    # See 2026-04-16 — Phase 2 FX layer (replaces the earlier hard-block guard).
+    _yahoo_currency = None
+    _needs_fx = False
+
+    def _norm_for_fx(c):
+        return 'GBP' if (c or '').upper() in ('GBX', 'GBPENCE') else (c or '').upper()
+
+    try:
+        _tmap = safe_read('/home/ubuntu/.picoclaw/scripts/apex-ticker-map.json', {}) or {}
+        _t212_currency = None
+        for _yk, _ent in _tmap.items():
+            if isinstance(_ent, dict) and _ent.get('t212') == ticker:
+                _t212_currency = (_ent.get('currency') or '').upper()
+                _yahoo_currency = (_ent.get('yahoo_currency') or '').upper() or None
+                break
+
+        # Override the signal's claimed currency with the T212 truth so all
+        # downstream branches (market-hours gate, GBX pence conversion, FX
+        # snapshot, outcomes log) use the correct value. Safe for both LSE
+        # and US tickers.
+        if _t212_currency and _t212_currency != currency:
+            _log(f"Currency override: signal said {currency}, T212 says {_t212_currency} — using T212 value")
+            currency = _t212_currency
+
+        # FX pre-validation: signal prices are quoted in `_yahoo_currency`
+        # but T212 expects `_t212_currency`. Skip when:
+        #   • ticker-map has no yahoo_currency entry (treat as already aligned)
+        #   • the two currencies are the same
+        #   • GBX vs GBP — handled by the pence×100 branch downstream
+        if (_yahoo_currency and _t212_currency
+                and _norm_for_fx(_yahoo_currency) != _norm_for_fx(_t212_currency)):
+            _needs_fx = True
+            try:
+                # Probe the rate now — fail fast if FX feed is unavailable.
+                _probe = convert_price(entry, _yahoo_currency, _t212_currency)
+                _log(
+                    f"FX needed {_yahoo_currency}→{_t212_currency} for {ticker} — "
+                    f"probe entry {entry:.4f}→{_probe:.4f} (will apply at API call)"
+                )
+            except FxRateUnavailable as _fx_err:
+                _log(
+                    f"FX RATE UNAVAILABLE: cannot convert {_yahoo_currency}→{_t212_currency} "
+                    f"for {ticker} — blocking. Reason: {_fx_err}"
+                )
+                send_telegram(
+                    f"🛑 FX RATE UNAVAILABLE\n\n"
+                    f"{name} ({ticker})\n"
+                    f"Need {_yahoo_currency}→{_t212_currency} conversion but yfinance "
+                    f"fetch failed and no fresh cache entry. Trade declined to avoid "
+                    f"a wrongly-priced limit.\n\n"
+                    f"Reason: {_fx_err}\n"
+                    f"Will retry next cycle when FX feed recovers."
+                )
+                try:
+                    os.remove(PROCESSING_FILE)
+                except FileNotFoundError:
+                    pass
+                _remove_pending(name)
+                return False
+    except Exception as _ce:
+        _log(f"WARN: ticker-map currency lookup failed for {ticker}: {_ce} — using signal value {currency}")
 
     # ── NaN/Inf pre-flight gate ───────────────────────────────────────────────
     # Python's json module serialises float('nan') as the bare word NaN which
@@ -444,6 +588,7 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
                     "status": status, "order_type": f"{ap_result.get('order_type','LIMIT')}+STOP",
                     "venue": "ALPACA", "unprotected": unprotected,
                     "unrealised_pnl": 0.0,
+                    "regime_at_entry": safe_read(REGIME_FILE, {}).get('overall', 'UNKNOWN'),
                 })
                 return positions
             locked_read_modify_write(POSITIONS_FILE, _write_alpaca, default=[])
@@ -548,6 +693,65 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
              f"({stale_check['drift_pct']:+.2f}%)")
 
     # ─────────────────────────────────────────────────────────────────────────
+    # FX conversion: yfinance currency → T212 trading currency
+    #
+    # Run AFTER the staleness check (which uses yfinance live price against
+    # the original yfinance-currency entry) and BEFORE the pending write so
+    # that positions.json, the broker watchdog, the trailing stop, and every
+    # downstream consumer all see consistent T212-currency values.
+    #
+    # GBX vs GBP is treated as no-FX (handled separately by pence×100 in the
+    # limit-price section below). Pre-flight validation already happened at
+    # the top of execute(), so a FxRateUnavailable here means the cache went
+    # stale between the probe and now — fail-CLOSED.
+    # ─────────────────────────────────────────────────────────────────────────
+    if _needs_fx and _yahoo_currency:
+        try:
+            _orig_entry, _orig_stop = entry, stop
+            entry   = convert_price(entry,   _yahoo_currency, currency)
+            stop    = convert_price(stop,    _yahoo_currency, currency)
+            target1 = convert_price(target1, _yahoo_currency, currency) if target1 > 0 else target1
+            target2 = convert_price(target2, _yahoo_currency, currency) if target2 > 0 else target2
+            _log(
+                f"FX applied {_yahoo_currency}→{currency}: "
+                f"entry {_orig_entry:.4f}→{entry:.4f}  stop {_orig_stop:.4f}→{stop:.4f}  "
+                f"T1→{target1:.4f}  T2→{target2:.4f}"
+            )
+        except FxRateUnavailable as _fx_err:
+            _log(f"FX RATE LOST mid-execution for {ticker}: {_fx_err} — aborting")
+            send_telegram(
+                f"🛑 FX RATE LOST MID-EXECUTION\n\n"
+                f"{name} ({ticker})\n"
+                f"Pre-flight FX probe succeeded but conversion failed at order "
+                f"placement. No order placed.\n\nReason: {_fx_err}"
+            )
+            _remove_pending(ticker)
+            try:
+                os.remove(PROCESSING_FILE)
+            except FileNotFoundError:
+                pass
+            return False
+
+        # Sanity: stop must remain strictly below entry post-FX. If they cross
+        # (e.g. signal generated stop very close to entry, FX rates jittered)
+        # the order would be self-triggering — refuse.
+        if stop >= entry:
+            _log(f"POST-FX SANITY: stop {stop:.4f} >= entry {entry:.4f} after "
+                 f"{_yahoo_currency}→{currency} conversion — aborting (would self-trigger)")
+            send_telegram(
+                f"🛑 POST-FX SANITY ABORT\n\n"
+                f"{name} ({ticker})\n"
+                f"After FX conversion the stop ({stop:.4f}) is at or above the "
+                f"entry ({entry:.4f}) — order would self-trigger. No trade placed."
+            )
+            _remove_pending(ticker)
+            try:
+                os.remove(PROCESSING_FILE)
+            except FileNotFoundError:
+                pass
+            return False
+
+    # ─────────────────────────────────────────────────────────────────────────
     # Step 0: Write PENDING entry BEFORE any API call
     # ─────────────────────────────────────────────────────────────────────────
     _log(f"Step 0: Writing PENDING entry for {ticker}")
@@ -593,21 +797,86 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
             "status":         "pending",
             "order_type":     "LIMIT+STOP",
             "unrealised_pnl": 0.0,
+            "regime_at_open": _regime_snapshot(),
+            "regime_at_entry": safe_read(REGIME_FILE, {}).get('overall', 'UNKNOWN'),
         })
         return positions
 
     locked_read_modify_write(POSITIONS_FILE, _write_pending, default=[])
+
+    # ── Market hours gate — never place orders for closed exchanges ───────────
+    try:
+        _mh_cal = safe_read('/home/ubuntu/.picoclaw/logs/apex-market-calendar.json', {})
+        _mh_today = _mh_cal.get('today', {})
+        _mh_us_open = _mh_today.get('us_currently_open', True)
+        _mh_uk_open = _mh_today.get('uk_currently_open', True)
+        _mh_blocked = (
+            (currency == 'USD' and not _mh_us_open) or
+            (currency in ('GBX', 'GBP') and not _mh_uk_open) or
+            (currency in ('EUR', 'CHF') and not _mh_uk_open)
+        )
+        if _mh_blocked:
+            _log(f"Market closed for {currency} instrument — aborting execution. "
+                 f"US open: {_mh_us_open}, UK open: {_mh_uk_open}")
+            _remove_pending(ticker)
+            return False
+    except Exception:
+        pass  # fail-open — if calendar unreadable, proceed
 
     # ─────────────────────────────────────────────────────────────────────────
     # Step 1: Place limit entry order (fallback to market)
     # GBX instruments (LSE stocks quoted in pence) require the T212 API price
     # in pence, not pounds.  Signal prices are always stored in pounds, so
     # multiply by 100 before sending to T212 for GBX instruments.
+    #
+    # Slippage premium: a passive BUY limit at the inside ask never crosses
+    # the spread for illiquid instruments (VAGS bond ETF sat NEW for 9 polls
+    # × 20 s without a fill on 2026-04-16). Apply a small premium to make it
+    # a "marketable limit" — still capped (no runaway market fill) but priced
+    # through the inside ask. Hard-capped at half the entry-to-stop distance
+    # so we never enter already inside the stop's risk envelope.
     # ─────────────────────────────────────────────────────────────────────────
-    t212_entry_price = round(entry * 100, 2) if currency == 'GBX' else round(entry, 4)
-    t212_stop_price  = round(stop  * 100, 2) if currency == 'GBX' else round(stop,  4)
+    # VIX-scaled premium: higher VIX → wider spreads → need larger premium to cross.
+    # Formula: base_bps × (1 + max(0, (vix-18)/20))
+    #   VIX=18 → 1.0× (no adjustment)   VIX=28 → 1.5×   VIX=38 → 2.0×
+    # Illiquid instruments use a higher base and also scale with VIX.
+    _base_bps = (T212_LIMIT_PREMIUM_BPS_ILLIQUID
+                 if ticker in T212_ILLIQUID_TICKERS
+                 else T212_LIMIT_PREMIUM_BPS)
+    try:
+        import json as _json
+        _mdir = _json.loads(open(f'{_LOGS}/apex-market-direction.json').read())
+        _vix_now = float(_mdir.get('vix', _mdir.get('vix_current', 18)) or 18)
+    except Exception:
+        _vix_now = 18.0
+    _vix_scale   = 1.0 + max(0.0, (_vix_now - 18.0) / 20.0)
+    _premium_bps  = round(_base_bps * _vix_scale, 1)
+    _premium_frac = _premium_bps / 10000.0
+    # Safety cap: never exceed half the entry-to-stop distance
+    if entry > 0 and stop > 0 and entry > stop:
+        _max_safe_frac = ((entry - stop) / entry) * T212_LIMIT_PREMIUM_MAX_FRAC_OF_STOP
+        if _premium_frac > _max_safe_frac:
+            _log(f"Premium capped: {_premium_bps} bps would exceed half stop-distance "
+                 f"(entry £{entry}, stop £{stop}) — using {_max_safe_frac*10000:.1f} bps")
+            _premium_frac = max(0.0, _max_safe_frac)
+    _entry_with_premium = entry * (1.0 + _premium_frac)
+    _premium_applied_bps = _premium_frac * 10000.0
+    if _premium_applied_bps > 0:
+        _log(f"Limit premium: +{_premium_applied_bps:.1f} bps "
+             f"({'illiquid' if ticker in T212_ILLIQUID_TICKERS else 'std'} "
+             f"× VIX{_vix_now:.0f}={_vix_scale:.2f}x) "
+             f"→ {entry:.4f} → {_entry_with_premium:.4f}")
+
+    # FX conversion (if any) was already applied above before the pending
+    # write, so `entry`, `stop` are already in T212 trading currency. The
+    # only remaining currency transform is GBX pence×100 for LSE GBX-quoted
+    # instruments (CHF/EUR/USD instruments skip the pence step).
+    t212_entry_price = (round(_entry_with_premium * 100, 2) if currency == 'GBX'
+                        else round(_entry_with_premium, 4))
+    t212_stop_price  = (round(stop * 100, 2) if currency == 'GBX'
+                        else round(stop,  4))
     _log(f"Step 1: Placing LIMIT entry — {ticker} ×{quantity} @ "
-         f"{'%dp' % t212_entry_price if currency == 'GBX' else '£%.4f' % entry} "
+         f"{'%dp' % t212_entry_price if currency == 'GBX' else '%.4f' % _entry_with_premium} "
          f"(currency={currency})")
 
     entry_data = t212_request('/equity/orders/limit', method='POST', payload={
@@ -650,6 +919,9 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
         'entry_order_id': str(entry_id),
         'order_type':     f'{order_type_used}+STOP',
     })
+    _audit(signal_id=None, ticker=ticker, signal_type=signal_type,
+           from_state='pending', to_state='entry_placed',
+           detail=f'{order_type_used} entry order placed', t212_order_id=entry_id)
 
     # ─────────────────────────────────────────────────────────────────────────
     # Step 2b: Wait for entry fill before placing stop
@@ -739,6 +1011,10 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
                     f"Placing stop automatically..."
                 )
             else:
+                _audit(signal_id=None, ticker=ticker, signal_type=signal_type,
+                       from_state='entry_placed', to_state='REMOVED',
+                       detail='intraday non-fill: limit cancelled, no late fill detected',
+                       t212_order_id=entry_id)
                 _remove_pending(ticker)
                 send_telegram(
                     f"⚠️ ENTRY LIMIT NOT FILLED (CANCELLED)\n\n"
@@ -763,18 +1039,27 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
             f"Stop at £{stop} will be placed automatically once the order fills.\n"
             f"Apex will check every 30 minutes."
         )
-        # Spawn watchdog immediately in the background so it can catch a quick
-        # fill and place the stop without waiting up to 30 min for the next
-        # scheduled cron cycle.  This closes the largest part of the protection gap.
+        # Spawn watchdog in the background to catch a quick late fill and place
+        # the deferred stop without waiting for the 30-min cron cycle.
+        #
+        # Delay 90s before launch: we just burned 9 fill-poll API calls in this
+        # process, and Cloudflare's per-IP burst counter is at its peak. Firing
+        # the watchdog (which makes ~5–10 more T212 calls) immediately is what
+        # caused the false STOP MISSING alert on 2026-04-16 — the watchdog hit
+        # the rate-limit window, /equity/orders returned None, and every stop
+        # appeared "missing".  90s lets the burst counter decay before retry.
+        # See: scripts/CLAUDE.md "T212 Cloudflare Rate-Limit (Geo-1010)" lesson.
         try:
             import subprocess as _sp_deferred
             _sp_deferred.Popen(
-                [sys.executable,
-                 '/home/ubuntu/.picoclaw/scripts/apex-broker-watchdog.py'],
+                ['/bin/bash', '-c',
+                 f'sleep 90 && {sys.executable} '
+                 f'/home/ubuntu/.picoclaw/scripts/apex-broker-watchdog.py'],
                 stdout=_sp_deferred.DEVNULL,
                 stderr=_sp_deferred.DEVNULL,
+                start_new_session=True,
             )
-            _log("Watchdog spawned in background to monitor fill and place deferred stop")
+            _log("Watchdog spawned (delayed 90s) to monitor fill and place deferred stop")
         except Exception as _wd_e:
             log_warning(f"Could not spawn background watchdog: {_wd_e}")
         return True   # not an error — position is being managed
@@ -815,6 +1100,10 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
             'stop_order_id': str(stop_id),
             'unprotected':   False,
         })
+        _audit(signal_id=None, ticker=ticker, signal_type=signal_type,
+               from_state='entry_placed', to_state='protected',
+               detail=f'stop placed @ £{stop}', t212_order_id=stop_id,
+               filled_qty=filled_qty)
 
         # Append to TRADING_STATE.md
         try:
@@ -943,6 +1232,8 @@ def execute(signal: dict, dry_run: bool = False, _mode: str = None) -> bool:
             "status":         "unprotected",
             "unprotected":    True,
             "order_type":     f"{order_type_used}+STOP",
+            "regime_at_open": _regime_snapshot(),
+            "regime_at_entry": safe_read(REGIME_FILE, {}).get('overall', 'UNKNOWN'),
         })
         return positions
 

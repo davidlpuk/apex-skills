@@ -74,7 +74,7 @@ def detect_gaps(universe_tickers):
     for ticker, yahoo in universe_tickers.items():
         try:
             hist = yf.Ticker(yahoo).history(period="5d")
-            if hist.empty or len(hist) < 2:
+            if hist is None or hist.empty or len(hist) < 2:
                 continue
 
             closes = [fix_pence(float(c), yahoo) for c in hist['Close']]

@@ -957,6 +957,174 @@
         "learning",
         "performance"
       ]
+    },
+    {
+      "name": "agent-tighten-stop",
+      "script": "apex-agent-tighten-stop.py",
+      "description": "One-directional stop tightening. Can ONLY move stops closer to current price (tighter), never farther. Safe for autonomous agent use. Args: <t212_ticker> <new_stop_price>.",
+      "safety": "execute-trade",
+      "outputs": [
+        "apex-positions.json",
+        "apex-agent-actions.json"
+      ],
+      "inputs": [
+        "apex-positions.json"
+      ],
+      "tags": [
+        "agent",
+        "exits",
+        "stops"
+      ]
+    },
+    {
+      "name": "intraday-momentum",
+      "script": "apex-intraday-momentum.py",
+      "description": "Intraday momentum analysis for all open positions. Per-position: RSI(15m), VWAP deviation, volume trend, distance to targets, session high/low, R-multiple. Verdict: STRONG/NEUTRAL/FADING/EXHAUSTED.",
+      "safety": "external-fetch",
+      "outputs": [
+        "apex-intraday-momentum.json"
+      ],
+      "inputs": [
+        "apex-positions.json"
+      ],
+      "tags": [
+        "agent",
+        "exits",
+        "intraday"
+      ]
+    },
+    {
+      "name": "agent-ledger",
+      "script": "apex-agent-ledger.py",
+      "description": "Agent Economic Value Ledger. Joins apex-agent-actions against closed-trade outcomes to compute £ P&L impact of every logged action, minus LLM cost, over a lookback window. Answers 'did the agent make us money?' with a single number. Flags each attribution with confidence (high/medium/low/none) and method — transparent about uncertainty.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-agent-ledger.json"
+      ],
+      "inputs": [
+        "apex-agent-actions.json",
+        "apex-outcomes.json",
+        "apex-agent-reasoning.jsonl"
+      ],
+      "tags": [
+        "agent",
+        "learning",
+        "performance"
+      ]
+    },
+    {
+      "name": "agent-baseline",
+      "script": "apex-agent-baseline.py",
+      "description": "Null-agent counterfactual P&L. Computes realised_pnl minus what the book would have done if the agent had stayed silent, i.e. α. Publishes realised, null-baseline, gross α, net α (after LLM cost), and an 'additive/neutral/subtractive' verdict.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-agent-baseline.json"
+      ],
+      "inputs": [
+        "apex-agent-ledger.json",
+        "apex-outcomes.json"
+      ],
+      "tags": [
+        "agent",
+        "performance",
+        "accountability"
+      ]
+    },
+    {
+      "name": "agent-calibration",
+      "script": "apex-agent-calibration.py",
+      "description": "Brier score + calibration curve. Joins the ledger's attributed actions against self-reported confidence and asks: when the agent says 0.9, is it right 9 times in 10? Reports overall Brier, per-bucket hit rate, and a diagnosis (well_calibrated / acceptable / poorly_calibrated, plus overconfidence drift).",
+      "safety": "write-log",
+      "outputs": [
+        "apex-agent-calibration.json"
+      ],
+      "inputs": [
+        "apex-agent-ledger.json",
+        "apex-agent-actions.json"
+      ],
+      "tags": [
+        "agent",
+        "performance",
+        "accountability"
+      ]
+    },
+    {
+      "name": "agent-tier",
+      "script": "apex-agent-tier.py",
+      "description": "Tiered authority evaluator. Reads ledger + baseline + calibration; emits tier in {Probation, Standard, Senior} with capability flags. apex-agent.py gates close_position and related destructive actions on this file. Demotion is automatic on 3 consecutive losers, 30d α < 0, or brier > 0.30.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-agent-tier.json"
+      ],
+      "inputs": [
+        "apex-agent-ledger.json",
+        "apex-agent-baseline.json",
+        "apex-agent-calibration.json"
+      ],
+      "tags": [
+        "agent",
+        "authority",
+        "accountability"
+      ]
+    },
+    {
+      "name": "close-position",
+      "script": "apex-agent-close-position.py",
+      "description": "Market-close an open T212 position. Cancels working stop, places market sell for full quantity, marks position as closing. Refuses when venue is closed. Requires --confirm flag; the tool runner will block unless invoked with --force.",
+      "safety": "execute-trade",
+      "outputs": [
+        "apex-positions.json",
+        "apex-agent-actions.json"
+      ],
+      "inputs": [
+        "apex-positions.json",
+        "apex-market-calendar.json"
+      ],
+      "tags": [
+        "agent",
+        "exits",
+        "execute-trade"
+      ]
+    },
+    {
+      "name": "sync-gates",
+      "script": "apex-gates-sync.py",
+      "description": "Publish current decision thresholds from apex_config.py into apex-decision-gates.json for agent inspection. Covers circuit breaker levels, position sizing, signal quality gates, hold periods, ATR stops, and LLM budget.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-decision-gates.json"
+      ],
+      "inputs": [
+        "apex_config.py"
+      ],
+      "tags": [
+        "agent",
+        "context",
+        "config"
+      ]
+    },
+    {
+      "name": "build-context",
+      "script": "apex-context-builder.py",
+      "description": "Rebuild the session-bootstrap context doc (apex-context.md). Composes market status, regime, positions, signals, recent agent actions, track record, decision gates, and available tools into a single markdown file the agent reads at session start.",
+      "safety": "write-log",
+      "outputs": [
+        "apex-context.md"
+      ],
+      "inputs": [
+        "apex-market-calendar.json",
+        "apex-regime.json",
+        "apex-positions.json",
+        "apex-pending-signal.json",
+        "apex-agent-actions.json",
+        "apex-agent-track-record.json",
+        "apex-decision-gates.json"
+      ],
+      "tags": [
+        "agent",
+        "context",
+        "bootstrap"
+      ]
     }
   ]
 }

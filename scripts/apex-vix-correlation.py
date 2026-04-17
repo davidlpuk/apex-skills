@@ -48,7 +48,7 @@ def run():
     # Get VIX returns
     try:
         vix_hist = yf.Ticker("^VIX").history(period="3mo")
-        if vix_hist.empty:
+        if vix_hist is None or vix_hist.empty:
             print("Could not fetch VIX data")
             return
         vix_returns = vix_hist['Close'].pct_change().dropna()
@@ -73,7 +73,7 @@ def run():
 
         try:
             hist = yf.Ticker(yahoo).history(period="3mo")
-            if hist.empty:
+            if hist is None or hist.empty:
                 continue
 
             close = hist['Close']
@@ -144,7 +144,8 @@ def run():
 
     # Get current VIX
     try:
-        current_vix = round(float(yf.Ticker("^VIX").history(period="1d")['Close'].iloc[-1]), 2)
+        _vix_h = yf.Ticker("^VIX").history(period="1d")
+        current_vix = round(float(_vix_h['Close'].iloc[-1]), 2) if _vix_h is not None and not _vix_h.empty else None
         print(f"\n📊 Current VIX: {current_vix}")
         if current_vix >= 30:
             print(f"🚨 VIX ELEVATED — high sensitivity positions at significant risk")

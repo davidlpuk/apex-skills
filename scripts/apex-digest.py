@@ -197,8 +197,32 @@ def build_digest():
         lines.append('  16:30 — End of day review + position summary')
         lines.append('  Tomorrow 07:00 — health check + intelligence refresh')
 
-    # ── 6. System health ──────────────────────────────────────────────
+    # ── 6. LLM cost + A/B performance ────────────────────────────────
+    lines.append('🧠 LLM INTELLIGENCE')
+    try:
+        from apex_llm_cost_tracker import format_digest_section as _cost_section
+        lines.append(_cost_section())
+    except Exception:
+        lines.append('  LLM cost: unavailable')
+
+    try:
+        from apex_llm_ab_tracker import format_summary as _ab_summary, resolve_outcomes as _resolve
+        _resolve()   # link any newly closed trades before reporting
+        ab_text = _ab_summary(days=7)
+        if 'No records' not in ab_text:
+            lines.append(ab_text)
+    except Exception:
+        pass
+
+    # Morning brief posture (if available)
+    brief = safe_read(f'{LOGS}/apex-llm-morning-brief.json', {})
+    if brief.get('llm_generated') and brief.get('risk_posture'):
+        posture = brief['risk_posture']
+        posture_icon = {'FULL': '✅', 'REDUCED': '⚠️', 'CAUTIOUS': '🟠', 'DEFENSIVE': '🔴'}
+        lines.append(f"  {posture_icon.get(posture,'?')} Today's posture: {posture} — {brief.get('risk_posture_reason','')[:80]}")
     lines.append('')
+
+    # ── 7. System health ──────────────────────────────────────────────
     lines.append('🔧 SYSTEM')
     last_health = ''
     try:

@@ -29,6 +29,29 @@ except ImportError:
 POSITIONS_FILE = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 OUTCOMES_FILE  = '/home/ubuntu/.picoclaw/logs/apex-outcomes.json'
 RECON_FILE     = '/home/ubuntu/.picoclaw/logs/apex-reconciliation.json'
+REGIME_FILE    = '/home/ubuntu/.picoclaw/logs/apex-regime.json'
+
+
+def _current_regime_snapshot():
+    """
+    Read current regime tags from apex-regime.json so closed trades can be
+    bucketed by market regime later (strategy x regime heatmap, edge-by-regime
+    DSR). Returns a small dict; missing file → empty dict (never raises).
+    """
+    try:
+        with open(REGIME_FILE) as f:
+            r = json.load(f)
+        if not isinstance(r, dict):
+            return {}
+        return {
+            'overall':         r.get('overall'),
+            'vix_regime':      r.get('vix_regime'),
+            'breadth_regime':  r.get('breadth_regime'),
+            'vix':             r.get('vix'),
+            'breadth_pct':     r.get('breadth_pct'),
+        }
+    except Exception:
+        return {}
 
 def get_t212_portfolio():
     """Fetch live portfolio from T212 via centralised rate-limited caller."""
@@ -98,11 +121,15 @@ def get_exit_from_history(ticker, opened_date):
         return None, 'unknown'
 
 
-def log_closed_position(pos, reason):
+def log_closed_position(pos, reason) -> bool:
     """
     Log a position closure to outcomes.
     Looks up the actual fill price from T212 order history so outcomes
     have real P&L and R data — not zeros.
+
+    Returns True if an outcome row was written, False if the position
+    had no T212 fill history (never filled — skipped to preserve stats integrity)
+    OR if an outcome already exists for this same ticker+opened (dedup guard).
     """
     try:
         ticker     = pos.get('t212_ticker', '?')
@@ -116,13 +143,45 @@ def log_closed_position(pos, reason):
         signal_type = pos.get('signal_type', 'UNKNOWN')
         sector     = pos.get('sector', 'unknown')
 
+        # ── Dedup guard ──────────────────────────────────────────────────
+        # When a position is closed via T1 partial / stop hit / target hit,
+        # the executor already writes an outcome row. The reconciler then
+        # sees the position is gone from T212 and tries to write ANOTHER
+        # outcome — double-counting P&L and inflating realized profit.
+        # Real-world example: XOM T1_PARTIAL (+£28.90, qty=2 sold) → reconciler
+        # then logged auto_reconciled +£59.24 using the ORIGINAL qty=4 against
+        # the stop fill price, inflating outcomes by £148 vs real T212 cash.
+        # Skip if an outcome already exists for this ticker+opened date.
+        if reason == 'auto_reconciled_not_in_t212':
+            try:
+                _existing = safe_read(OUTCOMES_FILE, {'trades': []})
+                if isinstance(_existing, dict):
+                    for _t in _existing.get('trades', []):
+                        if (_t.get('ticker') == ticker and
+                            _t.get('opened') == opened):
+                            log_info(
+                                f"Skipping auto_reconciled outcome for {ticker} "
+                                f"opened {opened} — outcome already logged "
+                                f"(executor partial/stop close). Avoids double-count."
+                            )
+                            return False
+            except Exception as _e:
+                log_warning(f"Dedup guard read failed for {ticker}: {_e} — proceeding")
+
         # Look up actual exit price from T212 order history
         exit_price, close_type = get_exit_from_history(ticker, opened)
 
-        # If history lookup failed, fall back to using current price from position
+        # No T212 sell history means the position was never filled.
+        # Logging entry=exit creates a phantom BREAKEVEN that corrupts win-rate
+        # stats and pollutes the scoring/Kelly models with zero-PnL noise.
+        # Do NOT fall back to entry price — return False so caller can alert.
         if exit_price is None:
-            exit_price = float(pos.get('current', pos.get('entry', 0)))
-            close_type = reason
+            log_warning(
+                f"Ghost position {ticker} has no T212 sell history — skipping outcome log "
+                f"(status={pos.get('status')!r}, entry={entry}). "
+                f"Likely a limit order that never filled."
+            )
+            return False
 
         # Override close_type with known reason if it's more specific
         if reason not in ('auto_reconciled_not_in_t212',):
@@ -189,6 +248,13 @@ def log_closed_position(pos, reason):
             'day_opened':   day,
             'mae_pct':      pos.get('mae_pct', 0),
             'mfe_pct':      pos.get('mfe_pct', 0),
+            # Regime tagging — enables future strategy×regime heatmap and
+            # edge-by-regime analysis (DSR conditioned on regime). regime_at_open
+            # is captured at signal time by apex-decision-engine; regime_at_close
+            # is read fresh here so we can compare entry vs. exit regime.
+            'regime_at_open':  pos.get('regime_at_open'),
+            'regime_at_entry': pos.get('regime_at_entry', 'UNKNOWN'),
+            'regime_at_close': _current_regime_snapshot(),
             'auto_reconciled': True,
         }
         trades.append(trade)
@@ -208,9 +274,11 @@ def log_closed_position(pos, reason):
 
         atomic_write(OUTCOMES_FILE, outcomes)
         log_info(f"Outcome logged: {pos.get('name')} exit={exit_price} pnl=£{pnl} r={r} result={result}")
+        return True
 
     except Exception as e:
         log_error(f"log_closed_position failed: {e}")
+        return False
 
 def reconcile(silent=False):
     """
@@ -238,7 +306,10 @@ def reconcile(silent=False):
 
     # ── 1. Positions in Apex but NOT in T212 ──────────────────────
     # These were closed externally — stop fired, manual close, expiry
-    ghost_tickers = apex_tickers - t212_tickers - {''}
+    # Exclude non-T212 venues (Alpaca etc.) — they won't appear in T212 portfolio
+    _non_t212 = {p.get('t212_ticker', '') for p in apex_positions
+                 if p.get('venue') not in (None, '', 'T212')}
+    ghost_tickers = apex_tickers - t212_tickers - {''} - _non_t212
     for ticker in ghost_tickers:
         pos = next((p for p in apex_positions if p.get('t212_ticker') == ticker), {})
         name = pos.get('name', ticker)
@@ -258,19 +329,22 @@ def reconcile(silent=False):
             log_warning(f"Ghost position {ticker} was never filled (status={_status!r}, entry={_entry}) — skipping outcome log")
             alert_detail = "Never filled — no outcome logged"
         else:
-            log_closed_position(pos, 'auto_reconciled_not_in_t212')
+            outcome_written = log_closed_position(pos, 'auto_reconciled_not_in_t212')
             # Read back the outcome we just logged to include P&L in the alert.
-            # Must be inside the else block — reading unconditionally would show
+            # Must be inside this branch — reading unconditionally would show
             # the previous trade's data for unfilled ghost positions.
-            try:
-                _outcomes = safe_read(OUTCOMES_FILE, {'trades': []})
-                _last     = _outcomes.get('trades', [{}])[-1]
-                _pnl      = _last.get('pnl', '?')
-                _result   = _last.get('result', '?')
-                _exit     = _last.get('exit', '?')
-                alert_detail = f"Result: {_result} | Exit: {_exit} | P&L: £{_pnl}"
-            except Exception:
-                alert_detail = "P&L lookup failed — check apex-outcomes.json"
+            if outcome_written:
+                try:
+                    _outcomes = safe_read(OUTCOMES_FILE, {'trades': []})
+                    _last     = _outcomes.get('trades', [{}])[-1]
+                    _pnl      = _last.get('pnl', '?')
+                    _result   = _last.get('result', '?')
+                    _exit     = _last.get('exit', '?')
+                    alert_detail = f"Result: {_result} | Exit: {_exit} | P&L: £{_pnl}"
+                except Exception:
+                    alert_detail = "P&L lookup failed — check apex-outcomes.json"
+            else:
+                alert_detail = "No T212 fill history — never filled, outcome not logged"
 
         changes.append(f"REMOVED: {name} — closed in T212")
         alerts.append(f"⚠️ {name} closed externally\n{alert_detail}")

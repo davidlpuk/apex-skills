@@ -108,6 +108,34 @@ See `scripts/CLAUDE.md` for script index, cron schedule, and coding standards.
 
 ---
 
+## ⚠️ Known Failure Patterns — Read Before Touching Any of These Areas
+
+These are bugs that have recurred or caused significant damage. The full lesson is in `scripts/CLAUDE.md`.
+
+### Venue: T212 ONLY — Alpaca Is Disabled
+**All trades go through T212 exclusively.** Alpaca routing is permanently disabled.
+`_ALPACA_AVAILABLE = False` is hardcoded in `apex_order_executor.py` — do NOT re-enable.
+Reason: Alpaca credentials exist in `.env.alpaca` but the user does not use Alpaca for live trading.
+When Alpaca was active it silently routed all US stocks away from T212, making them invisible
+to the user and causing XOM to be bought 9× without any T212 record.
+If Alpaca is ever re-enabled intentionally, the reconciler ghost detection must exclude
+`venue != T212` positions (see `scripts/CLAUDE.md` for the full lessons).
+
+### Position Sizing
+- **NAV caps must scale with portfolio size.** NOT_PROVEN=0.5% × £4,634 = £23 < MIN_VIABLE_NOTIONAL → every trade blocked silently. Verify `NOT_PROVEN_CAP × NAV > MIN_VIABLE_NOTIONAL` whenever NAV changes significantly.
+- **Always guard qty=0 from `calculate_final_position()`** — a (0,0) return written to pending signal causes infinite "Signal file incomplete" cron loop.
+
+### LSE / GBX Instruments
+- **Never double-call `fix_pence()`** on values derived from a series already converted with `.apply(fix_pence)`. Will produce -9000% discounts and lock all LSE stocks out of signal selection.
+- **T212 API prices for GBX instruments are in pence.** Positions file stores pounds. Convert before comparison: `if currency == 'GBX' and t212_price > local_price * 10: t212_price /= 100`.
+
+### Scan / Signal Generation
+- **Module-level variables used in functions must be defined before the function is called** — not just before end-of-file. The WEIGHT_* variables in `apex-market-data.py` being defined after the scan loop silently broke TREND signals for an unknown period.
+- **`signal.get('key', default)` returns the empty string, not the default, if the key exists but is empty.** Guard quality check name resolution with explicit `if not value` checks.
+- **Contrarian scan overbought guard:** RSI > 75 instruments should not get MACD bonus — they've already recovered, not a dip-buy setup.
+
+---
+
 ## Common Tasks (Token-Efficient Approach)
 
 | Task | Read | Skip |

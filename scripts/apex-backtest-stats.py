@@ -270,6 +270,265 @@ def sharpe_from_r_multiples(r_multiples: list, trades_per_year: float = 100) -> 
 
 
 # ---------------------------------------------------------------------------
+# Deflated Sharpe Ratio (Bailey & López de Prado, 2014)
+# ---------------------------------------------------------------------------
+#
+# Standard Sharpe Ratio assumes Gaussian returns AND no selection bias from
+# multiple-strategy testing. Both assumptions break for retail systems that
+# test 5+ strategies with skewed/fat-tailed R-distributions.
+#
+# DSR returns the probability that the OBSERVED Sharpe is greater than zero,
+# AFTER adjusting for:
+#   - Number of trials  (selection bias / multiple testing)
+#   - Skewness          (negative skew = "land mines" risk)
+#   - Excess kurtosis   (fat tails = bigger surprise drawdowns)
+#   - Sample length     (longer track records get more credit)
+#
+# Reference: Bailey, D. H. and López de Prado, M. (2014).
+# "The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest
+# Overfitting and Non-Normality". Journal of Portfolio Management, 40(5).
+# ---------------------------------------------------------------------------
+
+def _normal_cdf(x: float) -> float:
+    """Standard normal CDF using the Abramowitz-Stegun approximation."""
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+
+def _moments(r_multiples: list) -> tuple:
+    """
+    Return (mean, std, skew, excess_kurtosis) for a series.
+    Uses sample variance (n-1) and Fisher's definition of excess kurtosis
+    (so a Gaussian has excess_kurtosis = 0).
+    """
+    n = len(r_multiples)
+    if n < 2:
+        return 0.0, 0.0, 0.0, 0.0
+    mean = sum(r_multiples) / n
+    var = sum((r - mean) ** 2 for r in r_multiples) / (n - 1)
+    std = math.sqrt(var) if var > 0 else 1e-9
+    if n < 3 or std == 0:
+        return mean, std, 0.0, 0.0
+    m3 = sum((r - mean) ** 3 for r in r_multiples) / n
+    m4 = sum((r - mean) ** 4 for r in r_multiples) / n
+    skew = m3 / (std ** 3) if std > 0 else 0.0
+    excess_kurt = (m4 / (std ** 4)) - 3.0 if std > 0 else 0.0
+    return mean, std, skew, excess_kurt
+
+
+def expected_max_sharpe(n_trials: int) -> float:
+    """
+    Expected maximum Sharpe Ratio under the null hypothesis (zero true SR)
+    when N independent strategies are tested. From Bailey & López de Prado:
+
+      E[max SR] ≈ (1 - γ) · Φ⁻¹(1 - 1/N)  +  γ · Φ⁻¹(1 - 1/(N·e))
+
+    where γ ≈ 0.5772 is the Euler-Mascheroni constant.
+
+    This is the SR you would expect to see by pure luck after selecting
+    the best of N strategies. The observed SR must clear THIS bar, not zero.
+    """
+    if n_trials <= 1:
+        return 0.0
+    gamma = 0.5772156649  # Euler-Mascheroni
+    # Inverse-normal approximations via Beasley-Springer-Moro
+    def _inv_norm(p):
+        # Acklam's approximation (good to ~5e-7)
+        if p <= 0 or p >= 1:
+            return 0.0
+        a = [-3.969683028665376e+01, 2.209460984245205e+02,
+             -2.759285104469687e+02, 1.383577518672690e+02,
+             -3.066479806614716e+01, 2.506628277459239e+00]
+        b = [-5.447609879822406e+01, 1.615858368580409e+02,
+             -1.556989798598866e+02, 6.680131188771972e+01,
+             -1.328068155288572e+01]
+        c = [-7.784894002430293e-03, -3.223964580411365e-01,
+             -2.400758277161838e+00, -2.549732539343734e+00,
+             4.374664141464968e+00, 2.938163982698783e+00]
+        d = [7.784695709041462e-03, 3.224671290700398e-01,
+             2.445134137142996e+00, 3.754408661907416e+00]
+        plow = 0.02425
+        phigh = 1 - plow
+        if p < plow:
+            q = math.sqrt(-2 * math.log(p))
+            return (((((c[0]*q + c[1])*q + c[2])*q + c[3])*q + c[4])*q + c[5]) / \
+                   ((((d[0]*q + d[1])*q + d[2])*q + d[3])*q + 1)
+        elif p <= phigh:
+            q = p - 0.5
+            r = q * q
+            return (((((a[0]*r + a[1])*r + a[2])*r + a[3])*r + a[4])*r + a[5])*q / \
+                   (((((b[0]*r + b[1])*r + b[2])*r + b[3])*r + b[4])*r + 1)
+        else:
+            q = math.sqrt(-2 * math.log(1 - p))
+            return -(((((c[0]*q + c[1])*q + c[2])*q + c[3])*q + c[4])*q + c[5]) / \
+                    ((((d[0]*q + d[1])*q + d[2])*q + d[3])*q + 1)
+    e = math.e
+    return (1 - gamma) * _inv_norm(1 - 1.0 / n_trials) + \
+           gamma * _inv_norm(1 - 1.0 / (n_trials * e))
+
+
+def deflated_sharpe_ratio(r_multiples: list,
+                          n_trials: int = 1,
+                          trades_per_year: float = 100) -> dict:
+    """
+    Bailey & López de Prado (2014) Deflated Sharpe Ratio.
+
+    Parameters
+    ----------
+    r_multiples    : list of per-trade R-multiples
+    n_trials       : number of strategies tested (for selection-bias correction).
+                     If you tested 5 strategies and report the best, n_trials=5.
+    trades_per_year: annualisation factor (default 100; lower for swing systems)
+
+    Returns
+    -------
+    {
+      'sharpe_observed': float,   # raw Sharpe (annualised)
+      'sharpe_expected_max': float,  # E[max SR] under null (selection bar)
+      'dsr_probability': float,   # Prob(true SR > 0) after all corrections
+      'verdict': str,             # 'CONFIRMED'|'MARGINAL'|'NOT_PROVEN'
+      'n_trades': int,
+      'skew': float,
+      'excess_kurtosis': float,
+    }
+    """
+    n = len(r_multiples)
+    if n < 5:
+        return {
+            'sharpe_observed': 0.0,
+            'sharpe_expected_max': 0.0,
+            'dsr_probability': 0.0,
+            'verdict': 'INSUFFICIENT_DATA',
+            'n_trades': n,
+            'skew': 0.0,
+            'excess_kurtosis': 0.0,
+        }
+
+    mean, std, skew, ex_kurt = _moments(r_multiples)
+    if std <= 0:
+        return {
+            'sharpe_observed': 0.0,
+            'sharpe_expected_max': 0.0,
+            'dsr_probability': 0.0,
+            'verdict': 'INSUFFICIENT_DATA',
+            'n_trades': n,
+            'skew': skew,
+            'excess_kurtosis': ex_kurt,
+        }
+
+    # Per-trade Sharpe and its z-score-standardised form.
+    # Under H0 (true SR=0, Gaussian returns), Var(SR_hat) ≈ 1/(n-1),
+    # so SR_hat * sqrt(n-1) ~ N(0, 1).  The BLP E[max] formula returns
+    # values in this standardised-z-score scale.
+    sr_obs_per_trade = mean / std
+    sr_obs_z = sr_obs_per_trade * math.sqrt(n - 1)
+    sr_exp_max_z = expected_max_sharpe(max(n_trials, 1))
+
+    # Bailey-de Prado adjustment for non-Gaussian shape:
+    #   σ_skewed² = 1 - skew·SR + ((kurt-1)/4)·SR²
+    # Negative skew (left-tail blow-ups) and high excess kurtosis (fat tails)
+    # both INFLATE the variance of the SR estimator, lowering DSR confidence.
+    denom_sq = 1 - skew * sr_obs_per_trade + (ex_kurt / 4.0) * (sr_obs_per_trade ** 2)
+    denom_sq = max(denom_sq, 1e-9)  # guard against negative under extreme tails
+    denom = math.sqrt(denom_sq)
+
+    # DSR = Φ((SR_hat_z - SR*_z) / σ_skewed)
+    z = (sr_obs_z - sr_exp_max_z) / denom
+    dsr_prob = _normal_cdf(z)
+
+    # Verdict thresholds match the BLP paper conventions
+    if dsr_prob >= 0.95:
+        verdict = 'CONFIRMED'
+    elif dsr_prob >= 0.75:
+        verdict = 'MARGINAL'
+    else:
+        verdict = 'NOT_PROVEN'
+
+    # Annualise for human display (BLP recommends reporting both raw and annual)
+    sr_annual = sr_obs_per_trade * math.sqrt(trades_per_year)
+    # Convert E[max] back from z-score to per-trade SR, then annualise
+    sr_max_per_trade = sr_exp_max_z / math.sqrt(n - 1)
+    sr_max_annual = sr_max_per_trade * math.sqrt(trades_per_year)
+
+    return {
+        'sharpe_observed': round(sr_annual, 3),
+        'sharpe_expected_max': round(sr_max_annual, 3),
+        'dsr_probability': round(dsr_prob, 4),
+        'verdict': verdict,
+        'n_trades': n,
+        'skew': round(skew, 3),
+        'excess_kurtosis': round(ex_kurt, 3),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Benjamini-Hochberg False Discovery Rate correction
+# ---------------------------------------------------------------------------
+#
+# When testing N strategies simultaneously, controlling per-test α at 0.10
+# inflates the family-wise error rate to ~1 - (1-0.10)^N. With N=5 strategies
+# that's ~41% chance of at least one false positive. BH-FDR controls the
+# EXPECTED proportion of false discoveries among rejected nulls — far more
+# appropriate for parallel strategy validation than Bonferroni (too strict).
+#
+# Reference: Benjamini, Y., & Hochberg, Y. (1995).
+# "Controlling the false discovery rate: a practical and powerful approach
+# to multiple testing." J. Royal Statistical Society B, 57(1).
+# ---------------------------------------------------------------------------
+
+def benjamini_hochberg(p_values: list, fdr: float = 0.10) -> list:
+    """
+    BH-FDR correction. Returns one boolean per input p-value indicating
+    whether the null is rejected at the given FDR.
+
+    Procedure:
+      1. Sort p-values ascending: p(1) ≤ p(2) ≤ ... ≤ p(m)
+      2. Find largest k such that p(k) ≤ k/m * fdr
+      3. Reject all hypotheses with p-value ≤ p(k)
+
+    Returns: list of bool (same order as input), and list of adjusted p-values.
+
+    Example:
+      p_values = [0.001, 0.04, 0.20, 0.50, 0.80]   # 5 strategies
+      benjamini_hochberg(p_values, fdr=0.10)
+      → [True, True, False, False, False]    # only first two survive
+    """
+    m = len(p_values)
+    if m == 0:
+        return [], []
+
+    # Sort with original index preserved
+    indexed = sorted(enumerate(p_values), key=lambda x: x[1])
+    sorted_p = [p for _, p in indexed]
+    orig_idx = [i for i, _ in indexed]
+
+    # Find largest k where p(k) ≤ k/m * fdr  (1-indexed k)
+    k_star = 0
+    for k in range(1, m + 1):
+        if sorted_p[k - 1] <= (k / m) * fdr:
+            k_star = k
+
+    # Adjusted p-values: q(i) = min over j≥i of (m/j) * p(j)
+    adjusted = [0.0] * m
+    running_min = 1.0
+    for j in range(m, 0, -1):
+        adj = min(1.0, (m / j) * sorted_p[j - 1])
+        running_min = min(running_min, adj)
+        adjusted[j - 1] = round(running_min, 4)
+
+    # Rejection set: top k_star sorted positions
+    rejected_sorted = [i < k_star for i in range(m)]
+
+    # Re-order both to original input order
+    rejected_orig = [False] * m
+    adjusted_orig = [1.0] * m
+    for sorted_pos, orig_pos in enumerate(orig_idx):
+        rejected_orig[orig_pos] = rejected_sorted[sorted_pos]
+        adjusted_orig[orig_pos] = adjusted[sorted_pos]
+
+    return rejected_orig, adjusted_orig
+
+
+# ---------------------------------------------------------------------------
 # Aggregate analysis with CIs
 # ---------------------------------------------------------------------------
 def analyse_with_confidence(trades: list, confidence: float = 0.95) -> dict:

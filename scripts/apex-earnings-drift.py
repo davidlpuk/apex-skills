@@ -103,9 +103,10 @@ def check_earnings_beat(ticker, yahoo_ticker):
         stop = round(earnings_day_low * 0.98, 2)
         risk = round(price - stop, 2)
 
-        # Targets
-        target1 = round(price + risk * 1.5, 2)
-        target2 = round(price + risk * 2.5, 2)
+        # Targets: empirical optimal_exit_r=0.83R → T1 at 0.85R (slight buffer).
+        # Previous 1.5R was never reached; 0.85R aligns with median MFE peak.
+        target1 = round(price + risk * 0.85, 2)
+        target2 = round(price + risk * 1.8, 2)
         qty     = round(min(50 / risk, 250 / price), 2) if risk > 0 else 1
 
         return {

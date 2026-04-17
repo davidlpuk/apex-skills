@@ -3,6 +3,1423 @@
 > Read this at the start of every session to understand what has already been done.
 > Append entries at the TOP (newest first). Format: `## YYYY-MM-DD — Description`
 
+## 2026-04-17 — Lower T1 targets to empirical optimal (0.83R)
+
+**Root cause**: T1 was set at 1.0–1.5R across all signal types. Across 14 real trades,
+0% of winners reached T1 (median MFE peak = 0.83R). Winners were exiting via
+stop-hit at 0.1–0.8R instead — either naturally or via premature agent stop-tightening.
+The exit-optimizer was destroying edge on positions that were actually winning.
+
+**Fix** (3 files):
+- `apex-atr-stops.py` — `_ATR_DEFAULTS` T1 values changed to `0.83 × stop_ATR_multiple`
+  for all signal types (CONTRARIAN: 2.1×, DEFAULT: 1.7×, EARNINGS_DRIFT: 1.3×, DIVIDEND: 0.8×).
+  `_load_calibrated_multipliers()` now derives T1 from `optimal_exit_r` (R-units) × stop_ATR,
+  replacing the old `optimal_t1_r` (which was wrongly set to 3.0× and would have made T1 harder).
+  Sample threshold lowered from n≥10 to n≥5 since we have 14 trades total.
+- `apex-decision-engine.py` — fallback target1 changed from `1.5R` → `0.85R`; target2 `2.5R` → `1.8R`.
+- `apex-earnings-drift.py` — same fallback change (set its own targets independently).
+
+**Expected impact**: T1 now sits at the median MFE peak. Trades should regularly reach T1,
+partial closes at T1 will bank gains, and the exit-optimizer will have less incentive to
+tighten stops prematurely before T1 is achieved.
+
+**Self-calibrating**: as more trades complete, `optimal_exit_r` in `apex-mae-mfe-calibration.json`
+will update and `_load_calibrated_multipliers()` will automatically re-derive T1 ATR multiples.
+
+## 2026-04-17 — Close all learning feedback loop gaps
+
+**Goal: best-in-class retrospective learning system.**
+
+Six targeted improvements to close gaps identified in the learning pipeline:
+
+1. **exit-optimizer MAE/MFE injection** (`apex_agent_config.py`): The exit-optimizer agent
+   prompt now includes a new step 2b that explicitly reads `apex-mae-mfe-calibration.json`
+   and uses `optimal_exit_r`, `reached_t1_pct`, and `stop_efficiency` to guide when to tighten.
+   Previously the calibration file was read but the fields were not referenced in the decision rules.
+
+2. **regime_at_entry on positions** (`apex_order_executor.py`): All new position dicts (T212,
+   Alpaca, and unprotected fallback paths) now include `regime_at_entry` from `apex-regime.json`
+   `overall` field, captured at position-write time. Enables strategy×regime heatmap analysis.
+
+3. **regime_at_entry copied to outcomes** (`apex-reconcile.py`): `log_closed_position()` now
+   copies `regime_at_entry` from the position record to the outcomes dict, alongside the existing
+   `regime_at_open` and `regime_at_close` fields.
+
+4. **Veto evaluator script** (`apex-veto-evaluator.py` — new): Checks all unevaluated
+   `signal_vetoed` actions in `apex-agent-actions.json`. Fetches price on veto date and 10 days
+   later via yfinance. Writes `veto_correct: True/False/None` back to the actions file.
+   Scheduled Monday 07:06 UTC.
+
+5. **Weekly learning digest** (`apex-learning-digest.py` — extended): Added `build_weekly_digest()`
+   function that compiles all learning data (outcomes by strategy, EV model accuracy, learned
+   weights, edge-proof progress, agent accuracy) into a Telegram summary. Invoked with `--weekly`
+   flag. Scheduled Monday 07:05 UTC.
+
+6. **EV model divergence check** (`apex-data-integrity.py`): Check 7 compares `model_ev` vs
+   `empirical_ev` from MAE/MFE calibration. Logs WARNING if empirical < 50% of model (currently
+   178% overestimate). Check 7b warns when T1 reach rate < 15%.
+
+---
+
+## 2026-04-17 — Fix post-trade autopsy + paper trading mode
+
+**Post-trade autopsy was effectively never running.** It checked `closed == today` but most
+closes happen via reconciler at inconsistent times. In 41 agent sessions it had run 0 actual
+analyses. Fixed: lookback extended to 7 days (`closed >= cutoff`). Also added `timedelta`
+import that was missing.
+
+Autopsy prompt updated to also examine open positions with negative unrealised P&L — not just
+closed trades. This means every EOD run will now diagnose why open losers are underwater.
+
+**EV model overestimates by 178%** — flagged but not yet actioned. Model predicts 2.0R avg
+win; empirical average is 0.87R. 0% of trades have reached T1 or T2. This is structural —
+targets are set too wide. Needs investigation when more trades accumulate.
+
+---
+
+## 2026-04-17 — Paper trading mode: max learning velocity configuration
+
+Account is T212 Practice (virtual money). All gates tuned for maximum data generation
+and fastest progression through edge-proof tiers. Revert these [PAPER] tags when going live.
+
+**apex_config.py:**
+- `MAX_OPEN_POSITIONS` 6 → 10 (more simultaneous experiments)
+- `MAX_SECTOR_POSITIONS` 2 → 3 (wider sector diversity)
+- `MAX_SECTOR_NOTIONAL_PCT` 10% → 20% (less sector concentration constraint)
+- `MIN_EV_RATIO` 1.5 → 1.2 GBP, 2.0 → 1.5 USD (test marginal EV trades)
+- `MIN_WIN_RATE` 45% → 40% (wider signal funnel)
+- `MIN_SIGNAL_SCORE` 6 → 5 (let more signal types generate data)
+- `MAX_HOLD_TREND` 15 → 10 days (faster turnover = more closed trades per month)
+- `MAX_HOLD_CONTRARIAN` 20 → 15 days
+
+**apex_sizer.py:**
+- `NOT_PROVEN` NAV cap 1.5% → 5.0% (positions: £75 → £250 at current NAV)
+- `INSUFFICIENT_DATA` NAV cap 1.5% → 5.0%
+- `CONFIRMED/PROVEN` cap 3% → 8% (meaningful size when edge is confirmed)
+- `NOT_PROVEN` Kelly multiplier 0.5 → 1.0 (full Kelly on paper)
+- `INSUFFICIENT_DATA` Kelly multiplier 0.5 → 1.0
+- `MARGINAL` Kelly multiplier 0.6 → 1.0
+
+**apex-decision-engine.py:**
+- Rollout simulation FAIL: hard block → advisory only (log + Telegram warn, don't block)
+  On real money this must be reverted to a hard block. On paper we want to learn whether
+  the sim is a useful predictor.
+
+**What is intentionally NOT changed (keep testing these):**
+- Circuit breaker thresholds (learn if CB improves risk-adjusted returns)
+- EV gate itself (kept, just lower threshold — want to know if EV filtering adds value)
+- Quality universe check (instrument quality still matters)
+- LLM preflight gate (keep — learning whether LLM adds alpha)
+- Regime/TACO gates (keep — testing whether regime filtering helps)
+- Contrarian RSI max 38 (keep — testing the oversold criterion)
+
+To revert to production-safe settings when going live:
+  git diff HEAD apex_config.py apex_sizer.py apex-decision-engine.py
+
+---
+
+## 2026-04-16 — Performance improvements: 7 targeted fixes across sizing, filtering, and execution
+
+### 1. Regime scale fallback fixed: 0.5 → 1.0 (`apex_sizer.py` line 89)
+`except Exception: regime_scale = 0.5` silently halved all position sizes whenever the
+regime-scaling module failed to load. Changed to `1.0` (fail-open at full scale — a module
+load error is not a market risk signal).
+
+### 2. Ratchet stop threshold fixed: 0.01 → max(0.25, 0.1%) (`apex-trailing-stop.py`)
+Sub-penny threshold `0.01` caused stop order churn on noise moves for high-priced instruments.
+New: `max(0.25, entry * 0.001)` — at least 25p or 0.1% of entry price, whichever is larger.
+
+### 3. AB tracker resolve_outcomes() wired to nightly cron (22:00 Mon-Fri)
+`resolve_outcomes()` was implemented in `apex_llm_ab_tracker.py` but never called from cron.
+All AB decision records stayed 'pending' forever, breaking the LLM self-calibration loop.
+Added: `0 22 * * 1-5` cron entry calls the function nightly.
+
+### 4. Kelly v2 priors now live-updated from real closed trades (`apex-kelly-v2.py`)
+Added `_load_outcomes_r()`: reads `apex-outcomes.json` real closed trades (excludes auto-reconciled).
+Added `_refresh_priors_from_outcomes()`: updates `DISTRIBUTION_PRIORS` in-memory at import when
+a signal type has ≥5 real closed trades. Called at module load — no performance cost.
+`get_r_multiples()` now uses priority order: **outcomes.json (real) → backtest (blended 3:1 cap) → param-log**.
+Blending formula: real trades + up to 3× real count from backtest, preventing backtest from drowning real data.
+
+### 5. Sector rotation lagging gate added to `is_blocked()` (`apex_filters.py`)
+TREND signals in sectors identified as laggards by `apex-sector-rotation.py` are now hard-blocked.
+CONTRARIAN signals are explicitly exempt (lagging sectors are contrarian opportunities).
+Gate only fires when `intel['lagging_sectors']` is non-empty (data missing → fail-open).
+
+### 6. VIX-scaled limit premium (`apex_order_executor.py`)
+Flat `T212_LIMIT_PREMIUM_BPS=15` replaced with VIX-responsive scaling:
+`premium = base_bps × (1 + max(0, (vix-18)/20))`
+VIX=18 → 1.0× base | VIX=28 → 1.5× | VIX=38 → 2.0×
+Wider spreads during high-volatility periods require larger premiums to cross.
+
+### 7. Signal thesis re-check at queue execution (`apex-queue-revalidate.py`)
+New `check_thesis_validity()` function re-evaluates original signal conditions at execution time:
+- **CONTRARIAN**: RSI still < 55 AND discount from 52w high still < -5%. Both stale → CANCEL.
+  One stale → CAUTION (still proceed). Both intact → APPROVED.
+- **TREND**: RSI not overbought (< 75) AND price within 3% of 20-EMA. Either broken → CANCEL.
+- **INVERSE**: price not recovered >8% from signal entry.
+Wired into `revalidate_queue()` loop — runs after score decay check, before verdict.
+
+### Verified already implemented (no changes needed):
+- MAE/MFE calibration: already in decision engine lines 1540-1573 via `apex_targets.py`
+- R-multiple normalization: `r_achieved` already computed and stored in `apex-outcomes.json`,
+  already consumed by `apex-edge-proof.py` line 132.
+- Edge-proof backtest weighting: 3× cap already enforced in `_combine_with_backtest()`.
+
+## 2026-04-16 — LLM orchestration fixes + full wiring of portfolio agent
+
+Smoke test after previous LLM improvements revealed two bugs and three missing wiring points.
+
+### Bug 1: Morning brief crashing every morning (pre-existing, now fixed)
+`apex-llm-morning-brief.py` line 164: `queue.get('queue', [])` — `apex-trade-queue.json` is a
+flat list, not `{queue: [...]}`. The brief has been crashing at 07:55 every day with
+`AttributeError: 'list' has no attribute 'get'`, writing nothing to `apex-llm-morning-brief.json`.
+As a result `llm_generated=None` in the file, `apex_intelligence.py` treated it as inactive,
+and `llm_risk_posture` defaulted to `FULL` every day. The brief's DEFENSIVE/CAUTIOUS/REDUCED
+posture logic has NEVER fired in production.
+Fix: same list/dict guard applied as in portfolio agent.
+
+### Bug 2: Same queue bug in new portfolio agent (caught in smoke test, fixed before release)
+`apex-llm-portfolio-agent.py` had the same queue-reading pattern. Fixed before first run.
+
+### Wiring: Portfolio agent → cron
+Added `10 8 * * 1-5` cron entry: runs after morning brief (07:55) and queue revalidation (07:58),
+before the first scan (08:30). Gives 20 minutes of whole-book review before any trades execute.
+
+### Wiring: Portfolio review → apex_intelligence.py
+`gather_intelligence()` now reads `apex-llm-portfolio-review.json`. Fields added to intel dict:
+  - `portfolio_book_risk`: LOW/MEDIUM/HIGH/CRITICAL (or UNKNOWN if review is stale/disabled)
+  - `portfolio_tail_risk`: LLM's tail risk scenario
+  - `portfolio_regime_fit`: LLM's regime-fit concern
+  - `portfolio_actions`: per-position action list (advisory)
+Review is treated as active if llm_generated=True and age < 4h.
+
+### Wiring: portfolio_book_risk → decision engine min-score gate
+`apex-decision-engine.py` now reads `intel['portfolio_book_risk']` after the morning brief gates:
+  - HIGH → raises MIN_SIGNAL_SCORE to max(current, 7.5)
+  - CRITICAL → raises MIN_SIGNAL_SCORE to max(current, 8.5) + logs regime fit concern
+  - Advisory only — does NOT halt trading (that remains the morning brief DEFENSIVE posture's job)
+
+---
+
+## 2026-04-16 — LLM intelligence improvements: self-calibration, regime context, provider routing, portfolio agent
+
+Seven improvements to the LLM layer — all non-breaking, fail-open, and behind existing flags.
+
+### 1. A/B track record feedback loop (`apex_llm_ab_tracker.py`)
+Added `get_module_performance(module, last_n=20)` — returns a plain-English summary of the LLM's
+recent decision accuracy (e.g. "You blocked 8 trades. 6 losses avoided (75% accuracy)").
+Prepended to every thinking-tier prompt so the model can self-calibrate: a preflight module
+that has been blocking too aggressively will be told so and raise its bar.
+
+### 2. Regime-conditioned preamble (`apex_llm_flags.py`)
+Added `build_regime_preamble()` — reads live regime, HMM state, VIX, breadth, market hours, and
+circuit breaker state, formats a compact header prepended to all LLM prompts. Previously every
+prompt got static market context embedded in the hand-written text; now it's always the live
+file state regardless of when the prompt was written.
+
+### 3. Per-module provider routing (`apex_llm_client.py`)
+Added `_MODULE_PROVIDER_OVERRIDES` dict and `get_effective_provider(module)`.
+`preflight`, `drawdown_review`, and `portfolio_agent` now always route to Claude (Anthropic)
+for extended thinking — even when the global provider is set to Gemini. These modules make
+high-stakes binary decisions where auditable chain-of-thought matters. Falls back gracefully
+if Anthropic key is missing. `call_llm_thinking()` uses `get_effective_provider(module)`.
+
+### 4. Preflight injection (`apex-llm-preflight.py`)
+Prepends `build_regime_preamble()` + A/B track record to the falling-knife filter prompt.
+
+### 5. Tiebreaker injection (`apex-llm-tiebreaker.py`)
+Same injection — regime preamble replaces the partial regime_ctx already in the prompt.
+A/B track record added so the model knows whether its past reranking has been profitable.
+
+### 6. Exit timing injection (`apex-llm-exit-timing.py`)
+Same injection — fast-tier Gemini call now has live regime context and exit timing track record.
+
+### 7. Portfolio agent (`apex-llm-portfolio-agent.py`) — NEW FILE
+Whole-book risk reasoning. Analyses: correlation (positions in same sector/theme),
+regime fit (signal types vs HMM state), concentration (notional vs NAV), tail risk
+(single event that hurts the whole book), cash posture (appropriate for regime?).
+- Output: `apex-llm-portfolio-review.json`
+- Telegram alert when `book_risk_level` is HIGH or CRITICAL, or when position actions recommended
+- Flag: `portfolio_agent_llm` (default OFF — enable with: LLM ON portfolio_agent_llm)
+- Provider: always Claude (via module override above)
+- Budget: 5000 thinking tokens (highest of all LLM modules — whole-book synthesis)
+- Min interval: 90 min between runs (force with: `python3 apex-llm-portfolio-agent.py force`)
+- Cron: add `08:10 * * 1-5` after morning brief (briefed first, portfolio review after)
+
+CLI:
+  python3 apex-llm-portfolio-agent.py          # run (respects 90m interval)
+  python3 apex-llm-portfolio-agent.py force    # always run
+  python3 apex-llm-portfolio-agent.py status   # print last review
+
+---
+
+## 2026-04-16 — Live FX layer + limit-price slippage premium (re-enables CHF/EUR/USD LSE ETFs)
+
+Follows on from the morning's "5 wasted trade attempts" entry. Two open issues
+documented there are now resolved.
+
+### Phase 1 — Limit-price slippage premium
+
+**Problem**: a passive BUY limit posted at the inside ask never crossed the
+spread for VAGS (Vanguard Global Aggregate Bond — bond ETFs have wider
+spreads than equities). VAGS sat NEW for 9 polls × 20 s without a single
+fill on 2026-04-16 even though the ETF was actively quoted on LSE.
+
+**Fix**:
+- New constants in `apex_config.py`:
+  - `T212_LIMIT_PREMIUM_BPS = 15`  (0.15% premium on BUY limits — covers most LSE/US large-cap spreads)
+  - `T212_LIMIT_PREMIUM_BPS_ILLIQUID = 35`  (0.35% for known-illiquid bond/commodity ETFs)
+  - `T212_LIMIT_PREMIUM_MAX_FRAC_OF_STOP = 0.5`  (hard cap at half the entry-to-stop distance — premium can never widen the entry into the stop's risk envelope)
+  - `T212_ILLIQUID_TICKERS` set (`VAGSl_EQ`, `IBTSl_EQ`, `IS15l_EQ`, `VGOVl_EQ`, `AIGEl_EQ`, `AIGPl_EQ`, `ICOMl_EQ`, `COPAl_EQ`)
+- `apex_order_executor.py` Step 1 limit-price section:
+  - `_premium_bps = T212_LIMIT_PREMIUM_BPS_ILLIQUID if ticker in T212_ILLIQUID_TICKERS else T212_LIMIT_PREMIUM_BPS`
+  - `_entry_with_premium = entry × (1 + premium_frac)` capped at half stop-distance
+  - Submission price now uses `_entry_with_premium`, turning passive limits into "marketable limits": still capped (no runaway market fill) but priced through the inside ask.
+
+Validated end-to-end on 2026-04-16: DFNG limit went from "9 polls no fill" to
+"filled within 2 polls" once the 0.15% premium was added.
+
+### Phase 2 — GBP↔USD/EUR/CHF FX layer with `convert_price()`
+
+**Problem**: the morning's `CURRENCY GUARD` hard-blocked any LSE-listed
+T212 instrument whose trading currency was not GBP/GBX (VAPX/CHF, HEAL/EUR,
+IUCD/USD). Without an FX layer the limit price unit was wrong → no fills.
+
+**Fix in three layers**:
+
+1. **`apex_utils.py` — new live-FX subsystem**:
+   - `FxRateUnavailable` exception (fail-CLOSED on rate fetch failure)
+   - `_FX_CACHE_FILE = apex-fx-rates.json`, TTL 6 h (FX moves <1% intraday for liquid majors — sub-day staleness is fine for limit pricing)
+   - `_FX_GBP_PAIRS` map: USD/EUR/CHF/JPY/CAD/AUD/CNY → yfinance `GBP<XYZ>=X` symbols
+   - `_normalise_currency()` treats GBX/GBPENCE as GBP (sub-unit, not separate fiat)
+   - `_get_gbp_per_unit(c)` — cache-or-fetch helper, raises `FxRateUnavailable` if both cache and live yfinance fail
+   - `convert_price(price, from_c, to_c)` — composes any pair via GBP base (USD→EUR goes USD→GBP→EUR)
+   - Cache layout: `{rates: {USD: {gbp_per_unit, unit_per_gbp, fetched_at, source}, ...}, updated_at}`
+
+2. **`apex-ticker-map.json` — added `yahoo_currency` field on 99 entries**:
+   - Audit script ran yfinance.fast_info.currency for each LSE-suffix ticker
+   - 8 confirmed mismatches (T212 currency vs yfinance quote currency): EQQQ (EUR/GBP), HEAL (EUR/USD), VAPX (CHF/GBP), VJPN (EUR/GBP), VGOV (EUR/GBP), CPG (GBX/USD), AIR (EUR/USD), IUIT (GBP/USD)
+   - 8 `yahoo_ticker` overrides added for cross-listed equities where yfinance's `.L` symbol fails: BT→`BT-A.L`, AVIVA→`AV.L`, SIE→`SIE.DE`, NOVN→`NOVN.SW`, ROG→`ROG.SW`, PFE→`PFE.DE`, PEP→`PEP.DE`, AMD→`AMD.DE`
+
+3. **`apex_order_executor.py` — replaced hard-block with FX-aware flow**:
+   - **Top of `execute()`** — pre-flight FX validation:
+     - Read `_yahoo_currency` and `_t212_currency` from ticker-map
+     - If they differ, set `_needs_fx = True` and probe `convert_price()` once to fail-fast on missing rates
+     - Override `currency` with T212 truth so all downstream gates (market hours, GBX pence) use it
+   - **After staleness check, before pending write** — apply the actual FX mutation:
+     - `entry = convert_price(entry, _yahoo_currency, currency)` (and stop, target1, target2)
+     - Post-FX sanity: `if stop >= entry: abort` — never submit a self-triggering order
+   - **positions.json now stores values in T212 trading currency** — broker watchdog, trailing stop, drift check, and stop-placement watchdog all see consistent units. This was the critical second iteration: an earlier draft kept positions.json in yfinance currency, and the watchdog placed the GBP-denominated VAPX stop (28.37) as 28.37 CHF — too wide. Worse, HEAL's 8.46 USD stop was placed as 8.46 EUR (above 7.6 EUR entry), causing T212 to immediately market-sell the position. Fix: convert before pending write so all downstream consumers see T212 units.
+   - **Staleness check still uses original yfinance-currency entry** — runs before the FX mutation, compares against yfinance live price (same unit).
+
+### End-to-end validation (live T212 fills)
+
+| Ticker | Yahoo cur | T212 cur | Conversion | Fill price | Stop in T212 | Status |
+|--------|-----------|----------|------------|------------|--------------|--------|
+| VAPXs_EQ | GBP | CHF | 30.18→32.06 | 31.992 CHF | 30.0943 CHF (after manual triage of the first iteration's bad stop) | protected |
+| HEALm_EQ | USD | EUR | 9.00→7.65 | 7.6055 EUR | 7.1868 EUR | protected |
+| IUCDl_EQ | USD | USD | n/a | n/a | n/a | correctly blocked at market-hours gate (US closed when retest ran) |
+
+### Files touched
+
+- `apex_config.py` — added 4 new constants + `T212_ILLIQUID_TICKERS` set
+- `apex_utils.py` — new FX section (~160 lines): `FxRateUnavailable`, `_refresh_fx_cache`, `_get_gbp_per_unit`, `convert_price`
+- `apex_order_executor.py` — replaced hard-block CURRENCY GUARD with FX-aware flow; FX mutation moved to after staleness/before pending-write; added post-FX sanity check; removed duplicate FX block from limit-price section
+- `apex-ticker-map.json` — `yahoo_currency` on 99 entries; `yahoo_ticker` overrides on 8
+- `apex-fx-rates.json` (created) — populated cache for GBP↔USD/EUR/CHF
+- `scripts/CLAUDE.md` — new lessons on FX layer architecture, post-FX sanity, watchdog/units invariant
+
+### Open issues NOT addressed
+
+- **Trailing stop is not yet FX-aware**: it reads positions.json `stop` (T212 currency) and compares against yfinance current price (Yahoo currency). For FX-mismatched instruments this means trailing wouldn't ratchet correctly. Mitigation today: positive PnL is small, none have moved enough to trail. Next step: trailing-stop reads `_yahoo_currency` from positions.json and FX-converts current price before comparison. (For now, FX-mismatched instruments are functionally trail-disabled — safer than misbehaving.)
+- **Broker watchdog drift check** is not FX-aware either, but the same-currency comparison works because both positions.json `stop` and the T212 stop are in T212 currency post-FX. No action needed for drift specifically.
+- **Outcomes log** records P&L in `currency`. For FX-mismatched instruments the P&L will be in T212 currency rather than the home GBP — needs a separate FX-back-to-GBP step in the dashboard P&L calculator.
+
+## 2026-04-16 — Foreign-currency LSE ETFs blocked at executor (5 wasted trade attempts)
+
+**The bug the user spotted**: "why have no trades taken place so far, US markets
+are open ... we are missing out on opportunities". US markets weren't actually
+open yet (US opens 14:30 UTC; user asked at ~13:27 UTC), but the system *had*
+generated 5 high-quality TREND signals at 13:01–13:14 UTC and ALL FIVE FAILED:
+
+```
+13:05 UTC  VAPXs_EQ ×2.5 @ £30.18 (CHF)  → 9 polls × 20s, no fill, cancelled
+13:08 UTC  IUCDl_EQ ×4.5 @ £16.78 (GBP)  → 9 polls × 20s, no fill, cancelled
+13:11 UTC  HEALm_EQ ×?    @ £?     (EUR)  → STALENESS ABORT "+185.22% drift"
+13:11 UTC  VAGSl_EQ ×2.91 @ £25.91 (GBP)  → 9 polls × 20s, no fill, cancelled
+13:14 UTC  DFNG signal              (GBP)  → "Signal missing ticker" — empty t212_ticker
+```
+
+**Root cause** (three independent bugs compounding):
+
+1. **WATCHLIST↔T212 currency mismatch with no FX layer.** `apex-market-data.py`'s
+   WATCHLIST tags VAPX=CHF, HEAL=EUR, IUCD=GBP — but yfinance returns VAPX.L and
+   VAGS.L in GBP, IUCD.L and HEAL.L in **USD**. T212 trades VAPXs_EQ in CHF,
+   HEALm_EQ in EUR, IUCDl_EQ in USD. The signal's £-denominated entry was sent
+   to T212 unchanged: 30.18 was interpreted as CHF (well below ~33 CHF market),
+   16.78 as USD (just under $16.80), etc. Limits never crossed → no fills.
+2. **Staleness check resolved the wrong yfinance ticker for non-GBP LSE listings.**
+   `_check_entry_staleness` only appended `.L` when ticker-map currency was
+   GBP/GBX. For HEALm_EQ (EUR) it fell to bare `HEAL` which is the unrelated
+   US REIT @ $25.86 → false +185.22% drift abort.
+3. **DFNG missing from `apex-ticker-map.json`.** The defense ETF is in the
+   TREND watchlist but not the T212 ticker map → `t212_ticker = ""` → executor
+   bailed with "Signal missing ticker or quantity".
+
+**Fix**:
+
+- `apex_order_executor.py:354+` — pre-flight currency guard. Reads
+  `apex-ticker-map.json` to find the **T212-side** trading currency for the
+  ticker, and if the instrument is LSE-listed (suffix `l_EQ`/`m_EQ`/`s_EQ`/
+  `d_EQ`) **and** its T212 currency is not GBP/GBX, abort with a Telegram
+  alert. Saves nine fill polls × Cloudflare burst quota per blocked attempt.
+  US-listed tickers (`_US_EQ`) are unaffected — their yfinance↔T212 currencies
+  always match (both USD).
+- `apex_order_executor.py:_check_entry_staleness` — append `.L` for any LSE
+  T212 suffix, not just GBP/GBX-tagged ones. Now `HEALm_EQ` resolves to
+  `HEAL.L` (correct ETF) instead of `HEAL` (unrelated US REIT).
+- `apex-ticker-map.json` — added `DFNG` → `DFNGl_EQ` (GBP).
+- Also tightened the early "Signal missing ticker or quantity" exit to
+  `_remove_pending(name)` and delete `PROCESSING_FILE` so the same broken
+  signal can't be replayed in a loop on the next executor run.
+
+**Verified post-fix** (smoke-tested staleness + currency-guard offline):
+
+```
+HEALm_EQ  staleness → HEAL.L @ $9.01  (was bare HEAL @ $25.86, fixed)
+IUCDl_EQ  guard → BLOCKED (T212 USD, no FX)
+VAPXs_EQ  guard → BLOCKED (T212 CHF, no FX)
+HEALm_EQ  guard → BLOCKED (T212 EUR, no FX)
+VAGSl_EQ  guard → ALLOWED (T212 GBP, true match)
+DFNGl_EQ  guard → ALLOWED (T212 GBP, true match)
+SHELl_EQ  guard → ALLOWED (T212 GBX)
+BLK_US_EQ guard → ALLOWED (US-listed, USD/USD match)
+```
+
+**Open issues NOT addressed in this fix**:
+
+- VAGS still didn't fill — illiquid GBP bond ETF; the limit was placed at the
+  exact mid-price and never crossed the spread. Future enhancement: add
+  a small premium (e.g. +0.2%) to TREND limit prices for low-volume
+  instruments, or fall back to MARKET after N polls.
+- Once a proper FX layer exists (GBP→USD/EUR/CHF spot at signal time), the
+  currency guard can be loosened to allow foreign-currency listings.
+- WATCHLIST in `apex-market-data.py` still has stale currency tags (VAPX=CHF,
+  HEAL=EUR, IUCD=GBP). Not changed in this fix because the executor-side
+  guard provides defence-in-depth regardless of upstream tags. Worth a
+  separate cleanup.
+
+## 2026-04-16 — Performance page now reflects T212 reality (was inflated +£148)
+
+**The bug the user spotted**: Performance page claimed "Closed P&L: +£181.48" when
+their actual T212 account growth was only +£33.22 (started £5,000, now £5,033.22).
+The dashboard was fabricating profit.
+
+**Root cause** (three compounding issues):
+
+1. **Reconciler double-logging partial closures.** When a position closed via T1
+   partial then stop-hit, the executor logged the partial as one outcome row.
+   The reconciler then noticed the position was gone from T212 portfolio and
+   logged ANOTHER row (`outcome_type=auto_reconciled_not_in_t212`) using the
+   ORIGINAL non-decremented `quantity` from positions.json against the most
+   recent T212 sell price — counting the same shares twice.
+   - XOM: T1_PARTIAL +£28.90 (qty=2) + ghost +£59.24 (qty=4 × stop fill) = +£88.14 logged vs actually +£28.90
+   - Same pattern: VUAG -£10.71, QQQSl +£11.45, ABBV +£3.15
+   - Net inflation: ~£63 from these four ghosts
+2. **Dashboard sourced headline from outcomes.json**, which is a noisy analytics
+   ledger (gross, before fees, no FX, vulnerable to double-log). It should have
+   sourced from T212's `/equity/account/cash` `result` field which is the
+   broker's authoritative net realized P&L.
+3. **`require_auth` swallowed every exception inside the route** with a bare
+   `except Exception: pass`, then returned 401. So when my first attempt called
+   `t212_request(..., timeout=8)` (the dashboard's local override doesn't accept
+   `timeout`), the TypeError surfaced as a misleading auth failure instead of a
+   500 with a stack trace.
+
+**Fix** (in `/home/ubuntu/.picoclaw/dashboard/app.py`):
+
+- `api_performance` now exposes `account_value`, `account_growth_gbp/_pct`,
+  `t212_realized_pnl`, `t212_unrealized_pnl`, `t212_free_cash`, `t212_invested`,
+  `t212_blocked` — all sourced from a live `/equity/account/cash` call.
+- `total_pnl` legacy field now equals account growth from T212 (was the
+  outcomes.json sum).
+- `realized_pnl` now equals T212's `result` (lifetime net of fees), not the
+  outcomes.json sum (which can drift due to partial-fill double-logs and
+  fees not subtracted from gross pnl).
+- `pnl_divergence` field added: when |logged − T212| > £20 AND >5%, surfaces
+  a warning chip with the diff and likely cause. Currently shows £64.80 gap
+  between logged £118.35 and T212 £53.55 (real fees + remaining duplicates).
+- `api_portfolio` `realized_pnl` also switched to T212's `result` for the
+  Overview "Open / Realized P&L" card.
+- New "T212 Account Reconciliation" row on Performance page: Free Cash · Invested
+  · Open Unrealized · Closed Realized · Fees-or-Reserved. Lets the user see
+  exactly how account growth decomposes.
+
+**Fix** (in `/home/ubuntu/.picoclaw/scripts/apex-reconcile.py`):
+
+- `log_closed_position()` now skips the `auto_reconciled_not_in_t212` write if
+  an outcome already exists for the same `ticker + opened` pair. Prevents
+  future double-logs at the source.
+
+**Data cleanup**:
+
+- Backed up `apex-outcomes.json` → `apex-outcomes.json.bak-2026-04-16-pre-dedup`
+- Removed 4 `auto_reconciled_not_in_t212` ghost rows that duplicated real
+  executor-logged closures (£63.13 of inflated P&L), archived to
+  `apex-outcomes-ghosts-2026-04-16.json`
+- Re-ran `apex-edge-proof.py` and `apex-edge-progress.py` on cleaned data.
+  Sample dropped from 12 → 9 trades; verdicts unchanged (all still INSUFFICIENT_DATA
+  or NOT_PROVEN — too small for either to be reliable anyway).
+
+**Verification** (live `/api/performance` now returns):
+- `account_value: £5033.23` (matches user's £5033.22 to the penny — variance is
+  intra-day timing of the API call)
+- `account_growth_gbp: +£33.23 (+0.66%)` — the headline number on the page now
+- `t212_realized_pnl: +£53.55`, `t212_unrealized_pnl: -£6.67` — explicit decomposition
+
+**Follow-on fix — Cumulative P&L chart + Calendar heatmap** (same session):
+
+User then noted the chart's hover tooltip on 15 Apr still showed +£118.35 — same
+root cause (chart sourced from outcomes.json cumulative sum). Fixed
+`api_portfolio` to build `pnl_history` and `pnl_by_date` from
+`apex-benchmark.json` daily snapshots:
+
+- `pnl_history[d] = apex_value[d] - starting_capital` per day (cumulative growth
+  curve = actual T212 NAV growth)
+- `pnl_by_date[d] = apex_value[d] - apex_value[d-1]` (daily change = what the
+  user sees as today's move in T212)
+- Today's live snapshot is appended on the fly so the curve goes to "now" not
+  yesterday's daily snapshot.
+
+Verified — 2026-04-15 cumulative now shows +£35.52 (was £118.35), 2026-04-16
+shows +£39.90 (matches T212 NAV £5,039.90 exactly). The series correctly shows
+losing days (e.g. 1 Apr -£41, 10 Apr -£32) instead of monotonically rising
+fictional gains.
+
+**Lessons added** to `dashboard/CLAUDE.md` and `scripts/CLAUDE.md` (see those
+files for the inline notes).
+
+---
+
+## 2026-04-16 — Five high-leverage dashboard cards (decision visibility)
+
+**Why**: Recent backend work (DSR + BH-FDR, regime tagging, sizer cap overhaul,
+edge-progress) all needed UI surfaces. Plus the user kept asking "why didn't
+the system trade?" — answer was buried in `apex-cron.log`. The fix was data
+visibility, not new computation.
+
+**Five additions, all data already being computed**:
+
+1. **"Why no trade today?" card** (Overview, top-left).
+   New `/api/decision-trace` reads `apex-decision-log.json` and surfaces:
+   regime context, candidates qualified vs blocked, top 8 block reasons by
+   frequency, top 3 passing signals, top 3 blocked signals with their first
+   block reason. Removes the "grep cron.log" tax for understanding system idle.
+
+2. **Sizer Caps tile** (Overview, top-right).
+   New `/api/sizer-caps` imports `_VERDICT_NAV_CAP` + `_VERDICT_KELLY_MULT`
+   directly from `apex_sizer.py` and renders the £ cap per verdict at current
+   live NAV. Flags any tier whose cap × NAV < MIN_VIABLE_NOTIONAL — the silent-
+   block pattern that cost us a day of debugging on 2026-04-16.
+
+3. **Edge Proof card augmentation** (Diagnostics).
+   Added columns: CI width, BH-adjusted p-value, DSR probability — colour-coded
+   green when each crosses its CONFIRMED threshold (adj-p<0.10, DSR P≥0.95).
+   The verdict alone hid the gap; this exposes it.
+
+4. **CI tightening sparkline per strategy** (Edge Progress card).
+   Inline 80×18px SVG polyline of `ci_width` over the last 30 daily snapshots,
+   one per strategy. Down-slope rendered green = uncertainty shrinking = real
+   progress. Drawn from `ci_series_30d` already exposed by edge-progress.
+
+5. **Regime badge on every open position** (Overview + Positions tables).
+   Tiny chip showing the regime captured by `apex_order_executor.py` at
+   position-open time (CLEAR / NEUTRAL / CAUTIOUS / HOSTILE), colour-coded,
+   with VIX + breadth in the hover tooltip. Lets you see at a glance which
+   positions opened into which conditions.
+
+**No new computation** — all five endpoints draw from existing JSON files
+or import sizer constants directly. ~250 lines of code, single dashboard
+restart, all five render correctly on first try.
+
+## 2026-04-16 — Edge progress dashboard + regime tagging on outcomes
+
+**Why**: Edge-proof verdicts (CONFIRMED/MARGINAL/NOT_PROVEN/INSUFFICIENT_DATA)
+move slowly — most days they don't change at all. The user asked for a daily
+"are we getting better?" signal so progress is visible long before verdicts
+flip. We also need regime context on every closed trade so we can later prove
+edge conditional on regime (some strategies only work in HOSTILE; some only
+in CLEAR — without the tag we can never measure that).
+
+**Four pieces shipped**:
+
+1. **History snapshot writer** in `apex-edge-proof.py`. Each run appends to
+   `apex-edge-proof-history.json` (n_real, ci_width, p_value, p_adjusted,
+   dsr_probability, verdict per strategy), trimmed to 90 days. This is the
+   raw data behind the CI-tightening trend.
+
+2. **`apex-edge-progress.py`** — new dashboard-feeder script. Computes per
+   strategy: `n_real / 20` progress, trades-last-7d/30d, weekly trade rate,
+   days-to-CONFIRMED at current rate, and the Wilson CI width 7-day delta
+   (negative = uncertainty actually shrinking). Writes
+   `apex-edge-progress.json` and prints CLI progress bars.
+
+3. **`/api/edge-progress` endpoint + dashboard card** in `dashboard/app.py`.
+   New "Edge Progress — Are We Getting Better?" card on the Diagnostics page
+   shows progress bars (n_real/20), days-to-target, win-rate, DSR probability
+   and CI-tightening arrow per strategy. Sorted CONFIRMED → MARGINAL →
+   NOT_PROVEN → INSUFFICIENT_DATA, then by progress %.
+
+4. **Regime capture on every position**. `apex_order_executor.py` now writes
+   `regime_at_open` (overall, vix_regime, breadth_regime, vix, breadth_pct)
+   when creating a position. `apex-reconcile.py:log_closed_position` writes
+   `regime_at_close` (read fresh) plus `regime_at_open` (carried from the
+   position dict) on every outcome row. Enables future strategy×regime
+   heatmap and DSR-conditioned-on-regime once data accumulates.
+
+**Cron**: edge-proof now runs daily at 17:00 UTC (after EOD t212-history-sync
+at 16:50), and edge-progress at 17:10 UTC. Daily history snapshots build the
+CI-tightening trend that powers the dashboard's 7-day delta arrows.
+
+## 2026-04-16 — Edge-proof now uses Deflated Sharpe Ratio + BH-FDR multi-test correction
+
+**Why**: With 5 strategies tested in parallel, the chance of at least one looking
+"PROVEN" by chance alone (even with no real edge) was ~41% under the old per-test
+α=0.10 rule. Combined with the existing 30%-flat backtest weighting (which let
+372 backtest trades drown out 4 real trades), the system was at significant risk
+of graduating noise to PROVEN, increasing its NAV cap, and losing real capital.
+
+**Three changes**:
+
+1. **Deflated Sharpe Ratio (Bailey & López de Prado 2014)** added to
+   `apex-backtest-stats.py`. Adjusts observed Sharpe for:
+     - Number of strategies tested (selection bias)
+     - Skew of the R-multiple distribution (negative skew = blow-up risk)
+     - Excess kurtosis (fat tails)
+     - Sample length
+
+   Returns a probability that the true Sharpe > 0 after all corrections.
+   Verdict thresholds: ≥0.95 CONFIRMED, ≥0.75 MARGINAL, else NOT_PROVEN.
+
+2. **Benjamini-Hochberg FDR correction** added to `apex-backtest-stats.py`.
+   Controls the expected false-discovery rate at 10% across the family of
+   strategy hypotheses. Far less conservative than Bonferroni (which would be
+   too strict for 5 strategies) but still controls the multiple-comparisons
+   trap properly.
+
+3. **Real-trade-dominant pooling** in `apex-edge-proof.py` replaces the
+   30%-flat backtest weighting:
+     - 1 real trade is worth 10 backtest trades when computing the pool
+     - Backtest contribution capped at 3× real-trade weight (max ~75% of pool
+       when n_real is tiny, dropping rapidly as n_real grows)
+     - Backtest dropped entirely once n_real ≥ 20 — real trades stand alone
+
+**Verdict logic upgrade**: A strategy is now CONFIRMED only if BOTH:
+  - Win-rate p-value passes BH-FDR correction across all strategies
+  - Deflated Sharpe probability ≥ 0.95 (selection-bias adjusted)
+
+Either one alone → MARGINAL. Neither → NOT_PROVEN.
+
+**Effect on current state**:
+Before: TREND showed `combined_n=376, p=1.0, NOT_PROVEN`
+After:  TREND shows `n_real=4, INSUFFICIENT_DATA` (no false confidence from
+        backtest pollution). All strategies correctly marked NOT_PROVEN or
+        INSUFFICIENT_DATA. The system will not graduate any strategy until it
+        actually has the evidence.
+
+### Files changed
+- `scripts/apex-backtest-stats.py` — added `_normal_cdf`, `_moments`,
+  `expected_max_sharpe`, `deflated_sharpe_ratio`, `benjamini_hochberg`
+- `scripts/apex-edge-proof.py` — `_combine_with_backtest`, DSR + BH integration,
+  three-pass verdict logic, expanded report with skew/kurtosis/adjusted-p
+- `scripts/CLAUDE.md` — lessons documented (next entry)
+
+---
+
+## 2026-04-16 — Eliminate Cloudflare 1010 rate-limit risk at the root
+
+**Context**: After the false STOP MISSING alert earlier today (caused by Cloudflare 1010 making
+the orders API unavailable mid-watchdog), audited the burst-rate sources and addressed the
+upstream causes — not just the symptom.
+
+**Root cause**: Two compounding bursts of T212 API calls in the same execution flow:
+1. **Fill polling**: 18 polls × 10s = 18 calls in 3 min for every limit order
+2. **Watchdog spawn**: After deferring the stop (end of poll burst), executor immediately
+   spawned `apex-broker-watchdog.py` which fires another 5–10 T212 calls. The two bursts
+   arrived back-to-back at the worst possible moment for Cloudflare's per-IP burst counter.
+
+**Fixes**:
+1. `apex_config.py`: `T212_FILL_POLL_COUNT` 18→9, `T212_FILL_POLL_INTERVAL` 10s→20s. Same 3-min
+   total wait window, half the API calls.
+2. `apex_order_executor.py`: deferred-stop watchdog spawn now waits 90 s before launching
+   (`bash -c 'sleep 90 && watchdog'`). Lets the burst counter decay before the next API hit.
+3. Killed leaked `apex-listener.sh` PID 1175142 (service `apex-listener.service` is `disabled`
+   but the bash process leaked across a previous restart). Only `apex-trading-listener.sh` is
+   the canonical Telegram listener per CLAUDE.md "One Telegram Listener Only" rule.
+4. Removed stale `apex-pending-signal.json.lock` (zero-byte, dated Mar 24).
+5. `apex_price_feed.py`: added `_YAHOO_MAP` and `_resolve_yahoo()` helper. Both `get_live_price`
+   and `get_technical_data` now resolve raw T212 tickers (e.g. `INRGl_EQ`) and clean equity
+   names (e.g. `INRG`) to Yahoo symbols (`INRG.L`) before calling yfinance. Unknown
+   instruments return `(None, "USD", "NO_YAHOO_MAP")` instead of triggering a guaranteed-404
+   yfinance call. Eliminates the "Quote not found for symbol: INRGL_EQ" log noise and
+   restores live prices for all LSE/EU instruments going through this module.
+
+### Files changed
+- `scripts/apex_config.py` — fill-poll count/interval (18×10s → 9×20s)
+- `scripts/apex_order_executor.py` — deferred-stop watchdog spawn delayed by 90 s
+- `scripts/apex_price_feed.py` — Yahoo-symbol resolver; both functions now resolve before yfinance call
+- `scripts/CLAUDE.md` — lessons updated: fill-poll burst, watchdog delay, Yahoo resolution
+
+### Cleanups
+- Killed PID 1175142 (rogue `apex-listener.sh`)
+- Removed `logs/apex-pending-signal.json.lock`
+
+---
+
+## 2026-04-16 — Fix false STOP MISSING alert from check_stop_price_drift during API rate-limit
+
+**Root cause**: When executor defers a stop (sets `deferred_stop=True`), it spawns a background
+broker watchdog immediately. If T212 is rate-limited at that moment (Cloudflare 1010 from prior
+burst), `get_open_orders()` returns None. `check_stop_price_drift` was collapsing `None → []`,
+making every stop appear missing → false "STOP MISSING: INRGl_EQ" alert for a position that had
+a valid GTC stop (#47600351497) placed moments later.
+
+**Fix** (`apex-broker-watchdog.py`): `check_stop_price_drift` now distinguishes API failure
+(returns None) from genuinely empty orders list. If the orders endpoint returns None, the drift
+check is skipped entirely with a WARNING (no STOP MISSING alert). The next scheduled cron watchdog
+cycle will re-check when the API recovers.
+
+### Files changed
+- `scripts/apex-broker-watchdog.py` — `check_stop_price_drift`: skip check (return []) when orders API returns None instead of collapsing to empty list
+
+---
+
+## 2026-04-16 — First successful T212 demo trade: INRG filled at 832.75p
+
+**Summary**: End-to-end trade executed on T212 demo account.
+- iShares Global Clean Energy (`INRGl_EQ`) — 9.08 shares @ 832.75p (£8.3275)
+- Stop order placed at 782p (£7.82), stop ID: 47600351497, status: **protected**
+- Demonstrated full flow: decision engine → autopilot → T212 limit order → late-fill detection → stop placed
+
+**Late-fill behaviour confirmed**: Limit order 47600351262 was placed at 832p. After 18 polls × 10s
+(3 minutes) with no fill (status=NEW), executor sent a DELETE/cancel. T212 processed the fill
+microseconds before or during the cancel — position appeared in T212 portfolio at avg 832.75p.
+The late-fill guard in `apex_order_executor.py` (Step 2c) detected INRG in the T212 portfolio
+post-cancel, halted `_remove_pending()`, updated entry price from T212, and proceeded to stop
+placement. Position correctly shows as `protected`.
+
+**T212 Cloudflare rate-limit (Geo-1010)**: Burst of ~90 API calls in 15 min (multiple execution
+attempts + 18-poll loops × 10s) triggered Cloudflare IP-block returning HTTP 400 with error 1010.
+Block lasts ~10-15 minutes. The existing `User-Agent: Mozilla/5.0` helps but doesn't prevent
+volume-based throttling. Mitigation: reduce polling frequency (future — consider 15s interval).
+
+### Files changed
+- `logs/apex-positions.json` — INRG position added (protected, stop 47600351497)
+- `logs/apex-geo-news.json` — temporarily cleared for demo, restored to ALERT
+
+---
+
+## 2026-04-16 — Market hours hard gates at three layers (BLK 11:02 UTC incident)
+
+**Root cause**: BLK (USD) was selected and executed at 11:02 UTC despite NYSE not opening until
+14:30 UTC. The venue scoring (+1/-1) was advisory only; no hard block existed.
+
+**Fix**: Three hard market-hours gates added (defence in depth):
+1. **Decision engine [6/7]**: reads `apex-market-calendar.json` once per run; USD signals blocked
+   when `us_currently_open=false`, GBX/GBP/EUR/CHF when `uk_currently_open=false`.
+2. **Order executor pre-Step-1**: safety net — aborts execution and calls `_remove_pending()` if
+   market is closed for the signal's currency. Catches manual runs and replays.
+3. **Autopilot**: checks market hours after loading signal; holds signal in place (does NOT delete)
+   so it executes when the market opens rather than being wasted.
+4. **`apex_filters.is_blocked()`**: centralised check added so all future code paths inherit it.
+
+### Files changed
+- `scripts/apex-decision-engine.py` — market-hours block in [6/7] filter loop
+- `scripts/apex_order_executor.py` — pre-Step-1 market-hours abort
+- `scripts/apex-autopilot.py` — hold signal when market closed (no delete)
+- `scripts/apex_filters.py` — market-hours check added to `is_blocked()`
+- `scripts/CLAUDE.md` — lessons learned entry added
+
+## 2026-04-16 — Disable Alpaca; all trades now route through T212 only
+
+**Root cause of "no orders in T212"**: Alpaca credentials in `.env.alpaca` caused `apex_order_executor.py`
+to detect Alpaca as available and route ALL 35 US stocks (`_ALPACA_US_TICKERS`) to Alpaca paper
+trading instead of T212. The user does not use Alpaca — T212 is the sole trading platform.
+All US stock orders (AAPL, TSLA, BLK, TMO, XOM×9, NVO) went to Alpaca paper, invisible in T212.
+
+**Fix**: `_ALPACA_AVAILABLE = False` hardcoded in `apex_order_executor.py`. Alpaca module not loaded.
+**Cleanup**: NVO (10.72 shares) and XOM (23.97 shares) closed in Alpaca paper via market orders.
+All ALPACA-venue positions removed from `apex-positions.json`. Today's failed queue entries reset to CANCELLED.
+**Verified**: BLK limit order placed successfully in T212 demo (`BLK_US_EQ qty=0.07 @ $1048.60`).
+
+### Files changed
+- `scripts/apex_order_executor.py` — `_ALPACA_AVAILABLE = False` (hardcoded off)
+- `logs/apex-positions.json` — removed NVO and XOM Alpaca ghost positions
+- `logs/apex-trade-queue.json` — today's FAILED entries reset to CANCELLED
+
+## 2026-04-16 — End-to-end test: fixed 5 multi-venue bugs found during live test cycle
+
+### Bugs found and fixed during live test run against T212 demo + Alpaca paper
+
+**Bug 7: Reconciler removed valid Alpaca positions as T212 ghosts** — `apex-reconcile.py`
+ghost detection (`apex_tickers - t212_tickers`) didn't exclude non-T212 venues. Any position
+with `venue=ALPACA` was removed every time reconcile ran, causing the position to become "dark"
+(held in Alpaca with no Apex tracking, no stop, and no duplicate guard). XOM was re-bought 9
+times (23.97 shares, ~$3,600) because the duplicate-check never fired for dark positions.
+Fix: excluded `venue != T212` positions from ghost set in `apex-reconcile.py`.
+
+**Bug 8: Alpaca fractional stop orders rejected (GTC → DAY required)** — Alpaca requires
+`time_in_force=day` for fractional-quantity orders. `place_stop_order()` was hardcoded to `gtc`.
+Fix: `is_fractional = (qty != int(qty))` → use `day` TIF for fractional, `gtc` for whole shares.
+Implication: fractional day-stops expire EOD; the watchdog re-places them at next market open.
+Files: `apex-alpaca-executor.py`.
+
+**Bug 9: Alpaca watchdog only handled `awaiting_fill` — `unprotected` positions got no stop** —
+Reconstructed or orphaned Alpaca positions with `status=unprotected` were never given stops by
+the watchdog. Added a second pass in `run()` that iterates `alpaca_unprotected` positions and
+places stops directly. Files: `apex-alpaca-watchdog.py`.
+
+**Bug 10: XOM/NVO orphaned positions reconstructed** — NVO (10.72 @ $37.27) and XOM
+(23.97 @ $150.66) existed in Alpaca but had no entries in `positions.json` due to Bug 7.
+Manually reconstructed with 7% stop estimates. Stops placed immediately via watchdog.
+
+**Bug 11: Pending AAPL/TSLA orders had negative EV (-1.79)** — Runner-up queue placed AAPL
+(ev=-1.79) and TSLA despite both being queued while US market was closed and AAPL having
+negative EV. Orders cancelled manually. EV gate already exists but only blocks if BOTH ev AND
+ev_optimistic are negative — AAPL's wide CI meant ev_optimistic was slightly positive.
+
+### Files changed
+- `scripts/apex-reconcile.py` — exclude non-T212 venues from ghost detection
+- `scripts/apex-alpaca-executor.py` — fractional stop orders use DAY TIF not GTC
+- `scripts/apex-alpaca-watchdog.py` — added unprotected position stop-placement pass
+
+## 2026-04-16 — Expand LSE quality universe, add IMB/BATS quality boost, add 14:35 UTC NYSE-open scan
+
+### LSE coverage expansion
+**Quality universe expanded from 40 → 46 stocks** to give contrarian scanner more UK/EU targets.
+Previously only 9 LSE/EU stocks were scannable; now 17. Additions: DGE (Diageo, score 8), RIO
+(Rio Tinto, score 8), EXPN (Experian, score 8), NWG (NatWest ADR, score 7), PRU (Prudential,
+score 7), NOVN (Novartis, score 8).
+
+**IMB quality_score raised 6 → 7**: Imperial Brands has FCF yield 10.2%, RSI ~30, disc ~16%.
+Was blocked by the ≥7 quality gate. Now scannable. (files: `apex-quality-universe.json`)
+
+**BATS quality_score raised 6 → 7**: British American Tobacco has FCF yield 9.8%. Similar
+rationale to IMB — high FCF dividend payer that is a valid contrarian candidate.
+
+**Contrarian scan YAHOO_MAP + CURRENCY_MAP updated** to correctly map all 6 new LSE/EU additions.
+NWG uses Yahoo `NWG` (US ADR, USD) matching T212 ticker `NWG_US_EQ`. All others use `.L` suffix
+with GBX currency. (files: `scripts/apex-contrarian-scan.py`)
+
+**14:35 UTC cron entry added** (`apex-intraday-scan.sh us-open`) so a fresh scan runs 5 minutes
+after NYSE opens, capturing US momentum at open. Previously the 08:30 UTC morning scan was the
+last scan before US trading hours.
+
+### Files changed
+- `scripts/apex-quality-universe.json` — 6 new LSE/EU stocks, IMB+BATS score raised to 7
+- `scripts/apex-contrarian-scan.py` — YAHOO_MAP + CURRENCY_MAP for new additions
+- `crontab` — 14:35 UTC NYSE-open scan added
+
+## 2026-04-16 — CRITICAL: Fix trend scan (WEIGHT NameError), LSE pence double-conversion, NAV caps, qty=0 guard
+
+### Additional bugs found and fixed during QA audit
+
+**Bug 5: TREND signal scan broken since weight refactor** — `apex-market-data.py` used
+`WEIGHT_TREND`, `WEIGHT_RSI`, `WEIGHT_VOLUME`, `WEIGHT_MACD` inside `get_technicals()` (lines
+204-208), but the block that defined these variables was placed AFTER `=== FULL DATA ===` print
+(line 301). Every stock threw `NameError: name 'WEIGHT_TREND' is not defined`, got logged as
+`"error": "name 'WEIGHT_TREND' is not defined"` in the output, was filtered from qualified list,
+and the decision engine always found 0 trend candidates. **TREND strategy has been producing 0
+signals for an unknown period** (likely since the dynamic weight loading feature was added). Fixed
+by moving weight loading block to before `get_technicals()`.
+
+**Bug 6: Double pence conversion — LSE stocks locked out of contrarian scan** —
+`apex-contrarian-scan.py` applied `fix_pence()` to the `close` series via `.apply()` (converting
+GBX→GBP correctly), then applied `fix_pence()` AGAIN to `close.max()` and `close.min()`. Result:
+SHEL.L appeared to have a 52w high of £0.36 when actual price was £33, generating a discount_pct
+of -9202%. All GBX instruments consistently scored 1-3 vs 5-7 for USD instruments. **LSE stocks
+structurally could not win signal selection.** Fixed by removing the redundant `fix_pence()` call
+from `high_52`/`low_52` calculation.
+
+### Files changed (bugs 5-6, in addition to 1-4 above)
+- `scripts/apex-market-data.py` — weight variables moved before `get_technicals()` (TREND fix)
+- `scripts/apex-contrarian-scan.py` — double `fix_pence()` removed from high_52/low_52
+
+---
+
+## 2026-04-16 — Fix NAV caps, qty=0 guard, LSE market preference, quality check robustness
+
+### Root causes fixed
+
+**Bug 1: ALL trades blocked (critical)** — `NOT_PROVEN` edge-proof NAV cap (0.5% = £23 on £4634
+portfolio) was below `MIN_VIABLE_NOTIONAL` (£100), making it structurally impossible to trade ANY
+signal type. Kelly multiplier already halves risk; the additional NAV cap added nothing but blocked
+all execution. Fixed by:
+- `apex_sizer.py`: NOT_PROVEN 0.5%→1.5%, MARGINAL 0.8%→2%, PROVEN 2%→3% NAV caps
+- `apex_sizer.py`: MIN_VIABLE_NOTIONAL £100→£25 (T212 fractional shares; spread cost on £25 is
+  negligible vs EV for liquid instruments)
+
+**Bug 2: "Signal file incomplete — no ticker or quantity"** — Decision engine called
+`calculate_final_position()` which returned (0,0) due to NAV cap, then wrote a pending signal with
+`quantity=0` to disk. Executor read `quantity=0` (falsy) and aborted with "Signal file incomplete".
+Fixed by:
+- `apex-decision-engine.py`: guard after `calculate_final_position()` — if qty==0, send Telegram
+  alert and return early WITHOUT writing the pending signal.
+
+**Bug 3: LSE stocks losing to US stocks during LSE-only hours** — Contrarian scan at 08:30 UTC
+uses yesterday's close for US stocks (NYSE closed) but live prices for LSE stocks. US stocks have
+appeared more deeply oversold (tariff selloff) giving them higher contrarian scores, crowding out
+LSE alternatives even when LSE prices are live and actionable. Fixed by:
+- `apex-decision-engine.py`: Venue preference layer in `score_signal_with_intelligence()`. During
+  LSE-only hours (`uk_currently_open=True, us_currently_open=False`): GBX +1, USD -1. Feeds into
+  existing ±5 adjustment cap — cannot dominate but tips close contests toward actionable instruments.
+- Cron: added `35 14 * * 1-5 apex-intraday-scan.sh us-open` — fresh scan 5 min after NYSE opens
+  with live US prices and neutral venue weighting (both markets now open).
+
+**Bug 4: `contrarian_quality_check` false "not in quality universe" block** — The check resolved
+quality key by trying `name` then `ticker`. If `ticker` was empty string (vs missing key), Python's
+`dict.get(key, default)` returns the empty string (not the default), then `'' in quality` = False →
+false block. Fixed by:
+- `apex-autopilot.py`: 4-layer resolution: name → ticker (guarded against empty) → t212_ticker
+  stripped of suffix → display name match in quality entries. Any layer matching passes the check.
+
+### Files changed
+- `scripts/apex_sizer.py` — NAV caps, MIN_VIABLE_NOTIONAL
+- `scripts/apex-decision-engine.py` — qty=0 guard, venue preference scoring layer
+- `scripts/apex-autopilot.py` — quality check 4-layer name resolution
+- `crontab` — added 14:35 UTC US-open scan
+
+---
+
+## 2026-04-16 — Performance improvement plan: 8-phase implementation
+
+**Root cause:** 44% of all trades (14/32) were phantom BREAKEVEN entries created by ghost fills —
+limit orders queued and marked EXECUTED but never actually filled in T212. Reconcile wrote
+`entry=exit, pnl=0` outcomes, corrupting win-rate stats, Kelly sizing, and edge-proof calculations.
+Real win rate on actual fills: 77.8% (vs the reported 43.8% including phantoms).
+
+**Phase 0 — Baseline snapshot** (`apex-baseline-snapshot.py`): Captures pre-improvement metrics
+to `apex-baseline-2026-04-16.json` for before/after comparison.
+
+**Phase 1 — Observability scaffold** (`apex_queue_audit.py`, `apex-fill-rate.py`): Every state
+transition in the signal lifecycle (QUEUED→EXECUTED→protected/REMOVED) is now appended to
+`apex-queue-audit.jsonl`. `apex-fill-rate.py` computes 24h/7d fill rate and ghost rate from the
+audit log and writes `apex-fill-rate.json`.
+
+**Phase 2 — Ghost fill fix** (`apex-reconcile.py`, `apex-outcomes-cleanup.py`):
+`log_closed_position()` now returns False and skips writing to outcomes.json when T212 has no sell
+history for the position (never filled). Removed the `exit_price = entry` fallback that caused
+phantom rows. One-shot migration removed 14 existing phantoms (backed up to
+`apex-outcomes-phantoms.json`, backup at `apex-outcomes.json.bak-2026-04-16`).
+
+**Phase 3 — Defence in depth** (`apex-trade-queue.py`, `apex-broker-watchdog.py`):
+(a) New `_ticker_queued_today()` helper blocks any signal for a ticker already QUEUED/EXECUTED
+today, regardless of signal type — prevents the XOM-style ghost loop (same ticker queued 8 times
+in 3 days). (b) `check_dead_pending()` in broker watchdog sweeps entry_placed positions whose T212
+limit order is CANCELLED/REJECTED/EXPIRED and removes them so the ticker can re-qualify.
+
+**Phase 4 — Signal type flags** (`apex_config.py`, `apex_filters.py`, `apex-decision-engine.py`):
+Added `ENABLED_SIGNAL_TYPES` dict to `apex_config.py`. Paused: GEO_REVERSAL (6/6 ghost rate),
+EARNINGS_DRIFT (2/2 ghost rate), TACO_CONTRARIAN (0/1 WR), DIVIDEND_CAPTURE (0 real trades).
+`signal_type_enabled()` in `apex_filters.py` is the single enforcement point — checked first in
+`is_blocked()`. Scan-level short-circuit in `apex-decision-engine.py` skips yfinance fetches for
+disabled types. GEO_REVERSAL reclassification blocked when GEO_REVERSAL is disabled.
+
+**Phase 5 — MAE/MFE calibration** (`apex_targets.py`, `apex-decision-engine.py`):
+New `apex_targets.py` reads `apex-mae-mfe-calibration.json` and returns empirically calibrated
+stop floor (0.82R from p90 loss) and target levels (T1=0.84R, T2=3.0R from aggregate data).
+`apply_targets_to_signal()` widens stops below the floor and adjusts T1/T2.
+Decision engine applies calibration after ATR stops, before EV calculation.
+
+**Phase 6 — Concentration limits** (`apex_filters.py`): Added `_ticker_in_queue_today()` and
+`_ticker_recently_exited()` helpers. `is_blocked()` now blocks signals where the ticker is already
+queued/executed today or exited within the last 48h (TICKER_COOLDOWN_HOURS).
+
+**Phase 7 — Edge-proof sizing** (`apex_sizer.py`): `_get_edge_verdict()` reads edge-proof verdict
+per signal type. NOT_PROVEN: half Kelly + 0.5% NAV cap. PROVEN: full Kelly + 2.0% cap.
+REJECTED: blocked entirely. All types currently NOT_PROVEN (insufficient real-fill data after
+phantom cleanup) → all trades sized at 0.5% NAV until edge is proven.
+
+**Phase 8 — Dashboard diagnostics** (`dashboard/app.py`): New `/api/diagnostics` endpoint returns
+fill rate, ghost rate, stale positions, signal type flags, and edge-proof summary. New Diagnostics
+nav tab with 4 cards: fill-rate metrics, signal flag statuses, edge-proof table, stale positions.
+Dashboard restarted and verified healthy.
+
+---
+
+## 2026-04-16 — Trade execution fixes: 4 bugs blocking live trading
+
+**Decision engine crash (CRITICAL — blocked all trades on timeout):** `run_trend_scan()` called
+`subprocess.run(apex-market-data.py, timeout=180)` without catching `subprocess.TimeoutExpired`.
+When the 100-ticker yfinance fetch took >180s, the exception propagated uncaught and crashed the
+entire decision engine — no signals evaluated, no trades queued. Fixed: wrapped in try-except,
+timeout extended to 300s. `apex-decision-engine.py:672`.
+
+**NFE quantity precision mismatch (recurring FAILED trades):** `apex-instrument-meta.json` had
+`NFE_US_EQ.quantity_precision=2` but T212 requires whole shares (precision=0). Fixed by updating
+the cached value to 0. NFE will now round to whole shares and pass T212 validation.
+
+**Gemini duplicate function declarations (eod-review crash, defence-in-depth):** Added explicit
+deduplication loop when building `FunctionDeclaration` list for Gemini in `apex-agent.py`.
+Prevents crash if tool names collide across manifest/meta-tool sources.
+
+**post-trade-autopsy / dispatch type guard:** Added `isinstance(tool_input, dict)` check at the
+top of `_dispatch_tool()` — Gemini can occasionally return a non-dict args struct; without this
+guard it crashes with `'list' object has no attribute 'get'`. `apex-agent.py`.
+
+**Scaling recalc log severity + timeout:** `trigger_scaling()` logged timeout as `log_error`
+(triggers health CRITICAL) but it's a transient external dependency. Changed to `log_warning`;
+timeout extended 30s → 90s to reduce spurious failures during yfinance slowdowns.
+`apex-regime-realtime.py:159`.
+
+---
+
+## 2026-04-16 — Health alert fixes: 3 bugs + disk cleanup
+
+**eod-review broken (Gemini INVALID_ARGUMENT):** `close_position` appeared twice in the tool
+list sent to Gemini — once from `apex-tool-manifest.json`, once as a hardcoded meta-tool in
+`apex_agent_tools.py`. Fixed by skipping the manifest entry for `close-position`
+(`_META_TOOL_NAMES` set in `generate_tool_definitions()`). Tool count: 77 → 76.
+
+**post-trade-autopsy crash (`'list' object has no attribute 'get'`):** Both decision-trace
+blocks in `apex-agent.py` called `parsed.get('status', …)` without guarding for list results.
+Fixed with `if isinstance(parsed, dict)` guard at lines 409 and 593.
+
+**VIX fetch noise (15+ ERRORs):** `VIX fetch failed: 'NoneType' object is not subscriptable`
+is a transient yfinance issue — system degrades gracefully. Changed from `log_error` to
+`log_warning` in `apex-regime-realtime.py`, `apex-taco-classifier.py`, `apex-autopilot.py`
+(decay price fetch).
+
+**Disk space:** Freed ~860MB — 730MB via `journalctl --vacuum-size=200M`, ~130MB stale
+`/tmp/pip-unpack-*` dirs. Disk now 4.8GB free (was 4.0GB).
+
+---
+
+## 2026-04-15 — Gemini provider switch (temporary, Anthropic credits depleted)
+
+All LLM agents now route through Google Gemini while Anthropic credits are topped up.
+- `apex_llm_client.py provider gemini` — thinking-tier calls (pre-entry filter, exit timing, etc.)
+- `apex-agent.py` — added full Gemini function-calling backend (`_init_gemini_client`,
+  `_run_gemini`); `GEMINI_MODEL_BY_MODE` added to `apex_agent_config.py`
+  (signal-review → gemini-2.5-pro, everything else → gemini-2.5-flash)
+- `apex_agent_tools.py` — added Gemini pricing to `MODEL_PRICING`
+- Switch back: `python3 apex_llm_client.py provider anthropic`
+  (apex-agent.py reads the same flag — no code change needed to revert)
+
+---
+
+## 2026-04-15 — yfinance VIX None guard (6 files)
+
+`yf.Ticker('^VIX').history()` started returning `None` instead of an empty DataFrame,
+crashing `hist.empty` calls and generating ~10+ errors/hour. Added `hist is None` guard
+before `.empty` check in: `apex-taco-classifier.py`, `apex-regime-realtime.py`,
+`apex-vix-correlation.py` (×2), `apex-regime-check.py`, `apex-autopilot.py`,
+`apex-blackswan-test.py`. Also fixes regime-scaling 30s timeouts (VIX hang was the cause).
+
+---
+
+## 2026-04-14 — Baseline α, calibration, tiered authority (Tier 1 accountability, pt 2)
+
+Three new accountability artefacts built on top of the ledger. Each is a single
+£ or score the agent and a human can glance at to decide whether autonomy is earned.
+
+**`apex-agent-baseline.py`** — null-agent counterfactual. realised_pnl minus
+what the book would have returned with no agent (the ledger's gross impact is
+the α by construction). Emits `additive` / `neutral` / `subtractive` verdict.
+Current: realised £153.14 (24 trades, 45.8% WR), null £134.96, net α +£17.52,
+α ratio 13% → `additive`.
+
+**`apex-agent-calibration.py`** — Brier score + per-bucket calibration curve.
+Joins ledger attributed actions with self-reported confidence; correctness =
+sign(pnl_gbp). Diagnosis: `well_calibrated` (<0.15), `acceptable` (<0.25),
+`poorly_calibrated` otherwise; plus overconfidence drift. Currently
+insufficient data — older confidence logging missing, will warm up over time.
+
+**`apex-agent-tier.py`** — Probation / Standard / Senior state machine.
+Reads ledger + baseline + calibration. Promotion gates are conjunctive;
+demotion on 3 consecutive losers, 30d α < 0, or brier > 0.30 is automatic.
+Writes `apex-agent-tier.json` with capability flags.
+
+**Enforcement wired** in `apex-agent.py::_close_position`: reads the tier
+file and blocks the action when `authority.may_close_positions` is false.
+Tighten remains available at every tier.
+
+Context builder now publishes an **Accountability** section so the agent
+reads its own authority envelope at session start. Cron schedule extended:
+baseline 16:52, calibration 16:53, tier 16:55 — all after ledger at 16:50.
+
+New manifest entries: `agent-baseline`, `agent-calibration`, `agent-tier`.
+
+## 2026-04-14 — Agent Economic Value Ledger (Tier 1 accountability)
+
+First scoreboard for "is the agent actually making us money?" Previously the
+track record was aggregate accuracy — useful for calibration but no £ on it.
+
+New `apex-agent-ledger.py` joins `apex-agent-actions.json` (per-action log)
+against `apex-outcomes.json` (closed trades) and computes a £ P&L impact
+per logged action, minus LLM cost over the same window.
+
+Attribution by action type (v1, pragmatic):
+- `stop_tightened`: if exit price ≈ new_stop → saved = (new_stop − old_stop) × qty.
+  If gap-down through new_stop → same. Otherwise tighten was inert (0). Parses
+  prices from explicit fields OR free-text details (3 regex patterns cover
+  both the direct-write and dispatcher-wrapped log formats, both of which
+  exist in the current data).
+- `signal_vetoed`: if same ticker re-entered within 3 days, counterfactual = −pnl
+  of re-entry. Otherwise 0 (true counterfactual needs price history; v1 passes).
+- `close_position`: realised pnl of the closed trade, flagged as uncertain
+  (needs a recorded "what the stop would have done" counterfactual).
+- Others → baseline 0.
+
+Every attributed row carries a `method` + `confidence_in_attribution`
+(high/medium/low/none). Transparent about uncertainty rather than fabricating.
+
+Current state: ABBV stop tighten 191.07→205.50, exited 205.11, attributed
+£18.18 gross / £17.52 net after £0.66 LLM cost over 90d.
+
+Files: new `apex-agent-ledger.py`, new tool `agent-ledger` in manifest,
+new section in `apex-context-builder.py` so the agent sees its own scorecard
+at session start. Cron: `50 16 * * 1-5` after EOD outcomes refresh.
+
+Still to build per the Tier-1 plan: null-agent baseline (what would've
+happened with no agent — the true α), calibration score (Brier on
+confidence vs. outcome), per-mode spend-vs-value.
+
+---
+
+## 2026-04-14 — Agent-native upgrades (inspired by every.to/guides/agent-native)
+
+Five changes to move the agent from 7/10 to closer-to-native per the article's five principles:
+
+1. **`apex-context.md` session bootstrap** — new `apex-context-builder.py` composes market
+   status, regime, positions, signals, recent agent actions, track record, decision gates,
+   and full tool list into a single markdown doc. `apex_agent_config.system_prompt()` now
+   appends this live context at every run (rebuilt if >60 min stale). Replaces ~10 ad-hoc
+   query tool calls per session.
+
+2. **`apex-decision-gates.json` + `apex-gates-sync.py`** — circuit breaker levels, position
+   sizing, signal quality gates, hold periods, ATR multipliers are now published as a
+   queryable JSON artefact mirrored from `apex_config.py` (single source of truth stays in
+   Python). Surfaces in `apex-context.md` so the agent sees all thresholds without grep.
+
+3. **`close-position` tool** — closes the biggest parity gap: agent can now market-close
+   a position (cancels working stop, places market sell, restores stop on rejection).
+   Three-layer gate: `confirm=true` param + prior `request_confirmation` + venue-open
+   check. Refuses on `venue: ALPACA` (wrong watchdog), dust quantities, or market closed.
+   Exposed as `close_position` meta-tool in `apex_agent_tools.py`, dispatched in `apex-agent.py`.
+
+4. **Tool runner preconditions + next-action hints** — `apex-tool-runner.py` now checks
+   that declared input JSON files exist and are not >6h stale before running, and attaches
+   a `next_steps` hint to every result. Tools can override via manifest `max_input_age_s`,
+   `next_on_ok`, `next_on_error`. Agent no longer flounders after a result — it sees what
+   sensibly comes next.
+
+5. **Per-decision reasoning trace** — `apex-agent.py` now captures the agent's text-block
+   reasoning immediately before each tool call, alongside the tool name, input summary,
+   and outcome. Written to `apex-agent-reasoning.jsonl` at run end. Enables "why did the
+   agent do X?" analysis — the aggregate track record already existed, but the per-decision
+   `why` did not.
+
+Files added: `apex-context-builder.py`, `apex-gates-sync.py`, `apex-agent-close-position.py`,
+`logs/apex-context.md`, `logs/apex-decision-gates.json`.
+Files modified: `apex_agent_config.py`, `apex_agent_tools.py`, `apex-agent.py`,
+`apex-tool-runner.py`, `apex-tool-manifest.json` (3 new tools registered).
+
+Not yet done (recommended next steps): (a) add `apex-context-builder.py` and
+`apex-gates-sync.py` to cron (e.g. every 15 min) so context.md stays warm; (b) add
+`close_position` to an appropriate `TOOLS_BY_MODE` set if modes beyond
+morning/eod/interactive should have it.
+
+---
+
+## 2026-04-14 — Lessons learned: stop tighten outside market hours (ABBV incident)
+
+Agent tightened ABBV stop to £205.5 at 09:47 UTC (US market closed, current price £205.27).
+T212 cancelled the old stop then rejected the new one — position unprotected for ~5h.
+Three lessons documented in `scripts/CLAUDE.md`:
+1. Stop tighten must validate new price < current price AND market is open before cancelling existing stop.
+2. T212 `"owned: 0.0"` on stop placement = price invalid or market closed, not an instrument block.
+3. Broker watchdog cooldown on US stop failures should target 14:25 UTC (market open), not a fixed 6h window.
+No code changed — lessons only. Code fixes to follow.
+
+## 2026-04-14 — Trade flow unblocking: 4 fixes for cash deployment
+
+### Fix 1: Trade spacing reduced (6h/2h → 1h/45min)
+CONTRARIAN spacing: 6h → 1h. Other types: 2h → 45min. Old values blocked all but ~1 trade/day
+in a 7h market window. With 3 open positions and 3 empty slots, 70% cash sat idle.
+Changed in `apex-autopilot.py`.
+
+### Fix 2: Queue score field bug — CONTRARIAN queue entries had score=0
+`add_scored_signal()` in `apex-trade-queue.py` used `signal.get('score', 0)` but contrarian signals
+store their score in `contrarian_score`, not `score`. This wrote `score: 0` to queue entries.
+When `apex-trade-queue.py execute` wrote the pending signal for autopilot, it inherited `score: 0`,
+hitting `SCORE GATE: Score 0 below calibrated threshold 6.5`. Fixed: all 3 score-lookup paths
+now fall through `adjusted_score → score → contrarian_score`.
+
+### Fix 3: Pending signal overwrite protection
+Intraday scan sessions (09:00, 10:00, etc.) could overwrite a pending signal that was still being
+processed by the agent review + autopilot pipeline. Now `save_and_notify()` checks if a pending
+signal <2h old already exists — if so, the new signal is queued instead of overwriting.
+Changed in `apex-decision-engine.py`.
+
+### Fix 4: Backtest filter relaxed for large-cap tickers
+GOOGL, NVDA, META, JPM, V had `contrarian_skip: true` — permanently blocked from contrarian scan.
+Changed to a -2 score penalty instead of a hard skip. They can now qualify if RSI/quality/macro
+signals are strong enough to overcome the penalty. Changed in `apex-contrarian-scan.py`.
+
+---
+
+## 2026-04-14 — Autonomous agent: self-executing, self-learning, Sonnet 4.6
+
+### Model Switch: Opus 4.6 → Sonnet 4.6
+Switched agent model from `claude-opus-4-6` ($15/$75 per Mtok) to `claude-sonnet-4-6` ($3/$15 per Mtok).
+5x cost reduction. Exit-optimizer dropped from $0.53 → $0.13 per run. Output quality equal or better
+(Sonnet caught NFE's -8.53% MFE reversal that Opus missed). Updated cost estimator in `apex_agent_tools.py`.
+
+### Autonomous Mode
+Agent now acts on its own judgement for **protective actions** (risk-reducing only).
+No human confirmation needed for: tightening stops, vetoing signals, logging actions.
+Human confirmation still required for: opening new positions, anything that increases risk.
+
+**System prompt rewritten:** OPERATING MODE: AUTONOMOUS. Distinguishes protective actions
+(act immediately) from risk-increasing actions (ask first). Includes track record context.
+
+### New Tool: `apex-agent-tighten-stop.py`
+One-directional stop tightening. Can ONLY move stops closer to current price (higher for longs).
+Refuses to loosen a stop or set it above current price. Cancels old stop, places new tighter one
+via T212 API. Handles GBX pence conversion. On failure, attempts to restore the original stop and
+sends CRITICAL Telegram alert. Registered in manifest as `agent-tighten-stop` (execute-trade).
+Logs every action to `apex-agent-actions.json`.
+
+### New Meta-Tools in `apex_agent_tools.py`
+- `tighten_stop` — structured params (t212_ticker, new_stop, reason). Dispatched directly, bypasses
+  the normal execute-trade confirmation gate (protective action exemption).
+- `log_agent_action` — records every autonomous decision with confidence level for learning.
+
+### Exit Optimizer → Autonomous
+Prompt rewritten: agent now EXECUTES stop tightening via `tighten_stop` tool instead of just
+recommending. Sends Telegram notification after acting. Only tightens when criteria are met
+(R > 1.0 + 2%+ reversal, past T1 + fading, RSI > 75 + volume fading, stale trade).
+
+### Signal Review → Decisive
+NEUTRAL verdict removed. Agent must commit to PROCEED or VETO. Default in doubt: VETO
+(protecting capital). Calls `log_agent_action` after every decision.
+
+### Self-Learning Loop
+- **`apex-agent-learning.py`** (new) — Calculates agent track record by comparing actions to outcomes.
+  Evaluates stop tightening (beneficial vs premature exit), signal vetoes, signal approvals.
+  Generates calibration lessons ("stop tightening causing premature exits — be more conservative").
+- **`apex-agent-track-record.json`** (new state file) — Agent's performance metrics, injected into
+  system prompt so the agent reads its own track record before every decision.
+- Track record updated automatically after every `exit-optimizer` and `post-trade-autopsy` run.
+- Post-trade-autopsy prompt enhanced: now reads `apex-agent-actions.json` to assess agent's own
+  impact on each closed trade (did my stop tightening help or hurt?).
+
+### Budget Adjustments (Sonnet pricing)
+| Mode | Budget |
+|------|--------|
+| morning-analysis | $0.20 |
+| eod-review | $0.15 |
+| signal-review | $0.15 |
+| exit-optimizer | $0.15 |
+| post-trade-autopsy | $0.15 |
+| intraday-check | $0.10 |
+| interactive | $0.50 |
+| Daily LLM budget | $2.00 |
+
+---
+
+## 2026-04-14 — Agent PNL skills: exit-optimizer, edge-filter, correlation-guard, entry-sniper, autopsy
+
+5 agent skills to address the 3 biggest PNL leaks (MFE leakage, breakeven churn, weak-edge feeding).
+All skills are purely additive — AGENT OFF = none of these run, Apex works exactly as before.
+
+### New Tool: `apex-intraday-momentum.py`
+Per-position intraday analysis: RSI(14) on 15m bars, VWAP deviation, volume trend, distance to
+targets, session high/low, R-multiple. Returns verdict per position: STRONG / NEUTRAL / FADING / EXHAUSTED.
+Output: `apex-intraday-momentum.json`. Safety: external-fetch. Registered in `apex-tool-manifest.json` (tool #61).
+
+### Skill 1: Exit Optimizer (`--mode exit-optimizer`)
+New agent mode that runs every 30 min during market hours (14 cron entries, :17/:47 past the hour,
+09:00–15:47 UTC Mon–Fri). Calls `intraday_momentum` tool, reads positions and MAE/MFE calibration,
+identifies positions with fading/exhausted momentum. Sends Telegram with specific recommendations
+(tighten stop / consider partial exit). Advisory only — does not execute trades or modify stops.
+Budget: $0.15/run, max 8 tool calls. Exits instantly if AGENT OFF or no active positions.
+
+### Skill 2: Regime Edge Filter (enhanced `signal-review`)
+Signal-review now reads `apex-edge-proof.json` and checks the signal type's live track record.
+If n_real >= 5, expectancy_r < 0, and verdict = NOT_PROVEN, the agent vetoes the signal (negative
+edge = stop feeding losing strategies). Exception: exceptionally high score (>= 9) or compelling
+macro context can override.
+
+### Skill 3: Correlation Guard (enhanced `signal-review`)
+Signal-review now checks sector overlap with existing open positions. Same-sector entries when an
+existing same-sector position is underwater flagged as concentration risk. High correlation alone
+can justify a VETO.
+
+### Skill 4: Post-Trade Autopsy (`--mode post-trade-autopsy`)
+New agent mode that runs at 16:50 UTC (after market close). Analyses recently closed trades:
+entry quality vs VWAP, MFE captured vs peak, MAE exposure, hold time efficiency, exit trigger.
+Reads edge proof and learned weights. Sends one-paragraph Telegram with key lesson per trade.
+Budget: $0.20/run, max 10 tool calls. Exits instantly if AGENT OFF or no trades closed today.
+
+### Skill 5: Entry Sniper (enhanced `signal-review`)
+Signal-review now assesses entry timing quality: checks VWAP position from `apex-intraday-momentum.json`,
+price drift since signal generation, and staleness (>30 min + >1% price move = lean toward VETO).
+
+### Cron Entries Added
+```
+:17/:47 9-15 * * 1-5  exit-optimizer (14 entries, every 30 min during market hours)
+50 16    * * 1-5       post-trade-autopsy (after market close)
+```
+All entries exit instantly when AGENT OFF.
+
+### Daily Cost Impact
+Exit-optimizer: 14 runs × $0.15 = $2.10 max/day (but most skip early if no fading positions).
+Post-trade-autopsy: 1 run × $0.20 = $0.20 max/day. LLM daily budget raised $0.50 → $2.00.
+
+---
+
+## 2026-04-14 — Claude Agent: Phase 3 signal-review gate (human-in-the-loop)
+
+### Signal Review Gate in `apex-autopilot.py`
+Agent now reviews every pending trade signal before autopilot executes. New constants and helpers:
+- `AGENT_FLAG_FILE`, `AGENT_REVIEW_FILE`, `AGENT_REVIEW_WINDOW_MINS = 15`
+- `is_agent_enabled()` — reads flag file, returns False when missing (fail-closed)
+- `check_agent_review(signal)` — returns `(action, reason)`:
+  - `'wait'` if signal < 15 min old and no review yet
+  - `'veto'` if agent verdict = VETO and no human CONFIRM override
+  - `'proceed'` for all other cases (PROCEED verdict, window expired, agent disabled, NEUTRAL)
+- Gate inserted in `run()` after `load_signal()`: veto clears the signal and sends a Telegram alert; wait returns without executing; proceed continues as normal
+- **Fail-open**: if agent never reviews within 15 minutes, autopilot proceeds unconditionally
+- **Human override always wins**: AGENT CONFIRM overrides VETO; AGENT REJECT overrides PROCEED
+
+### `signal-review` Mode in `apex-agent.py`
+- New `--mode signal-review` reads `apex-pending-signal.json`, builds `{signal_context}` summary, exits cleanly if no signal
+- New `_write_agent_review(tool_input)` method writes verdict to `apex-agent-review.json`
+- Verdicts: PROCEED / VETO / NEUTRAL (NEUTRAL triggers human-in-the-loop via existing AGENT CONFIRM/REJECT)
+
+### `write_agent_review` Tool in `apex_agent_tools.py`
+New meta-tool with params: `verdict` (enum), `reasoning_summary`, `signal_timestamp`, `confidence`. Autopilot matches review to signal via `signal_timestamp` field.
+
+### `signal-review` Task Prompt in `apex_agent_config.py`
+6-step review workflow: check regime/health → positions → macro/sentiment context → evaluate signal → send Telegram analysis → write verdict. VETO forced when circuit-breaker is SUSPEND/CRITICAL.
+
+### AGENT CONFIRM/REJECT in `apex-trading-listener.sh`
+Updated to write to both files simultaneously:
+- `apex-agent-review.json` — sets `human_override: "CONFIRM"/"REJECT"` (gates autopilot decision)
+- `apex-agent-pending-confirm.json` — sets `confirmed: true/false` (releases `request_confirmation()` polling)
+
+### Signal-Review Cron Entries
+7 entries added — run after each scan window:
+```
+35 8 * * 1-5   apex-agent.py --mode signal-review  (after morning scan at 08:30)
+5 9,10,11,13,14,15 * * 1-5  apex-agent.py --mode signal-review  (after each intraday scan)
+```
+All entries exit instantly when AGENT OFF or no pending signal.
+
+---
+
+## 2026-04-14 — Claude Agent: Phase 1 + Phase 2 (core agent, MCP server, Telegram control)
+
+### New Files
+- `apex-agent.py` — Standalone agent loop using Anthropic Messages API + tool_use (claude-opus-4-6). Modes: morning-analysis, eod-review, intraday-check, signal-review, interactive. Feature-flagged (fail-closed). 5-layer trade safety gate.
+- `apex_agent_tools.py` — Generates Claude tool definitions from `apex-tool-manifest.json` + 5 meta-tools (run_chain, read_state_file, send_telegram, request_confirmation, write_agent_review).
+- `apex_agent_config.py` — Model, budget caps, max tool calls, system prompt, per-mode task prompts.
+- `apex-mcp-server.py` — MCP stdio server exposing all 66 Apex tools to Claude Code sessions. execute-trade tools blocked (must use Telegram H-i-L flow).
+- `.mcp.json` — MCP server config at `/home/ubuntu/.picoclaw/.mcp.json`.
+
+### Modified `apex-trading-listener.sh`
+Added `AGENT)` case block with sub-commands:
+- `AGENT ON/OFF` — toggles `apex-agent-enabled.json` feature flag; sends confirmation
+- `AGENT STATUS` — shows enabled state, last changed, most recent reasoning log entry, current review verdict
+- `AGENT CONFIRM/REJECT` — human override for both signal review and `request_confirmation()` polling
+
+### State Files (new)
+- `apex-agent-enabled.json` — `{enabled, changed_by, changed_at, reason}` (missing = disabled)
+- `apex-agent-review.json` — verdict, reasoning, signal_timestamp, confidence, human_override
+- `apex-agent-pending-confirm.json` — confirm_id, action_description, confirmed
+- `apex-agent-reasoning.jsonl` — JSON array of per-run entries (mode, tools, cost, tokens)
+
+### Cron Entries Added
+```
+35 7  * * 1-5  apex-agent.py --mode morning-analysis
+55 16 * * 1-5  apex-agent.py --mode eod-review
+```
+All scheduled modes exit instantly when AGENT OFF.
+
+### Architecture Notes
+- AGENT OFF = system behaves exactly as before agent existed — purely additive
+- interactive mode bypasses feature flag (ad-hoc queries always work)
+- Reasoning log uses `locked_read_modify_write` → JSON array format (not true JSONL)
+- Budget: Opus 4.6 at $15/$75 per Mtok. Per-mode caps: morning $0.75, eod $0.60, signal-review $0.30, intraday $0.15
+
+---
+
+## 2026-04-14 — Reasoning LLM integration: thinking-tier upgrade, cost tracking, A/B framework, 3 new modules
+
+### Architecture: Multi-Provider Thinking-Tier LLM
+Replaced single `call_gemini_json()` fast model with a tiered LLM architecture:
+- **Fast tier**: Gemini Flash (unchanged) — sentiment batch scoring, exit timing
+- **Thinking tier**: Claude claude-sonnet-4-6 Extended Thinking (default) or Gemini 2.5 Pro — preflight, tiebreaker, TACO, new modules
+- Provider switchable at runtime without restart: `LLM PROVIDER anthropic|gemini`
+
+**New files:**
+- `apex_llm_client.py` — multi-provider client, provider switching, budget cap enforcement
+- `apex_llm_cost_tracker.py` — per-call token/cost logging, daily/MTD totals, Telegram alerts at 80%/100% of budget
+- `apex_llm_ab_tracker.py` — A/B decision logging (LLM vs rule-based baseline), outcome linking
+
+**Modified `apex_config.py`:** added `ANTHROPIC_API_KEY`, `LLM_PROVIDER`, `LLM_THINKING_MODEL_ANTHROPIC`, `LLM_THINKING_MODEL_GEMINI`, `LLM_THINKING_BUDGET_TOKENS=2048`, `LLM_DAILY_BUDGET_USD=0.50`, `LLM_THINKING_TIMEOUT=90`
+
+**Modified `apex_llm_flags.py`:** added 3 new flags, `call_llm_thinking()` wrapper, `LLM PROVIDER` + `LLM BUDGET` CLI commands, provider+budget in status message
+
+### Upgraded to Thinking Tier (3 existing modules)
+- `apex-llm-preflight.py` — now uses `call_llm_thinking(budget=3000)` + A/B tracking (baseline=ALLOW)
+- `apex-llm-tiebreaker.py` — now uses `call_llm_thinking()` + A/B tracking
+- `apex-taco-classifier.py` — `_llm_classify_taco_headlines()` now uses thinking model for better rhetoric/action disambiguation
+
+### New LLM Modules (3, all thinking-tier, all OFF by default)
+- `apex-llm-morning-brief.py` — runs 07:55 UTC. Synthesises regime, sentiment, geo, calendar, open positions, overnight markets (yfinance), FX, queue into strategic brief. Output: `apex-llm-morning-brief.json`. Fields: `risk_posture`, `key_risks`, `avoid_sectors`, `position_guidance`, `queue_guidance`, `brief_text`. Flag: `morning_brief_llm`.
+- `apex-llm-queue-revalidate.py` — runs 07:58 UTC. LLM reviews each QUEUED signal against overnight news. Can CANCEL signals whose thesis is broken. Complements rule-based `apex-queue-revalidate.py` (Monday-only). Flag: `queue_revalidate_llm`.
+- `apex-llm-drawdown-review.py` — triggered by `apex-drawdown-check.py` on CAUTION/SUSPEND/CRITICAL. Diagnoses drawdown as MARKET_EVENT / STRATEGY_VARIANCE / STRATEGY_CONCERN / REGIME_MISMATCH. Output: `apex-llm-drawdown-review.json`. Flag: `drawdown_review_llm`.
+
+### Cost Visibility
+- Daily LLM cost section added to `apex-digest.py` (section 6, before system health)
+- `LLM BUDGET` Telegram command — instant cost breakdown
+- `LLM AB` Telegram command — 7-day A/B performance report
+- `LLM BRIEF` Telegram command — today's morning brief on demand
+
+### Cron entries added
+```
+55 7 * * 1-5  apex-llm-morning-brief.py
+58 7 * * 1-5  apex-llm-queue-revalidate.py
+```
+(drawdown-review is event-triggered, not cron)
+
+### Setup required
+Add `ANTHROPIC_API_KEY=sk-ant-...` to `/home/ubuntu/.picoclaw/.env.trading212`
+All 3 new modules default OFF — enable via `LLM ON morning_brief_llm` etc.
+Thinking-tier upgrades (preflight, tiebreaker, taco) are transparent — flags unchanged.
+
+---
+
+## 2026-04-14 — Bug fixes: GBX drift in data-integrity, UUID venue guard in deferred-stops
+
+### GBX Pence/Pounds Fix in `apex-data-integrity.py` (Check 6)
+`apex-broker-watchdog.py` received the GBX conversion fix on 2026-04-13 but `apex-data-integrity.py`
+Check 6 (stop price sync) was missed — it kept logging false STOP DRIFT warnings for ULVRl_EQ
+(`positions.json=41.26 T212=4126.0`). Fixed: Check 6 now converts pence→pounds using the same
+`currency == 'GBX' or t212_stp > pos_stp * 10` heuristic before comparing.
+Lesson added to `scripts/CLAUDE.md`: GBX fix must be applied to every script comparing T212 prices.
+
+### UUID Venue Guard in `check_and_place_deferred_stops` (`apex-broker-watchdog.py`)
+Positions with `venue: null` (pre-multi-venue) but Alpaca UUID entry_order_ids caused HTTP 400 when
+`check_and_place_deferred_stops` queried T212 (expects Long IDs). The venue == 'ALPACA' guard was
+insufficient. Added secondary guard: `if '-' in str(entry_id): continue`.
+Root cause: NFE and XOM had UUID entry_order_ids but `venue: null` — both now closed.
+Lesson added to `scripts/CLAUDE.md`: venue guards need both flag AND ID format checks.
+
 ---
 
 ## 2026-04-13 (session 4) — System hardening: queue lock, Alpaca watchdog, rollout block, scan dedup

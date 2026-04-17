@@ -25,6 +25,9 @@ except ImportError:
 
 AUTOPILOT_FILE   = '/home/ubuntu/.picoclaw/logs/apex-autopilot.json'
 SIGNAL_FILE      = '/home/ubuntu/.picoclaw/logs/apex-pending-signal.json'
+AGENT_FLAG_FILE  = '/home/ubuntu/.picoclaw/logs/apex-agent-enabled.json'
+AGENT_REVIEW_FILE = '/home/ubuntu/.picoclaw/logs/apex-agent-review.json'
+AGENT_REVIEW_WINDOW_MINS = 15   # wait this long for agent review before proceeding
 CONTRARIAN_FILE  = '/home/ubuntu/.picoclaw/logs/apex-contrarian-signals.json'
 POSITIONS_FILE   = '/home/ubuntu/.picoclaw/logs/apex-positions.json'
 OUTCOMES_FILE    = '/home/ubuntu/.picoclaw/logs/apex-outcomes.json'
@@ -190,6 +193,82 @@ def load_outcomes():
 def is_paused():
     return os.path.exists(PAUSE_FLAG)
 
+
+def is_agent_enabled() -> bool:
+    """Return True only if the Claude Agent feature flag is explicitly on."""
+    data = safe_read(AGENT_FLAG_FILE, {})
+    if not isinstance(data, dict):
+        return False
+    return bool(data.get('enabled', False))
+
+
+def check_agent_review(signal) -> tuple[str, str]:
+    """
+    Check whether the agent has reviewed this signal and what verdict it gave.
+
+    Returns (action, reason) where action is one of:
+      'proceed'  — agent said PROCEED, or review window expired (fail-open)
+      'wait'     — agent hasn't reviewed yet and window hasn't expired
+      'veto'     — agent said VETO (and no human override to CONFIRM)
+
+    Fail-open: if agent is enabled but review file is missing/unreadable after
+    the review window, autopilot proceeds as normal.
+    """
+    if not is_agent_enabled():
+        return 'proceed', 'agent disabled'
+
+    signal_ts_str = signal.get('generated_at') or signal.get('created_at') or signal.get('timestamp', '')
+
+    # Parse signal age
+    signal_age_mins = AGENT_REVIEW_WINDOW_MINS + 1  # default: treat as old (proceed)
+    if signal_ts_str:
+        try:
+            # Handle multiple timestamp formats
+            ts_str = signal_ts_str.replace(' UTC', '+00:00').replace(' ', 'T')
+            if ts_str.endswith('Z'):
+                ts_str = ts_str[:-1] + '+00:00'
+            signal_ts = datetime.fromisoformat(ts_str)
+            if signal_ts.tzinfo is None:
+                signal_ts = signal_ts.replace(tzinfo=timezone.utc)
+            signal_age_mins = (datetime.now(timezone.utc) - signal_ts).total_seconds() / 60
+        except Exception:
+            pass  # can't parse timestamp — treat as old, proceed
+
+    review = safe_read(AGENT_REVIEW_FILE, {})
+    if not isinstance(review, dict):
+        review = {}
+
+    # Match review to this specific signal
+    review_ts = review.get('signal_timestamp', '')
+    verdict   = review.get('verdict', '')
+    human_override = review.get('human_override', '')
+
+    review_matches = (review_ts and review_ts == signal_ts_str)
+
+    # Human override always wins
+    if review_matches and human_override == 'CONFIRM':
+        return 'proceed', f'human confirmed (agent said {verdict})'
+    if review_matches and human_override == 'REJECT':
+        return 'veto', 'human rejected'
+
+    if review_matches:
+        if verdict == 'PROCEED':
+            return 'proceed', 'agent review: PROCEED'
+        if verdict == 'VETO':
+            return 'veto', f"agent review: VETO — {review.get('reasoning_summary', '')[:80]}"
+        if verdict == 'NEUTRAL':
+            # NEUTRAL + no human input: wait if window still open, else proceed
+            if signal_age_mins < AGENT_REVIEW_WINDOW_MINS:
+                return 'wait', f'agent verdict NEUTRAL — awaiting human input ({signal_age_mins:.0f}/{AGENT_REVIEW_WINDOW_MINS} min)'
+            return 'proceed', 'agent verdict NEUTRAL — review window expired, proceeding'
+
+    # No matching review yet
+    if signal_age_mins < AGENT_REVIEW_WINDOW_MINS:
+        return 'wait', f'agent review pending ({signal_age_mins:.0f}/{AGENT_REVIEW_WINDOW_MINS} min elapsed)'
+
+    # Window expired with no review — fail-open
+    return 'proceed', f'agent review window expired ({signal_age_mins:.0f} min) — proceeding'
+
 def safety_check(config, signal):
     now   = datetime.now(timezone.utc)
     today = now.strftime('%Y-%m-%d')
@@ -220,15 +299,15 @@ def safety_check(config, signal):
         blocks.append("No trades Friday afternoon")
 
     # Min time between trades
-    # Contrarian trades enforce a 6h gap — enough to avoid doubling into the same
-    # down-move within a session but allows a second setup later in the day.
-    # Other signal types enforce a 2h gap to prevent overtrading.
+    # Contrarian trades enforce a 1h gap — enough to avoid doubling into the same
+    # down-move within a few minutes but allows multiple setups per session.
+    # Other signal types enforce a 45min gap to prevent overtrading.
     last_trade = config.get('last_trade_time')
     if last_trade:
         try:
             last_dt = datetime.fromisoformat(last_trade)
             elapsed = (now - last_dt).total_seconds() / 3600
-            min_hours = 6 if signal_type == 'CONTRARIAN' else 2
+            min_hours = 1.0 if signal_type == 'CONTRARIAN' else 0.75
             if elapsed < min_hours:
                 blocks.append(f"Min {min_hours}h between {'contrarian ' if signal_type == 'CONTRARIAN' else ''}trades — last was {round(elapsed,1)}h ago")
         except Exception as _e:
@@ -471,9 +550,20 @@ def contrarian_quality_check(signal):
         with open(QUALITY_FILE) as f:
             quality_db = json.load(f)
         quality = quality_db.get('quality_stocks', {})
-        # Quality universe is keyed by short ticker (e.g. "NFE"), but the pending
-        # signal uses the display name (e.g. "New Fortress Energy"). Try both.
-        quality_key = name if name in quality else (ticker if ticker in quality else None)
+        # Quality universe is keyed by short ticker (e.g. "XOM"), but the pending
+        # signal uses the display name (e.g. "Exxon Mobil") in name, with short key
+        # in ticker. Also check t212_ticker stripped of suffix as a third fallback.
+        # Empty-string ticker must be treated as missing, not as a failed lookup.
+        _t212_raw   = signal.get('t212_ticker', '')
+        _t212_short = (_t212_raw.replace('_US_EQ','').replace('_EQ','').rstrip('l')
+                       if _t212_raw else '')
+        _ticker_key  = ticker if ticker and ticker in quality else None
+        _t212_key    = _t212_short if _t212_short and _t212_short in quality else None
+        # Last resort: match by display name inside quality entries
+        _name_key    = next((k for k, v in quality.items()
+                             if v.get('name', '').lower() == name.lower()), None)
+        quality_key = (name if name in quality else
+                       _ticker_key or _t212_key or _name_key)
         if quality_key is None:
             return "BLOCK", [f"{name} not in quality universe — contrarian trades quality only"]
         qs = quality[quality_key].get('quality_score', 0)
@@ -541,13 +631,13 @@ def check_intraday_signal_decay(signal):
 
     try:
         hist = yf.Ticker(yahoo).history(period="1d", interval="5m")
-        if hist.empty:
+        if hist is None or hist.empty:
             return True, "No price data — decay check skipped", original_score
         current_price = float(hist['Close'].iloc[-1])
         if yahoo.endswith('.L') and current_price > 100:
             current_price /= 100
     except Exception as e:
-        log_error(f"Decay price fetch failed for {name}: {e}")
+        log_warning(f"Decay price fetch failed for {name}: {e}")
         return True, "Price fetch failed — decay check skipped", original_score
 
     drift_pct = (current_price - signal_price) / signal_price * 100
@@ -698,6 +788,44 @@ def run(mode='check', dry_run=False):
     if not signal:
         print("No pending signal")
         return
+
+    # ── Market hours gate — don't execute signals for closed exchanges ────────
+    try:
+        _mh = safe_read('/home/ubuntu/.picoclaw/logs/apex-market-calendar.json', {}).get('today', {})
+        _sig_cur = signal.get('currency', 'USD')
+        _mh_us = _mh.get('us_currently_open', True)
+        _mh_uk = _mh.get('uk_currently_open', True)
+        _mh_closed = (
+            (_sig_cur == 'USD' and not _mh_us) or
+            (_sig_cur in ('GBX', 'GBP') and not _mh_uk) or
+            (_sig_cur in ('EUR', 'CHF') and not _mh_uk)
+        )
+        if _mh_closed:
+            print(f"{signal.get('name','?')} ({_sig_cur}) — market closed, signal held for market open")
+            return  # Don't execute, don't delete the signal — leave it for when market opens
+    except Exception:
+        pass  # fail-open — if calendar unreadable, proceed
+
+    # ── Agent review gate ─────────────────────────────────────────────────────
+    # When AGENT ON: wait up to AGENT_REVIEW_WINDOW_MINS for agent to review
+    # the signal. Fail-open: if agent doesn't respond, autopilot proceeds.
+    review_action, review_reason = check_agent_review(signal)
+    if review_action == 'wait':
+        print(f"AGENT REVIEW: {review_reason}")
+        return
+    if review_action == 'veto':
+        send_telegram(
+            f"🤖 AGENT VETO\n\n"
+            f"Signal for {signal.get('name', '?')} blocked by agent review.\n"
+            f"Reason: {review_reason}\n\n"
+            f"Send AGENT CONFIRM to override and execute anyway."
+        )
+        print(f"AGENT VETO: {review_reason}")
+        _clear_signal(f"agent veto: {review_reason}")
+        return
+    # review_action == 'proceed': fall through to normal gates
+    if review_reason != 'agent disabled':
+        print(f"AGENT REVIEW: {review_reason}")
 
     name        = signal.get('name', '?')
     entry       = signal.get('entry', 0)

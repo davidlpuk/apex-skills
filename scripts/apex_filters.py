@@ -5,11 +5,22 @@ is_blocked() gate — checks regime, geo, earnings, news, sector breadth,
 and market direction before allowing a signal to proceed to sizing.
 """
 import json, sys
+from datetime import datetime, timezone, timedelta
 sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 
 from apex_scoring import get_instrument_sector, get_geo_adjustment
 
+try:
+    from apex_config import ENABLED_SIGNAL_TYPES
+except ImportError:
+    ENABLED_SIGNAL_TYPES = {}  # fail-open: if config missing, all types pass
+
 _LOGS = '/home/ubuntu/.picoclaw/logs'
+_OUTCOMES_FILE = f'{_LOGS}/apex-outcomes.json'
+_QUEUE_FILE    = f'{_LOGS}/apex-trade-queue.json'
+
+# Ticker cooldown after exit — prevents same-day and next-day re-entry thrashing
+TICKER_COOLDOWN_HOURS = 48
 _ADVERSARIAL_RESULTS = f'{_LOGS}/apex-adversarial-results.json'
 _ECON_CALENDAR_FILE  = f'{_LOGS}/apex-econ-calendar.json'
 
@@ -116,6 +127,83 @@ def is_adversarial_blocked(signal, intel):
     return blocks
 
 
+def _normalise_ticker(t212_ticker: str) -> str:
+    """
+    Return a normalised base ticker for dedup comparison.
+    Strips venue suffixes so 'XOM_US_EQ' and 'XOM_US_EQ' compare equal.
+    Does not map across instruments — only used for same-ticker dedup.
+    """
+    return t212_ticker.upper().strip() if t212_ticker else ''
+
+
+def _ticker_in_queue_today(t212_ticker: str) -> bool:
+    """
+    Returns True if the ticker has an active (QUEUED or EXECUTED) entry
+    in the trade queue today.
+    """
+    try:
+        today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+        with open(_QUEUE_FILE) as f:
+            queue = json.load(f)
+        if not isinstance(queue, list):
+            return False
+        norm = _normalise_ticker(t212_ticker)
+        for entry in queue:
+            if (entry.get('status') in ('QUEUED', 'EXECUTED')
+                    and _normalise_ticker(entry.get('t212_ticker', '')) == norm
+                    and entry.get('queued_at', '').startswith(today)):
+                return True
+    except (FileNotFoundError, Exception):
+        pass
+    return False
+
+
+def _ticker_recently_exited(t212_ticker: str, cooldown_hours: int = TICKER_COOLDOWN_HOURS) -> bool:
+    """
+    Returns True if this ticker had a closed trade within the last
+    cooldown_hours. Prevents re-entry thrashing after a failed fill
+    or rapid exit.
+    """
+    try:
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=cooldown_hours)
+        with open(_OUTCOMES_FILE) as f:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            return False
+        trades = data.get('trades', [])
+        norm = _normalise_ticker(t212_ticker)
+        for t in trades:
+            if _normalise_ticker(t.get('ticker', '')) != norm:
+                continue
+            closed_str = t.get('closed', '')
+            if not closed_str:
+                continue
+            try:
+                closed_dt = datetime.strptime(closed_str, '%Y-%m-%d').replace(tzinfo=timezone.utc)
+                if closed_dt >= cutoff:
+                    return True
+            except ValueError:
+                pass
+    except (FileNotFoundError, Exception):
+        pass
+    return False
+
+
+def signal_type_enabled(signal_type: str) -> tuple:
+    """
+    Returns (True, '') if signal_type is enabled, (False, reason) if disabled.
+    Checks ENABLED_SIGNAL_TYPES from apex_config.
+    Unknown types default to enabled (fail-open: new types shouldn't be silently blocked).
+    """
+    enabled = ENABLED_SIGNAL_TYPES.get(signal_type, True)
+    if enabled:
+        return True, ''
+    return False, (
+        f"Signal type {signal_type!r} is disabled in apex_config.ENABLED_SIGNAL_TYPES "
+        f"(paused pending root-cause investigation — see CHANGES.md 2026-04-16)"
+    )
+
+
 def is_blocked(signal, intel):
     """
     Returns a list of block reasons. Empty list = signal passes.
@@ -125,6 +213,31 @@ def is_blocked(signal, intel):
     signal_type = signal.get('signal_type', 'TREND')
     blocks      = []
 
+    # Signal-type enable flag — checked first, cheapest gate
+    _type_ok, _type_reason = signal_type_enabled(signal_type)
+    if not _type_ok:
+        blocks.append(_type_reason)
+        return blocks   # early return — no point running further checks
+
+    # Market hours gate — hard block for closed exchanges
+    try:
+        with open(f'{_LOGS}/apex-market-calendar.json') as _mh_f:
+            _mh_today = json.load(_mh_f).get('today', {})
+        _mh_us = _mh_today.get('us_currently_open', True)
+        _mh_uk = _mh_today.get('uk_currently_open', True)
+        _sig_cur = signal.get('currency', 'USD')
+        if _sig_cur == 'USD' and not _mh_us:
+            blocks.append('Market closed: NYSE not open (opens 14:30 UTC)')
+            return blocks
+        if _sig_cur in ('GBX', 'GBP') and not _mh_uk:
+            blocks.append('Market closed: LSE not open (opens 08:00 UTC)')
+            return blocks
+        if _sig_cur in ('EUR', 'CHF') and not _mh_uk:
+            blocks.append('Market closed: European exchanges not open')
+            return blocks
+    except Exception:
+        pass  # fail-open — if calendar unreadable, don't block
+
     # Duplicate position block — prevent adding to a ticker already held
     # t212_ticker is resolved by score_signal_with_intelligence before is_blocked is called.
     _sig_t212 = signal.get('t212_ticker', '')
@@ -132,6 +245,21 @@ def is_blocked(signal, intel):
         _held_tickers = {p.get('t212_ticker', '') for p in intel.get('open_positions', [])}
         if _sig_t212 in _held_tickers:
             blocks.append(f"Already in positions: {_sig_t212}")
+
+    # Queue dedup — block if ticker already queued or executed today (any signal type)
+    # Prevents XOM-style same-day repeat queuing that creates ghost fills.
+    if _sig_t212 and _ticker_in_queue_today(_sig_t212):
+        blocks.append(
+            f"Ticker {_sig_t212} already QUEUED or EXECUTED today — "
+            f"same-day re-queue blocked (prevents ghost-fill loop)"
+        )
+
+    # Repeat-ticker cooldown — block re-entry within 48h of previous exit
+    if _sig_t212 and _ticker_recently_exited(_sig_t212, TICKER_COOLDOWN_HOURS):
+        blocks.append(
+            f"Ticker {_sig_t212} exited within last {TICKER_COOLDOWN_HOURS}h — "
+            f"cooldown prevents re-entry thrashing"
+        )
 
     # Earnings block
     if name in intel['earnings_blocked']:
@@ -160,6 +288,20 @@ def is_blocked(signal, intel):
             breadth = intel.get('sector_breadth', {}).get(sector, {})
             if breadth.get('breadth_200', 50) <= 20:
                 blocks.append(f"Sector breadth too low: {sector} at {breadth.get('breadth_200',0)}%")
+
+    # Sector rotation lagging gate — block TREND signals in sectors the rotation
+    # model identifies as laggards. CONTRARIAN signals are explicitly allowed
+    # (lagging sectors are contrarian opportunities, not blocks).
+    # Gate does NOT fire if lagging_sectors list is empty (data missing / not stale).
+    if signal_type == 'TREND':
+        _lagging = intel.get('lagging_sectors', [])
+        if _lagging:
+            _sig_sector = get_instrument_sector(name)
+            if _sig_sector and _sig_sector in _lagging:
+                blocks.append(
+                    f"Sector rotation: {_sig_sector} is a lagging sector "
+                    f"({', '.join(_lagging)}) — wait for rotation recovery"
+                )
 
     # VIX-level gate for TREND signals — regime.overall is binary (BLOCKED/CLEAR).
     # VIX 28–35 adds a warning but does NOT set BLOCKED, so TREND would pass through

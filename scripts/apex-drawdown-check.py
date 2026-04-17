@@ -34,6 +34,13 @@ def calculate_drawdown():
     if not current:
         return None
 
+    # Capture previous status before overwriting — used to detect worsening
+    try:
+        _prev = json.load(open(DRAWDOWN_FILE)) if __import__('os').path.exists(DRAWDOWN_FILE) else {}
+        _prev_status = _prev.get('status', 'NORMAL')
+    except Exception:
+        _prev_status = 'NORMAL'
+
     peak_data = load_peak()
     peak      = peak_data.get('peak', get_portfolio_value() or 5000.0)
     today     = datetime.now(timezone.utc).strftime('%Y-%m-%d')
@@ -81,6 +88,19 @@ def calculate_drawdown():
     }
 
     atomic_write(DRAWDOWN_FILE, result)
+
+    # Trigger LLM drawdown review non-blocking when status worsens
+    _worse_order = ['NORMAL', 'CAUTION', 'REDUCED', 'MINIMAL', 'HALT']
+    _prev_idx = _worse_order.index(_prev_status) if _prev_status in _worse_order else 0
+    _new_idx  = _worse_order.index(status)       if status       in _worse_order else 0
+    if _new_idx > _prev_idx and status != 'NORMAL':
+        import subprocess as _sp
+        _sp.Popen(
+            ['/home/ubuntu/bin/python3',
+             '/home/ubuntu/.picoclaw/scripts/apex-llm-drawdown-review.py',
+             status],
+            stdout=_sp.DEVNULL, stderr=_sp.DEVNULL
+        )
 
     return result
 

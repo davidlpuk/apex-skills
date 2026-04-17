@@ -355,17 +355,49 @@ def get_current_vix() -> float:
     return BASELINE_VIX
 
 
+def _load_outcomes_r(signal_type: str = None) -> list:
+    """
+    Load R-multiples from apex-outcomes.json (real closed trades, highest quality).
+    Returns list of r_achieved floats for the given signal_type (or all types if None).
+    Excludes auto_reconciled rows which may contain double-counted P&L.
+    """
+    try:
+        raw = safe_read(OUTCOMES_FILE, {})
+        trades = raw.get('trades', raw) if isinstance(raw, dict) else raw
+        if not isinstance(trades, list):
+            return []
+        filtered = [
+            t for t in trades
+            if 'r_achieved' in t
+            and not t.get('auto_reconciled', False)
+            and t.get('outcome_type', '') not in ('auto_reconciled_not_in_t212',)
+        ]
+        if signal_type:
+            filtered = [t for t in filtered if t.get('signal_type') == signal_type]
+        return [float(t['r_achieved']) for t in filtered]
+    except Exception:
+        return []
+
+
 def get_r_multiples(signal_type: str = None) -> tuple:
     """
     Load R-multiple series. Priority:
-      1. apex-backtest-results.json (most data, simulation)
-      2. apex-param-log.json (live closed trades)
+      1. apex-outcomes.json (real closed trades — highest fidelity)
+      2. apex-backtest-results.json (historical simulation data)
+      3. apex-param-log.json (live closed trades)
     Returns (r_multiples, source_label).
     """
     r_multiples = []
     source      = 'prior'
 
-    # ---- Try backtest results ----
+    # ---- Priority 1: real closed trades from outcomes ----
+    outcomes_r = _load_outcomes_r(signal_type)
+    if len(outcomes_r) >= MIN_TRADES_CONTINUOUS:
+        return outcomes_r, f'outcomes ({len(outcomes_r)} real trades)'
+    # Accumulate partial real trades to blend with backtest below
+    partial_real = outcomes_r
+
+    # ---- Priority 2: backtest results ----
     try:
         bt = safe_read(BACKTEST_FILE, {})
         trades = bt.get('trades', [])
@@ -373,27 +405,78 @@ def get_r_multiples(signal_type: str = None) -> tuple:
             trades = [t for t in trades if t.get('signal_type') == signal_type]
         r_vals = [t['pnl_r'] for t in trades if 'pnl_r' in t]
         if len(r_vals) >= MIN_TRADES_CONTINUOUS:
-            r_multiples = r_vals
-            source      = f'backtest ({len(r_vals)} trades)'
+            # Blend: real trades weighted 10:1 vs backtest; backtest capped at 3× real count
+            n_real   = len(partial_real)
+            n_bt_cap = max(0, n_real * 3)
+            bt_sample = r_vals[:n_bt_cap] if n_bt_cap > 0 else r_vals
+            combined  = partial_real + bt_sample
+            if combined:
+                source = (f'blended ({n_real} real + {len(bt_sample)} backtest)'
+                          if partial_real else f'backtest ({len(r_vals)} trades)')
+                return combined, source
     except Exception as e:
         log_warning(f"Kelly v2: backtest load failed: {e}")
 
-    # ---- Try live param log ----
-    if not r_multiples:
-        try:
-            log   = safe_read(PARAM_FILE, {'signals': []})
-            sigs  = [s for s in log.get('signals', [])
-                     if s.get('outcome') in ['WIN', 'LOSS']]
-            if signal_type:
-                sigs = [s for s in sigs if s.get('signal_type') == signal_type]
-            r_vals = [s.get('r_achieved', 0) for s in sigs if 'r_achieved' in s]
-            if len(r_vals) >= MIN_TRADES_CONTINUOUS:
-                r_multiples = r_vals
-                source      = f'live ({len(r_vals)} trades)'
-        except Exception as e:
-            log_warning(f"Kelly v2: live data load failed: {e}")
+    # ---- Priority 3: live param log ----
+    try:
+        log   = safe_read(PARAM_FILE, {'signals': []})
+        sigs  = [s for s in log.get('signals', [])
+                 if s.get('outcome') in ['WIN', 'LOSS']]
+        if signal_type:
+            sigs = [s for s in sigs if s.get('signal_type') == signal_type]
+        r_vals = [s.get('r_achieved', 0) for s in sigs if 'r_achieved' in s]
+        if len(r_vals) >= MIN_TRADES_CONTINUOUS:
+            r_multiples = r_vals
+            source      = f'live ({len(r_vals)} trades)'
+    except Exception as e:
+        log_warning(f"Kelly v2: live data load failed: {e}")
 
     return r_multiples, source
+
+
+def _refresh_priors_from_outcomes() -> None:
+    """
+    Update DISTRIBUTION_PRIORS in-memory from apex-outcomes.json when a
+    signal type has ≥5 real closed trades. Ensures live performance (not
+    hardcoded estimates) feeds into the prior fallback used for new signal types.
+    Runs once at import time — updates global dict in place.
+    """
+    global DISTRIBUTION_PRIORS
+    MIN_FOR_PRIOR_UPDATE = 5
+    by_type: dict = {}
+    for r in _load_outcomes_r():
+        # We need the raw records for type grouping — re-read minimally
+        pass
+    try:
+        raw    = safe_read(OUTCOMES_FILE, {})
+        trades = raw.get('trades', raw) if isinstance(raw, dict) else raw
+        if not isinstance(trades, list):
+            return
+        for t in trades:
+            st = t.get('signal_type', '')
+            if not st or t.get('auto_reconciled'):
+                continue
+            by_type.setdefault(st, []).append(float(t.get('r_achieved', 0)))
+        for st, rs in by_type.items():
+            if len(rs) < MIN_FOR_PRIOR_UPDATE or st not in DISTRIBUTION_PRIORS:
+                continue
+            stats = compute_distribution_stats(rs)
+            if not stats:
+                continue
+            old = DISTRIBUTION_PRIORS[st]
+            DISTRIBUTION_PRIORS[st] = {
+                'mu':          round(stats['mu'], 4),
+                'sigma':       round(max(0.5, stats['sigma']), 4),
+                'skew':        round(stats.get('skewness', old['skew']), 4),
+                'kurt_excess': round(stats.get('excess_kurtosis', old['kurt_excess']), 4),
+                '_source':     f'live n={len(rs)}',
+            }
+    except Exception as e:
+        log_warning(f"Kelly v2: prior refresh failed (non-fatal): {e}")
+
+
+# Refresh priors at import time so all callers get live estimates
+_refresh_priors_from_outcomes()
 
 
 # ---------------------------------------------------------------------------

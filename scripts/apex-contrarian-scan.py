@@ -43,14 +43,19 @@ YAHOO_MAP = {
     "UNH":  "UNH",    "ABBV": "ABBV",   "GSK":  "GSK.L",
     "ULVR": "ULVR.L", "REL":  "REL.L",  "BA":   "BA.L",
     "HSBA": "HSBA.L", "LGEN": "LGEN.L", "IMB":  "IMB.L",
-    "BATS": "BATS.L",
+    "BATS": "BATS.L", "DGE":  "DGE.L",  "RIO":  "RIO.L",
+    "EXPN": "EXPN.L", "NWG":  "NWG",    "PRU":  "PRU.L",
+    "NOVN": "NOVN.SW", "BP":  "BP.L",
 }
 
 CURRENCY_MAP = {
     "IUIT": "GBP",  # user-added
     "AZN": "GBX", "SHEL": "GBX", "GSK": "GBX", "ULVR": "GBX",
     "REL": "GBX", "BA":   "GBX", "HSBA":"GBX", "LGEN": "GBX",
-    "IMB": "GBX", "BATS": "GBX",
+    "IMB": "GBX", "BATS": "GBX", "DGE": "GBX", "RIO":  "GBX",
+    "EXPN":"GBX", "PRU":  "GBX", "BP":  "GBX",
+    "NOVN":"CHF",
+    # NWG omitted → defaults to USD (T212 trades as NWG_US_EQ ADR)
 }
 
 def fix_pence(price, currency):
@@ -88,8 +93,12 @@ def score_contrarian(name, yahoo_ticker, currency, quality_score):
         volume = hist['Volume']
 
         price    = round(float(close.iloc[-1]), 2)
-        high_52  = fix_pence(round(float(close.max()), 2), currency)
-        low_52   = fix_pence(round(float(close.min()), 2), currency)
+        # close is already in pounds (fix_pence applied above via .apply()).
+        # Do NOT call fix_pence again here — double conversion produced absurd
+        # discounts (~-9000%) for GBX instruments, making LSE stocks unscorable.
+        # Fixed 2026-04-16: remove redundant fix_pence from high_52/low_52.
+        high_52  = round(float(close.max()), 2)
+        low_52   = round(float(close.min()), 2)
         ema200   = round(float(close.ewm(span=200).mean().iloc[-1]), 2)
         ema50    = round(float(close.ewm(span=50).mean().iloc[-1]), 2)
 
@@ -153,9 +162,12 @@ def score_contrarian(name, yahoo_ticker, currency, quality_score):
             reasons.append(f"High quality (score {quality_score}/10)")
 
         # MACD turning — early reversal signal
-        if macd_rising and macd_hist > -0.5:
+        # RSI > 75 guard: if already overbought, the bounce has run — not a contrarian entry
+        if macd_rising and macd_hist > -0.5 and rsi <= 75:
             score += 1
             reasons.append("MACD turning — early reversal signal")
+        elif rsi > 75:
+            reasons.append(f"RSI {rsi} — overbought, contrarian MACD bonus suppressed")
 
         # Price near 52-week low but not breaking down
         if above_low_pct <= 5:
@@ -233,10 +245,11 @@ def run():
     print(f"Scanning {len(quality)} quality instruments for contrarian opportunities...", flush=True)
 
     for name, data in quality.items():
-        # Skip value traps identified in backtest
-        if data.get('contrarian_skip', False):
-            print(f"  {name}... SKIPPED (backtest: {data.get('contrarian_note','')})", flush=True)
-            continue
+        # Backtest-weak instruments get a score penalty instead of a hard skip.
+        # They can still qualify if RSI/quality/macro signals are strong enough.
+        _backtest_penalty = -2 if data.get('contrarian_skip', False) else 0
+        if _backtest_penalty:
+            print(f"  {name}... PENALTY -2 (backtest: {data.get('contrarian_note','')})", flush=True)
 
         # Skip instruments we already hold
         if name in held:
@@ -255,6 +268,11 @@ def run():
         result = score_contrarian(name, yahoo, currency, qs)
 
         if result:
+            # Backtest-weak penalty (replaces hard skip)
+            if _backtest_penalty:
+                result['contrarian_score'] = max(0, result['contrarian_score'] + _backtest_penalty)
+                result['reasons'].append(f"Backtest penalty: {_backtest_penalty} ({data.get('contrarian_note','')})")
+
             # Geo-reversal boost
             if name in geo_favs:
                 result['contrarian_score'] += 2

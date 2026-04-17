@@ -17,12 +17,14 @@ except ImportError:
 
 MAE_MFE_FILE = '/home/ubuntu/.picoclaw/logs/apex-mae-mfe-calibration.json'
 
-# Default ATR multipliers (used when no calibration data)
+# Default ATR multipliers calibrated to empirical optimal_exit_r=0.83R.
+# T1 = 0.83 × stop_ATR so it aligns with the median MFE peak across 14 real trades.
+# Previous defaults (t1=2.0 for all) produced a T1 of 1.0R which NO trade reached (0% hit rate).
 _ATR_DEFAULTS = {
-    'CONTRARIAN':       {'stop': 2.5, 't1': 2.0, 't2': 3.5},
-    'EARNINGS_DRIFT':   {'stop': 1.5, 't1': 2.0, 't2': 3.5},
-    'DIVIDEND_CAPTURE': {'stop': 1.0, 't1': 1.0, 't2': 1.5},
-    'DEFAULT':          {'stop': 2.0, 't1': 2.0, 't2': 3.5},
+    'CONTRARIAN':       {'stop': 2.5, 't1': 2.1, 't2': 3.5},  # 0.83×2.5=2.075→2.1
+    'EARNINGS_DRIFT':   {'stop': 1.5, 't1': 1.3, 't2': 2.5},  # 0.83×1.5=1.245→1.3
+    'DIVIDEND_CAPTURE': {'stop': 1.0, 't1': 0.8, 't2': 1.5},  # 0.83×1.0=0.83→0.8
+    'DEFAULT':          {'stop': 2.0, 't1': 1.7, 't2': 3.0},  # 0.83×2.0=1.66→1.7
 }
 
 def _load_calibrated_multipliers(signal_type: str) -> dict:
@@ -35,8 +37,9 @@ def _load_calibrated_multipliers(signal_type: str) -> dict:
       STOPS_MECHANICAL → no change (stops working as intended)
 
     Target adjustment:
-      Uses optimal_t1_r from MFE analysis when available and well-sampled.
-      Falls back to default multipliers.
+      Uses optimal_exit_r (R-multiple of initial risk) converted to ATR units.
+      Formula: T1_ATR = optimal_exit_r × stop_ATR_multiple.
+      Requires n >= 5 winning trades. Falls back to calibrated defaults.
 
     Returns {'stop': float, 't1': float, 't2': float, 'source': str}.
     """
@@ -71,11 +74,18 @@ def _load_calibrated_multipliers(signal_type: str) -> dict:
         else:
             base['source'] = f'calibrated ({stop_eff})'
 
-        # --- T1 target calibration from optimal_t1_r ---
-        if not mfe.get('insufficient') and mfe.get('n', 0) >= 10:
-            opt_t1 = mfe.get('optimal_t1_r')
-            if opt_t1 and 1.0 <= opt_t1 <= 5.0:
-                base['t1'] = round(opt_t1, 2)
+        # --- T1 target calibration from optimal_exit_r ---
+        # optimal_exit_r is the median MFE in R-units (multiples of stop distance).
+        # Convert to ATR multiplier: T1_ATR = optimal_exit_r × stop_ATR_multiple.
+        # NOTE: do NOT use optimal_t1_r — that field is in ATR units and
+        # was incorrectly set to 3.0 (harder to reach than the 2.0 default).
+        if not mfe.get('insufficient') and mfe.get('n', 0) >= 5:
+            opt_exit = mfe.get('optimal_exit_r')
+            if opt_exit and 0.3 <= opt_exit <= 3.0:
+                t1_atr = round(opt_exit * base['stop'], 2)
+                if 0.3 <= t1_atr <= 5.0:
+                    base['t1'] = t1_atr
+                    base['source'] += f', t1={t1_atr}ATR (opt_exit={opt_exit}R)'
 
     except Exception:
         pass  # graceful fallback to defaults

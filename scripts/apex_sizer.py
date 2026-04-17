@@ -14,7 +14,58 @@ except ImportError:
     def get_portfolio_value(): return None
     def get_free_cash(): return None
 
-_SCRIPTS = '/home/ubuntu/.picoclaw/scripts'
+_SCRIPTS  = '/home/ubuntu/.picoclaw/scripts'
+_LOGS     = '/home/ubuntu/.picoclaw/logs'
+_EDGE_PROOF_FILE = f'{_LOGS}/apex-edge-proof.json'
+_TIER_FILE       = f'{_LOGS}/apex-agent-tier.json'
+
+import json as _json
+
+# Max NAV fraction per trade at each edge-proof verdict level.
+#
+# IMPORTANT: every verdict the new edge-proof can emit MUST appear here.
+# The original code used `dict.get(verdict, 0.005)` as fallback — but 0.5%
+# NAV × sub-£10k portfolio < MIN_VIABLE_NOTIONAL, silently blocking every
+# trade. After 2026-04-16's edge-proof upgrade (DSR + BH-FDR), most
+# strategies correctly return 'INSUFFICIENT_DATA' rather than 'NOT_PROVEN'
+# until they accumulate enough trades — without an explicit entry below
+# they would all hit the dangerous 0.5% fallback.
+#
+# CONFIRMED is the new top-tier verdict from edge-proof (BH-FDR + DSR both pass).
+# We treat both 'PROVEN' and 'CONFIRMED' as the same maximum tier.
+_VERDICT_NAV_CAP = {
+    'CONFIRMED':         0.080,  # [PAPER] raised from 3% — meaningful size on confirmed edge
+    'PROVEN':            0.080,  # [PAPER] raised from 3% — legacy alias for CONFIRMED
+    'MARGINAL':          0.060,  # [PAPER] raised from 2%
+    'NOT_PROVEN':        0.050,  # [PAPER] raised from 1.5% — £250/position at £5k NAV (was £75)
+    'INSUFFICIENT_DATA': 0.050,  # [PAPER] raised from 1.5% — same as NOT_PROVEN
+    'REJECTED':          0.000,  # No trade — unchanged
+}
+
+# Kelly fraction by verdict — full Kelly for all tiers on paper trading
+# (real money would use 0.5× for NOT_PROVEN; no reason to be conservative on virtual funds)
+_VERDICT_KELLY_MULT = {
+    'CONFIRMED':         1.0,
+    'PROVEN':            1.0,
+    'MARGINAL':          1.0,    # [PAPER] raised from 0.6
+    'NOT_PROVEN':        1.0,    # [PAPER] raised from 0.5 — full Kelly, learn faster
+    'INSUFFICIENT_DATA': 1.0,    # [PAPER] raised from 0.5
+    'REJECTED':          0.0,
+}
+
+
+def _get_edge_verdict(signal_type: str) -> str:
+    """
+    Return edge-proof verdict for signal_type from apex-edge-proof.json.
+    Defaults to 'NOT_PROVEN' when data is absent or insufficient.
+    """
+    try:
+        with open(_EDGE_PROOF_FILE) as f:
+            ep = _json.load(f)
+        verdict = ep.get('by_signal_type', {}).get(signal_type, {}).get('verdict', 'NOT_PROVEN')
+        return verdict or 'NOT_PROVEN'
+    except (FileNotFoundError, Exception):
+        return 'NOT_PROVEN'
 
 
 def calculate_final_position(signal, intel):
@@ -36,7 +87,7 @@ def calculate_final_position(signal, intel):
         _spec.loader.exec_module(_rs)
         regime_scale = _rs.get_scale_for_signal(signal.get('signal_type','TREND'))
     except Exception:
-        regime_scale = 0.5
+        regime_scale = 1.0  # fail-open at full scale — module load failure is not a risk signal
 
     # RSI-conviction boost for deep oversold CONTRARIAN entries.
     # Extreme RSI readings signal higher-conviction reversals, not lower.
@@ -122,8 +173,35 @@ def calculate_final_position(signal, intel):
                     f"{_kelly.get('verdict_reason','')} — no mathematical edge, blocking trade")
         return 0, 0  # Hard block: negative Kelly = no edge, don't trade at any size
 
+    # ── Phase 7: Edge-proof verdict gating ────────────────────────────────────
+    # Scale position size based on statistical confidence in the signal type.
+    # REJECTED signals are blocked entirely; NOT_PROVEN uses half-Kelly / 0.5% NAV cap.
+    _sig_type   = signal.get('signal_type', 'TREND')
+    _verdict    = _get_edge_verdict(_sig_type)
+    _kelly_mult = _VERDICT_KELLY_MULT.get(_verdict, 0.5)
+    _nav_cap    = _VERDICT_NAV_CAP.get(_verdict, 0.005)
+
+    if _verdict == 'REJECTED':
+        log_warning(f"Edge-proof REJECTED for {_sig_type} — blocking trade (no edge detected)")
+        return 0, 0
+
+    if _kelly_mult < 1.0:
+        _prev_risk = risk_amount
+        risk_amount = round(risk_amount * _kelly_mult, 2)
+        log_info(f"Edge-proof {_verdict} for {_sig_type} ({_kelly_mult:.0%} Kelly): "
+                 f"risk_amount £{_prev_risk}→£{risk_amount}")
+
     qty      = round(risk_amount / risk_per_share, 2)
     notional = round(qty * entry, 2)
+
+    # Edge-proof NAV cap (applied after qty calculation; before the 8% portfolio cap)
+    if portfolio_value > 0 and _nav_cap > 0:
+        max_notional_ep = portfolio_value * _nav_cap
+        if notional > max_notional_ep:
+            qty      = round(max_notional_ep / entry, 2)
+            notional = round(qty * entry, 2)
+            log_info(f"Edge-proof NAV cap ({_verdict}, {_nav_cap:.1%}): "
+                     f"notional capped at £{notional:.2f}")
 
     # Cap notional at 8% of portfolio
     max_notional = portfolio_value * 0.08
@@ -248,11 +326,11 @@ def calculate_final_position(signal, intel):
     # This catches compounded haircuts (drawdown × circuit_breaker × regime × Kelly)
     # that reduce a position to <£100 where a 0.1% spread = 10bps cost on <£1 profit.
     # Returning (0, 0) signals BLOCK to the caller — better to skip than waste a trade.
-    MIN_VIABLE_NOTIONAL = 100.0
+    MIN_VIABLE_NOTIONAL = 25.0
     if 0 < notional < MIN_VIABLE_NOTIONAL:
         log_warning(
             f"Position below minimum viable notional: £{notional:.2f} < £{MIN_VIABLE_NOTIONAL} "
-            f"— returning (0, 0) to block (slippage destroys edge at this size)"
+            f"— returning (0, 0) to block (T212 round-trip cost >5% of expected profit at this size)"
         )
         return 0, 0
 

@@ -636,6 +636,30 @@ def score_signal_with_intelligence(signal, intel):
         pass  # Non-critical
     # ── end Layer 19 ───────────────────────────────────────────────────
 
+    # Venue availability bonus — prefer LSE instruments during LSE-only hours.
+    # US stocks scanned at 08:30 UTC use yesterday's close; by 14:30 UTC open they may
+    # be priced differently. During LSE-only hours (uk_open + us_closed), award GBX
+    # instruments +1 so they compete on equal footing against stale US closes.
+    # Also penalise USD instruments -1 when US market is closed and price data is stale
+    # (generated >5h ago or before current trading day).
+    try:
+        _cal_file = '/home/ubuntu/.picoclaw/logs/apex-market-calendar.json'
+        with open(_cal_file) as _cf:
+            _cal = json.load(_cf)
+        _uk_open = _cal.get('today', {}).get('uk_currently_open', False)
+        _us_open = _cal.get('today', {}).get('us_currently_open', False)
+        _sig_currency = signal.get('currency', 'USD')
+        if _uk_open and not _us_open:
+            if _sig_currency == 'GBX':
+                total_score += 1
+                adjustments.append("Venue: +1 (LSE live, NYSE closed — GBX price current)")
+            elif _sig_currency == 'USD':
+                total_score -= 1
+                adjustments.append("Venue: -1 (LSE live, NYSE closed — USD price from yesterday's close)")
+    except Exception:
+        pass  # Non-blocking — venue preference is advisory only
+    # ── end Venue layer ────────────────────────────────────────────────────
+
     # Cap total adjustment to prevent correlated alpha inflation
     total_adjustment = total_score - base_score
     capped_adjustment = max(-5, min(5, total_adjustment))
@@ -669,11 +693,36 @@ def score_signal_with_intelligence(signal, intel):
 # LAYER 4 — SIGNAL GENERATION
 # ============================================================
 
+def _signal_type_enabled(signal_type: str) -> bool:
+    """
+    Returns False if signal_type is disabled in apex_config.ENABLED_SIGNAL_TYPES.
+    Loaded fresh each call so runtime config changes are respected without restart.
+    Fails open (returns True) on any import error.
+    """
+    try:
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location("_cfg_st",
+                    "/home/ubuntu/.picoclaw/scripts/apex_config.py")
+        _cfg  = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_cfg)
+        enabled_map = getattr(_cfg, 'ENABLED_SIGNAL_TYPES', {})
+        return enabled_map.get(signal_type, True)
+    except Exception:
+        return True  # fail-open
+
+
 def run_trend_scan():
-    result = subprocess.run(
-        ['python3', '/home/ubuntu/.picoclaw/scripts/apex-market-data.py'],
-        capture_output=True, text=True, timeout=180
-    )
+    if not _signal_type_enabled('TREND'):
+        print("  [trend scan] DISABLED by ENABLED_SIGNAL_TYPES config — skipping", flush=True)
+        return []
+    try:
+        result = subprocess.run(
+            ['python3', '/home/ubuntu/.picoclaw/scripts/apex-market-data.py'],
+            capture_output=True, text=True, timeout=300
+        )
+    except subprocess.TimeoutExpired:
+        print("  ⚠️  Trend scan timed out after 300s — skipping (contrarian/drift scans unaffected)", flush=True)
+        return []
     output = result.stdout
     start  = output.find('=== FULL DATA ===')
     if start == -1:
@@ -688,6 +737,9 @@ def run_trend_scan():
         return []
 
 def run_contrarian_scan(intel):
+    if not _signal_type_enabled('CONTRARIAN'):
+        print("  [contrarian scan] DISABLED by ENABLED_SIGNAL_TYPES config — skipping", flush=True)
+        return []
     # Avoid double-scan yfinance rate-limiting: when the intraday refresh just ran
     # apex-contrarian-scan.py (writing the file), running it again as a subprocess
     # immediately after hits yfinance rate limits and returns 0 candidates.
@@ -784,15 +836,22 @@ def save_and_notify(signal, intel, qty, notional):
     except Exception:
         t212, full_name = '', name
 
-    target1 = signal.get('target1', round(entry + (entry - stop) * 1.5, 2))
-    target2 = signal.get('target2', round(entry + (entry - stop) * 2.5, 2))
+    # Fallback targets: empirical optimal_exit_r=0.83R → use 0.85R for T1 (slight buffer).
+    # Previous 1.5R/2.5R defaults were never reached (0% T1 hit rate across 14 trades).
+    target1 = signal.get('target1', round(entry + (entry - stop) * 0.85, 2))
+    target2 = signal.get('target2', round(entry + (entry - stop) * 1.8, 2))
 
     # Fix 2: CONTRARIAN with RSI > 30 is not genuinely oversold — reclassify as
-    # GEO_REVERSAL so it gets the correct stop multiplier and labelling
+    # GEO_REVERSAL so it gets the correct stop multiplier and labelling.
+    # Guard: only reclassify when GEO_REVERSAL is enabled in config, otherwise
+    # the signal remains CONTRARIAN (still gated by its own RSI rules).
     reclassified = None
-    if signal_type == 'CONTRARIAN' and float(rsi) > 30:
+    if signal_type == 'CONTRARIAN' and float(rsi) > 30 and _signal_type_enabled('GEO_REVERSAL'):
         signal_type  = 'GEO_REVERSAL'
         reclassified = f"RSI {rsi} > 30 — reclassified CONTRARIAN→GEO_REVERSAL"
+    elif signal_type == 'CONTRARIAN' and float(rsi) > 30 and not _signal_type_enabled('GEO_REVERSAL'):
+        # GEO_REVERSAL disabled — keep as CONTRARIAN but note RSI is above oversold threshold
+        reclassified = f"RSI {rsi} > 30 — GEO_REVERSAL disabled, keeping CONTRARIAN label"
 
     pending = {
         "name":         full_name,
@@ -817,6 +876,34 @@ def save_and_notify(signal, intel, qty, notional):
         "generated_at": datetime.now(timezone.utc).isoformat()
     }
 
+    # Don't overwrite a pending signal that's still being processed (< 2h old).
+    # The autopilot + agent review may still be evaluating it.
+    try:
+        existing = safe_read(SIGNAL_FILE, {})
+        if existing and existing.get('generated_at'):
+            _gen_dt = datetime.fromisoformat(existing['generated_at'])
+            if _gen_dt.tzinfo is None:
+                _gen_dt = _gen_dt.replace(tzinfo=timezone.utc)
+            _age_h = (datetime.now(timezone.utc) - _gen_dt).total_seconds() / 3600
+            if _age_h < 2.0:
+                print(f"  Pending signal already exists ({existing.get('ticker','?')}, {_age_h:.1f}h old) — queuing instead of overwriting")
+                # Queue the new signal instead
+                pending['quantity'] = qty
+                pending['notional'] = notional
+                try:
+                    import importlib.util as _ilu_tq2
+                    _spec_tq2 = _ilu_tq2.spec_from_file_location(
+                        "tq2", "/home/ubuntu/.picoclaw/scripts/apex-trade-queue.py")
+                    _tq2 = _ilu_tq2.module_from_spec(_spec_tq2)
+                    _spec_tq2.loader.exec_module(_tq2)
+                    _tq2.add_scored_signal(pending)
+                    print(f"  Queued {pending.get('name','?')} instead of overwriting pending signal")
+                except Exception as _tq_e:
+                    print(f"  Queue fallback failed: {_tq_e} — overwriting pending signal")
+                    atomic_write(SIGNAL_FILE, pending)
+                return pending
+    except Exception:
+        pass  # Non-blocking — write signal normally if check fails
     atomic_write(SIGNAL_FILE, pending)
 
     # Build notification
@@ -1133,6 +1220,49 @@ def run():
     print(f"  Drawdown:  {intel['drawdown_pct']}% ({intel['drawdown_status']})")
     print(f"  Sectors:   Leading={intel['leading_sectors']} | Lagging={intel['lagging_sectors']}")
 
+    # ── LLM morning brief gates ────────────────────────────────────────────────
+    # Posture is read from apex-llm-morning-brief.json (written at 07:55 UTC).
+    # Expired briefs (after 17:00) default to FULL — no gate applied.
+    _llm_posture = intel.get('llm_risk_posture', 'FULL')
+    _llm_avoid   = intel.get('llm_avoid_sectors', [])
+    _llm_max_t   = intel.get('llm_max_trades')
+    _llm_reason  = intel.get('llm_brief_reason', '')
+
+    if _llm_posture == 'DEFENSIVE':
+        print(f"  🔴 LLM DEFENSIVE posture — {_llm_reason}")
+        log_decision_run([], {}, [], None, intel)
+        send_telegram(
+            f"🔴 LLM DEFENSIVE POSTURE\n\n"
+            f"{_llm_reason}\n\n"
+            f"No new entries today. Disable with: LLM OFF morning_brief_llm"
+        )
+        return
+    elif _llm_posture == 'CAUTIOUS':
+        MIN_SIGNAL_SCORE = max(MIN_SIGNAL_SCORE, 8.0)
+        print(f"  🟠 LLM CAUTIOUS — min score raised to {MIN_SIGNAL_SCORE:.1f} | {_llm_reason}")
+    elif _llm_posture == 'REDUCED':
+        MIN_SIGNAL_SCORE = max(MIN_SIGNAL_SCORE, 7.0)
+        print(f"  ⚠️  LLM REDUCED — min score raised to {MIN_SIGNAL_SCORE:.1f} | {_llm_reason}")
+
+    if _llm_avoid:
+        print(f"  🚫 LLM sector avoidance: {_llm_avoid}")
+    if _llm_max_t is not None:
+        print(f"  📌 LLM max trades today: {_llm_max_t}")
+
+    # ── Portfolio agent book-risk gate ─────────────────────────────────────────
+    # Raises min score when portfolio agent has flagged HIGH or CRITICAL book risk.
+    # Advisory — does NOT halt trading (that's the morning brief DEFENSIVE posture's job).
+    _book_risk = intel.get('portfolio_book_risk', 'UNKNOWN')
+    if _book_risk == 'CRITICAL':
+        MIN_SIGNAL_SCORE = max(MIN_SIGNAL_SCORE, 8.5)
+        print(f"  🔴 Portfolio risk CRITICAL — min score raised to {MIN_SIGNAL_SCORE:.1f}")
+        _reg_fit = intel.get('portfolio_regime_fit', '')
+        if _reg_fit:
+            print(f"      Regime fit concern: {_reg_fit[:80]}")
+    elif _book_risk == 'HIGH':
+        MIN_SIGNAL_SCORE = max(MIN_SIGNAL_SCORE, 7.5)
+        print(f"  🟠 Portfolio risk HIGH — min score raised to {MIN_SIGNAL_SCORE:.1f}")
+
     # Step 2 — Run all scanners
     print("\n[2/7] Running trend scan...", flush=True)
     trend_signals = run_trend_scan()
@@ -1232,8 +1362,38 @@ def run():
     qualified = []
     blocked_map = {}  # {name: [reasons]} — for decision log
 
+    # Load market hours once before the loop
+    try:
+        with open('/home/ubuntu/.picoclaw/logs/apex-market-calendar.json') as _mh_f:
+            _mh = json.load(_mh_f).get('today', {})
+        _uk_live = _mh.get('uk_currently_open', False)
+        _us_live = _mh.get('us_currently_open', False)
+    except Exception:
+        _uk_live = True   # fail-open — don't block if calendar unreadable
+        _us_live = True
+
     for signal in all_signals:
+        # Hard market-hours gate — never select signals for closed exchanges
+        _sig_currency = signal.get('currency', 'USD')
+        if _sig_currency == 'USD' and not _us_live:
+            blocked_map[signal.get('name', '?')] = ['Market closed: NYSE not open (opens 14:30 UTC)']
+            print(f"  BLOCKED: {signal.get('name','?')} — Market closed: NYSE not open (opens 14:30 UTC)")
+            continue
+        if _sig_currency in ('GBX', 'GBP') and not _uk_live:
+            blocked_map[signal.get('name', '?')] = ['Market closed: LSE not open (opens 08:00 UTC)']
+            print(f"  BLOCKED: {signal.get('name','?')} — Market closed: LSE not open (opens 08:00 UTC)")
+            continue
+        if _sig_currency in ('EUR', 'CHF') and not _uk_live:
+            blocked_map[signal.get('name', '?')] = ['Market closed: European exchanges not open']
+            print(f"  BLOCKED: {signal.get('name','?')} — Market closed: European exchanges not open")
+            continue
+
         blocks = is_blocked(signal, intel)
+        # LLM sector avoidance — morning brief identified sectors to avoid today
+        if not blocks and _llm_avoid:
+            _sig_sector = signal.get('sector', '').upper()
+            if _sig_sector in _llm_avoid:
+                blocks = [f"LLM sector avoidance: {_sig_sector} (morning brief)"]
         if blocks:
             blocked_map[signal.get('name', '?')] = blocks
             print(f"  BLOCKED: {signal.get('name','?')} — {blocks[0]}")
@@ -1241,6 +1401,12 @@ def run():
             qualified.append(signal)
 
     print(f"  {len(qualified)} qualified | {len(blocked_map)} blocked")
+    if not _uk_live and not _us_live:
+        print("  Both markets closed — only signals with no exchange constraint will qualify")
+    elif not _us_live:
+        print("  NYSE closed — USD signals blocked until 14:30 UTC")
+    elif not _uk_live:
+        print("  LSE closed — GBX/GBP signals blocked until 08:00 UTC")
 
     # Sort by adjusted score + regime-aware priority bonus (P1)
     # Bonus stored on each signal for audit trail; adjusted_score itself is NOT mutated.
@@ -1326,6 +1492,23 @@ def run():
     # Calculate final position size
     qty, notional = calculate_final_position(best, intel)
 
+    # Guard: sizer returned (0,0) — position below minimum viable size or edge blocked.
+    # Without this guard, a pending signal with quantity=0 gets written to disk and the
+    # executor aborts with "Signal file incomplete — no ticker or quantity" every cycle.
+    if not qty or not notional:
+        _block_reason = (
+            f"Position sizer blocked: qty={qty}, notional=£{notional} "
+            f"(edge-proof NAV cap, Kelly abort, or below minimum viable size)"
+        )
+        log_warning(f"Sizing block for {best.get('name','?')}: {_block_reason}")
+        send_telegram(
+            f"⚠️ SIZING BLOCK — {best.get('name','?')}\n\n"
+            f"Signal score: {best.get('adjusted_score',0)}/10 | Type: {best.get('signal_type','')}\n"
+            f"Reason: {_block_reason}\n\n"
+            f"No trade placed. Increase portfolio size or await PROVEN edge status."
+        )
+        return
+
     # Calculate expected value
     entry  = float(best.get('entry') or best.get('price') or 0)
     name   = best.get('name', '?')
@@ -1355,6 +1538,41 @@ def run():
         stop = float(best.get('stop', entry * 0.94))
         t1   = float(best.get('target1', entry + (entry-stop)*1.5))
         t2   = float(best.get('target2', entry + (entry-stop)*2.5))
+
+    # ── Phase 5: MAE/MFE calibration override ────────────────────────────────
+    # Apply empirically-calibrated stop floor and target levels from
+    # apex_targets.get_target_profile(). Widens stops that are too tight and
+    # adjusts T1/T2 to match the median/p75 MFE from real trade data.
+    # Only overrides when calibration data exists (falls back to ATR values).
+    try:
+        import importlib.util as _ilu_tgt
+        _tgt_spec = _ilu_tgt.spec_from_file_location(
+            "apex_targets", "/home/ubuntu/.picoclaw/scripts/apex_targets.py")
+        _tgt_mod = _ilu_tgt.module_from_spec(_tgt_spec)
+        _tgt_spec.loader.exec_module(_tgt_mod)
+        _atr_val = best.get('atr_used', entry * 0.015)  # fallback: ~1.5% of entry
+        _sig = _tgt_mod.apply_targets_to_signal(
+            {**best, 'stop': stop, 'target1': t1, 'target2': t2,
+             'entry': entry, 'signal_type': best.get('signal_type', 'CONTRARIAN')},
+            atr=float(_atr_val), entry=entry
+        )
+        _new_stop = float(_sig.get('stop', stop))
+        _new_t1   = float(_sig.get('target1', t1))
+        _new_t2   = float(_sig.get('target2', t2))
+        _src      = _sig.get('target_source', 'default')
+        if _sig.get('stop_widened'):
+            print(f"  MAE calibration: stop widened £{stop:.4f}→£{_new_stop:.4f} "
+                  f"({_sig.get('stop_reason','')})")
+        if _new_t1 != t1 or _new_t2 != t2:
+            print(f"  MAE calibration ({_src}): T1 £{t1:.4f}→£{_new_t1:.4f}, "
+                  f"T2 £{t2:.4f}→£{_new_t2:.4f}")
+        stop, t1, t2 = _new_stop, _new_t1, _new_t2
+        best['target_source']   = _src
+        best['t1_fraction']     = _sig.get('t1_fraction', 0.6)
+        best['t2_fraction']     = _sig.get('t2_fraction', 0.3)
+        best['runner_fraction'] = _sig.get('runner_fraction', 0.1)
+    except Exception as _tgt_e:
+        log_warning(f"MAE calibration override failed (non-blocking): {_tgt_e}")
 
     ev_mod = _MODULE_CACHE.get('ev', _ev_calc)
     if ev_mod is None:
@@ -1491,19 +1709,17 @@ def run():
                 if _sv == 'FAIL':
                     _wr_pct  = f"{_sim_result.get('sim_win_rate',0):.0%}"
                     _d1s_pct = f"{_sim_result.get('sim_p_day1_stop',0):.0%}"
-                    print(f"  ❌ Rollout FAIL — WR={_wr_pct} Day1Stop={_d1s_pct} — trade blocked")
-                    blocked_map[best.get('name','?')] = blocked_map.get(best.get('name','?'), []) + [
-                        f"Rollout FAIL: WR={_wr_pct} Day1Stop={_d1s_pct} — simulated win rate < 30% or excessive day-1 stop risk"
-                    ]
-                    log_decision_run(all_signals, blocked_map, qualified, None, intel)
+                    # [PAPER TRADING] Rollout FAIL is advisory-only — log and alert but do NOT block.
+                    # On real money this is a hard block (see CLAUDE.md). On paper we want to see
+                    # what actually happens when the sim says FAIL — this is valuable learning data.
+                    print(f"  ⚠️  Rollout FAIL (advisory) — WR={_wr_pct} Day1Stop={_d1s_pct} — proceeding on paper")
                     send_telegram(
-                        f"🚫 ROLLOUT BLOCK — {best.get('name','?')}\n\n"
-                        f"Monte Carlo simulation rejected this trade:\n"
+                        f"⚠️ ROLLOUT WARN (paper) — {best.get('name','?')}\n\n"
+                        f"Monte Carlo flagged this trade (advisory on paper):\n"
                         f"  Simulated WR: {_wr_pct} (min: 30%)\n"
                         f"  Day-1 stop risk: {_d1s_pct} (max: 30%)\n\n"
-                        f"Risk structure too poor — capital preserved."
+                        f"Proceeding — virtual money, tracking outcome for learning."
                     )
-                    return
     except Exception as _sim_e:
         print(f"  Rollout sim skipped: {_sim_e}")
 
@@ -1637,6 +1853,21 @@ def run():
             print(f"  Multi-signal: {_queued_count} additional signal(s) queued for 09:30")
     except Exception as _tq_err:
         print(f"  Multi-signal queue skipped: {_tq_err}")
+
+    # Apply LLM max_trades_today override before autopilot check
+    if _llm_max_t is not None:
+        try:
+            import importlib.util as _ilu_ap
+            _ap_spec = _ilu_ap.spec_from_file_location('ap', f'{SCRIPTS}/apex-autopilot.py')
+            _ap_mod  = _ilu_ap.module_from_spec(_ap_spec)
+            _ap_spec.loader.exec_module(_ap_mod)
+            _ap_config = _ap_mod.load_autopilot()
+            if isinstance(_ap_config, dict) and _ap_config.get('max_trades_per_day', 99) > int(_llm_max_t):
+                _ap_config['max_trades_per_day'] = int(_llm_max_t)
+                _ap_mod.save_autopilot(_ap_config)
+                print(f"  LLM max_trades_today override: max_trades_per_day → {_llm_max_t}")
+        except Exception as _ap_e:
+            print(f"  LLM max_trades override skipped: {_ap_e}")
 
     # Run autopilot check
     subprocess.run(

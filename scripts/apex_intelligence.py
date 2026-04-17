@@ -160,6 +160,69 @@ def gather_intelligence():
     # Open positions
     intel['open_positions'] = load_json(POSITIONS_FILE, [])
 
+    # TACO state — geopolitical event classification (used by tiebreaker + scoring)
+    taco = load_json(f'{_LOGS}/apex-taco-state.json')
+    intel['taco_status']      = taco.get('status', 'NEUTRAL')
+    intel['taco_threat_type'] = taco.get('threat_type', 'NONE')
+    intel['taco_confidence']  = float(taco.get('confidence', 0))
+
+    # HMM regime state — needed by tiebreaker priority matrix
+    scaling = load_json(f'{_LOGS}/apex-regime-scaling.json')
+    intel['hmm_state']    = scaling.get('hmm_state', 'UNKNOWN')
+    intel['regime_label'] = scaling.get('regime_label', 'NEUTRAL')
+
+    # LLM morning brief — risk posture and sector guidance for today
+    # Only consumed if brief was generated today and has not expired
+    _brief_path = f'{_LOGS}/apex-llm-morning-brief.json'
+    brief = load_json(_brief_path)
+    _brief_active = False
+    if brief.get('llm_generated'):
+        try:
+            _exp_str = brief.get('expires_at', '')
+            if _exp_str:
+                _exp = datetime.fromisoformat(_exp_str.replace('Z', '+00:00'))
+                _brief_active = datetime.now(timezone) < _exp
+        except Exception:
+            pass
+    if _brief_active:
+        intel['llm_risk_posture']  = brief.get('risk_posture', 'FULL')
+        intel['llm_avoid_sectors'] = [s.upper() for s in brief.get('avoid_sectors', [])]
+        intel['llm_max_trades']    = brief.get('max_trades_today')
+        intel['llm_brief_reason']  = str(brief.get('risk_posture_reason', ''))[:120]
+    else:
+        intel['llm_risk_posture']  = 'FULL'
+        intel['llm_avoid_sectors'] = []
+        intel['llm_max_trades']    = None
+        intel['llm_brief_reason']  = ''
+
+    # Portfolio agent review — book-level risk from apex-llm-portfolio-agent.py
+    # Consumed by decision engine as advisory context (not a hard gate — that's
+    # the morning brief's job). HIGH/CRITICAL risk raises the min score threshold.
+    _portfolio_review_path = f'{_LOGS}/apex-llm-portfolio-review.json'
+    _pr = load_json(_portfolio_review_path)
+    if _pr.get('llm_generated') and _pr.get('book_risk_level'):
+        try:
+            _pr_ts  = _pr.get('timestamp', '')
+            _pr_age = (datetime.now(timezone) - datetime.fromisoformat(
+                       _pr_ts.replace('Z', '+00:00'))).total_seconds() / 3600 if _pr_ts else 99
+            # Only use if less than 4h old (covers pre-market review for full trading day)
+            _pr_active = _pr_age < 4
+        except Exception:
+            _pr_active = False
+    else:
+        _pr_active = False
+
+    if _pr_active:
+        intel['portfolio_book_risk']    = _pr.get('book_risk_level', 'UNKNOWN')
+        intel['portfolio_tail_risk']    = str(_pr.get('tail_risk', ''))[:150]
+        intel['portfolio_regime_fit']   = str(_pr.get('regime_fit', ''))[:150]
+        intel['portfolio_actions']      = _pr.get('position_actions', [])
+    else:
+        intel['portfolio_book_risk']    = 'UNKNOWN'
+        intel['portfolio_tail_risk']    = ''
+        intel['portfolio_regime_fit']   = ''
+        intel['portfolio_actions']      = []
+
     # Data provenance — age in hours of each key input file at time of gather
     _PROVENANCE_FILES = {
         'regime':           REGIME_FILE,

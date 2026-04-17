@@ -139,18 +139,23 @@ def place_market_order(ticker: str, qty: float, side: str = 'buy') -> dict | Non
 
 def place_stop_order(ticker: str, qty: float, stop_price: float) -> dict | None:
     """
-    Place a GTC stop-loss sell order.
+    Place a stop-loss sell order.
     qty should be positive (the absolute number of shares to sell).
+
+    Alpaca rule: fractional-share orders MUST use 'day' TIF (not 'gtc').
+    Whole-share quantities can use 'gtc'.
     """
+    is_fractional = (qty != int(qty))
+    tif = 'day' if is_fractional else 'gtc'
     payload = {
         'symbol':        ticker,
         'qty':           str(round(qty, 8)),
         'side':          'sell',
         'type':          'stop',
-        'time_in_force': 'gtc',
+        'time_in_force': tif,
         'stop_price':    str(round(stop_price, 4)),
     }
-    _log(f"Placing STOP LOSS SELL {qty} × {ticker} @ ${stop_price} (GTC)")
+    _log(f"Placing STOP LOSS SELL {qty} × {ticker} @ ${stop_price} ({tif.upper()})")
     return alpaca_request('POST', '/orders', payload)
 
 

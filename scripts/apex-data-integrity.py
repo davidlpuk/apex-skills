@@ -427,8 +427,15 @@ def run(signal=None, verbose=True):
                       for o in orders if o.get('type') == 'STOP'}
         pos_data = safe_read('/home/ubuntu/.picoclaw/logs/apex-positions.json', [])
         for p in (pos_data or []):
+            # Skip non-T212 venues — Alpaca UUID stop IDs will never appear in T212 orders
+            if p.get('venue') not in (None, '', 'T212'):
+                continue
+            # Secondary guard: UUID-format IDs are Alpaca, not T212 (T212 uses numeric IDs)
+            _raw_sid = p.get('stop_order_id')
+            if _raw_sid and '-' in str(_raw_sid):
+                continue
             ticker  = p.get('t212_ticker', '')
-            sid     = str(p.get('stop_order_id', ''))
+            sid     = str(_raw_sid) if _raw_sid is not None else ''
             pos_stp = float(p.get('stop', 0))
             if not sid or not pos_stp:
                 continue
@@ -437,13 +444,51 @@ def run(signal=None, verbose=True):
                 warnings.append(f"Stop order {sid} for {ticker} not found in T212 live orders")
                 if verbose:
                     print(f"  ⚠️  Stop sync: {ticker} order {sid} missing from T212")
-            elif abs(pos_stp - t212_stp) > 0.02:
-                delta = round(pos_stp - t212_stp, 4)
-                warnings.append(f"Stop price drift for {ticker}: positions.json={pos_stp} T212={t212_stp} (delta={delta:+.4f})")
-                if verbose:
-                    print(f"  ⚠️  Stop sync: {ticker} positions.json={pos_stp} T212={t212_stp} delta={delta:+.4f}")
+            else:
+                # GBX instruments: T212 returns stopPrice in pence, positions.json stores pounds.
+                currency = p.get('currency', '')
+                if currency == 'GBX' or (t212_stp > pos_stp * 10):
+                    t212_stp = round(t212_stp / 100, 4)
+                if abs(pos_stp - t212_stp) > 0.02:
+                    delta = round(pos_stp - t212_stp, 4)
+                    warnings.append(f"Stop price drift for {ticker}: positions.json={pos_stp} T212={t212_stp} (delta={delta:+.4f})")
+                    if verbose:
+                        print(f"  ⚠️  Stop sync: {ticker} positions.json={pos_stp} T212={t212_stp} delta={delta:+.4f}")
     except Exception as _e:
         log_warning(f"Stop price sync check failed: {_e}")
+
+    # Check 7: EV model divergence — alert if model over-predicts empirical by >2x
+    try:
+        _cal = safe_read('/home/ubuntu/.picoclaw/logs/apex-mae-mfe-calibration.json', {})
+        if isinstance(_cal, dict):
+            _ev_cmp = _cal.get('aggregate', {}).get('ev_cmp', {})
+            _mfe    = _cal.get('aggregate', {}).get('mfe', {})
+            _n_cal  = _cal.get('n_trades_total', 0)
+            _model_ev    = _ev_cmp.get('model_ev')
+            _empirical_ev = _ev_cmp.get('empirical_ev')
+            _t1_reach    = _mfe.get('reached_t1_pct')
+
+            if _model_ev and _empirical_ev is not None and _n_cal >= 5:
+                if _empirical_ev < _model_ev * 0.5:
+                    _overest_pct = round((_model_ev - _empirical_ev) / abs(_empirical_ev) * 100
+                                         if _empirical_ev != 0 else 0, 0)
+                    _msg = (f"EV model overestimates by {_overest_pct:.0f}% — "
+                            f"empirical EV={_empirical_ev:.2f} vs model EV={_model_ev:.2f} — "
+                            f"targets may be set too wide")
+                    log_warning(_msg)
+                    warnings.append(_msg)
+                    if verbose:
+                        print(f"  ⚠️  Check 7: {_msg}")
+
+            if _t1_reach is not None and _n_cal >= 5 and _t1_reach < 0.15:
+                _t1_msg = (f"T1 reach rate {_t1_reach:.0%} — "
+                           f"consider tightening T1 targets")
+                log_warning(_t1_msg)
+                warnings.append(_t1_msg)
+                if verbose:
+                    print(f"  ⚠️  Check 7b: {_t1_msg}")
+    except Exception as _ev_e:
+        log_warning(f"EV divergence check failed: {_ev_e}")
 
     # Check 3: Price cross-verification (if signal provided)
     if signal:

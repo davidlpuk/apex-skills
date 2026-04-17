@@ -16,7 +16,8 @@ sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 
 try:
     from apex_utils import safe_read, log_warning, log_info
-    from apex_llm_flags import get_llm_flag, record_llm_call
+    from apex_llm_flags import get_llm_flag, record_llm_call, call_llm_thinking, build_regime_preamble
+    from apex_llm_ab_tracker import record_decision as _record_ab, get_module_performance
 except ImportError:
     def safe_read(p, d=None):
         try:
@@ -26,6 +27,10 @@ except ImportError:
     def log_info(m):    print(f'INFO: {m}')
     def get_llm_flag(n): return True
     def record_llm_call(*a, **k): pass
+    def call_llm_thinking(p, **k): raise RuntimeError('apex_llm_flags not available')
+    def _record_ab(*a, **k): pass
+    def build_regime_preamble(): return ''
+    def get_module_performance(m, **k): return ''
 
 SENTIMENT_FILE     = '/home/ubuntu/.picoclaw/logs/apex-sentiment.json'
 REGIME_FILE        = '/home/ubuntu/.picoclaw/logs/apex-regime-scaling.json'
@@ -106,8 +111,6 @@ def rerank_signals(signals: list, intel: dict) -> list:
     rest         = signals[MAX_CANDIDATES:]
 
     try:
-        from apex_llm_flags import call_gemini_json
-
         # Build regime context snippet with HMM state for signal priority guidance
         regime_label  = intel.get('regime_label', intel.get('regime_status', 'UNKNOWN'))
         hmm_state     = intel.get('hmm_state', 'UNKNOWN')
@@ -155,7 +158,14 @@ def rerank_signals(signals: list, intel: dict) -> list:
             f'Example format: {{"ranked": {json.dumps(names)}, "reason": "brief reason for #1"}}'
         )
 
-        result = call_gemini_json(prompt)
+        # Prepend live regime context and self-calibrating track record
+        track_record = get_module_performance('signal_tiebreak', last_n=20)
+        if track_record:
+            prompt = build_regime_preamble() + track_record + '\n\n' + prompt
+        else:
+            prompt = build_regime_preamble() + prompt
+
+        result = call_llm_thinking(prompt, module='signal_tiebreak')
         ranked     = result.get('ranked', [])
         reason     = str(result.get('reason', ''))[:120]
 
@@ -182,6 +192,14 @@ def rerank_signals(signals: list, intel: dict) -> list:
         original_top = signals[0].get('name', '?')
         new_top      = reranked[0].get('name', '?')
         moved        = original_top != new_top
+
+        # A/B tracking — baseline is original order
+        _record_ab(
+            'signal_tiebreak', new_top,
+            llm_decision='RERANKED' if moved else 'KEPT',
+            baseline_decision='KEPT',
+            llm_reason=reason,
+        )
 
         record_llm_call('signal_tiebreaker_llm', used_llm=True,
                         result_summary=f"top={new_top} moved={moved}")

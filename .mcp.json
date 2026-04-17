@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "apex": {
+      "command": "/home/ubuntu/bin/python3",
+      "args": ["/home/ubuntu/.picoclaw/scripts/apex-mcp-server.py"],
+      "env": {}
+    }
+  }
+}

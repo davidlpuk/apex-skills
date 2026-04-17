@@ -24,7 +24,8 @@ sys.path.insert(0, '/home/ubuntu/.picoclaw/scripts')
 
 try:
     from apex_utils import safe_read, log_warning, log_info
-    from apex_llm_flags import get_llm_flag, record_llm_call
+    from apex_llm_flags import get_llm_flag, record_llm_call, build_regime_preamble
+    from apex_llm_ab_tracker import get_module_performance
 except ImportError:
     def safe_read(p, d=None):
         try:
@@ -34,6 +35,8 @@ except ImportError:
     def log_info(m):    print(f'INFO: {m}')
     def get_llm_flag(n): return True
     def record_llm_call(*a, **k): pass
+    def build_regime_preamble(): return ''
+    def get_module_performance(m, **k): return ''
 
 SENTIMENT_FILE  = '/home/ubuntu/.picoclaw/logs/apex-sentiment.json'
 REGIME_FILE     = '/home/ubuntu/.picoclaw/logs/apex-regime-scaling.json'
@@ -115,9 +118,14 @@ def get_exit_fraction(position: dict, base_fraction: float) -> tuple[float, str]
     try:
         from apex_llm_flags import call_gemini_json
 
-        pct_base = int(base_fraction * 100)
+        pct_base     = int(base_fraction * 100)
+        track_record = get_module_performance('exit_timing', last_n=20)
+        preamble     = build_regime_preamble()
+        track_str    = (track_record + '\n') if track_record else ''
 
         prompt = (
+            preamble +
+            track_str +
             'You are an exit timing advisor for an automated trading system. '
             'A position has just hit Target 1 and a partial close is being executed.\n\n'
             f'Position details:\n'
